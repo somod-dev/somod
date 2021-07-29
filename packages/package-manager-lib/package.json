@@ -25,13 +25,16 @@
     "url": "https://gitlab.com/sodaru/common/package-managers/issues"
   },
   "dependencies": {
-    "js-logger": "^1.6.1",
     "rimraf": "^3.0.2",
     "type-fest": "^1.2.2",
     "watchpack": "^2.2.0"
   },
   "peerDependencies": {
-    "next": "^11.0.1"
+    "js-logger": "^1.6.1",
+    "lodash": "^4.17.21",
+    "next": "^11.0.1",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5"
   },
   "peerDependenciesMeta": {
     "next": {
@@ -39,11 +42,15 @@
     }
   },
   "devDependencies": {
+    "js-logger": "^1.6.1",
+    "lodash": "^4.17.21",
     "@types/jest": "^26.0.24",
+    "@types/lodash": "^4.14.171",
     "@types/node": "^16.4.6",
     "jest": "^27.0.6",
     "next": "^11.0.1",
     "ts-jest": "^27.0.4",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "tslib": "^2.3.0"
   }
 }
