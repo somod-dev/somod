@@ -1,0 +1,44 @@
+{
+  "name": "@sodaru/package-managers",
+  "version": "0.0.0",
+  "description": "Package Management Utilities",
+  "scripts": {
+    "eslint": "npx eslint ./",
+    "prettier": "npx prettier --check --ignore-unknown ./**/*",
+    "check-sanity": "npm run prettier && npm run eslint"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@sodaru/eslint-config"
+    ],
+    "rules": {
+      "no-console": 0
+    }
+  },
+  "prettier": "@sodaru/prettier-config",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/common/package-managers.git"
+  },
+  "keywords": [
+    "sodaru",
+    "njp",
+    "slp",
+    "emp",
+    "nextjs-package",
+    "serverless-package",
+    "entranse-module-package"
+  ],
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/common/package-managers/issues"
+  },
+  "homepage": "https://gitlab.com/sodaru/common/package-managers#readme",
+  "private": true,
+  "devDependencies": {
+    "@sodaru/eslint-config": "^1.0.0",
+    "@sodaru/prettier-config": "^1.0.0",
+    "lerna": "^4.0.0"
+  }
+}
