@@ -13,5 +13,5 @@ const readPackageJson = async (
 export default readPackageJson;
 
 export const packageJsonPath = (dir: string): string => {
-  return normalize(join(dir, file_packageJson));
+  return normalize(join(dir, file_packageJson)).split("\\").join("/");
 };

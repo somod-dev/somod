@@ -10,7 +10,7 @@ const readIgnoreFile = async (dir: string, file: string): Promise<string[]> => {
 };
 
 export const ignoreFilePath = (dir: string, file: string): string => {
-  return normalize(join(dir, file));
+  return normalize(join(dir, file)).split("\\").join("/");
 };
 
 const validateIgnoreFile = async (
