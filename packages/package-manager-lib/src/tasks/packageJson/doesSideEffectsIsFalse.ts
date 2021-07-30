@@ -1,8 +1,8 @@
 import { key_sideEffects } from "../../utils/constants";
-import readPackageJson, { packageJsonPath } from "../../utils/readPackageJson";
+import { read, packageJsonPath } from "../../utils/packageJson";
 
 export const doesSideEffectsIsFalse = async (dir: string): Promise<void> => {
-  const packageJson = await readPackageJson(dir);
+  const packageJson = await read(dir);
 
   if (packageJson[key_sideEffects] !== false) {
     throw new Error(

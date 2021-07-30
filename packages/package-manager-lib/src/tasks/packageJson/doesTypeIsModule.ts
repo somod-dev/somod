@@ -1,8 +1,8 @@
 import { key_module, key_type } from "../../utils/constants";
-import readPackageJson, { packageJsonPath } from "../../utils/readPackageJson";
+import { read, packageJsonPath } from "../../utils/packageJson";
 
 export const doesTypeIsModule = async (dir: string): Promise<void> => {
-  const packageJson = await readPackageJson(dir);
+  const packageJson = await read(dir);
 
   if (packageJson[key_type] != key_module) {
     throw new Error(

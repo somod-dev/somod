@@ -1,8 +1,8 @@
 import { key_jsnextMain } from "../../utils/constants";
-import readPackageJson, { packageJsonPath } from "../../utils/readPackageJson";
+import { read, packageJsonPath } from "../../utils/packageJson";
 
 export const doesJsnextMainNotSet = async (dir: string): Promise<void> => {
-  const packageJson = await readPackageJson(dir);
+  const packageJson = await read(dir);
 
   if (packageJson[key_jsnextMain] !== undefined) {
     throw new Error(

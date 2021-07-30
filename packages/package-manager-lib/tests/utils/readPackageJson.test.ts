@@ -1,8 +1,8 @@
 import { createFiles, createTempDir, deleteDir } from "../utils";
-import readPackageJson from "../../src/utils/readPackageJson";
+import { read } from "../../src/utils/packageJson";
 import { join } from "path";
 
-describe("Test Util readPackageJson", () => {
+describe("Test Util packageJson read", () => {
   let dir: string = null;
 
   beforeEach(() => {
@@ -14,7 +14,7 @@ describe("Test Util readPackageJson", () => {
   });
   test("for non existing file", async () => {
     expect.assertions(1);
-    await expect(readPackageJson(dir)).rejects.toMatchObject({
+    await expect(read(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         "no such file or directory, open '" + join(dir, "package.json") + "'"
       )
@@ -24,7 +24,7 @@ describe("Test Util readPackageJson", () => {
   test("for invalid json file", async () => {
     expect.assertions(1);
     createFiles(dir, { "package.json": "" });
-    await expect(readPackageJson(dir)).rejects.toMatchObject({
+    await expect(read(dir)).rejects.toMatchObject({
       message: expect.stringContaining("Unexpected end of JSON input")
     });
   });
@@ -34,7 +34,7 @@ describe("Test Util readPackageJson", () => {
     createFiles(dir, {
       "package.json": JSON.stringify({ name: "test-package" })
     });
-    await expect(readPackageJson(dir)).resolves.toEqual({
+    await expect(read(dir)).resolves.toEqual({
       name: "test-package"
     });
   });

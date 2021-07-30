@@ -36,7 +36,7 @@ describe("Test Task doesNjpIsTrueInPackageJson", () => {
 
   test('for njp = "true"', async () => {
     expect.assertions(1);
-    createFiles(dir, { "package.json": JSON.stringify({ njp: false }) });
+    createFiles(dir, { "package.json": JSON.stringify({ njp: "true" }) });
     await expect(doesNjpIsTrueInPackageJson(dir)).rejects.toEqual(
       new Error(`njp must be true in ${dir}/package.json`)
     );
