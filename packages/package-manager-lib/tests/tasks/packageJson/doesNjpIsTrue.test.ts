@@ -1,8 +1,7 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { doesNjpIsTrueInPackageJson } from "../../../src";
-import { join } from "path";
 
-describe("Test Task doesNjpIsTrue in package.json", () => {
+describe("Test Task doesNjpIsTrueInPackageJson", () => {
   let dir: string = null;
 
   beforeEach(() => {
@@ -12,24 +11,16 @@ describe("Test Task doesNjpIsTrue in package.json", () => {
   afterEach(() => {
     deleteDir(dir);
   });
-  test("for non existing file", async () => {
+
+  test("for no njp set", async () => {
     expect.assertions(1);
-    await expect(doesNjpIsTrueInPackageJson(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        "no such file or directory, open '" + join(dir, "package.json") + "'"
-      )
-    });
+    createFiles(dir, { "package.json": JSON.stringify({}) });
+    await expect(doesNjpIsTrueInPackageJson(dir)).rejects.toEqual(
+      new Error(`njp must be true in ${dir}/package.json`)
+    );
   });
 
-  test("for invalid json file", async () => {
-    expect.assertions(1);
-    createFiles(dir, { "package.json": "" });
-    await expect(doesNjpIsTrueInPackageJson(dir)).rejects.toMatchObject({
-      message: expect.stringContaining("Unexpected end of JSON input")
-    });
-  });
-
-  test("for valid file", async () => {
+  test("for njp = true", async () => {
     expect.assertions(1);
     createFiles(dir, { "package.json": JSON.stringify({ njp: true }) });
     await expect(doesNjpIsTrueInPackageJson(dir)).resolves.toBeUndefined();
@@ -38,8 +29,16 @@ describe("Test Task doesNjpIsTrue in package.json", () => {
   test("for njp = false", async () => {
     expect.assertions(1);
     createFiles(dir, { "package.json": JSON.stringify({ njp: false }) });
-    await expect(doesNjpIsTrueInPackageJson(dir)).rejects.toMatchObject({
-      message: `njp must be true in ${dir}/package.json`
-    });
+    await expect(doesNjpIsTrueInPackageJson(dir)).rejects.toEqual(
+      new Error(`njp must be true in ${dir}/package.json`)
+    );
+  });
+
+  test('for njp = "true"', async () => {
+    expect.assertions(1);
+    createFiles(dir, { "package.json": JSON.stringify({ njp: false }) });
+    await expect(doesNjpIsTrueInPackageJson(dir)).rejects.toEqual(
+      new Error(`njp must be true in ${dir}/package.json`)
+    );
   });
 });

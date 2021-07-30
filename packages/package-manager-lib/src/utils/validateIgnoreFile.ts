@@ -15,7 +15,7 @@ export const ignoreFilePath = (dir: string, file: string): string => {
 
 const validateIgnoreFile = async (
   dir: string,
-  paths: string[] = [],
+  paths: string[],
   ignoreFile: string
 ): Promise<void> => {
   const actualIgnorePaths = await readIgnoreFile(dir, ignoreFile);
@@ -34,7 +34,10 @@ const validateIgnoreFile = async (
 
   if (missingIgnorePaths.length > 0) {
     throw new Error(
-      `${missingIgnorePaths.join(", ")} must be in ${ignoreFile}`
+      `${missingIgnorePaths.join(", ")} must be in ${ignoreFilePath(
+        dir,
+        ignoreFile
+      )}`
     );
   }
 };
