@@ -1,11 +1,11 @@
 import { difference } from "lodash";
 import { join, normalize } from "path";
 import { path_build, path_nodeModules } from "./constants";
-import ignoreFileStore from "./ignoreFileStore";
+import { read } from "./ignoreFileStore";
 
 const readIgnoreFile = async (dir: string, file: string): Promise<string[]> => {
   const _ignoreFilePath = join(dir, file);
-  const ignoreContent = await ignoreFileStore(_ignoreFilePath);
+  const ignoreContent = await read(_ignoreFilePath);
   return ignoreContent;
 };
 

@@ -1,12 +1,12 @@
 import { join, normalize } from "path";
 import { file_packageJson } from "./constants";
-import jsonStore from "./jsonStore";
+import { read } from "./jsonFileStore";
 
 const readPackageJson = async (
   dir: string
 ): Promise<Record<string, unknown>> => {
   const packageJsonPath = join(dir, file_packageJson);
-  const packageJsonContent = await jsonStore(packageJsonPath);
+  const packageJsonContent = await read(packageJsonPath);
   return packageJsonContent;
 };
 
