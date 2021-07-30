@@ -1,9 +1,9 @@
 import { file_prettierIgnore } from "../../utils/constants";
-import validateIgnoreFile from "../../utils/validateIgnoreFile";
+import { validate } from "../../utils/ignoreFile";
 
 export const isValidPrettierIgnore = async (
   dir: string,
   paths: string[] = []
 ): Promise<void> => {
-  await validateIgnoreFile(dir, paths, file_prettierIgnore);
+  await validate(dir, paths, file_prettierIgnore);
 };

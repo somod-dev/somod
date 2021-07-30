@@ -1,9 +1,9 @@
 import { file_eslintIgnore } from "../../utils/constants";
-import validateIgnoreFile from "../../utils/validateIgnoreFile";
+import { validate } from "../../utils/ignoreFile";
 
 export const isValidEslintIgnore = async (
   dir: string,
   paths: string[] = []
 ): Promise<void> => {
-  await validateIgnoreFile(dir, paths, file_eslintIgnore);
+  await validate(dir, paths, file_eslintIgnore);
 };

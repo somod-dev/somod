@@ -1,8 +1,8 @@
 import { createFiles, createTempDir, deleteDir } from "../utils";
-import { read } from "../../src/utils/packageJson";
+import { read, update } from "../../src/utils/packageJson";
 import { join } from "path";
 
-describe("Test Util packageJson read", () => {
+describe("Test Util packageJson.read", () => {
   let dir: string = null;
 
   beforeEach(() => {
@@ -37,5 +37,25 @@ describe("Test Util packageJson read", () => {
     await expect(read(dir)).resolves.toEqual({
       name: "test-package"
     });
+  });
+});
+
+describe("Test Util packageJson.update", () => {
+  let dir: string = null;
+
+  beforeEach(() => {
+    dir = createTempDir();
+  });
+
+  afterEach(() => {
+    deleteDir(dir);
+  });
+
+  test("for valid file", async () => {
+    createFiles(dir, {
+      "package.json": JSON.stringify({ name: "test-package" })
+    });
+    expect(update(dir, { name: "some-package" })).toBeUndefined();
+    await expect(read(dir)).resolves.toEqual({ name: "some-package" });
   });
 });
