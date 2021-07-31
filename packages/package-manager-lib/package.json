@@ -25,6 +25,7 @@
     "url": "https://gitlab.com/sodaru/common/package-managers/issues"
   },
   "dependencies": {
+    "@typescript-eslint/typescript-estree": "^4.28.5",
     "rimraf": "^3.0.2",
     "type-fest": "^1.2.2",
     "watchpack": "^2.2.0"

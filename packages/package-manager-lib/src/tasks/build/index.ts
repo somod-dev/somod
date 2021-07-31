@@ -1,0 +1,1 @@
+export { compileTypeScript } from "./compileTypeScript";
