@@ -2,6 +2,7 @@ import { difference, padEnd, union } from "lodash";
 import { join, normalize } from "path";
 import { path_build, path_nodeModules } from "./constants";
 import { read, update as updateIgnoreFile } from "./ignoreFileStore";
+import unixStylePath from "./unixStylePath";
 
 const readIgnoreFile = async (dir: string, file: string): Promise<string[]> => {
   const _ignoreFilePath = join(dir, file);
@@ -10,7 +11,7 @@ const readIgnoreFile = async (dir: string, file: string): Promise<string[]> => {
 };
 
 const ignoreFilePath = (dir: string, file: string): string => {
-  return normalize(join(dir, file)).split("\\").join("/");
+  return unixStylePath(normalize(join(dir, file)));
 };
 
 const defaultPaths = [path_nodeModules, path_build];

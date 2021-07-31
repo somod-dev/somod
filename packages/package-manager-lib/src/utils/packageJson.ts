@@ -1,6 +1,7 @@
 import { join, normalize } from "path";
 import { file_packageJson } from "./constants";
 import { read as readJson, update as updateJson } from "./jsonFileStore";
+import unixStylePath from "./unixStylePath";
 
 export const read = async (dir: string): Promise<Record<string, unknown>> => {
   const packageJsonPath = join(dir, file_packageJson);
@@ -17,5 +18,5 @@ export const update = (
 };
 
 export const packageJsonPath = (dir: string): string => {
-  return normalize(join(dir, file_packageJson)).split("\\").join("/");
+  return unixStylePath(normalize(join(dir, file_packageJson)));
 };

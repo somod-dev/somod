@@ -4,6 +4,11 @@ export const file_gitIgnore = ".gitignore";
 export const file_eslintIgnore = ".eslintignore";
 export const file_prettierIgnore = ".prettierignore";
 
+export const file_tsConfigJson = "tsconfig.json";
+export const file_tsConfigBuildJson = "tsconfig.build.json";
+
+export const file_nextEnvDTs = "next-env.d.ts";
+
 export const key_njp = "njp";
 
 export const key_type = "type";
@@ -24,5 +29,8 @@ export const key_prettierConfigValue = "@sodaru/prettier-config";
 export const path_nodeModules = "node_modules";
 
 export const path_build = "build";
+
+export const path_ui = "ui";
+export const path_lib = "lib";
 
 export const file_index_js = "index.js";
