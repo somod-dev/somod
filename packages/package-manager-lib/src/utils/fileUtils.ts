@@ -33,7 +33,7 @@ export const copyDirectory = (
   target: string
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    mkdirSync(target);
+    mkdirSync(target, { recursive: true });
     readdir(source, (err, files) => {
       if (err) {
         reject(err);
