@@ -9,8 +9,8 @@ import {
 import { listFiles } from "../../utils/fileUtils";
 import {
   file_pagesJson,
-  file_pages_dts,
-  file_pages_js,
+  file_pageIndex_dts,
+  file_pageIndex_js,
   path_build,
   path_pages,
   path_ui
@@ -55,7 +55,7 @@ const generateStatements = async (
   return { dTsStatements, jsStatements, pages };
 };
 
-export const generatePagesIndex = async (dir: string): Promise<void> => {
+export const generatePageIndex = async (dir: string): Promise<void> => {
   if (existsSync(join(dir, path_build, path_ui, path_pages))) {
     const { dTsStatements, jsStatements, pages } = await generateStatements(
       dir
@@ -63,11 +63,11 @@ export const generatePagesIndex = async (dir: string): Promise<void> => {
     if (dTsStatements.length > 0) {
       await Promise.all([
         writeFile(
-          join(dir, path_build, path_ui, file_pages_js),
+          join(dir, path_build, path_ui, file_pageIndex_js),
           jsStatements.join("\n")
         ),
         writeFile(
-          join(dir, path_build, path_ui, file_pages_dts),
+          join(dir, path_build, path_ui, file_pageIndex_dts),
           dTsStatements.join("\n")
         ),
         writeFile(

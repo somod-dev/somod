@@ -1,3 +1,4 @@
 export { compileTypeScript } from "./compileTypeScript";
-export { generatePagesIndex } from "./generatePagesIndex";
+export { generatePageIndex } from "./generatePageIndex";
 export { buildUiPublic } from "./buildUiPublic";
+export { generateIndex } from "./generateIndex";

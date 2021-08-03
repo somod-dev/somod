@@ -1,8 +1,8 @@
-import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { generatePagesIndex } from "../../../src";
-import { copyDirectory } from "../../../src/utils/fileUtils";
-import { existsSync, readdirSync, readFileSync } from "fs";
+import { existsSync } from "fs";
+import { readdir, readFile } from "fs/promises";
 import { join } from "path";
+import { generateIndex } from "../../../src";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 describe("Test Task generatePagesIndex", () => {
   let dir: string = null;
@@ -15,114 +15,51 @@ describe("Test Task generatePagesIndex", () => {
     deleteDir(dir);
   });
 
-  test("no build dir", async () => {
-    dir = createTempDir();
-    await expect(generatePagesIndex(dir)).resolves.toBeUndefined();
+  test("for no build dir", async () => {
+    await expect(generateIndex(dir)).resolves.toBeUndefined();
     expect(existsSync(join(dir, "build"))).toBeFalsy();
   });
 
-  test("no ui dir", async () => {
-    createFiles(dir, { "build/": "" });
-    await expect(generatePagesIndex(dir)).resolves.toBeUndefined();
-    expect(readdirSync(join(dir, "build"))).toEqual([]);
+  test("for empty ui and lib dirs", async () => {
+    createFiles(dir, { "build/ui/": "", "build/lib/": "" });
+    await expect(generateIndex(dir)).resolves.toBeUndefined();
+    await expect(readdir(join(dir, "build"))).resolves.toEqual(["lib", "ui"]);
   });
 
-  test("no pages dir", async () => {
-    createFiles(dir, { "build/ui/": "" });
-    await expect(generatePagesIndex(dir)).resolves.toBeUndefined();
-    expect(readdirSync(join(dir, "build/ui"))).toEqual([]);
+  test("for ui/pageIndex.js only", async () => {
+    createFiles(dir, { "build/ui/pageIndex.js": "" });
+    await expect(generateIndex(dir)).resolves.toBeUndefined();
+    await expect(
+      readFile(join(dir, "build/index.js"), { encoding: "utf8" })
+    ).resolves.toEqual('export * from "./ui/pageIndex";');
+    await expect(
+      readFile(join(dir, "build/index.d.ts"), { encoding: "utf8" })
+    ).resolves.toEqual('export * from "./ui/pageIndex";');
   });
 
-  test("empty pages dir", async () => {
-    createFiles(dir, { "build/ui/pages/": "" });
-    await expect(generatePagesIndex(dir)).resolves.toBeUndefined();
-    expect(readdirSync(join(dir, "build/ui"))).toEqual(["pages"]);
+  test("for lib/index.js only", async () => {
+    createFiles(dir, { "build/lib/index.js": "" });
+    await expect(generateIndex(dir)).resolves.toBeUndefined();
+    await expect(
+      readFile(join(dir, "build/index.js"), { encoding: "utf8" })
+    ).resolves.toEqual('export * from "./lib";');
+    await expect(
+      readFile(join(dir, "build/index.d.ts"), { encoding: "utf8" })
+    ).resolves.toEqual('export * from "./lib";');
   });
 
-  test("with test data", async () => {
-    createFiles(dir, { "build/ui/": "" });
-    await copyDirectory(
-      join(__dirname, "testData", "pages"),
-      join(dir, "build", "ui", "pages")
+  test("for both ui/pageIndex.js and lib/index.js", async () => {
+    createFiles(dir, { "build/ui/pageIndex.js": "", "build/lib/index.js": "" });
+    await expect(generateIndex(dir)).resolves.toBeUndefined();
+    await expect(
+      readFile(join(dir, "build/index.js"), { encoding: "utf8" })
+    ).resolves.toEqual(
+      'export * from "./ui/pageIndex";\nexport * from "./lib";'
     );
-    await expect(generatePagesIndex(dir)).resolves.toBeUndefined();
-
-    expect(readdirSync(join(dir, "build", "ui"))).toEqual([
-      "pages",
-      "pages.d.ts",
-      "pages.js",
-      "pages.json"
-    ]);
-
-    expect(
-      readFileSync(join(dir, "build", "ui", "pages.d.ts"), { encoding: "utf8" })
-    ).toEqual(
-      readFileSync(join(__dirname, "testData", "expected", "pages.d.ts"), {
-        encoding: "utf8"
-      })
-    );
-
-    expect(
-      readFileSync(join(dir, "build", "ui", "pages.js"), { encoding: "utf8" })
-    ).toEqual(
-      readFileSync(join(__dirname, "testData", "expected", "pages.js"), {
-        encoding: "utf8"
-      })
-    );
-
-    expect(
-      readFileSync(join(dir, "build", "ui", "pages.json"), { encoding: "utf8" })
-    ).toEqual(
-      readFileSync(join(__dirname, "testData", "expected", "pages.json"), {
-        encoding: "utf8"
-      })
+    await expect(
+      readFile(join(dir, "build/index.d.ts"), { encoding: "utf8" })
+    ).resolves.toEqual(
+      'export * from "./ui/pageIndex";\nexport * from "./lib";'
     );
   });
-
-  const template = (
-    description: string,
-    paths: Record<string, string>,
-    dTs: string,
-    js: string,
-    pages: string
-  ): void => {
-    test(description, async () => {
-      createFiles(dir, paths);
-
-      await expect(generatePagesIndex(dir)).resolves.toBeUndefined();
-      expect(
-        readFileSync(join(dir, "build", "ui", "pages.d.ts"), {
-          encoding: "utf8"
-        })
-      ).toEqual(dTs);
-      expect(
-        readFileSync(join(dir, "build", "ui", "pages.js"), { encoding: "utf8" })
-      ).toEqual(js);
-      expect(
-        readFileSync(join(dir, "build", "ui", "pages.json"), {
-          encoding: "utf8"
-        })
-      ).toEqual(pages);
-    });
-  };
-
-  template(
-    "one page",
-    {
-      "build/ui/pages/a.js": 'export const var1 = "abcd";',
-      "build/ui/pages/a.d.ts": "export declare const var1 : string;"
-    },
-    'export { var1 as Page1var1 } from "./pages/a";',
-    'export { var1 as Page1var1 } from "./pages/a";',
-    JSON.stringify(
-      {
-        "./pages/a": {
-          prefix: "Page1",
-          exports: { default: false, named: ["var1"] }
-        }
-      },
-      null,
-      2
-    )
-  );
 });
