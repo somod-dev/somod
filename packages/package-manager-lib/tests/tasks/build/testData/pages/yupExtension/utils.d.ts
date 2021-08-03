@@ -1,0 +1,16 @@
+import { BaseSchema, StringSchema, NumberSchema, BooleanSchema, ObjectSchema } from "yup";
+import { SchemaDescription } from "yup/lib/schema";
+import { DateTimeSchema, Variant } from "./schemas/DateTime";
+import { FileSchema } from "./schemas/File";
+export declare type SupportedType = "string" | "number" | "boolean" | "datetime" | "file";
+export declare type DatetimeVariant = Variant;
+export declare const stringSchema: (schema: BaseSchema) => StringSchema;
+export declare const numberSchema: (schema: BaseSchema) => NumberSchema;
+export declare const booleanSchema: (schema: BaseSchema) => BooleanSchema;
+export declare const datetimeSchema: (schema: BaseSchema) => DateTimeSchema;
+export declare const fileSchema: (schema: BaseSchema) => FileSchema;
+export declare const appendRequiredOnYupSchema: (schema: BaseSchema) => BaseSchema;
+export declare const describeFields: (schema: ObjectSchema<Record<string, BaseSchema>>) => Record<string, SchemaDescription>;
+export declare const getFieldLabels: (schema: ObjectSchema<Record<string, BaseSchema>>) => Record<string, string>;
+export declare const getFieldTypes: (schema: ObjectSchema<Record<string, BaseSchema>>) => Record<string, string>;
+export declare const reverseKeyOrder: (obj: Record<string, unknown>) => Record<string, unknown>;

@@ -37,5 +37,11 @@ export const path_pages = "pages";
 export const path_public = "public";
 
 export const file_index_js = "index.js";
+export const file_index_dts = "index.d.ts";
+
+export const file_pages_js = "pages.js";
+export const file_pages_dts = "pages.d.ts";
+
+export const file_pagesJson = "pages.json";
 
 export const path_git = ".git";

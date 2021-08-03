@@ -12,7 +12,7 @@
       "@sodaru/eslint-config"
     ],
     "rules": {
-      "no-console": 0
+      "no-console": 1
     }
   },
   "prettier": "@sodaru/prettier-config",

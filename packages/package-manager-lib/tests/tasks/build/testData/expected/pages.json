@@ -1,0 +1,85 @@
+{
+  "./pages/Dashboard": {
+    "prefix": "Page1",
+    "exports": {
+      "default": true,
+      "named": [
+        "DashboardProps"
+      ]
+    }
+  },
+  "./pages/DialogStepper": {
+    "prefix": "Page2",
+    "exports": {
+      "default": true,
+      "named": [
+        "DialogStepperProps"
+      ]
+    }
+  },
+  "./pages/EntryLayout": {
+    "prefix": "Page3",
+    "exports": {
+      "default": true,
+      "named": [
+        "EntryLayoutProps"
+      ]
+    }
+  },
+  "./pages/Page": {
+    "prefix": "Page4",
+    "exports": {
+      "default": true,
+      "named": [
+        "PageProps"
+      ]
+    }
+  },
+  "./pages/yupExtension/View": {
+    "prefix": "Page5",
+    "exports": {
+      "default": true,
+      "named": []
+    }
+  },
+  "./pages/yupExtension/schemas/DateTime": {
+    "prefix": "Page6",
+    "exports": {
+      "default": true,
+      "named": [
+        "Variant",
+        "DateTimeSchema"
+      ]
+    }
+  },
+  "./pages/yupExtension/schemas/File": {
+    "prefix": "Page7",
+    "exports": {
+      "default": true,
+      "named": [
+        "FileType",
+        "FileSchema"
+      ]
+    }
+  },
+  "./pages/yupExtension/utils": {
+    "prefix": "Page8",
+    "exports": {
+      "default": false,
+      "named": [
+        "SupportedType",
+        "DatetimeVariant",
+        "stringSchema",
+        "numberSchema",
+        "booleanSchema",
+        "datetimeSchema",
+        "fileSchema",
+        "appendRequiredOnYupSchema",
+        "describeFields",
+        "getFieldLabels",
+        "getFieldTypes",
+        "reverseKeyOrder"
+      ]
+    }
+  }
+}
