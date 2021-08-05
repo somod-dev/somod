@@ -10,7 +10,7 @@ import {
   writeFileSync
 } from "fs";
 
-const sleep = (ms: number): Promise<void> => {
+export const sleep = (ms: number): Promise<void> => {
   return new Promise(resolve => {
     setTimeout(() => {
       resolve();
@@ -18,23 +18,23 @@ const sleep = (ms: number): Promise<void> => {
   });
 };
 
-const helper = {
-  createDir: async dir => {
+export const helper = {
+  createDir: async (dir: string): Promise<void> => {
     mkdirSync(dir);
     await sleep(100);
   },
 
-  createFile: async (path, data) => {
+  createFile: async (path: string, data: string): Promise<void> => {
     writeFileSync(path, data);
     await sleep(100);
   },
 
-  deleteDir: async dir => {
+  deleteDir: async (dir: string): Promise<void> => {
     rimrafSync(dir);
     await sleep(100);
   },
 
-  deleteFile: async path => {
+  deleteFile: async (path: string): Promise<void> => {
     rimrafSync(path);
     await sleep(100);
   }
