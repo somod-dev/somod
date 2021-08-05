@@ -12,4 +12,6 @@ export * from "./tasks/build";
 
 export * from "./tasks/link";
 
+export * from "./tasks/dev";
+
 export * from "./utils/constants";

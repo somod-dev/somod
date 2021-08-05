@@ -1,0 +1,1 @@
+export { createRootModulePages } from "./createRootModulePages";
