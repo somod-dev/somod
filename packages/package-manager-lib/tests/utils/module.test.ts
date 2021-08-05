@@ -1,7 +1,11 @@
 import { join } from "path";
-import getModuleGraph, {
-  ModuleNode as NjpNode
-} from "../../src/utils/getModuleGraph";
+import {
+  getDuplicateModules,
+  getModuleGraph,
+  ModuleNode,
+  resolve,
+  toList
+} from "../../src/utils/module";
 import unixStylePath from "../../src/utils/unixStylePath";
 import { createFiles, createTempDir, deleteDir } from "../utils";
 
@@ -68,7 +72,7 @@ const template = (
   description: string,
   files: Record<string, string>,
   indicators: string[],
-  expected: NjpNode
+  expected: ModuleNode
 ): void => {
   describe(description, () => {
     let dir: string = null;
@@ -81,7 +85,7 @@ const template = (
     });
     test("test", async () => {
       expect.assertions(1);
-      const updatePackageLocation = (node: NjpNode): NjpNode => {
+      const updatePackageLocation = (node: ModuleNode): ModuleNode => {
         node.packageLocation = unixStylePath(join(dir, node.packageLocation));
         node.dependencies.forEach(updatePackageLocation);
         return node;
@@ -404,3 +408,220 @@ template(
     ]
   }
 );
+
+describe("Test util module.toList", () => {
+  test("for null", () => {
+    expect(() => toList(null)).toThrowError(
+      "Cannot read property 'dependencies' of null"
+    );
+  });
+
+  test("for no dependecy", () => {
+    expect(
+      toList({
+        name: "m1",
+        version: "1.0.0",
+        dependencies: [],
+        packageLocation: "some/location"
+      })
+    ).toEqual([
+      {
+        name: "m1",
+        version: "1.0.0",
+        dependencies: [],
+        packageLocation: "some/location",
+        path: []
+      }
+    ]);
+  });
+
+  test("for multiple dependecy", () => {
+    const m0 = {
+      name: "m0",
+      version: "0.0.1",
+      dependencies: [],
+      packageLocation: "some/location"
+    };
+
+    const m1 = {
+      name: "m1",
+      version: "1.0.1",
+      dependencies: [],
+      packageLocation: "some/location"
+    };
+
+    const m2 = {
+      name: "m2",
+      version: "1.0.2",
+      dependencies: [m0],
+      packageLocation: "some/location"
+    };
+
+    const m = {
+      name: "m",
+      version: "1.0.0",
+      dependencies: [m0, m1, m2],
+      packageLocation: "some/location"
+    };
+
+    expect(toList(m)).toEqual([
+      { ...m, path: [] },
+      { ...m0, path: ["m"] },
+      { ...m1, path: ["m"] },
+      { ...m2, path: ["m"] },
+      { ...m0, path: ["m", "m2"] }
+    ]);
+  });
+});
+
+describe("Test util module.getDuplicateModules", () => {
+  test("for empty", () => {
+    expect(getDuplicateModules([])).toEqual([]);
+  });
+
+  test("for one module", () => {
+    expect(
+      getDuplicateModules([
+        {
+          name: "m1",
+          version: "1.0.0",
+          dependencies: [],
+          packageLocation: "some/location",
+          path: []
+        }
+      ])
+    ).toEqual([]);
+  });
+
+  test("for multiple modules with no duplicates", () => {
+    const m0 = {
+      name: "m0",
+      version: "0.0.1",
+      dependencies: [],
+      packageLocation: "some/location"
+    };
+
+    const m1 = {
+      name: "m1",
+      version: "1.0.1",
+      dependencies: [],
+      packageLocation: "some/location"
+    };
+
+    const m2 = {
+      name: "m2",
+      version: "1.0.2",
+      dependencies: [m0],
+      packageLocation: "some/location"
+    };
+
+    const m = {
+      name: "m",
+      version: "1.0.0",
+      dependencies: [m0, m1, m2],
+      packageLocation: "some/location"
+    };
+
+    expect(
+      getDuplicateModules([
+        { ...m, path: [] },
+        { ...m0, path: ["m"] },
+        { ...m1, path: ["m"] },
+        { ...m2, path: ["m"] },
+        { ...m0, path: ["m", "m2"] }
+      ])
+    ).toEqual([]);
+  });
+
+  test("for multiple modules with duplicates", () => {
+    const m0 = {
+      name: "m0",
+      version: "0.0.1",
+      dependencies: [],
+      packageLocation: "some/location"
+    };
+
+    const m00 = {
+      name: "m0",
+      version: "1.0.1",
+      dependencies: [],
+      packageLocation: "some/location"
+    };
+
+    const m1 = {
+      name: "m1",
+      version: "1.0.1",
+      dependencies: [],
+      packageLocation: "some/location"
+    };
+
+    const m2 = {
+      name: "m2",
+      version: "1.0.2",
+      dependencies: [m00],
+      packageLocation: "some/location"
+    };
+
+    const m = {
+      name: "m",
+      version: "1.0.0",
+      dependencies: [m0, m1, m2],
+      packageLocation: "some/location"
+    };
+
+    expect(
+      getDuplicateModules([
+        { ...m, path: [] },
+        { ...m0, path: ["m"] },
+        { ...m1, path: ["m"] },
+        { ...m2, path: ["m"] },
+        { ...m00, path: ["m", "m2"] }
+      ])
+    ).toEqual([
+      {
+        name: "m0",
+        modules: [
+          { ...m0, path: ["m"] },
+          { ...m00, path: ["m", "m2"] }
+        ]
+      }
+    ]);
+  });
+});
+
+describe("Test util module.resolve", () => {
+  test("for empty", () => {
+    expect(resolve([], { m1: ["m2", "m3"] })).toBeUndefined();
+  });
+
+  test("for single modulename", () => {
+    expect(resolve(["m1"], { m1: ["m2", "m3"] })).toEqual("m1");
+  });
+
+  test("for new single modulename", () => {
+    expect(resolve(["m4"], { m1: ["m2", "m3"] })).toEqual("m4");
+  });
+
+  test("for more than 1 modulename without dependecies", () => {
+    expect(() => resolve(["m4", "m1"], { m1: ["m2", "m3"] })).toThrowError(
+      "module m4 not found in dependency map"
+    );
+  });
+
+  test("for more than 1 which can not be resolved", () => {
+    expect(() =>
+      resolve(["m4", "m1"], { m1: ["m2", "m3"], m4: ["m2"] })
+    ).toThrowError("Can not resolve");
+  });
+
+  test("for more than 1 which can be resolved", () => {
+    expect(
+      resolve(["m4", "m1"], {
+        m4: ["m1", "m2", "m3"],
+        m3: ["m1"],
+        m2: [],
+        m1: []
+      })
+    ).toEqual("m4");
+  });
+});
