@@ -1,5 +1,6 @@
 import { existsSync } from "fs";
-import { join } from "path";
+import { copyFile, mkdir } from "fs/promises";
+import { dirname, join } from "path";
 import { path_build, path_public, path_ui } from "./constants";
 import { listFiles } from "./fileUtils";
 import { ModuleInfo } from "./moduleInfo";
@@ -46,4 +47,17 @@ export const getPublicAssetToModulesMap = async (
   });
 
   return publicAssetToModulesMap;
+};
+
+export const exportRootModulePublicAsset = async (
+  dir: string,
+  publicAsset: string
+): Promise<void> => {
+  const sourcePath = join(dir, path_ui, path_public, publicAsset);
+  const targetPath = join(dir, path_public, publicAsset);
+
+  const targetDir = dirname(targetPath);
+
+  await mkdir(targetDir, { recursive: true });
+  await copyFile(sourcePath, targetPath);
 };
