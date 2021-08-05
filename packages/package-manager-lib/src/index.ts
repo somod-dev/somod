@@ -10,4 +10,6 @@ export * from "./tasks/codeSanity";
 
 export * from "./tasks/build";
 
+export * from "./tasks/link";
+
 export * from "./utils/constants";
