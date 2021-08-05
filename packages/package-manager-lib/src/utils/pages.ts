@@ -1,10 +1,11 @@
 import { existsSync } from "fs";
 import { join } from "path";
-import { Pages } from "../tasks/build/generatePageIndex";
 import { file_pagesJson, path_build, path_ui } from "./constants";
 import { Exports } from "./exports";
 import { read } from "./jsonFileStore";
 import { ModuleInfo } from "./moduleInfo";
+
+export type Pages = Record<string, { prefix: string; exports: Exports }>;
 
 export type PageToModulesMap = Record<
   string,

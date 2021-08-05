@@ -3,7 +3,6 @@ import { join } from "path";
 import { writeFile } from "fs/promises";
 import {
   get as getExports,
-  Exports,
   generateExportStatement
 } from "../../utils/exports";
 import { listFiles } from "../../utils/fileUtils";
@@ -15,8 +14,7 @@ import {
   path_pages,
   path_ui
 } from "../../utils/constants";
-
-export type Pages = Record<string, { prefix: string; exports: Exports }>;
+import { Pages } from "../../utils/pages";
 
 const generateStatements = async (
   dir: string

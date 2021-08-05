@@ -5,6 +5,7 @@ import {
   stat as statPromise
 } from "fs/promises";
 import { join as pathJoin } from "path";
+import unixStylePath from "./unixStylePath";
 
 export const cwd = (): string => {
   return process.cwd();
@@ -76,6 +77,6 @@ export const listFiles = async (
     currentDir = queue.shift();
   }
   filePaths.sort();
-  const normalizedFiles = filePaths.map(file => file.split("\\").join("/"));
+  const normalizedFiles = filePaths.map(unixStylePath);
   return normalizedFiles;
 };
