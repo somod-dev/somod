@@ -123,8 +123,6 @@ describe("Test Task watchRootModulePages", () => {
     );
     expect(existsSync(join(dir, "pages", "a.ts"))).toBeFalsy();
     // eslint-disable-next-line no-console
-    expect(console.error).toHaveBeenCalledTimes(1);
-    // eslint-disable-next-line no-console
     expect(console.error).toHaveBeenCalledWith(
       expect.objectContaining({
         message: "Expression expected."
@@ -148,8 +146,6 @@ describe("Test Task watchRootModulePages", () => {
     await expect(
       readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
     ).resolves.toEqual('export { default } from "../ui/pages/a";');
-    // eslint-disable-next-line no-console
-    expect(console.error).toHaveBeenCalledTimes(2);
     // eslint-disable-next-line no-console
     expect(console.error).toHaveBeenLastCalledWith(
       expect.objectContaining({
