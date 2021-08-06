@@ -3,3 +3,4 @@ export { createRootModulePublicAssets } from "./createRootModulePublicAssets";
 export { watchRootModulePages } from "./watchRootModulePages";
 export { watchRootModulePublicAssets } from "./watchRootModulePublicAssets";
 export { startNextDev } from "./startNextDev";
+export { deleteBuildDir } from "./deleteBuildDir";
