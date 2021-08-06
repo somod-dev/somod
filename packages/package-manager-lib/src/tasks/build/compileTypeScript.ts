@@ -17,7 +17,7 @@ export const compileTypeScript = async (
     if (
       !message.startsWith("error TS18003: No inputs were found in config file")
     ) {
-      throw e;
+      throw new Error(e.message + "\n" + message);
     }
   }
 };

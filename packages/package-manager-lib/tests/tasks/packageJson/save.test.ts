@@ -1,5 +1,5 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { savePackageJson } from "../../../src";
+import { savePackageJson, setNjpInPackageJson } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
 import { read, update } from "../../../src/utils/jsonFileStore";
@@ -45,6 +45,22 @@ describe("Test Task savePackageJson", () => {
       readFile(packageJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(
       JSON.stringify({ name: "some-package", version: "1.0.0" }, null, 2)
+    );
+  });
+
+  test("for setNjp and save", async () => {
+    createFiles(dir, {
+      "package.json": JSON.stringify({
+        name: "some-package"
+      })
+    });
+    const packageJsonPath = join(dir, "package.json");
+    await setNjpInPackageJson(dir);
+    await expect(savePackageJson(dir)).resolves.toBeUndefined();
+    await expect(
+      readFile(packageJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(
+      JSON.stringify({ name: "some-package", njp: true }, null, 2)
     );
   });
 });

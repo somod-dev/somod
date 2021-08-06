@@ -9,20 +9,25 @@ export const welcomePage = async (dir: string): Promise<void> => {
 
   const pageContent = `import * as React from "react";
 
-  const Index: React.FunctionComponent = () => {
-    return (
-      <div>
-        <h1>Welcome to Next Js Package</h1>
-        <h2>This is a sample page</h2>
-        <p>
-          <a href="https://gitlab.com/sodaru/common/package-managers" target="_blank">Click Me</a> to learn
-          more
-        </p>
-      </div>
-    );
-  };
-  
-  export default Index;`;
+const Index: React.FunctionComponent = () => {
+  return (
+    <div>
+      <h1>Welcome to Next Js Package</h1>
+      <h2>This is a sample page</h2>
+      <p>
+        <a
+          href="https://gitlab.com/sodaru/common/package-managers"
+          target="_blank"
+        >
+          Click Me
+        </a>
+        to learn more
+      </p>
+    </div>
+  );
+};
+
+export default Index;`;
 
   if (!existsSync(pagePath)) {
     const pageDir = dirname(pagePath);
