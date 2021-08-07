@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Package Manager utility library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "homepage": "https://gitlab.com/sodaru/common/package-managers/packages/package-manager-lib#readme",
+  "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/package-manager-lib#readme",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "files": [
@@ -12,7 +12,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/common/package-managers.git"
+    "url": "git+ssh://git@gitlab.com/sodaru/cli/package-managers.git"
   },
   "scripts": {
     "clean": "npx rimraf dist",
@@ -23,7 +23,7 @@
     "prepack": "npm run test"
   },
   "bugs": {
-    "url": "https://gitlab.com/sodaru/common/package-managers/issues"
+    "url": "https://gitlab.com/sodaru/cli/package-managers/issues"
   },
   "dependencies": {
     "@typescript-eslint/typescript-estree": "^4.28.5",

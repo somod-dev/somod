@@ -8,7 +8,7 @@ export const lib = async (dir: string): Promise<void> => {
   const libIndexPath = join(dir, path_lib, libIndex);
 
   const pageContent = `const Index = (): string => {
-  return "This is a awesome package library, learn more at https://gitlab.com/sodaru/common/package-managers";
+  return "This is a awesome package library, learn more at https://gitlab.com/sodaru/cli/package-managers";
 };
 
 export default Index;`;
