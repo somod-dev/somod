@@ -8,7 +8,7 @@ import {
   setModuleInPackageJson,
   setNjpInPackageJson,
   setSideEffectsInPackageJson,
-  setTypeInPackageJson,
+  setTypeToModuleInPackageJson,
   unsetJsnextMainInPackageJson,
   updateGitIgnore,
   updateTsConfigBuildJson
@@ -21,7 +21,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
   await taskRunner(setNjpInPackageJson, verbose, dir);
   await taskRunner(setModuleInPackageJson, verbose, dir);
-  await taskRunner(setTypeInPackageJson, verbose, dir);
+  await taskRunner(setTypeToModuleInPackageJson, verbose, dir);
   await taskRunner(setSideEffectsInPackageJson, verbose, dir);
   await taskRunner(unsetJsnextMainInPackageJson, verbose, dir);
 

@@ -3,6 +3,8 @@ import {
   createPublicAssets,
   createRootModulePages,
   createRootModulePublicAssets,
+  savePackageJson,
+  setTypeToCommonjsInPackageJson,
   startNextDev,
   validateModuleDependency,
   watchRootModulePages,
@@ -31,6 +33,10 @@ export const DevAction = async ({ verbose }: CommonOptions): Promise<void> => {
 
   watchRootModulePages(dir);
   watchRootModulePublicAssets(dir);
+
+  // NextJs Dev server needs type = commonjs in package.json
+  await taskRunner(setTypeToCommonjsInPackageJson, verbose, dir);
+  await taskRunner(savePackageJson, verbose, dir);
 
   await taskRunner(startNextDev, verbose, dir);
 };

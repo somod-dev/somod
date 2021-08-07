@@ -1,26 +1,21 @@
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 export const startNextDev = (dir: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const childProcess = exec(
-      `npx next dev`,
+    const childProcess = spawn(
+      process.platform === "win32" ? "npx.cmd" : "npx",
+      ["next", "dev"],
       {
         cwd: dir,
-        windowsHide: true
-      },
-      error => {
-        if (error) {
-          reject();
-        } else {
-          resolve();
-        }
+        windowsHide: true,
+        stdio: "inherit"
       }
     );
-    childProcess.stdout.on("data", chunk => {
-      process.stdout.write(chunk);
+    childProcess.on("error", e => {
+      reject(e);
     });
-    childProcess.stderr.on("data", chunk => {
-      process.stderr.write(chunk);
+    childProcess.on("close", () => {
+      resolve();
     });
   });
 };

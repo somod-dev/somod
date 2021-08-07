@@ -15,6 +15,8 @@ export const key_type = "type";
 
 export const key_module = "module";
 
+export const key_commonjs = "commonjs";
+
 export const key_sideEffects = "sideEffects";
 
 export const key_jsnextMain = "jsnext:main";

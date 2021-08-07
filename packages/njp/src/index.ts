@@ -25,7 +25,7 @@ const handleError = (e: Error): void => {
   // eslint-disable-next-line no-console
   console.log("");
   // eslint-disable-next-line no-console
-  console.error(errorColor(e.message));
+  console.error(errorColor(e?.message));
   process.exit(1);
 };
 

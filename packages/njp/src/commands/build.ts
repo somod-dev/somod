@@ -6,10 +6,11 @@ import {
   doesModuleIsBuildIndexInPackageJson,
   doesNjpIsTrueInPackageJson,
   doesSideEffectsIsFalseInPackageJson,
-  doesTypeIsModuleInPackageJson,
   generateIndex,
   generatePageIndex,
-  isValidTsConfigBuildJson
+  isValidTsConfigBuildJson,
+  savePackageJson,
+  setTypeToModuleInPackageJson
 } from "@sodaru/package-manager-lib";
 import { Command } from "commander";
 import commonOptions, { CommonOptions } from "../commonOptions";
@@ -20,10 +21,12 @@ export const BuildAction = async ({
 }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
 
+  await taskRunner(setTypeToModuleInPackageJson, verbose, dir);
+  await taskRunner(savePackageJson, verbose, dir);
+
   await Promise.all([
     taskRunner(doesNjpIsTrueInPackageJson, verbose, dir),
     taskRunner(doesModuleIsBuildIndexInPackageJson, verbose, dir),
-    taskRunner(doesTypeIsModuleInPackageJson, verbose, dir),
     taskRunner(doesSideEffectsIsFalseInPackageJson, verbose, dir),
     taskRunner(doesJsnextMainNotSetInPackageJson, verbose, dir),
     taskRunner(isValidTsConfigBuildJson, verbose, dir, { jsx: "react" }, ["ui"])
