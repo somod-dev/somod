@@ -1,6 +1,6 @@
-import { log, logError, logSuccess } from "./output";
+import { logError, logNormal, logSuccess } from "./output";
 
-const taskRunner = async <T extends unknown[]>(
+export const taskRunner = async <T extends unknown[]>(
   name: string,
   task: (...args: T) => Promise<unknown>,
   verbose: boolean,
@@ -8,7 +8,7 @@ const taskRunner = async <T extends unknown[]>(
 ): Promise<unknown> => {
   const taskName = name;
   if (verbose) {
-    log(taskName + " :- Started");
+    logNormal(taskName + " :- Started");
   }
   try {
     const result = await task(...args);
@@ -21,5 +21,3 @@ const taskRunner = async <T extends unknown[]>(
     throw e;
   }
 };
-
-export default taskRunner;

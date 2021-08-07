@@ -1,5 +1,6 @@
 import {
   buildUiPublic,
+  CommonOptions,
   compileTypeScript,
   deleteBuildDir,
   doesJsnextMainNotSetInPackageJson,
@@ -21,11 +22,10 @@ import {
   key_type,
   path_build,
   path_public,
-  path_ui
+  path_ui,
+  taskRunner
 } from "@sodaru/package-manager-lib";
 import { Command } from "commander";
-import commonOptions, { CommonOptions } from "../commonOptions";
-import taskRunner from "../taskRunner";
 
 export const BuildAction = async ({
   verbose
@@ -103,6 +103,5 @@ export const BuildAction = async ({
 const buildCommand = new Command("build");
 
 buildCommand.action(BuildAction);
-commonOptions(buildCommand);
 
 export default buildCommand;

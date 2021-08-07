@@ -26,11 +26,11 @@ import {
   file_nextEnvDTs,
   path_ui,
   file_tsConfigBuildJson,
-  path_lib
+  path_lib,
+  CommonOptions,
+  taskRunner
 } from "@sodaru/package-manager-lib";
 import { Command } from "commander";
-import commonOptions, { CommonOptions } from "../commonOptions";
-import taskRunner from "../taskRunner";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
@@ -104,6 +104,5 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
 const initCommand = new Command("init");
 
 initCommand.action(InitAction);
-commonOptions(initCommand);
 
 export default initCommand;

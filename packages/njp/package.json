@@ -25,32 +25,20 @@
   },
   "scripts": {
     "clean": "npx rimraf dist",
-    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node",
+    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify",
     "build": "npm run clean && npm run bundle",
     "prepack": "npm run build"
   },
   "devDependencies": {
     "@sodaru/package-manager-lib": "^0.0.0",
-    "commander": "^8.1.0",
     "esbuild": "^0.12.18",
-    "typescript": "^4.3.5",
-    "rimraf": "^3.0.2"
+    "typescript": "^4.3.5"
   },
   "peerDependencies": {
-    "@sodaru/eslint-config": "^1.0.0",
-    "@sodaru/prettier-config": "^1.0.0",
     "@types/react": "^17.0.16",
     "next": "^11.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "typescript": "^4.3.5"
-  },
-  "peerDependenciesMeta": {
-    "@sodaru/eslint-config": {
-      "optional": true
-    },
-    "@sodaru/prettier-config": {
-      "optional": true
-    }
   }
 }

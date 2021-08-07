@@ -14,4 +14,6 @@ export * from "./tasks/link";
 
 export * from "./tasks/dev";
 
+export * from "./commandUtils";
+
 export * from "./utils/constants";

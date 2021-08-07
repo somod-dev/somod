@@ -1,4 +1,5 @@
 import {
+  CommonOptions,
   createPages,
   createPublicAssets,
   createRootModulePages,
@@ -8,14 +9,13 @@ import {
   path_public,
   path_ui,
   startNextDev,
+  taskRunner,
   validateModuleDependency,
   watchRootModulePages,
   watchRootModulePublicAssets
 } from "@sodaru/package-manager-lib";
 import { Command } from "commander";
 import { BuildAction } from "./build";
-import commonOptions, { CommonOptions } from "../commonOptions";
-import taskRunner from "../taskRunner";
 
 export const DevAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
@@ -75,6 +75,5 @@ export const DevAction = async ({ verbose }: CommonOptions): Promise<void> => {
 const devCommand = new Command("dev");
 
 devCommand.action(DevAction);
-commonOptions(devCommand);
 
 export default devCommand;
