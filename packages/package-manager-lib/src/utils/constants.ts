@@ -47,3 +47,4 @@ export const file_pageIndex_dts = "pageIndex.d.ts";
 export const file_pagesJson = "pages.json";
 
 export const path_git = ".git";
+export const path_nextBuild = ".next";

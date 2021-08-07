@@ -2,15 +2,14 @@ export { doesJsnextMainNotSet as doesJsnextMainNotSetInPackageJson } from "./doe
 export { doesModuleIsBuildIndex as doesModuleIsBuildIndexInPackageJson } from "./doesModuleIsBuildIndex";
 export { doesNjpIsTrue as doesNjpIsTrueInPackageJson } from "./doesNjpIsTrue";
 export { doesSideEffectsIsFalse as doesSideEffectsIsFalseInPackageJson } from "./doesSideEffectsIsFalse";
-export { doesTypeIsModule as doesTypeIsModuleInPackageJson } from "./doesTypeIsModule";
+export { doesTypeIsNotSet as doesTypeIsNotSetInPackageJson } from "./doesTypeIsNotSet";
 export { isValidEslintConfig as isValidEslintConfigInPackageJson } from "./isValidEslintConfig";
 export { isValidPrettierConfig as isValidPrettierConfigInPackageJson } from "./isValidPrettierConfig";
 
 export { save as savePackageJson } from "./save";
 
 export { setNjp as setNjpInPackageJson } from "./setNjp";
-export { setTypeToModule as setTypeToModuleInPackageJson } from "./setTypeToModule";
-export { setTypeToCommonjs as setTypeToCommonjsInPackageJson } from "./setTypeToCommonjs";
+export { unsetType as unsetTypeInPackageJson } from "./unsetType";
 export { setSideEffects as setSideEffectsInPackageJson } from "./setSideEffects";
 export { unsetJsnextMain as unsetJsnextMainInPackageJson } from "./unsetJsnextMain";
 export { setModule as setModuleInPackageJson } from "./setModule";

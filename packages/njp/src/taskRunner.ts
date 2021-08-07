@@ -1,25 +1,24 @@
-const log = msg => {
-  // eslint-disable-next-line no-console
-  console.log(msg);
-};
+import { log, logError, logSuccess } from "./output";
 
 const taskRunner = async <T extends unknown[]>(
-  task: (...args: T) => Promise<void>,
+  name: string,
+  task: (...args: T) => Promise<unknown>,
   verbose: boolean,
   ...args: T
-): Promise<void> => {
-  const taskName = task.name;
+): Promise<unknown> => {
+  const taskName = name;
   if (verbose) {
-    log(taskName + " Started");
+    log(taskName + " :- Started");
   }
   try {
-    await task(...args);
+    const result = await task(...args);
+    if (verbose) {
+      logSuccess(taskName + " :- Completed");
+    }
+    return result;
   } catch (e) {
-    log(taskName + " Failed");
+    logError(taskName + " :- Failed");
     throw e;
-  }
-  if (verbose) {
-    log(taskName + " Completed");
   }
 };
 

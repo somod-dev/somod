@@ -25,7 +25,7 @@
   },
   "scripts": {
     "clean": "npx rimraf dist",
-    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --keep-names",
+    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node",
     "build": "npm run clean && npm run bundle",
     "prepack": "npm run build"
   },

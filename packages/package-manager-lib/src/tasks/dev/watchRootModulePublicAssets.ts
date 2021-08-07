@@ -10,7 +10,9 @@ const createTempDir = (): string => {
   return mkdtempSync(join(tmpdir(), "sodaruPackageManagerLib-"));
 };
 
-export const watchRootModulePublicAssets = (dir: string): (() => void) => {
+export const watchRootModulePublicAssets = async (
+  dir: string
+): Promise<() => void> => {
   const backupDir = createTempDir();
 
   const publicAssetsDir = join(dir, path_public);

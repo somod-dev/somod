@@ -6,11 +6,22 @@ import {
   doesModuleIsBuildIndexInPackageJson,
   doesNjpIsTrueInPackageJson,
   doesSideEffectsIsFalseInPackageJson,
+  doesTypeIsNotSetInPackageJson,
+  file_index_js,
+  file_packageJson,
+  file_pageIndex_js,
+  file_tsConfigBuildJson,
   generateIndex,
   generatePageIndex,
   isValidTsConfigBuildJson,
-  savePackageJson,
-  setTypeToModuleInPackageJson
+  key_jsnextMain,
+  key_module,
+  key_njp,
+  key_sideEffects,
+  key_type,
+  path_build,
+  path_public,
+  path_ui
 } from "@sodaru/package-manager-lib";
 import { Command } from "commander";
 import commonOptions, { CommonOptions } from "../commonOptions";
@@ -21,22 +32,72 @@ export const BuildAction = async ({
 }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
 
-  await taskRunner(setTypeToModuleInPackageJson, verbose, dir);
-  await taskRunner(savePackageJson, verbose, dir);
-
   await Promise.all([
-    taskRunner(doesNjpIsTrueInPackageJson, verbose, dir),
-    taskRunner(doesModuleIsBuildIndexInPackageJson, verbose, dir),
-    taskRunner(doesSideEffectsIsFalseInPackageJson, verbose, dir),
-    taskRunner(doesJsnextMainNotSetInPackageJson, verbose, dir),
-    taskRunner(isValidTsConfigBuildJson, verbose, dir, { jsx: "react" }, ["ui"])
+    taskRunner(
+      `Check if ${key_njp} is true in ${file_packageJson}`,
+      doesNjpIsTrueInPackageJson,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${key_module} is '${path_build}/${file_index_js}' in ${file_packageJson}`,
+      doesModuleIsBuildIndexInPackageJson,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${key_sideEffects} is false in ${file_packageJson}`,
+      doesSideEffectsIsFalseInPackageJson,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${key_type} is not set in ${file_packageJson}`,
+      doesTypeIsNotSetInPackageJson,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${key_jsnextMain} is not set in ${file_packageJson}`,
+      doesJsnextMainNotSetInPackageJson,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${file_tsConfigBuildJson} is valid`,
+      isValidTsConfigBuildJson,
+      verbose,
+      dir,
+      { jsx: "react" },
+      ["ui"]
+    )
   ]);
 
-  await taskRunner(deleteBuildDir, verbose, dir);
-  await taskRunner(compileTypeScript, verbose, dir);
-  await taskRunner(buildUiPublic, verbose, dir);
-  await taskRunner(generatePageIndex, verbose, dir);
-  await taskRunner(generateIndex, verbose, dir);
+  await taskRunner(
+    `Delete ${path_build} directory`,
+    deleteBuildDir,
+    verbose,
+    dir
+  );
+  await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
+  await taskRunner(
+    `Build ${path_build}/${path_ui}/${path_public}`,
+    buildUiPublic,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `Generate ${path_build}/${path_ui}/${file_pageIndex_js}`,
+    generatePageIndex,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `Generate ${path_build}/${file_index_js}`,
+    generateIndex,
+    verbose,
+    dir
+  );
 };
 
 const buildCommand = new Command("build");

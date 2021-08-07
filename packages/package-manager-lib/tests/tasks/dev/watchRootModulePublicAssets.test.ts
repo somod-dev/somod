@@ -19,7 +19,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
   });
 
   test("for no ui dir", async () => {
-    closeHandle = watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets(dir);
     await sleep(100);
     expect(existsSync(dir + "/public")).toBeFalsy();
   });
@@ -27,7 +27,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
   test("for no ui/public dir", async () => {
     createFiles(dir, { "ui/": "" });
     await sleep(100);
-    closeHandle = watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets(dir);
     await sleep(100);
     expect(existsSync(dir + "/public")).toBeFalsy();
   });
@@ -35,7 +35,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
   test("for empty ui/public dir", async () => {
     createFiles(dir, { "ui/public/": "" });
     await sleep(100);
-    closeHandle = watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets(dir);
     await sleep(100);
     expect(existsSync(dir + "/public")).toBeFalsy();
   });
@@ -43,7 +43,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
   test("for existing public asset", async () => {
     createFiles(dir, { "ui/public/a.html": "dkjfhdsfkadhk" });
     await sleep(100);
-    closeHandle = watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets(dir);
     await sleep(100);
 
     expect(existsSync(join(dir, "public", "a.html"))).toBeFalsy();
@@ -51,7 +51,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
 
   test("for new public after watch", async () => {
     // start watching
-    closeHandle = watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets(dir);
     await sleep(100);
 
     // new file
@@ -112,7 +112,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
     sleep(100);
 
     // start watching
-    closeHandle = watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets(dir);
     await sleep(100);
 
     // create file

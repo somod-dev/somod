@@ -3,8 +3,10 @@ import {
   createPublicAssets,
   createRootModulePages,
   createRootModulePublicAssets,
-  savePackageJson,
-  setTypeToCommonjsInPackageJson,
+  key_njp,
+  path_pages,
+  path_public,
+  path_ui,
   startNextDev,
   validateModuleDependency,
   watchRootModulePages,
@@ -20,25 +22,54 @@ export const DevAction = async ({ verbose }: CommonOptions): Promise<void> => {
 
   await BuildAction({ verbose });
 
-  await taskRunner(validateModuleDependency, verbose, dir, ["njp"]);
+  await taskRunner(
+    `Validate module dependency`,
+    validateModuleDependency,
+    verbose,
+    dir,
+    [key_njp]
+  );
   await Promise.all([
-    taskRunner(createPages, verbose, dir, ["njp"]),
-    taskRunner(createPublicAssets, verbose, dir, ["njp"])
+    taskRunner(`Create ${path_pages}`, createPages, verbose, dir, [key_njp]),
+    taskRunner(`Create ${path_public}`, createPublicAssets, verbose, dir, [
+      key_njp
+    ])
   ]);
 
   await Promise.all([
-    taskRunner(createRootModulePages, verbose, dir),
-    taskRunner(createRootModulePublicAssets, verbose, dir)
+    taskRunner(
+      `Update ${path_pages} with ${path_ui}/${path_pages}`,
+      createRootModulePages,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Update ${path_public} with ${path_ui}/${path_public}`,
+      createRootModulePublicAssets,
+      verbose,
+      dir
+    )
   ]);
 
-  watchRootModulePages(dir);
-  watchRootModulePublicAssets(dir);
+  await taskRunner(
+    `Watch ${path_ui}/${path_pages}`,
+    watchRootModulePages,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `Watch ${path_ui}/${path_public}`,
+    watchRootModulePublicAssets,
+    verbose,
+    dir
+  );
 
-  // NextJs Dev server needs type = commonjs in package.json
-  await taskRunner(setTypeToCommonjsInPackageJson, verbose, dir);
-  await taskRunner(savePackageJson, verbose, dir);
-
-  await taskRunner(startNextDev, verbose, dir);
+  await taskRunner(
+    `Start NextJs Development server`,
+    startNextDev,
+    verbose,
+    dir
+  );
 };
 
 const devCommand = new Command("dev");
