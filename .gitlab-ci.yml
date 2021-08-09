@@ -22,6 +22,7 @@ before_script:
 test:
   stage: test
   script:
+    - lerna run build
     - npm run check-sanity
     - lerna run test
   only:
