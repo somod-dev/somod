@@ -1,3 +1,4 @@
+import { CommonOptions, taskRunner } from "@sodaru-cli/base";
 import {
   initGit,
   initLib,
@@ -26,10 +27,8 @@ import {
   file_nextEnvDTs,
   path_ui,
   file_tsConfigBuildJson,
-  path_lib,
-  CommonOptions,
-  taskRunner
-} from "@sodaru/package-manager-lib";
+  path_lib
+} from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {

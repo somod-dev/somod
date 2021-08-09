@@ -1,4 +1,4 @@
-import { rootCommand } from "@sodaru/package-manager-lib";
+import { rootCommand } from "@sodaru-cli/base";
 import buildCommand from "./commands/build";
 import devCommand from "./commands/dev";
 import initCommand from "./commands/init";

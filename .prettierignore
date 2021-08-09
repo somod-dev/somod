@@ -1,3 +1,6 @@
 node_modules
 dist
 package-lock.json
+
+packages/package-manager-lib/coverage
+packages/package-manager-lib/tests/tasks/build/testData

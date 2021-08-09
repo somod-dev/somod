@@ -1,5 +1,5 @@
+import { CommonOptions, taskRunner } from "@sodaru-cli/base";
 import {
-  CommonOptions,
   createPages,
   createPublicAssets,
   createRootModulePages,
@@ -9,11 +9,10 @@ import {
   path_public,
   path_ui,
   startNextDev,
-  taskRunner,
   validateModuleDependency,
   watchRootModulePages,
   watchRootModulePublicAssets
-} from "@sodaru/package-manager-lib";
+} from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 import { BuildAction } from "./build";
 

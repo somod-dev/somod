@@ -1,5 +1,5 @@
 {
-  "name": "@sodaru/package-managers",
+  "name": "@sodaru-cli/package-managers",
   "version": "0.0.0",
   "description": "Package Management Utilities",
   "scripts": {
@@ -37,8 +37,8 @@
   "homepage": "https://gitlab.com/sodaru/cli/package-managers#readme",
   "private": true,
   "devDependencies": {
-    "@sodaru/eslint-config": "^1.0.0",
-    "@sodaru/prettier-config": "^1.0.0",
+    "@sodaru/eslint-config": "^1.1.0",
+    "@sodaru/prettier-config": "^1.1.0",
     "lerna": "^4.0.0"
   }
 }
