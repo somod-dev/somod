@@ -18,21 +18,20 @@ before_script:
   - npm i --global lerna
   - npm i
   - lerna bootstrap
+  - lerna run build --scope @sodaru-cli/package-manager-lib
 
 test:
   stage: test
   script:
-    - lerna run build
     - npm run check-sanity
     - lerna run test
-  only:
-    - tags
-    - main
-    - develop
+  rules:
+    - if: '($CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop") && $CI_COMMIT_TAG == null'
 
 publish:
   stage: publish
   script:
+    - npm run check-sanity
     - git describe --exact-match | grep ^v && lerna publish from-git --yes
   only:
     - tags
