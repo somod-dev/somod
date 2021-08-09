@@ -15,16 +15,10 @@ before_script:
   - echo "@sodaru-cli:registry=https://gitlab.com/api/v4/projects/28700818/packages/npm/" >> ~/.npmrc
   - echo "//gitlab.com/api/v4/projects/28700818/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
   - echo "unsafe-perm=true" >> ~/.npmrc
-  -  #npm i --global lerna
-  -  #npm i
-  -  #lerna bootstrap
-  -  #lerna run build --scope @sodaru-cli/package-manager-lib
 
 test:
   stage: test
   script:
-    -  #npm run check-sanity
-    -  #lerna run test
     - echo $CI_COMMIT_MESSAGE
   rules:
     - if: '($CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop") && $CI_COMMIT_MESSAGE !~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
