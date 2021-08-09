@@ -12,7 +12,7 @@ cache:
 before_script:
   - echo "@sodaru:registry=https://gitlab.com/api/v4/projects/28321199/packages/npm/" >> ~/.npmrc
   - echo "//gitlab.com/api/v4/projects/28321199/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
-  - echo "@sodaru:registry=https://gitlab.com/api/v4/projects/28700818/packages/npm/" >> ~/.npmrc
+  - echo "@sodaru-cli:registry=https://gitlab.com/api/v4/projects/28700818/packages/npm/" >> ~/.npmrc
   - echo "//gitlab.com/api/v4/projects/28700818/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
   - echo "unsafe-perm=true" >> ~/.npmrc
   - npm i --global lerna
