@@ -16,11 +16,13 @@ before_script:
   - echo "//gitlab.com/api/v4/projects/28700818/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
   - echo "unsafe-perm=true" >> ~/.npmrc
   - npm i --global lerna
+  - npm i
   - lerna bootstrap
 
 test:
   stage: test
   script:
+    - npm run check-sanity
     - lerna run test
   only:
     - tags
