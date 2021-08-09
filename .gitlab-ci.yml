@@ -1,0 +1,35 @@
+image: node:16
+
+stages:
+  - test
+  - publish
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - node_modules
+
+before_script:
+  - echo "@sodaru:registry=https://gitlab.com/api/v4/projects/28321199/packages/npm/" >> ~/.npmrc
+  - echo "//gitlab.com/api/v4/projects/28321199/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
+  - echo "@sodaru:registry=https://gitlab.com/api/v4/projects/28700818/packages/npm/" >> ~/.npmrc
+  - echo "//gitlab.com/api/v4/projects/28700818/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
+  - echo "unsafe-perm=true" >> ~/.npmrc
+  - npm i --global lerna
+  - lerna bootstrap
+
+test:
+  stage: test
+  script:
+    - lerna run test
+  only:
+    - tags
+    - main
+    - develop
+
+publish:
+  stage: publish
+  script:
+    - git describe --exact-match | grep ^v && lerna publish from-git --yes
+  only:
+    - tags
