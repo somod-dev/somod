@@ -121,7 +121,7 @@ describe("Test Task generatePagesIndex", () => {
     'export { var1 as Page1var1 } from "./pages/a";',
     JSON.stringify(
       {
-        "./pages/a": {
+        a: {
           prefix: "Page1",
           exports: { default: false, named: ["var1"] }
         }

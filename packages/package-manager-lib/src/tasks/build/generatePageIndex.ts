@@ -31,11 +31,8 @@ const generateStatements = async (
   const pages: Pages = {};
 
   declarations.forEach((declaration, i) => {
-    const modulePath =
-      "./" +
-      path_pages +
-      "/" +
-      declaration.substr(0, declaration.length - ".d.ts".length);
+    const pagePath = declaration.substr(0, declaration.length - ".d.ts".length);
+    const modulePath = "./" + path_pages + "/" + pagePath;
     const declarationExports = getExports(
       join(buildUiDir, modulePath + ".d.ts")
     );
@@ -47,7 +44,7 @@ const generateStatements = async (
     );
     jsStatements.push(generateExportStatement(modulePath, prefix, jsExports));
 
-    pages[modulePath] = { prefix, exports: declarationExports };
+    pages[pagePath] = { prefix, exports: declarationExports };
   });
 
   return { dTsStatements, jsStatements, pages };

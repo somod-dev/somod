@@ -1,5 +1,5 @@
 {
-  "./pages/Dashboard": {
+  "Dashboard": {
     "prefix": "Page1",
     "exports": {
       "default": true,
@@ -8,7 +8,7 @@
       ]
     }
   },
-  "./pages/DialogStepper": {
+  "DialogStepper": {
     "prefix": "Page2",
     "exports": {
       "default": true,
@@ -17,7 +17,7 @@
       ]
     }
   },
-  "./pages/EntryLayout": {
+  "EntryLayout": {
     "prefix": "Page3",
     "exports": {
       "default": true,
@@ -26,7 +26,7 @@
       ]
     }
   },
-  "./pages/Page": {
+  "Page": {
     "prefix": "Page4",
     "exports": {
       "default": true,
@@ -35,14 +35,14 @@
       ]
     }
   },
-  "./pages/yupExtension/View": {
+  "yupExtension/View": {
     "prefix": "Page5",
     "exports": {
       "default": true,
       "named": []
     }
   },
-  "./pages/yupExtension/schemas/DateTime": {
+  "yupExtension/schemas/DateTime": {
     "prefix": "Page6",
     "exports": {
       "default": true,
@@ -52,7 +52,7 @@
       ]
     }
   },
-  "./pages/yupExtension/schemas/File": {
+  "yupExtension/schemas/File": {
     "prefix": "Page7",
     "exports": {
       "default": true,
@@ -62,7 +62,7 @@
       ]
     }
   },
-  "./pages/yupExtension/utils": {
+  "yupExtension/utils": {
     "prefix": "Page8",
     "exports": {
       "default": false,
