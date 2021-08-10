@@ -30,7 +30,7 @@
     "prepack": "npm run build"
   },
   "devDependencies": {
-    "@sodaru-cli/base": "^1.1.0",
+    "@sodaru-cli/base": "^1.1.1",
     "@sodaru-cli/package-manager-lib": "^1.0.4",
     "@types/node": "^16.4.13",
     "esbuild": "^0.12.18",
