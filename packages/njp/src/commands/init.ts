@@ -7,6 +7,7 @@ import {
   savePackageJson,
   saveTsConfigBuildJson,
   setModuleInPackageJson,
+  setTypingsInPackageJson,
   setNjpInPackageJson,
   setSideEffectsInPackageJson,
   unsetTypeInPackageJson,
@@ -42,6 +43,12 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   await taskRunner(
     `Set ${key_module} in ${file_packageJson}`,
     setModuleInPackageJson,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `Set ${key_module} in ${file_packageJson}`,
+    setTypingsInPackageJson,
     verbose,
     dir
   );

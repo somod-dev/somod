@@ -4,6 +4,7 @@ import {
   deleteBuildDir,
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
+  doesTypingsIsBuildIndexInPackageJson,
   doesNjpIsTrueInPackageJson,
   doesSideEffectsIsFalseInPackageJson,
   doesTypeIsNotSetInPackageJson,
@@ -16,12 +17,14 @@ import {
   isValidTsConfigBuildJson,
   key_jsnextMain,
   key_module,
+  key_typings,
   key_njp,
   key_sideEffects,
   key_type,
   path_build,
   path_public,
-  path_ui
+  path_ui,
+  file_index_dts
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 import { CommonOptions, taskRunner } from "@sodaru-cli/base";
@@ -41,6 +44,12 @@ export const BuildAction = async ({
     taskRunner(
       `Check if ${key_module} is '${path_build}/${file_index_js}' in ${file_packageJson}`,
       doesModuleIsBuildIndexInPackageJson,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${key_typings} is '${path_build}/${file_index_dts}' in ${file_packageJson}`,
+      doesTypingsIsBuildIndexInPackageJson,
       verbose,
       dir
     ),

@@ -14,6 +14,7 @@ export const key_njp = "njp";
 export const key_type = "type";
 
 export const key_module = "module";
+export const key_typings = "typings";
 
 export const key_commonjs = "commonjs";
 
