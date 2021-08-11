@@ -1,7 +1,7 @@
 import { join } from "path";
 import { getModuleInfo } from "../../src/utils/moduleInfo";
 import { createFiles, createTempDir, deleteDir } from "../utils";
-import ErrorSet from "../../src/utils/ErrorSet";
+import { ErrorSet } from "@sodaru-cli/base";
 
 describe("Test util getModuleInfo", () => {
   let dir: string = null;

@@ -2,7 +2,7 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { saveGitIgnore } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
-import { read, update } from "../../../src/utils/ignoreFileStore";
+import { readIgnoreFileStore, updateIgnoreFileStore } from "@sodaru-cli/base";
 import { readFile } from "fs/promises";
 
 describe("Test Task saveGitIgnore", () => {
@@ -33,9 +33,9 @@ describe("Test Task saveGitIgnore", () => {
       ".gitignore": "node_modules"
     });
     const gitIgnorePath = join(dir, ".gitignore");
-    const gitIgnoreContent = await read(gitIgnorePath);
+    const gitIgnoreContent = await readIgnoreFileStore(gitIgnorePath);
     gitIgnoreContent.push("/build");
-    update(gitIgnorePath, gitIgnoreContent);
+    updateIgnoreFileStore(gitIgnorePath, gitIgnoreContent);
     await expect(saveGitIgnore(dir)).resolves.toBeUndefined();
     await expect(
       readFile(gitIgnorePath, { encoding: "utf8" })

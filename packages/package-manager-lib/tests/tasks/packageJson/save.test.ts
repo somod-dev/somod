@@ -2,7 +2,7 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { savePackageJson, setNjpInPackageJson } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
-import { read, update } from "../../../src/utils/jsonFileStore";
+import { readJsonFileStore, updateJsonFileStore } from "@sodaru-cli/base";
 import { readFile } from "fs/promises";
 
 describe("Test Task savePackageJson", () => {
@@ -37,9 +37,9 @@ describe("Test Task savePackageJson", () => {
       })
     });
     const packageJsonPath = join(dir, "package.json");
-    const packageJsonContent = await read(packageJsonPath);
+    const packageJsonContent = await readJsonFileStore(packageJsonPath);
     packageJsonContent.version = "1.0.0";
-    update(packageJsonPath, packageJsonContent);
+    updateJsonFileStore(packageJsonPath, packageJsonContent);
     await expect(savePackageJson(dir)).resolves.toBeUndefined();
     await expect(
       readFile(packageJsonPath, { encoding: "utf8" })

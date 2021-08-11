@@ -1,9 +1,8 @@
 import { mkdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { file_packageJson, path_pages } from "../../utils/constants";
-import ErrorSet from "../../utils/ErrorSet";
 import { Exports } from "../../utils/exports";
-import { read } from "../../utils/jsonFileStore";
+import { readJsonFileStore, ErrorSet } from "@sodaru-cli/base";
 import { resolve } from "../../utils/module";
 import { getModuleInfo } from "../../utils/moduleInfo";
 import { getPageToModulesMap } from "../../utils/pages";
@@ -70,8 +69,9 @@ export const createPages = async (
 
   if (!validateOnly) {
     // create pages in root dir
-    const rootModuleName = (await read(join(dir, file_packageJson)))
-      .name as string;
+    const rootModuleName = (
+      await readJsonFileStore(join(dir, file_packageJson))
+    ).name as string;
 
     const createPagePromises = Object.keys(pageToModuleNameMap).map(
       async page => {

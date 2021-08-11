@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { path_pages, path_ui } from "../../utils/constants";
-import { listFiles } from "../../utils/fileUtils";
+import { listFiles } from "@sodaru-cli/base";
 import { exportRootModulePage } from "../../utils/pages";
 
 export const createRootModulePages = async (dir: string): Promise<void> => {

@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { path_pages, path_ui } from "../../utils/constants";
-import { copyDirectory } from "../../utils/fileUtils";
+import { copyDirectory } from "@sodaru-cli/base";
 import { exportRootModulePage } from "../../utils/pages";
 import watch from "../../utils/watch";
 

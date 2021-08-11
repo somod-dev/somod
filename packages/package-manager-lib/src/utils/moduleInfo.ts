@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { normalize } from "path";
-import ErrorSet from "./ErrorSet";
+import { ErrorSet } from "@sodaru-cli/base";
 import {
   getAllDependencies,
   getDuplicateModules,

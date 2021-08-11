@@ -6,7 +6,7 @@ import {
   resolve,
   toList
 } from "../../src/utils/module";
-import unixStylePath from "../../src/utils/unixStylePath";
+import { unixStylePath } from "@sodaru-cli/base";
 import { createFiles, createTempDir, deleteDir } from "../utils";
 
 describe("Test util getModuleGraph with invalid input", () => {

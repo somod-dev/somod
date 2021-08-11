@@ -3,9 +3,8 @@ import { mkdir, writeFile } from "fs/promises";
 import { join, relative, dirname } from "path";
 import { file_pagesJson, path_build, path_pages, path_ui } from "./constants";
 import { get as getExports, Exports } from "./exports";
-import { read } from "./jsonFileStore";
+import { readJsonFileStore, unixStylePath } from "@sodaru-cli/base";
 import { ModuleInfo } from "./moduleInfo";
-import unixStylePath from "./unixStylePath";
 
 export type Pages = Record<string, { prefix: string; exports: Exports }>;
 
@@ -27,7 +26,7 @@ const loadPagesJson = async (packageLocation: string): Promise<Pages> => {
   );
 
   const pages: Pages = existsSync(pagesJsonPath)
-    ? ((await read(pagesJsonPath)) as Pages)
+    ? ((await readJsonFileStore(pagesJsonPath)) as Pages)
     : ({} as Pages);
 
   return pages;

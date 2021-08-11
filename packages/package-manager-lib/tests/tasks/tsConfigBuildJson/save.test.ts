@@ -2,7 +2,7 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { saveTsConfigBuildJson } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
-import { read, update } from "../../../src/utils/jsonFileStore";
+import { readJsonFileStore, updateJsonFileStore } from "@sodaru-cli/base";
 import { readFile } from "fs/promises";
 
 describe("Test Task saveTsConfigBuildJson", () => {
@@ -33,9 +33,11 @@ describe("Test Task saveTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify({ include: ["ui"] })
     });
     const tsIgnoreBuildJsonPath = join(dir, "tsconfig.build.json");
-    const tsIgnoreBuildJsonContent = await read(tsIgnoreBuildJsonPath);
+    const tsIgnoreBuildJsonContent = await readJsonFileStore(
+      tsIgnoreBuildJsonPath
+    );
     tsIgnoreBuildJsonContent.compilerOptions = { allowJs: true };
-    update(tsIgnoreBuildJsonPath, tsIgnoreBuildJsonContent);
+    updateJsonFileStore(tsIgnoreBuildJsonPath, tsIgnoreBuildJsonContent);
     await expect(saveTsConfigBuildJson(dir)).resolves.toBeUndefined();
     await expect(
       readFile(tsIgnoreBuildJsonPath, { encoding: "utf8" })

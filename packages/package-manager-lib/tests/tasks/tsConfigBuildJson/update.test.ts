@@ -2,7 +2,7 @@ import { cloneDeep } from "lodash";
 import { join } from "path";
 import { updateTsConfigBuildJson } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { read } from "../../../src/utils/jsonFileStore";
+import { readJsonFileStore } from "@sodaru-cli/base";
 
 describe("Test task updateTsConfigBuildJson", () => {
   let dir: string = null;
@@ -33,17 +33,17 @@ describe("Test task updateTsConfigBuildJson", () => {
 
   test("for no existing file", async () => {
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      validTsConfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(validTsConfig);
   });
 
   test("for invalid file", async () => {
     createFiles(dir, { "tsconfig.build.json": "" });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      validTsConfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(validTsConfig);
   });
 
   test("for valid file", async () => {
@@ -51,9 +51,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(validTsConfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      validTsConfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(validTsConfig);
   });
 
   test("for valid file with extra settings", async () => {
@@ -63,9 +63,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(tsconfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      tsconfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(tsconfig);
   });
 
   test("for valid file with extra compilerOptions", async () => {
@@ -75,9 +75,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(tsconfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      tsconfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(tsconfig);
   });
 
   test("for valid file with extra include", async () => {
@@ -87,9 +87,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(tsconfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      tsconfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(tsconfig);
   });
 
   test("for empty object", async () => {
@@ -98,9 +98,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(tsconfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      validTsConfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(validTsConfig);
   });
 
   test("for missing compilerOptions", async () => {
@@ -110,9 +110,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(tsconfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      validTsConfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(validTsConfig);
   });
 
   test("for missing include", async () => {
@@ -123,9 +123,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(tsconfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      validTsConfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(validTsConfig);
   });
 
   test("for missing default compilerOptions", async () => {
@@ -136,9 +136,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(tsconfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      validTsConfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(validTsConfig);
   });
 
   test("for missing default include", async () => {
@@ -149,9 +149,9 @@ describe("Test task updateTsConfigBuildJson", () => {
       "tsconfig.build.json": JSON.stringify(tsconfig)
     });
     await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      validTsConfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(validTsConfig);
   });
 
   test("for extra input compilerOptions", async () => {
@@ -165,9 +165,9 @@ describe("Test task updateTsConfigBuildJson", () => {
     ).resolves.toBeUndefined();
     const expectedtsconfig = cloneDeep(validTsConfig);
     (expectedtsconfig.compilerOptions as Record<string, unknown>).jsx = "react";
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      expectedtsconfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(expectedtsconfig);
   });
 
   test("for extra input include", async () => {
@@ -181,9 +181,9 @@ describe("Test task updateTsConfigBuildJson", () => {
     ).resolves.toBeUndefined();
     const expectedtsconfig = cloneDeep(validTsConfig);
     (expectedtsconfig.include as string[]).push("ui");
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      expectedtsconfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(expectedtsconfig);
   });
 
   test("for extra input compilerOptions and valid file", async () => {
@@ -196,9 +196,9 @@ describe("Test task updateTsConfigBuildJson", () => {
     await expect(
       updateTsConfigBuildJson(dir, { jsx: "react" })
     ).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      tsconfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(tsconfig);
   });
 
   test("for extra input include and valid file", async () => {
@@ -211,8 +211,8 @@ describe("Test task updateTsConfigBuildJson", () => {
     await expect(
       updateTsConfigBuildJson(dir, {}, ["ui"])
     ).resolves.toBeUndefined();
-    await expect(read(join(dir, "tsconfig.build.json"))).resolves.toEqual(
-      tsconfig
-    );
+    await expect(
+      readJsonFileStore(join(dir, "tsconfig.build.json"))
+    ).resolves.toEqual(tsconfig);
   });
 });

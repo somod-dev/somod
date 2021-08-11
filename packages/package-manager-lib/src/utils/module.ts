@@ -1,8 +1,7 @@
 import { existsSync } from "fs";
 import { join, normalize, sep } from "path";
 import { file_packageJson, path_nodeModules } from "./constants";
-import { read } from "./jsonFileStore";
-import unixStylePath from "./unixStylePath";
+import { readJsonFileStore, unixStylePath } from "@sodaru-cli/base";
 
 export type ModuleNode = {
   name: string;
@@ -74,7 +73,7 @@ export const getModuleGraph = async (
     dir: string,
     rootDir: string
   ): Promise<ModuleNode | false> => {
-    const packageJson = await read(join(dir, file_packageJson));
+    const packageJson = await readJsonFileStore(join(dir, file_packageJson));
     if (!moduleIndicators.every(indicator => !packageJson[indicator])) {
       const moduleNode: ModuleNode = {
         name: packageJson.name as string,

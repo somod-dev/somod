@@ -1,6 +1,6 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { updateEslintIgnore } from "../../../src";
-import { read } from "../../../src/utils/ignoreFileStore";
+import { readIgnoreFileStore } from "@sodaru-cli/base";
 import { join } from "path";
 
 describe("Test Util ignoreFile.update", () => {
@@ -16,10 +16,9 @@ describe("Test Util ignoreFile.update", () => {
 
   test("for non existing file", async () => {
     await expect(updateEslintIgnore(dir, [])).resolves.toBeUndefined();
-    await expect(read(join(dir, ".eslintignore"))).resolves.toEqual([
-      "node_modules",
-      "build"
-    ]);
+    await expect(
+      readIgnoreFileStore(join(dir, ".eslintignore"))
+    ).resolves.toEqual(["node_modules", "build"]);
   });
 
   test("for existing file", async () => {
@@ -27,11 +26,9 @@ describe("Test Util ignoreFile.update", () => {
       ".eslintignore": "node_modules\nbin"
     });
     await expect(updateEslintIgnore(dir, [])).resolves.toBeUndefined();
-    await expect(read(join(dir, ".eslintignore"))).resolves.toEqual([
-      "node_modules",
-      "bin",
-      "build"
-    ]);
+    await expect(
+      readIgnoreFileStore(join(dir, ".eslintignore"))
+    ).resolves.toEqual(["node_modules", "bin", "build"]);
   });
 
   test("for existing file with extra paths", async () => {
@@ -41,12 +38,9 @@ describe("Test Util ignoreFile.update", () => {
     await expect(
       updateEslintIgnore(dir, ["bin", ".next"])
     ).resolves.toBeUndefined();
-    await expect(read(join(dir, ".eslintignore"))).resolves.toEqual([
-      "node_modules",
-      "bin",
-      "build",
-      ".next"
-    ]);
+    await expect(
+      readIgnoreFileStore(join(dir, ".eslintignore"))
+    ).resolves.toEqual(["node_modules", "bin", "build", ".next"]);
   });
 
   test("for existing file with empty lines", async () => {
@@ -56,13 +50,8 @@ describe("Test Util ignoreFile.update", () => {
     await expect(
       updateEslintIgnore(dir, ["bin", ".next"])
     ).resolves.toBeUndefined();
-    await expect(read(join(dir, ".eslintignore"))).resolves.toEqual([
-      "",
-      "node_modules",
-      "",
-      "bin",
-      "build",
-      ".next"
-    ]);
+    await expect(
+      readIgnoreFileStore(join(dir, ".eslintignore"))
+    ).resolves.toEqual(["", "node_modules", "", "bin", "build", ".next"]);
   });
 });

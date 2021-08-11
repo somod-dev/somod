@@ -2,7 +2,7 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { saveEslintIgnore } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
-import { read, update } from "../../../src/utils/ignoreFileStore";
+import { readIgnoreFileStore, updateIgnoreFileStore } from "@sodaru-cli/base";
 import { readFile } from "fs/promises";
 
 describe("Test Task saveEslintIgnore", () => {
@@ -33,9 +33,9 @@ describe("Test Task saveEslintIgnore", () => {
       ".eslintignore": "node_modules"
     });
     const eslintIgnorePath = join(dir, ".eslintignore");
-    const eslintIgnoreContent = await read(eslintIgnorePath);
+    const eslintIgnoreContent = await readIgnoreFileStore(eslintIgnorePath);
     eslintIgnoreContent.push("/build");
-    update(eslintIgnorePath, eslintIgnoreContent);
+    updateIgnoreFileStore(eslintIgnorePath, eslintIgnoreContent);
     await expect(saveEslintIgnore(dir)).resolves.toBeUndefined();
     await expect(
       readFile(eslintIgnorePath, { encoding: "utf8" })

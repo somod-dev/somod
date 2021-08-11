@@ -8,9 +8,12 @@ import {
 } from "lodash";
 import { normalize, join } from "path";
 import { file_tsConfigBuildJson, path_build, path_lib } from "./constants";
-import ErrorSet from "./ErrorSet";
-import { read, update as updateJson } from "./jsonFileStore";
-import unixStylePath from "./unixStylePath";
+import {
+  readJsonFileStore,
+  updateJsonFileStore,
+  ErrorSet,
+  unixStylePath
+} from "@sodaru-cli/base";
 
 const defaultCompilerOptions = {
   allowUmdGlobalAccess: false,
@@ -34,7 +37,7 @@ export const validate = async (
 ): Promise<void> => {
   const tsConfigPath = normalize(join(dir, file_tsConfigBuildJson));
   const unixStyleTsConfigPath = unixStylePath(tsConfigPath);
-  const tsConfig = await read(tsConfigPath);
+  const tsConfig = await readJsonFileStore(tsConfigPath);
 
   const expectedCompilerOptions = {
     ...defaultCompilerOptions,
@@ -102,7 +105,7 @@ export const update = async (
   let tsConfig: TsConfigType = null;
 
   try {
-    tsConfig = (await read(tsConfigPath)) as TsConfigType;
+    tsConfig = (await readJsonFileStore(tsConfigPath)) as TsConfigType;
   } catch (e) {
     tsConfig = { compilerOptions: {}, include: [] };
   }
@@ -123,5 +126,5 @@ export const update = async (
 
   tsConfig.include = union(tsConfig.include, defaultInclude, include);
 
-  updateJson(tsConfigPath, tsConfig);
+  updateJsonFileStore(tsConfigPath, tsConfig);
 };

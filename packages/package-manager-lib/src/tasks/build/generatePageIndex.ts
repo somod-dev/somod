@@ -5,7 +5,7 @@ import {
   get as getExports,
   generateExportStatement
 } from "../../utils/exports";
-import { listFiles } from "../../utils/fileUtils";
+import { listFiles } from "@sodaru-cli/base";
 import {
   file_pagesJson,
   file_pageIndex_dts,

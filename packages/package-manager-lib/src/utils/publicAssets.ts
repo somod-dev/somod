@@ -2,7 +2,7 @@ import { existsSync } from "fs";
 import { copyFile, mkdir } from "fs/promises";
 import { dirname, join } from "path";
 import { path_build, path_public, path_ui } from "./constants";
-import { listFiles } from "./fileUtils";
+import { listFiles } from "@sodaru-cli/base";
 import { ModuleInfo } from "./moduleInfo";
 
 export type PublicAssetToModulesMap = Record<

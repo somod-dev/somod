@@ -6,8 +6,7 @@ import {
   path_public,
   path_ui
 } from "../../utils/constants";
-import ErrorSet from "../../utils/ErrorSet";
-import { read } from "../../utils/jsonFileStore";
+import { readJsonFileStore, ErrorSet } from "@sodaru-cli/base";
 import { resolve } from "../../utils/module";
 import { getModuleInfo } from "../../utils/moduleInfo";
 import { getPublicAssetToModulesMap } from "../../utils/publicAssets";
@@ -59,9 +58,10 @@ export const createPublicAssets = async (
   }
 
   if (!validateOnly) {
-    // create pages in root dir
-    const rootModuleName = (await read(join(dir, file_packageJson)))
-      .name as string;
+    // create public assets in root dir
+    const rootModuleName = (
+      await readJsonFileStore(join(dir, file_packageJson))
+    ).name as string;
 
     const createPagePromises = Object.keys(publicAssetToModuleNameMap).map(
       async publicAsset => {

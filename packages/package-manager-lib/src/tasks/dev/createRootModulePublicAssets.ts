@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { path_public, path_ui } from "../../utils/constants";
-import { listFiles } from "../../utils/fileUtils";
+import { listFiles } from "@sodaru-cli/base";
 import { exportRootModulePublicAsset } from "../../utils/publicAssets";
 
 export const createRootModulePublicAssets = async (

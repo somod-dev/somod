@@ -2,7 +2,7 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { savePrettierIgnore } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
-import { read, update } from "../../../src/utils/ignoreFileStore";
+import { readIgnoreFileStore, updateIgnoreFileStore } from "@sodaru-cli/base";
 import { readFile } from "fs/promises";
 
 describe("Test Task savePrettierIgnore", () => {
@@ -33,9 +33,9 @@ describe("Test Task savePrettierIgnore", () => {
       ".prettierignore": "node_modules"
     });
     const prettierIgnorePath = join(dir, ".prettierignore");
-    const prettierIgnoreContent = await read(prettierIgnorePath);
+    const prettierIgnoreContent = await readIgnoreFileStore(prettierIgnorePath);
     prettierIgnoreContent.push("/build");
-    update(prettierIgnorePath, prettierIgnoreContent);
+    updateIgnoreFileStore(prettierIgnorePath, prettierIgnoreContent);
     await expect(savePrettierIgnore(dir)).resolves.toBeUndefined();
     await expect(
       readFile(prettierIgnorePath, { encoding: "utf8" })
