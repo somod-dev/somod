@@ -1,6 +1,6 @@
 {
   "name": "@sodaru-cli/package-manager-lib",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Package Manager utility library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/package-manager-lib#readme",
