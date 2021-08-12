@@ -1,5 +1,7 @@
 /* eslint-disable */
 
+const commonConfig = require("@sodaru/jest-config/babel.config");
+
 module.exports = {
-  plugins: ["@babel/plugin-transform-modules-commonjs"] // compile esm modules into commonjs modules
+  ...commonConfig
 };
