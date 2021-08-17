@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/properties",
+  "title": "JSON Schema for Properties in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "^[a-zA-Z0-9]+$": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type"],
+      "properties": {
+        "Type": {
+          "enum": ["String", "Number", "List<Number>", "CommaDelimitedList"]
+        },
+        "Description": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "Default": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "boolean" }
+          ]
+        }
+      }
+    }
+  }
+}

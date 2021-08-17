@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template",
+  "title": "JSON Schema for Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["AWSTemplateFormatVersion", "Transform", "Resources"],
+  "properties": {
+    "AWSTemplateFormatVersion": {
+      "const": "2010-09-09"
+    },
+    "Transform": {
+      "const": "AWS::Serverless-2016-10-31"
+    },
+    "Description": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "Properties": { "$ref": "./properties.json" },
+    "Resources": { "$ref": "./resources/index.json" }
+  },
+  "additionalProperties": false
+}

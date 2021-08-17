@@ -1,0 +1,27 @@
+{
+  "name": "@sodaru/serverless-schema",
+  "version": "1.4.0",
+  "description": "JSON Schema for serverless templates",
+  "keywords": [
+    "sodaru",
+    "serverless",
+    "json-schema",
+    "schema"
+  ],
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/serverless-schema#readme",
+  "license": "UNLICENCED",
+  "files": [
+    "schemas"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/cli/package-managers.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/cli/package-managers/issues"
+  }
+}
