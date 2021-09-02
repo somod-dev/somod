@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/globals",
+  "title": "JSON Schema for Properties in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "Function": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Handler": {
+          "type": "string",
+          "pattern": "[a-zA-Z]+[a-zA-Z0-9]*\\.[a-zA-Z]+[a-zA-Z0-9]*"
+        },
+        "Runtime": {
+          "enum": ["nodejs14.x", "nodejs12.x"]
+        },
+        "DeadLetterQueue": {
+          "type": "string"
+        },
+        "MemorySize": {
+          "type": "number"
+        },
+        "Timeout": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

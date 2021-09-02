@@ -1,9 +1,208 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template",
-  "title": "JSON Schema for Serverless Template by Sodaru Technologies",
+  "$id": "https://sodaru.com/slp/template/resources/api",
+  "title": "JSON Schema for Api Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
   "required": ["Type", "Properties"],
+  "definitions": {
+    "Authorizer": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["UserPoolArn"],
+          "properties": {
+            "AuthorizationScopes": {
+              "type": "array",
+              "additionalItems": false,
+              "items": { "type": "string" }
+            },
+            "Identity": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "Header": {
+                  "type": "string",
+                  "default": "Authorization",
+                  "maxLength": 128
+                },
+                "ReauthorizeEvery": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3600
+                },
+                "ValidationExpression": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "examples": ["Bearer.*"]
+                }
+              }
+            },
+            "UserPoolArn": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["FunctionArn"],
+          "properties": {
+            "AuthorizationScopes": {
+              "type": "array",
+              "additionalItems": false,
+              "items": { "type": "string" }
+            },
+            "FunctionArn": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "FunctionInvokeRole": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "FunctionPayloadType": { "enum": ["TOKEN", "REQUEST"] },
+            "Identity": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "Context": {
+                  "type": "array",
+                  "additionalItems": false,
+                  "items": { "type": "string" }
+                },
+                "Headers": {
+                  "type": "array",
+                  "additionalItems": false,
+                  "items": { "type": "string" }
+                },
+                "QueryStrings": {
+                  "type": "array",
+                  "additionalItems": false,
+                  "items": { "type": "string" }
+                },
+                "StageVariables": {
+                  "type": "array",
+                  "additionalItems": false,
+                  "items": { "type": "string" }
+                },
+                "ReauthorizeEvery": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3600
+                }
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "FunctionPayloadType": { "const": "REQUEST" }
+            }
+          },
+          "then": { "required": ["FunctionArn", "Identity"] }
+        }
+      ]
+    },
+    "ApiAuth": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "AddDefaultAuthorizerToCorsPreflight": {
+          "$ref": "../expression.json#/definitions/booleanLike"
+        },
+        "ApiKeyRequired": {
+          "$ref": "../expression.json#/definitions/booleanLike"
+        },
+        "Authorizers": {
+          "type": "object",
+          "description": "The authorizer used to control access to your API Gateway API. For more information, see [Controlling access to API Gateway APIs](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-controlling-access-to-apis.html).",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[a-zA-Z0-9]+$": { "$ref": "#/definitions/Authorizer" }
+          }
+        },
+        "DefaultAuthorizer": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "InvokeRole": {
+          "oneOf": [
+            { "const": "CALLER_CREDENTIALS" },
+            { "const": "NONE" },
+            { "const": "IAMRoleArn" }
+          ]
+        },
+        "ResourcePolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "AwsAccountBlacklist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "AwsAccountWhitelist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "IntrinsicVpcBlacklist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "IntrinsicVpcWhitelist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "IntrinsicVpceBlacklist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "IntrinsicVpceWhitelist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "IpRangeBlacklist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "IpRangeWhitelist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "SourceVpcBlacklist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "SourceVpcWhitelist": {
+              "type": "array",
+              "items": { "$ref": "../expression.json#/definitions/stringLike" }
+            },
+            "CustomStatements": {
+              "type": "array",
+              "items": { "$ref": "../policy.json#/definitions/Statement" },
+              "minItems": 1,
+              "maxItems": 10
+            }
+          }
+        }
+      }
+    },
+    "GatewayResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "refer https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-gateway-responses.html",
+      "properties": {
+        "statusCode": { "type": "string", "pattern": "^[1-5][0-9][0-9]$" },
+        "responseParameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": { "^[a-zA-Z0-9.-]$": { "type": "string" } }
+        },
+        "responseTemplates": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": { "^[a-zA-Z0-9.-]$": { "type": "string" } }
+        },
+        "defaultResponse": { "type": "boolean" }
+      }
+    }
+  },
   "properties": {
     "Type": {
       "const": "AWS::Serverless::Api"
@@ -11,11 +210,180 @@
     "Properties": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["StageName"],
       "properties": {
         "Name": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "AccessLogSetting": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "DestinationArn": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "Format": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            }
+          }
+        },
+        "Auth": { "$ref": "#/definitions/ApiAuth" },
+        "BinaryMediaTypes": {
+          "type": "array",
+          "additionalItems": false,
+          "items": { "type": "string", "pattern": "^[a-z]+~1[a-z0-9-]+$" }
+        },
+        "CacheClusterEnabled": {
+          "type": "boolean"
+        },
+        "CacheClusterSize": {
+          "type": "string"
+        },
+        "Cors": {
+          "oneOf": [
+            { "type": "string", "maxLength": 64 },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["AllowOrigin"],
+              "examples": [
+                {
+                  "AllowMethods": "'POST, GET'",
+                  "AllowHeaders": "'X-Forwarded-For'",
+                  "AllowOrigin": "'www.example.com'",
+                  "MaxAge": "'600'",
+                  "AllowCredentials": true
+                }
+              ],
+              "properties": {
+                "AllowOrigin": {
+                  "$ref": "../expression.json#/definitions/stringLike"
+                },
+                "AllowCredentials": {
+                  "$ref": "../expression.json#/definitions/booleanLike"
+                },
+                "AllowHeaders": {
+                  "$ref": "../expression.json#/definitions/stringLike"
+                },
+                "AllowMethods": {
+                  "$ref": "../expression.json#/definitions/stringLike"
+                },
+                "MaxAge": {
+                  "$ref": "../expression.json#/definitions/stringLike"
+                }
+              }
+            }
+          ]
+        },
+        "Description": {
           "type": "string",
-          "pattern": "[a-zA-Z0-9]"
-        }
+          "maxLength": 256
+        },
+        "Domain": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["DomainName", "CertificateArn"],
+          "properties": {
+            "DomainName": { "type": "string", "maxLength": 64 },
+            "CertificateArn": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "BasePath": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "EndpointConfiguration": {
+              "enum": ["REGIONAL", "EDGE"],
+              "default": "REGIONAL"
+            },
+            "MutualTlsAuthentication": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "TruststoreUri": {
+                  "$ref": "../expression.json#/definitions/stringLike"
+                },
+                "TruststoreVersion": {
+                  "$ref": "../expression.json#/definitions/stringLike"
+                }
+              }
+            },
+            "SecurityPolicy": { "enum": ["TLS_1_0", "TLS_1_2"] }
+          }
+        },
+        "GatewayResponses": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ACCESS_DENIED": { "$ref": "#/definitions/GatewayResponse" },
+            "API_CONFIGURATION_ERROR": {
+              "$ref": "#/definitions/GatewayResponse"
+            },
+            "AUTHORIZER_FAILURE": { "$ref": "#/definitions/GatewayResponse" },
+            "AUTHORIZER_CONFIGURATION_ERROR": {
+              "$ref": "#/definitions/GatewayResponse"
+            },
+            "BAD_REQUEST_PARAMETERS": {
+              "$ref": "#/definitions/GatewayResponse"
+            },
+            "BAD_REQUEST_BODY": { "$ref": "#/definitions/GatewayResponse" },
+            "DEFAULT_4XX": { "$ref": "#/definitions/GatewayResponse" },
+            "DEFAULT_5XX": { "$ref": "#/definitions/GatewayResponse" },
+            "EXPIRED_TOKEN": { "$ref": "#/definitions/GatewayResponse" },
+            "INVALID_SIGNATURE": { "$ref": "#/definitions/GatewayResponse" },
+            "INTEGRATION_FAILURE": { "$ref": "#/definitions/GatewayResponse" },
+            "INTEGRATION_TIMEOUT": { "$ref": "#/definitions/GatewayResponse" },
+            "INVALID_API_KEY": { "$ref": "#/definitions/GatewayResponse" },
+            "MISSING_AUTHENTICATION_TOKEN": {
+              "$ref": "#/definitions/GatewayResponse"
+            },
+            "QUOTA_EXCEEDED": { "$ref": "#/definitions/GatewayResponse" },
+            "REQUEST_TOO_LARGE": { "$ref": "#/definitions/GatewayResponse" },
+            "RESOURCE_NOT_FOUND": { "$ref": "#/definitions/GatewayResponse" },
+            "THROTTLED": { "$ref": "#/definitions/GatewayResponse" },
+            "UNAUTHORIZED": { "$ref": "#/definitions/GatewayResponse" },
+            "UNSUPPORTED_MEDIA_TYPE": {
+              "$ref": "#/definitions/GatewayResponse"
+            }
+          }
+        },
+        "MethodSettings": {
+          "type": "array",
+          "additionalItems": false,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ResourcePath": {
+                "type": "string",
+                "pattern": "^\\/(\\*|([a-z0-9]|(1~))*)$"
+              },
+              "HttpMethod": {
+                "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+              },
+              "CacheDataEncrypted": {
+                "type": "boolean"
+              },
+              "CacheTtlInSeconds": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3600
+              },
+              "CachingEnabled": { "type": "boolean" },
+              "DataTraceEnabled": { "type": "boolean" },
+              "LoggingLevel": { "enum": ["OFF", "ERROR", "INFO"] },
+              "MetricsEnabled": { "type": "boolean" },
+              "ThrottlingBurstLimit": { "type": "integer" },
+              "ThrottlingRateLimit": { "type": "integer" }
+            }
+          }
+        },
+        "MinimumCompressionSize": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10485760
+        },
+        "StageName": { "type": "string", "default": "Prod" },
+        "Tags": { "$ref": "../tags.json#/definitions/tagsMap" }
       }
     }
   },

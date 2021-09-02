@@ -8,6 +8,7 @@
     "json-schema",
     "schema"
   ],
+  "private": true,
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/serverless-schema#readme",
   "license": "UNLICENCED",
@@ -19,7 +20,7 @@
     "url": "git+ssh://git@gitlab.com/sodaru/cli/package-managers.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "echo \"There are no tests for this package\""
   },
   "bugs": {
     "url": "https://gitlab.com/sodaru/cli/package-managers/issues"

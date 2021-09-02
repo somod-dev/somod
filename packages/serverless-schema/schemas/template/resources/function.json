@@ -1,9 +1,361 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template",
-  "title": "JSON Schema for Serverless Template by Sodaru Technologies",
+  "$id": "https://sodaru.com/slp/template/resources/function",
+  "title": "JSON Schema for Function Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
   "required": ["Type", "Properties"],
+  "definitions": {
+    "EventInvokeDestinationConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Type": { "enum": ["SQS", "SNS", "Lambda", "EventBridge"] },
+        "Destination": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        }
+      },
+      "if": {
+        "properties": {
+          "Type": { "pattern": "Lambda|EventBridge" }
+        }
+      },
+      "then": {
+        "required": ["Destination"]
+      }
+    },
+    "EventSourceApi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type", "Properties"],
+      "properties": {
+        "Type": { "const": "Api" },
+        "Properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Method", "Path"],
+          "properties": {
+            "Auth": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "ApiKeyRequired": {
+                  "$ref": "./api.json#/definitions/ApiAuth/properties/ApiKeyRequired"
+                },
+                "AuthorizationScopes": {
+                  "type": "array",
+                  "additionalItems": false,
+                  "items": { "type": "string" }
+                },
+                "Authorizer": {
+                  "$ref": "./api.json#/definitions/Authorizer"
+                },
+                "InvokeRole": {
+                  "$ref": "./api.json#/definitions/ApiAuth/properties/InvokeRole"
+                },
+                "ResourcePolicy": {
+                  "$ref": "./api.json#/definitions/ApiAuth/properties/ResourcePolicy"
+                }
+              }
+            },
+            "Method": { "$ref": "../expression.json#/definitions/stringLike" },
+            "Path": { "$ref": "../expression.json#/definitions/stringLike" },
+            "RequestModel": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "Model": {
+                  "$ref": "../expression.json#/definitions/stringLike",
+                  "description": "TODO: add a manual validation to check that this matches the Name of a model defined in the Models property of the AWS::Serverless::Api"
+                },
+                "Required": {
+                  "$ref": "../expression.json#/definitions/booleanLike"
+                }
+              }
+            },
+            "RequestParameters": {
+              "type": "array",
+              "additionalItems": false,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "patternProperties": {
+                  "^method\\.request\\.(header|querystring|path)$": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "Caching": {
+                        "$ref": "../expression.json#/definitions/booleanLike"
+                      },
+                      "Required": {
+                        "$ref": "../expression.json#/definitions/booleanLike"
+                      }
+                    },
+                    "anyOf": [
+                      { "required": ["Caching"] },
+                      { "required": ["Required"] }
+                    ]
+                  }
+                }
+              }
+            },
+            "RestApiId": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            }
+          }
+        }
+      }
+    },
+    "EventSourceCognito": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type", "Properties"],
+      "properties": {
+        "Type": { "const": "Cognito" },
+        "Properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["UserPool", "Trigger"],
+          "properties": {
+            "UserPool": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "Trigger": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  { "const": "CreateAuthChallenge" },
+                  { "const": "DefineAuthChallenge" },
+                  { "const": "VerifyAuthChallengeResponse" },
+                  { "const": "CustomMessage" },
+                  { "const": "PostAuthentication" },
+                  { "const": "PostConfirmation" },
+                  { "const": "PreAuthentication" },
+                  { "const": "PreSignUp" },
+                  { "const": "PreTokenGeneration" },
+                  { "const": "UserMigration" }
+                ]
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        }
+      }
+    },
+    "EventSourceDynamoDB": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type", "Properties"],
+      "properties": {
+        "Type": { "const": "DynamoDB" },
+        "Properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Stream", "StartingPosition"],
+          "properties": {
+            "Stream": { "$ref": "../expression.json#/definitions/stringLike" },
+            "StartingPosition": {
+              "oneOf": [{ "const": "TRIM_HORIZON" }, { "const": "LATEST" }]
+            },
+            "BatchSize": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "BisectBatchOnFunctionError": {
+              "$ref": "../expression.json#/definitions/booleanLike"
+            },
+            "DestinationConfig": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "OnFailure": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "Destination": {
+                      "$ref": "../expression.json#/definitions/stringLike"
+                    }
+                  }
+                }
+              }
+            },
+            "FunctionResponseTypes": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "MaximumBatchingWindowInSeconds": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 300
+            },
+            "MaximumRecordAgeInSeconds": {
+              "type": "integer",
+              "minimum": -1,
+              "maximum": 604800
+            },
+            "MaximumRetryAttempts": {
+              "type": "integer",
+              "minimum": -1,
+              "maximum": 604800
+            },
+            "ParallelizationFactor": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "TumblingWindowInSeconds": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 900
+            }
+          }
+        }
+      }
+    },
+    "EventSourceSchedule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type", "Properties"],
+      "properties": {
+        "Type": { "const": "Schedule" },
+        "Properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Schedule"],
+          "properties": {
+            "Schedule": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "DeadLetterConfig": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "Arn": {
+                      "$ref": "../expression.json#/definitions/stringLike"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "Type": { "const": "SQS" },
+                    "QueueLogicalId": {
+                      "$ref": "../expression.json#/definitions/stringLike"
+                    }
+                  }
+                }
+              ]
+            },
+            "Description": {
+              "type": "string",
+              "maxLength": 512
+            },
+            "Input": {
+              "type": "string"
+            },
+            "Name": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "RetryPolicy": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "MaximumEventAgeInSeconds": {
+                  "type": "integer",
+                  "minimum": 60,
+                  "maximum": 86400
+                },
+                "MaximumRetryAttempts": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 185
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "EventSourceSNS": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type", "Properties"],
+      "properties": {
+        "Type": { "const": "SNS" },
+        "Properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Topic"],
+          "properties": {
+            "Topic": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "FilterPolicy": {
+              "type": "object"
+            },
+            "SqsSubscription": {
+              "oneOf": [
+                { "const": true },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["QueueArn", "QueueUrl"],
+                  "properties": {
+                    "BatchSize": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 1000
+                    },
+                    "QueuePolicyLogicalId": {
+                      "$ref": "../expression.json#/definitions/stringLike"
+                    },
+                    "QueueArn": {
+                      "$ref": "../expression.json#/definitions/stringLike"
+                    },
+                    "QueueUrl": {
+                      "$ref": "../expression.json#/definitions/stringLike"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "EventSourceSQS": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type", "Properties"],
+      "properties": {
+        "Type": { "const": "SQS" },
+        "Properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Queue"],
+          "properties": {
+            "Queue": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "MaximumBatchingWindowInSeconds": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 300
+            },
+            "BatchSize": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        }
+      }
+    }
+  },
   "properties": {
     "Type": {
       "const": "AWS::Serverless::Function"
@@ -14,7 +366,74 @@
       "properties": {
         "CodeUri": {
           "type": "string",
-          "pattern": "functions"
+          "description": "In Serverless Packages functions exits as es6 module inside './functions' directory",
+          "pattern": "^\\.\\/functions\\/[a-zA-Z0-9]+$"
+        },
+        "DeadLetterQueue": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "Type": { "$ref": "../expression.json#/definitions/stringLike" },
+            "TargetArn": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            }
+          }
+        },
+        "Description": { "type": "string", "maxLength": 256 },
+        "Environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "Variables": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[a-zA-Z0-9_]+$": {
+                  "$ref": "../expression.json#/definitions/stringLike"
+                }
+              }
+            }
+          }
+        },
+        "EventInvokeConfig": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "DestinationConfig": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "OnFailure": {
+                  "$ref": "#/definitions/EventInvokeDestinationConfiguration"
+                },
+                "OnSuccess": {
+                  "$ref": "#/definitions/EventInvokeDestinationConfiguration"
+                }
+              }
+            },
+            "MaximumEventAgeInSeconds": {
+              "$ref": "../expression.json#/definitions/numberLike"
+            },
+            "MaximumRetryAttempts": {
+              "$ref": "../expression.json#/definitions/numberLike"
+            }
+          }
+        },
+        "Events": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[a-zA-Z0-9]+$": {
+              "oneOf": [
+                { "$ref": "#/definitions/EventSourceApi" },
+                { "$ref": "#/definitions/EventSourceCognito" },
+                { "$ref": "#/definitions/EventSourceDynamoDB" },
+                { "$ref": "#/definitions/EventSourceSchedule" },
+                { "$ref": "#/definitions/EventSourceSNS" },
+                { "$ref": "#/definitions/EventSourceSQS" }
+              ]
+            }
+          }
         }
       }
     }

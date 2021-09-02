@@ -1,0 +1,351 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/expression",
+  "title": "JSON Schema for Expression in Serverless Template by Sodaru Technologies",
+  "definitions": {
+    "string": { "type": "string" },
+    "number": { "type": "number" },
+    "boolean": { "type": "boolean" },
+    "stringLike": {
+      "oneOf": [
+        { "$ref": "#/definitions/string" },
+        { "$ref": "#/definitions/base64" },
+        { "$ref": "#/definitions/if" },
+        { "$ref": "#/definitions/findInMap" },
+        { "$ref": "#/definitions/getAtt" },
+        { "$ref": "#/definitions/join" },
+        { "$ref": "#/definitions/select" },
+        { "$ref": "#/definitions/sub" },
+        { "$ref": "#/definitions/findInMap" },
+        { "$ref": "#/definitions/ref" }
+      ]
+    },
+    "booleanLike": {
+      "oneOf": [
+        { "$ref": "#/definitions/and" },
+        { "$ref": "#/definitions/or" },
+        { "$ref": "#/definitions/equals" },
+        { "$ref": "#/definitions/not" },
+        { "$ref": "#/definitions/if" },
+        { "$ref": "#/definitions/findInMap" },
+        { "$ref": "#/definitions/ref" }
+      ]
+    },
+    "numberLike": {
+      "oneOf": [
+        { "$ref": "#/definitions/number" },
+        { "$ref": "#/definitions/getAtt" },
+        { "$ref": "#/definitions/select" },
+        { "$ref": "#/definitions/if" },
+        { "$ref": "#/definitions/findInMap" },
+        { "$ref": "#/definitions/ref" }
+      ]
+    },
+    "arrayLike": {
+      "oneOf": [
+        { "$ref": "#/definitions/cidr" },
+        { "$ref": "#/definitions/getAZs" },
+        { "$ref": "#/definitions/split" },
+        { "$ref": "#/definitions/if" },
+        { "$ref": "#/definitions/findInMap" },
+        { "$ref": "#/definitions/ref" }
+      ]
+    },
+    "base64": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Base64": { "$ref": "#/definitions/stringLike" }
+      }
+    },
+    "cidr": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Cidr": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/definitions/stringLike", "description": "ipBlock" },
+            { "$ref": "#/definitions/numberLike", "description": "count" },
+            { "$ref": "#/definitions/numberLike", "description": "cidrBits" }
+          ],
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    },
+    "and": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::And": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/booleanLike" },
+          "minItems": 1,
+          "maxItems": 10,
+          "additionalItems": false
+        }
+      }
+    },
+    "or": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Or": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/booleanLike" },
+          "minItems": 1,
+          "maxItems": 10,
+          "additionalItems": false
+        }
+      }
+    },
+    "equals": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Equals": {
+          "type": "array",
+          "items": [
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/stringLike" },
+                { "$ref": "#/definitions/numberLike" },
+                { "$ref": "#/definitions/booleanLike" },
+                { "$ref": "#/definitions/arrayLike" }
+              ]
+            },
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/stringLike" },
+                { "$ref": "#/definitions/numberLike" },
+                { "$ref": "#/definitions/booleanLike" },
+                { "$ref": "#/definitions/arrayLike" }
+              ]
+            }
+          ],
+          "maxItems": 2,
+          "minItems": 2,
+          "additionalItems": false
+        }
+      }
+    },
+    "if": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::If": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/definitions/string" },
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/stringLike" },
+                { "$ref": "#/definitions/numberLike" },
+                { "$ref": "#/definitions/booleanLike" },
+                { "$ref": "#/definitions/arrayLike" }
+              ]
+            },
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/stringLike" },
+                { "$ref": "#/definitions/numberLike" },
+                { "$ref": "#/definitions/booleanLike" },
+                { "$ref": "#/definitions/arrayLike" }
+              ]
+            }
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "additionalItems": false
+        }
+      }
+    },
+    "not": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Not": {
+          "type": "array",
+          "items": [{ "$ref": "#/definitions/booleanLike" }],
+          "maxItems": 1,
+          "minItems": 1,
+          "additionalItems": false
+        }
+      }
+    },
+    "findInMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::FindInMap": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/definitions/string" },
+            { "$ref": "#/definitions/stringLike" },
+            { "$ref": "#/definitions/stringLike" }
+          ],
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    },
+    "getAtt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::GetAtt": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/definitions/string" },
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/string" },
+                { "$ref": "#/definitions/ref" }
+              ]
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "getAZs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::GetAZs": {
+          "oneOf": [
+            { "$ref": "#/definitions/string" },
+            { "$ref": "#/definitions/ref" }
+          ]
+        }
+      }
+    },
+    "join": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Join": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/definitions/string" },
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/string" },
+                { "$ref": "#/definitions/base64" },
+                { "$ref": "#/definitions/findInMap" },
+                { "$ref": "#/definitions/getAtt" },
+                { "$ref": "#/definitions/getAZs" },
+                { "$ref": "#/definitions/if" },
+                { "$ref": "#/definitions/join" },
+                { "$ref": "#/definitions/split" },
+                { "$ref": "#/definitions/select" },
+                { "$ref": "#/definitions/sub" },
+                { "$ref": "#/definitions/ref" }
+              ]
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "select": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Select": {
+          "type": "array",
+          "items": [
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/number" },
+                { "$ref": "#/definitions/ref" },
+                { "$ref": "#/definitions/findInMap" }
+              ]
+            },
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/findInMap" },
+                { "$ref": "#/definitions/getAtt" },
+                { "$ref": "#/definitions/getAZs" },
+                { "$ref": "#/definitions/if" },
+                { "$ref": "#/definitions/split" },
+                { "$ref": "#/definitions/ref" }
+              ]
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "split": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Split": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/definitions/string" },
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/string" },
+                { "$ref": "#/definitions/base64" },
+                { "$ref": "#/definitions/findInMap" },
+                { "$ref": "#/definitions/getAtt" },
+                { "$ref": "#/definitions/getAZs" },
+                { "$ref": "#/definitions/if" },
+                { "$ref": "#/definitions/join" },
+                { "$ref": "#/definitions/select" },
+                { "$ref": "#/definitions/sub" },
+                { "$ref": "#/definitions/ref" }
+              ]
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "sub": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Sub": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/definitions/string" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[a-zA-Z0-9]+$": {
+                  "oneOf": [
+                    { "$ref": "#/definitions/string" },
+                    { "$ref": "#/definitions/base64" },
+                    { "$ref": "#/definitions/findInMap" },
+                    { "$ref": "#/definitions/getAtt" },
+                    { "$ref": "#/definitions/getAZs" },
+                    { "$ref": "#/definitions/if" },
+                    { "$ref": "#/definitions/join" },
+                    { "$ref": "#/definitions/select" },
+                    { "$ref": "#/definitions/ref" }
+                  ]
+                }
+              }
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "Ref": { "$ref": "#/definitions/string" } }
+    }
+  }
+}

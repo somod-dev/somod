@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/policy",
+  "title": "JSON Schema for IAM Policy in Serverless Template by Sodaru Technologies",
+  "definitions": {
+    "Statement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Effect", "Action", "Resource"],
+      "properties": {
+        "Sid": {
+          "type": "string",
+          "pattern": "[a-zA-Z0-9]+",
+          "maxLength": 128
+        },
+        "Principal": {
+          "oneOf": [
+            { "const": "*" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "AWS": { "type": "string" },
+                "Service": { "type": "string" }
+              }
+            }
+          ]
+        },
+        "Effect": { "oneOf": [{ "const": "Allow" }, { "const": "Deny" }] },
+        "Action": {
+          "oneOf": [
+            { "const": "*" },
+            {
+              "type": "array",
+              "additionalItems": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "Resource": {
+          "oneOf": [
+            { "const": "*" },
+            {
+              "type": "array",
+              "additionalItems": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "Condition": {
+          "description": "TODO: refer here https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_grammar.html"
+        }
+      }
+    }
+  }
+}

@@ -8,6 +8,7 @@
     "^[a-zA-Z0-9]+$": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Serverless Package limits the properties to only Type, Description and Default, Other validations are to be handlled in parameters.yaml file separately",
       "required": ["Type"],
       "properties": {
         "Type": {

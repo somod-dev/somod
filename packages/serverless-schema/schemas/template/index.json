@@ -15,6 +15,7 @@
       "type": "string",
       "maxLength": 256
     },
+    "Globals": { "$ref": "./globals.json" },
     "Properties": { "$ref": "./properties.json" },
     "Resources": { "$ref": "./resources/index.json" }
   },
