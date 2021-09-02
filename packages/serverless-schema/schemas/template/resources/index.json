@@ -6,7 +6,11 @@
   "additionalProperties": false,
   "patternProperties": {
     "^[a-zA-Z0-9]+$": {
-      "oneOf": [{ "$ref": "./function.json" }, { "$ref": "./api.json" }]
+      "oneOf": [
+        { "$ref": "./function.json" },
+        { "$ref": "./api.json" },
+        { "$ref": "./dynamodb-table.json" }
+      ]
     }
   }
 }

@@ -382,7 +382,7 @@
           "minimum": 0,
           "maximum": 10485760
         },
-        "StageName": { "type": "string", "default": "Prod" },
+        "StageName": { "const": "Prod" },
         "Tags": { "$ref": "../tags.json#/definitions/tagsMap" }
       }
     }
