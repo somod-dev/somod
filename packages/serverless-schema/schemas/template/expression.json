@@ -382,7 +382,25 @@
     "ref": {
       "type": "object",
       "additionalProperties": false,
-      "properties": { "Ref": { "$ref": "#/definitions/string" } }
+      "properties": {
+        "Ref": {
+          "oneOf": [
+            {
+              "enum": [
+                "AWS::AccountId",
+                "AWS::NotificationARNs",
+                "AWS::NoValue",
+                "AWS::Partition",
+                "AWS::Region",
+                "AWS::StackId",
+                "AWS::StackName",
+                "AWS::URLSuffix"
+              ]
+            },
+            { "$ref": "#/definitions/string" }
+          ]
+        }
+      }
     }
   }
 }
