@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/resources/cognito-userpool-group",
+  "title": "JSON Schema for Cognito Userpool Group Resource in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::Cognito::UserPoolGroup" },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["UserPoolId", "GroupName"],
+      "properties": {
+        "UserPoolId": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "GroupName": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "Description": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "Precedence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "RoleArn": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

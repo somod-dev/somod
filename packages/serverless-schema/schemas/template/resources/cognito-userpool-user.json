@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/resources/cognito-userpool-user",
+  "title": "JSON Schema for Cognito Userpool User Resource in Serverless Template by Sodaru Technologies",
+  "definitions": {
+    "AttributeType": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$"
+        },
+        "Value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::Cognito::UserPoolGroup" },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["UserPoolId", "Username"],
+      "properties": {
+        "UserPoolId": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "Username": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "ClientMetadata": { "type": "object" },
+        "DesiredDeliveryMediums": {
+          "type": "array",
+          "items": { "enum": ["EMAIL", "SMS"] },
+          "uniqueItems": true
+        },
+        "ForceAliasCreation": { "type": "boolean" },
+        "MessageAction": { "enum": ["RESEND", "SUPPRESS"] },
+        "UserAttributes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/AttributeType" }
+        },
+        "ValidationData": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/AttributeType" }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

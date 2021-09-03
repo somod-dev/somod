@@ -10,7 +10,11 @@
         { "$ref": "./function.json" },
         { "$ref": "./api.json" },
         { "$ref": "./dynamodb-table.json" },
-        { "$ref": "./cognito-userpool.json" }
+        { "$ref": "./cognito-userpool.json" },
+        { "$ref": "./cognito-userpool-client.json" },
+        { "$ref": "./cognito-userpool-group.json" },
+        { "$ref": "./cognito-userpool-user.json" },
+        { "$ref": "./cognito-userpool-user-to-group.json" }
       ]
     }
   }
