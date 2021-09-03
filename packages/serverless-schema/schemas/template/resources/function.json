@@ -5,6 +5,35 @@
   "type": "object",
   "required": ["Type", "Properties"],
   "definitions": {
+    "Environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Variables": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[a-zA-Z0-9_]+$": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            }
+          }
+        }
+      }
+    },
+    "MemorySize": {
+      "type": "integer",
+      "description": "The amount of memory available to the function at runtime. Increasing the function memory also increases its CPU allocation. The default value is 128 MB. The value can be any multiple of 1 MB.",
+      "minimum": 128,
+      "maximum": 10240,
+      "default": 128
+    },
+    "Timeout": {
+      "type": "integer",
+      "description": "The maximum time in seconds that the function can run before it is stopped",
+      "minimum": 1,
+      "maximum": 900,
+      "default": 3
+    },
     "EventInvokeDestinationConfiguration": {
       "type": "object",
       "additionalProperties": false,
@@ -21,6 +50,30 @@
       },
       "then": {
         "required": ["Destination"]
+      }
+    },
+    "EventInvokeConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "DestinationConfig": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "OnFailure": {
+              "$ref": "#/definitions/EventInvokeDestinationConfiguration"
+            },
+            "OnSuccess": {
+              "$ref": "#/definitions/EventInvokeDestinationConfiguration"
+            }
+          }
+        },
+        "MaximumEventAgeInSeconds": {
+          "$ref": "../expression.json#/definitions/numberLike"
+        },
+        "MaximumRetryAttempts": {
+          "$ref": "../expression.json#/definitions/numberLike"
+        }
       }
     },
     "EventSourceApi": {
@@ -363,7 +416,11 @@
     "Properties": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["FunctionName"],
       "properties": {
+        "FunctionName": {
+          "$ref": "../expression.json#/definitions/resourceName"
+        },
         "CodeUri": {
           "type": "string",
           "description": "In Serverless Packages functions exits as es6 module inside './functions' directory",
@@ -381,43 +438,10 @@
         },
         "Description": { "type": "string", "maxLength": 256 },
         "Environment": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "Variables": {
-              "type": "object",
-              "additionalProperties": false,
-              "patternProperties": {
-                "^[a-zA-Z0-9_]+$": {
-                  "$ref": "../expression.json#/definitions/stringLike"
-                }
-              }
-            }
-          }
+          "$ref": "#/definitions/Environment"
         },
         "EventInvokeConfig": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "DestinationConfig": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "OnFailure": {
-                  "$ref": "#/definitions/EventInvokeDestinationConfiguration"
-                },
-                "OnSuccess": {
-                  "$ref": "#/definitions/EventInvokeDestinationConfiguration"
-                }
-              }
-            },
-            "MaximumEventAgeInSeconds": {
-              "$ref": "../expression.json#/definitions/numberLike"
-            },
-            "MaximumRetryAttempts": {
-              "$ref": "../expression.json#/definitions/numberLike"
-            }
-          }
+          "$ref": "#/definitions/EventInvokeConfig"
         },
         "Events": {
           "type": "object",
@@ -434,6 +458,31 @@
               ]
             }
           }
+        },
+        "Policies": {
+          "oneOf": [
+            { "$ref": "../expression.json#/definitions/stringLike" },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  { "$ref": "../expression.json#/definitions/stringLike" },
+                  { "$ref": "../policy.json" }
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 10
+            }
+          ]
+        },
+        "Tags": {
+          "$ref": "../tags.json#/definitions/tagsMap"
+        },
+        "MemorySize": {
+          "$ref": "#/definitions/MemorySize"
+        },
+        "Timeout": {
+          "$ref": "#/definitions/Timeout"
         }
       }
     }

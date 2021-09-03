@@ -9,7 +9,8 @@
       "oneOf": [
         { "$ref": "./function.json" },
         { "$ref": "./api.json" },
-        { "$ref": "./dynamodb-table.json" }
+        { "$ref": "./dynamodb-table.json" },
+        { "$ref": "./cognito-userpool.json" }
       ]
     }
   }

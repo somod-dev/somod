@@ -1,0 +1,406 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/resources/cognito-userpool",
+  "title": "JSON Schema for Cognito Userpool Resource in Serverless Template by Sodaru Technologies",
+  "definitions": {
+    "RecoveryOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Name"],
+      "properties": {
+        "Name": {
+          "enum": ["admin_only", "verified_email", "verified_phone_number"]
+        },
+        "Priority": {
+          "enum": [1, 2]
+        }
+      }
+    },
+    "AccountRecoverySetting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["RecoveryMechanisms"],
+      "properties": {
+        "RecoveryMechanisms": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/RecoveryOption" },
+          "minItems": 1,
+          "maxItems": 3
+        }
+      }
+    },
+    "InviteMessageTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "EmailMessage": {
+          "type": "string",
+          "description": "The message template for email messages. EmailMessage is allowed only if EmailSendingAccount is DEVELOPER.",
+          "minLength": 6,
+          "maxLength": 20000,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$"
+        },
+        "EmailSubject": {
+          "type": "string",
+          "description": "The subject line for email messages. EmailSubject is allowed only if EmailSendingAccount is DEVELOPER.",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$"
+        },
+        "SMSMessage": {
+          "type": "string",
+          "description": "The message template for SMS messages.",
+          "minLength": 6,
+          "maxLength": 140,
+          "pattern": "^.*\\{####\\}.*$"
+        }
+      }
+    },
+    "AdminCreateUserConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "AllowAdminCreateUserOnly": { "type": "boolean" },
+        "InviteMessageTemplate": {
+          "$ref": "#/definitions/InviteMessageTemplate"
+        },
+        "UnusedAccountValidityDays": {
+          "type": "integer",
+          "description": "The user account expiration limit, in days, after which the account is no longer usable. To reset the account after that time limit, you must call AdminCreateUser again, specifying \"RESEND\" for the MessageAction parameter. The default value for this parameter is 7.",
+          "minimum": 0,
+          "maximum": 365
+        }
+      }
+    },
+    "DeviceConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ChallengeRequiredOnNewDevice": {
+          "type": "boolean",
+          "description": "Indicates whether a challenge is required on a new device. Only applicable to a new device."
+        },
+        "DeviceOnlyRememberedOnUserPrompt": {
+          "type": "boolean",
+          "description": "If true, a device is only remembered on user prompt."
+        }
+      }
+    },
+    "EmailConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ConfigurationSet": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "EmailSendingAccount": { "enum": ["COGNITO_DEFAULT", "DEVELOPER"] },
+        "From": {
+          "type": "string",
+          "description": "Identifies either the sender's email address or the sender's name with their email address. For example, testuser@example.com or Test User <testuser@example.com>. This address appears before the body of the email.",
+          "maxLength": 128,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+@[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$"
+        },
+        "ReplyToEmailAddress": {
+          "type": "string",
+          "description": "The destination to which the receiver of the email should reply to.",
+          "maxLength": 128,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+@[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$"
+        },
+        "SourceArn": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        }
+      }
+    },
+    "LambdaConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "CreateAuthChallenge": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "CustomMessage": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "DefineAuthChallenge": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "PostAuthentication": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "PostConfirmation": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "PreAuthentication": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "PreSignUp": { "$ref": "../expression.json#/definitions/stringLike" },
+        "PreTokenGeneration": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "UserMigration": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "VerifyAuthChallengeResponse": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        }
+      }
+    },
+    "NumberAttributeConstraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "MaxValue": {
+          "type": "string",
+          "description": "The maximum value of an attribute that is of the number data type.",
+          "pattern": "^\\d+$"
+        },
+        "MinValue": {
+          "type": "string",
+          "description": "The minimum value of an attribute that is of the number data type.",
+          "pattern": "^\\d+$"
+        }
+      }
+    },
+    "StringAttributeConstraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "MaxLength": {
+          "type": "string",
+          "description": "The maximum length",
+          "pattern": "^\\d+$"
+        },
+        "MinLength": {
+          "type": "string",
+          "description": "The minimum length",
+          "pattern": "^\\d+$"
+        }
+      }
+    },
+    "PasswordPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "MinimumLength": { "type": "integer", "minimum": 6, "maximum": 99 },
+        "RequireLowercase": { "type": "boolean" },
+        "RequireNumbers": { "type": "boolean" },
+        "RequireSymbols": { "type": "boolean" },
+        "RequireUppercase": { "type": "boolean" },
+        "TemporaryPasswordValidityDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 365
+        }
+      }
+    },
+    "Policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "PasswordPolicy": { "$ref": "#/definitions/PasswordPolicy" }
+      }
+    },
+    "SchemaAttribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "AttributeDataType": {
+          "enum": ["Boolean", "DateTime", "Number", "String"]
+        },
+        "DeveloperOnlyAttribute": { "type": "boolean" },
+        "Mutable": { "type": "boolean" },
+        "Name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$"
+        },
+        "NumberAttributeConstraints": {
+          "$ref": "#/definitions/NumberAttributeConstraints"
+        },
+        "Required": { "type": "boolean" },
+        "StringAttributeConstraints": {
+          "$ref": "#/definitions/StringAttributeConstraints"
+        }
+      }
+    },
+    "SmsConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ExternalId": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "SnsCallerArn": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        }
+      }
+    },
+    "UsernameConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "CaseSensitive": { "type": "boolean" }
+      }
+    },
+    "UserPoolAddOns": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "AdvancedSecurityMode": {
+          "enum": ["AUDIT", "ENFORCED", "OFF"]
+        }
+      }
+    },
+    "VerificationMessageTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "DefaultEmailOption": {
+          "enum": ["CONFIRM_WITH_CODE", "CONFIRM_WITH_LINK"]
+        },
+        "EmailMessage": {
+          "type": "string",
+          "description": "The email message template. EmailMessage is allowed only if EmailSendingAccount is DEVELOPER.",
+          "minLength": 6,
+          "maxLength": 20000,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$"
+        },
+        "EmailMessageByLink": {
+          "type": "string",
+          "description": "The email message template for sending a confirmation link to the user. EmailMessageByLink is allowed only if EmailSendingAccount is DEVELOPER.",
+          "minLength": 6,
+          "maxLength": 20000,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{##[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*##\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$"
+        },
+        "EmailSubject": {
+          "type": "string",
+          "description": "The subject line for the email message template. EmailSubject is allowed only if EmailSendingAccount is DEVELOPER.",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$"
+        },
+        "EmailSubjectByLink": {
+          "type": "string",
+          "description": "The subject line for the email message template for sending a confirmation link to the user. EmailSubjectByLink is allowed only EmailSendingAccount is DEVELOPER.",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$"
+        },
+        "SmsMessage": {
+          "type": "string",
+          "description": "The SMS message template.",
+          "minLength": 6,
+          "maxLength": 140,
+          "pattern": "^.*\\{####\\}.*$"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::Cognito::UserPool" },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["UserPoolName"],
+      "properties": {
+        "UserPoolName": {
+          "$ref": "../expression.json#/definitions/resourceName"
+        },
+        "AccountRecoverySetting": {
+          "$ref": "#/definitions/AccountRecoverySetting"
+        },
+        "AdminCreateUserConfig": {
+          "$ref": "#/definitions/AdminCreateUserConfig"
+        },
+        "AliasAttributes": {
+          "type": "array",
+          "items": { "enum": ["phone_number", "email", "preferred_username"] },
+          "uniqueItems": true
+        },
+        "AutoVerifiedAttributes": {
+          "type": "array",
+          "items": { "enum": ["phone_number", "email"] },
+          "uniqueItems": true
+        },
+        "DeviceConfiguration": {
+          "$ref": "#/definitions/DeviceConfiguration"
+        },
+        "EmailConfiguration": {
+          "$ref": "#/definitions/EmailConfiguration"
+        },
+        "EmailVerificationMessage": {
+          "type": "string",
+          "description": "A string representing the email verification message. EmailVerificationMessage is allowed only if EmailSendingAccount is DEVELOPER.",
+          "minLength": 6,
+          "maxLength": 20000,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$"
+        },
+        "EmailVerificationSubject": {
+          "type": "string",
+          "description": "A string representing the email verification subject. EmailVerificationSubject is allowed only if EmailSendingAccount is DEVELOPER.",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$"
+        },
+        "EnabledMfas": {
+          "type": "array",
+          "items": { "enum": ["SMS_MFA", "SOFTWARE_TOKEN_MFA"] },
+          "uniqueItems": true
+        },
+        "LambdaConfig": {
+          "$ref": "#/definitions/LambdaConfig"
+        },
+        "MfaConfiguration": {
+          "enum": ["OFF", "ON", "OPTIONAL"]
+        },
+        "Policies": {
+          "$ref": "#/definitions/Policies"
+        },
+        "Schema": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/SchemaAttribute" },
+          "maxItems": 50
+        },
+        "SmsAuthenticationMessage": {
+          "type": "string",
+          "description": "A string representing the SMS authentication message.",
+          "minLength": 6,
+          "maxLength": 140,
+          "pattern": "^.*\\{####\\}.*$"
+        },
+        "SmsConfiguration": {
+          "$ref": "#/definitions/SmsConfiguration"
+        },
+        "SmsVerificationMessage": {
+          "type": "string",
+          "description": "A string representing the SMS verification message.",
+          "minLength": 6,
+          "maxLength": 140,
+          "pattern": "^.*\\{####\\}.*$"
+        },
+        "UsernameAttributes": {
+          "type": "array",
+          "items": { "enum": ["phone_number", "email"] },
+          "uniqueItems": true
+        },
+        "UsernameConfiguration": {
+          "$ref": "#/definitions/UsernameConfiguration"
+        },
+        "UserPoolAddOns": {
+          "$ref": "#/definitions/UserPoolAddOns"
+        },
+        "UserPoolTags": { "$ref": "../tags.json#/definitions/tagsMap" },
+        "VerificationMessageTemplate": {
+          "$ref": "#/definitions/VerificationMessageTemplate"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

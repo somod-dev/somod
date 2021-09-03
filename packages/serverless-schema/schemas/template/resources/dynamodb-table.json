@@ -37,7 +37,7 @@
         "BillingMode"
       ],
       "properties": {
-        "TableName": { "$ref": "../expression.json#/definitions/stringLike" },
+        "TableName": { "$ref": "../expression.json#/definitions/resourceName" },
         "KeySchema": { "$ref": "#/definitions/KeySchema" },
         "AttributeDefinitions": {
           "type": "array",

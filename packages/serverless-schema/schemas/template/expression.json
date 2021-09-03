@@ -6,6 +6,39 @@
     "string": { "type": "string" },
     "number": { "type": "number" },
     "boolean": { "type": "boolean" },
+    "resourceName": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Fn::Join": {
+          "type": "array",
+          "items": [
+            { "enum": ["-", ".", ""], "default": "-" },
+            {
+              "type": "array",
+              "items": [
+                { "$ref": "#/definitions/stringLike" },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "Fn::Base64": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": { "Ref": { "const": "AWS::StackId" } }
+                    }
+                  }
+                }
+              ],
+              "minItems": 2,
+              "additionalItems": false
+            }
+          ],
+          "minItems": 2,
+          "additionalItems": false
+        }
+      }
+    },
     "stringLike": {
       "oneOf": [
         { "$ref": "#/definitions/string" },
@@ -232,16 +265,20 @@
             { "$ref": "#/definitions/string" },
             {
               "oneOf": [
-                { "$ref": "#/definitions/string" },
-                { "$ref": "#/definitions/base64" },
-                { "$ref": "#/definitions/findInMap" },
-                { "$ref": "#/definitions/getAtt" },
+                {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      { "$ref": "#/definitions/stringLike" },
+                      { "$ref": "#/definitions/numberLike" }
+                    ]
+                  },
+                  "minItems": 1
+                },
                 { "$ref": "#/definitions/getAZs" },
                 { "$ref": "#/definitions/if" },
-                { "$ref": "#/definitions/join" },
                 { "$ref": "#/definitions/split" },
                 { "$ref": "#/definitions/select" },
-                { "$ref": "#/definitions/sub" },
                 { "$ref": "#/definitions/ref" }
               ]
             }

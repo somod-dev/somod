@@ -56,5 +56,17 @@
         }
       }
     }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["Version"],
+  "properties": {
+    "Version": { "const": "2012-10-17" },
+    "Id": { "type": "string" },
+    "Statement": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Statement" },
+      "minItems": 1
+    }
   }
 }

@@ -3,7 +3,7 @@
   "$id": "https://sodaru.com/slp/template",
   "title": "JSON Schema for Serverless Template by Sodaru Technologies",
   "type": "object",
-  "required": ["AWSTemplateFormatVersion", "Transform", "Resources"],
+  "required": ["AWSTemplateFormatVersion", "Transform", "Globals", "Resources"],
   "properties": {
     "AWSTemplateFormatVersion": {
       "const": "2010-09-09"

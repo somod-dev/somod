@@ -4,26 +4,39 @@
   "title": "JSON Schema for Properties in Serverless Template by Sodaru Technologies",
   "type": "object",
   "additionalProperties": false,
+  "required": ["Function"],
   "properties": {
     "Function": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["Handler", "Runtime"],
       "properties": {
         "Handler": {
-          "type": "string",
-          "pattern": "[a-zA-Z]+[a-zA-Z0-9]*\\.[a-zA-Z]+[a-zA-Z0-9]*"
+          "const": "index.handler"
         },
         "Runtime": {
-          "enum": ["nodejs14.x", "nodejs12.x"]
-        },
-        "DeadLetterQueue": {
-          "type": "string"
+          "const": "nodejs14.x"
         },
         "MemorySize": {
-          "type": "number"
+          "$ref": "./resources/function.json#/definitions/MemorySize"
         },
         "Timeout": {
-          "type": "number"
+          "$ref": "./resources/function.json#/definitions/Timeout"
+        },
+        "Environment": {
+          "$ref": "./resources/function.json#/definitions/Environment"
+        },
+        "EventInvokeConfig": {
+          "$ref": "./resources/function.json#/definitions/EventInvokeConfig"
+        }
+      }
+    },
+    "Api": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Auth": {
+          "$ref": "./resources/api.json#/definitions/ApiAuth"
         }
       }
     }
