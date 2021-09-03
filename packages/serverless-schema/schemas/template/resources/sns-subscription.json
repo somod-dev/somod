@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/resources/sns-subscription",
+  "title": "JSON Schema for SNS Subscription Resource in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::SNS::Subscription" },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["TopicArn", "Protocol"],
+      "properties": {
+        "TopicArn": { "$ref": "../expression.json#/definitions/stringLike" },
+        "DeliveryPolicy": { "type": "object" },
+        "Endpoint": {
+          "$ref": "./sns-topic.json#/definitions/Subscription/properties/Endpoint"
+        },
+        "FilterPolicy": { "type": "object" },
+        "Protocol": {
+          "$ref": "./sns-topic.json#/definitions/Subscription/properties/Protocol"
+        },
+        "RawMessageDelivery": { "type": "boolean" },
+        "RedrivePolicy": { "type": "object" },
+        "Region": { "$ref": "../expression.json#/definitions/stringLike" },
+        "SubscriptionRoleArn": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        }
+      }
+    }
+  }
+}

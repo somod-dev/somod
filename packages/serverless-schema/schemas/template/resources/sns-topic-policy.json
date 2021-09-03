@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/resources/sns-topic-policy",
+  "title": "JSON Schema for SNS Topic POlicy Resource in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::SNS::TopicPolicy" },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["PolicyDocument", "Topics"],
+      "properties": {
+        "PolicyDocument": {
+          "$ref": "../policy.json"
+        },
+        "Topics": {
+          "type": "array",
+          "items": { "$ref": "../expression.json#/definitions/stringLike" }
+        }
+      }
+    }
+  }
+}

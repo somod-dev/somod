@@ -14,7 +14,10 @@
         { "$ref": "./cognito-userpool-client.json" },
         { "$ref": "./cognito-userpool-group.json" },
         { "$ref": "./cognito-userpool-user.json" },
-        { "$ref": "./cognito-userpool-user-to-group.json" }
+        { "$ref": "./cognito-userpool-user-to-group.json" },
+        { "$ref": "./sns-topic.json" },
+        { "$ref": "./sns-topic-policy.json" },
+        { "$ref": "./sns-subscription.json" }
       ]
     }
   }
