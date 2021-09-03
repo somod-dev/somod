@@ -17,7 +17,9 @@
         { "$ref": "./cognito-userpool-user-to-group.json" },
         { "$ref": "./sns-topic.json" },
         { "$ref": "./sns-topic-policy.json" },
-        { "$ref": "./sns-subscription.json" }
+        { "$ref": "./sns-subscription.json" },
+        { "$ref": "./sqs-queue.json" },
+        { "$ref": "./sqs-queue-policy.json" }
       ]
     }
   }
