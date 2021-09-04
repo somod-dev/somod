@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://sodaru.com/slp/template/resources/application",
+  "title": "JSON Schema for Application Resource in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::Serverless::Application" },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Location"],
+      "properties": {
+        "Location": { "$ref": "../expression.json#/definitions/stringLike" },
+        "NotificationARNs": {
+          "type": "array",
+          "items": { "$ref": "../expression.json#/definitions/stringLike" }
+        },
+        "Parameters": {
+          "type": "object"
+        },
+        "Tags": {
+          "$ref": "../tags.json#/definitions/tagsMap"
+        },
+        "TimeoutInMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      }
+    }
+  }
+}

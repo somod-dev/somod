@@ -7,8 +7,9 @@
   "patternProperties": {
     "^[a-zA-Z0-9]+$": {
       "oneOf": [
-        { "$ref": "./function.json" },
         { "$ref": "./api.json" },
+        { "$ref": "./application.json" },
+        { "$ref": "./function.json" },
         { "$ref": "./dynamodb-table.json" },
         { "$ref": "./cognito-userpool.json" },
         { "$ref": "./cognito-userpool-client.json" },
