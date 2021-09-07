@@ -6,36 +6,73 @@
     "string": { "type": "string" },
     "number": { "type": "number" },
     "boolean": { "type": "boolean" },
-    "resourceName": {
+    "moduleName": {
+      "type": "string",
+      "pattern": "^(@[a-zA-Z0-9-]+\\/)?[a-zA-Z0-9-]+$",
+      "maxLength": 128
+    },
+    "resourceLogicalId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z]+[a-zA-Z0-9]*$",
+      "maxLength": 32
+    },
+    "slpResourceName": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["SLP::ResourceName"],
       "properties": {
-        "Fn::Join": {
-          "type": "array",
-          "items": [
-            { "enum": ["-", ".", ""], "default": "-" },
-            {
-              "type": "array",
-              "items": [
-                { "$ref": "#/definitions/stringLike" },
-                {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "Fn::Base64": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "properties": { "Ref": { "const": "AWS::StackId" } }
-                    }
-                  }
-                }
-              ],
-              "minItems": 2,
-              "additionalItems": false
-            }
-          ],
-          "minItems": 2,
-          "additionalItems": false
+        "SLP::ResourceName": {
+          "type": "string",
+          "pattern": "^[a-zA-Z]+[a-zA-Z0-9]*$",
+          "maxLength": 32
+        }
+      }
+    },
+    "slpRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["SLP::Ref"],
+      "properties": {
+        "SLP::Ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["resource"],
+          "properties": {
+            "resource": { "$ref": "#/definitions/resourceLogicalId" },
+            "module": { "$ref": "#/definitions/moduleName" },
+            "attribute": { "type": "string", "pattern": "^[a-zA-Z0-9]+$" }
+          }
+        }
+      }
+    },
+    "slpRefParameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["SLP::RefParameter"],
+      "properties": {
+        "SLP::RefParameter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["parameter"],
+          "properties": {
+            "parameter": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9]+$",
+              "maxLength": 32
+            },
+            "module": { "$ref": "#/definitions/moduleName" }
+          }
+        }
+      }
+    },
+    "slpLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["SLP::Location"],
+      "properties": {
+        "SLP::Location": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-\\/\\.]+$"
         }
       }
     },
@@ -45,12 +82,13 @@
         { "$ref": "#/definitions/base64" },
         { "$ref": "#/definitions/if" },
         { "$ref": "#/definitions/findInMap" },
-        { "$ref": "#/definitions/getAtt" },
         { "$ref": "#/definitions/join" },
         { "$ref": "#/definitions/select" },
         { "$ref": "#/definitions/sub" },
         { "$ref": "#/definitions/findInMap" },
-        { "$ref": "#/definitions/ref" }
+        { "$ref": "#/definitions/ref" },
+        { "$ref": "#/definitions/slpRef" },
+        { "$ref": "#/definitions/slpRefParameter" }
       ]
     },
     "booleanLike": {
@@ -61,17 +99,20 @@
         { "$ref": "#/definitions/not" },
         { "$ref": "#/definitions/if" },
         { "$ref": "#/definitions/findInMap" },
-        { "$ref": "#/definitions/ref" }
+        { "$ref": "#/definitions/ref" },
+        { "$ref": "#/definitions/slpRef" },
+        { "$ref": "#/definitions/slpRefParameter" }
       ]
     },
     "numberLike": {
       "oneOf": [
         { "$ref": "#/definitions/number" },
-        { "$ref": "#/definitions/getAtt" },
         { "$ref": "#/definitions/select" },
         { "$ref": "#/definitions/if" },
         { "$ref": "#/definitions/findInMap" },
-        { "$ref": "#/definitions/ref" }
+        { "$ref": "#/definitions/ref" },
+        { "$ref": "#/definitions/slpRef" },
+        { "$ref": "#/definitions/slpRefParameter" }
       ]
     },
     "arrayLike": {
@@ -81,7 +122,9 @@
         { "$ref": "#/definitions/split" },
         { "$ref": "#/definitions/if" },
         { "$ref": "#/definitions/findInMap" },
-        { "$ref": "#/definitions/ref" }
+        { "$ref": "#/definitions/ref" },
+        { "$ref": "#/definitions/slpRef" },
+        { "$ref": "#/definitions/slpRefParameter" }
       ]
     },
     "base64": {
@@ -223,26 +266,6 @@
         }
       }
     },
-    "getAtt": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "Fn::GetAtt": {
-          "type": "array",
-          "items": [
-            { "$ref": "#/definitions/string" },
-            {
-              "oneOf": [
-                { "$ref": "#/definitions/string" },
-                { "$ref": "#/definitions/ref" }
-              ]
-            }
-          ],
-          "minItems": 2,
-          "maxItems": 2
-        }
-      }
-    },
     "getAZs": {
       "type": "object",
       "additionalProperties": false,
@@ -250,7 +273,8 @@
         "Fn::GetAZs": {
           "oneOf": [
             { "$ref": "#/definitions/string" },
-            { "$ref": "#/definitions/ref" }
+            { "$ref": "#/definitions/slpRef" },
+            { "$ref": "#/definitions/slpRefParameter" }
           ]
         }
       }
@@ -279,7 +303,9 @@
                 { "$ref": "#/definitions/if" },
                 { "$ref": "#/definitions/split" },
                 { "$ref": "#/definitions/select" },
-                { "$ref": "#/definitions/ref" }
+                { "$ref": "#/definitions/ref" },
+                { "$ref": "#/definitions/slpRef" },
+                { "$ref": "#/definitions/slpRefParameter" }
               ]
             }
           ],
@@ -298,18 +324,19 @@
             {
               "oneOf": [
                 { "$ref": "#/definitions/number" },
-                { "$ref": "#/definitions/ref" },
+                { "$ref": "#/definitions/slpRefParameter" },
                 { "$ref": "#/definitions/findInMap" }
               ]
             },
             {
               "oneOf": [
                 { "$ref": "#/definitions/findInMap" },
-                { "$ref": "#/definitions/getAtt" },
                 { "$ref": "#/definitions/getAZs" },
                 { "$ref": "#/definitions/if" },
                 { "$ref": "#/definitions/split" },
-                { "$ref": "#/definitions/ref" }
+                { "$ref": "#/definitions/ref" },
+                { "$ref": "#/definitions/slpRef" },
+                { "$ref": "#/definitions/slpRefParameter" }
               ]
             }
           ],
@@ -331,13 +358,14 @@
                 { "$ref": "#/definitions/string" },
                 { "$ref": "#/definitions/base64" },
                 { "$ref": "#/definitions/findInMap" },
-                { "$ref": "#/definitions/getAtt" },
                 { "$ref": "#/definitions/getAZs" },
                 { "$ref": "#/definitions/if" },
                 { "$ref": "#/definitions/join" },
                 { "$ref": "#/definitions/select" },
                 { "$ref": "#/definitions/sub" },
-                { "$ref": "#/definitions/ref" }
+                { "$ref": "#/definitions/ref" },
+                { "$ref": "#/definitions/slpRef" },
+                { "$ref": "#/definitions/slpRefParameter" }
               ]
             }
           ],
@@ -363,12 +391,13 @@
                     { "$ref": "#/definitions/string" },
                     { "$ref": "#/definitions/base64" },
                     { "$ref": "#/definitions/findInMap" },
-                    { "$ref": "#/definitions/getAtt" },
                     { "$ref": "#/definitions/getAZs" },
                     { "$ref": "#/definitions/if" },
                     { "$ref": "#/definitions/join" },
                     { "$ref": "#/definitions/select" },
-                    { "$ref": "#/definitions/ref" }
+                    { "$ref": "#/definitions/ref" },
+                    { "$ref": "#/definitions/slpRef" },
+                    { "$ref": "#/definitions/slpRefParameter" }
                   ]
                 }
               }
@@ -384,20 +413,15 @@
       "additionalProperties": false,
       "properties": {
         "Ref": {
-          "oneOf": [
-            {
-              "enum": [
-                "AWS::AccountId",
-                "AWS::NotificationARNs",
-                "AWS::NoValue",
-                "AWS::Partition",
-                "AWS::Region",
-                "AWS::StackId",
-                "AWS::StackName",
-                "AWS::URLSuffix"
-              ]
-            },
-            { "$ref": "#/definitions/string" }
+          "enum": [
+            "AWS::AccountId",
+            "AWS::NotificationARNs",
+            "AWS::NoValue",
+            "AWS::Partition",
+            "AWS::Region",
+            "AWS::StackId",
+            "AWS::StackName",
+            "AWS::URLSuffix"
           ]
         }
       }

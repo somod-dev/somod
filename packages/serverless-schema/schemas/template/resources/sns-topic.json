@@ -29,12 +29,23 @@
   "required": ["Type", "Properties"],
   "properties": {
     "Type": { "const": "AWS::SNS::Topic" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
     "Properties": {
       "type": "object",
       "additionalProperties": false,
       "required": ["TopicName"],
       "properties": {
-        "TopicName": { "$ref": "../expression.json#/definitions/resourceName" },
+        "TopicName": {
+          "$ref": "../expression.json#/definitions/slpResourceName"
+        },
         "ContentBasedDeduplication": { "type": "boolean" },
         "DisplayName": { "$ref": "../expression.json#/definitions/stringLike" },
         "FifoTopic": { "type": "boolean" },

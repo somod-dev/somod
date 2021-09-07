@@ -24,15 +24,13 @@
       "type": "integer",
       "description": "The amount of memory available to the function at runtime. Increasing the function memory also increases its CPU allocation. The default value is 128 MB. The value can be any multiple of 1 MB.",
       "minimum": 128,
-      "maximum": 10240,
-      "default": 128
+      "maximum": 10240
     },
     "Timeout": {
       "type": "integer",
       "description": "The maximum time in seconds that the function can run before it is stopped",
       "minimum": 1,
-      "maximum": 900,
-      "default": 3
+      "maximum": 900
     },
     "EventInvokeDestinationConfiguration": {
       "type": "object",
@@ -85,7 +83,7 @@
         "Properties": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["Method", "Path"],
+          "required": ["RestApiId", "Method", "Path"],
           "properties": {
             "Auth": {
               "type": "object",
@@ -413,18 +411,38 @@
     "Type": {
       "const": "AWS::Serverless::Function"
     },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
     "Properties": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["FunctionName"],
+      "oneOf": [{ "required": ["CodeUri"] }, { "required": ["InlineCode"] }],
       "properties": {
-        "FunctionName": {
-          "$ref": "../expression.json#/definitions/resourceName"
-        },
         "CodeUri": {
-          "type": "string",
-          "description": "In Serverless Packages functions exits as es6 module inside './functions' directory",
-          "pattern": "^\\.\\/functions\\/[a-zA-Z0-9]+$"
+          "allOf": [
+            { "$ref": "../expression.json#/definitions/slpLocation" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "SLP::Location": {
+                  "type": "string",
+                  "description": "In Serverless Packages functions exits as es6 module inside './functions' directory",
+                  "pattern": "^\\.\\/functions\\/[a-zA-Z0-9]+$"
+                }
+              }
+            }
+          ]
+        },
+        "InlineCode": {
+          "type": "string"
         },
         "DeadLetterQueue": {
           "type": "object",

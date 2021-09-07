@@ -5,10 +5,9 @@
   "type": "object",
   "additionalProperties": false,
   "patternProperties": {
-    "^[a-zA-Z0-9]+$": {
+    "^[a-zA-Z0-9]{1,32}$": {
       "oneOf": [
         { "$ref": "./api.json" },
-        { "$ref": "./application.json" },
         { "$ref": "./function.json" },
         { "$ref": "./dynamodb-table.json" },
         { "$ref": "./cognito-userpool.json" },

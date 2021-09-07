@@ -6,6 +6,15 @@
   "required": ["Type", "Properties"],
   "properties": {
     "Type": { "const": "AWS::SQS::QueuePolicy" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
     "Properties": {
       "type": "object",
       "additionalProperties": false,

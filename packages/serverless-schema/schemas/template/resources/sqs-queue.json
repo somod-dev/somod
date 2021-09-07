@@ -6,12 +6,23 @@
   "required": ["Type", "Properties"],
   "properties": {
     "Type": { "const": "AWS::SQS::Queue" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
     "Properties": {
       "type": "object",
       "additionalProperties": false,
       "required": ["QueueName"],
       "properties": {
-        "QueueName": { "$ref": "../expression.json#/definitions/resourceName" },
+        "QueueName": {
+          "$ref": "../expression.json#/definitions/slpResourceName"
+        },
         "ContentBasedDeduplication": { "type": "boolean" },
         "DeduplicationScope": { "enum": ["messageGroup", "queue"] },
         "DelaySeconds": {

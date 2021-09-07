@@ -207,15 +207,27 @@
     "Type": {
       "const": "AWS::Serverless::Api"
     },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
     "Properties": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["Name", "StageName"],
+      "required": ["Name", "StageName", "OpenApiVersion"],
       "properties": {
         "Name": {
-          "$ref": "../expression.json#/definitions/resourceName"
+          "$ref": "../expression.json#/definitions/slpResourceName"
         },
         "StageName": { "const": "Prod" },
+        "OpenApiVersion": {
+          "enum": ["2.0", "3.0.0", "3.0.1", "3.0.2", "3.0.3"]
+        },
         "AccessLogSetting": {
           "type": "object",
           "additionalProperties": false,
