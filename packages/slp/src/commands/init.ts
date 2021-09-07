@@ -1,35 +1,25 @@
 import { CommonOptions, taskRunner } from "@sodaru-cli/base";
 import {
+  file_gitIgnore,
+  file_packageJson,
+  file_templateYaml,
   initGit,
   initLib,
-  initWelcomePage,
+  key_jsnextMain,
+  key_module,
+  key_njp,
+  key_sideEffects,
+  key_type,
+  path_lib,
   saveGitIgnore,
   savePackageJson,
-  saveTsConfigBuildJson,
   setModuleInPackageJson,
-  setTypingsInPackageJson,
-  setNjpInPackageJson,
   setSideEffectsInPackageJson,
-  unsetTypeInPackageJson,
+  setSlpInPackageJson,
+  setTypingsInPackageJson,
   unsetJsnextMainInPackageJson,
-  updateGitIgnore,
-  updateTsConfigBuildJson,
-  file_packageJson,
-  key_njp,
-  key_module,
-  key_type,
-  key_sideEffects,
-  key_jsnextMain,
-  file_gitIgnore,
-  file_tsConfigJson,
-  path_nextBuild,
-  path_pages,
-  path_public,
-  file_nextEnvDTs,
-  path_ui,
-  file_tsConfigBuildJson,
-  path_lib,
-  key_typings
+  unsetTypeInPackageJson,
+  updateGitIgnore
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 
@@ -37,7 +27,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
   await taskRunner(
     `Set ${key_njp} in ${file_packageJson}`,
-    setNjpInPackageJson,
+    setSlpInPackageJson,
     verbose,
     dir
   );
@@ -48,7 +38,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     dir
   );
   await taskRunner(
-    `Set ${key_typings} in ${file_packageJson}`,
+    `Set ${key_module} in ${file_packageJson}`,
     setTypingsInPackageJson,
     verbose,
     dir
@@ -76,35 +66,15 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     taskRunner(`Initialise GIT`, initGit, verbose, dir),
 
     taskRunner(`Initialize ${file_gitIgnore}`, updateGitIgnore, verbose, dir, [
-      path_nextBuild,
-      file_tsConfigJson,
-      `/${path_pages}`,
-      `/${path_public}`,
-      file_nextEnvDTs
+      `/${file_templateYaml}`
     ]),
 
-    taskRunner(
-      `Intitalize ${file_tsConfigBuildJson}`,
-      updateTsConfigBuildJson,
-      verbose,
-      dir,
-      { jsx: "react" },
-      [path_ui]
-    ),
-
-    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
-    taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir)
+    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir)
   ]);
 
   await Promise.all([
     taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),
-    taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir),
-    taskRunner(
-      `Save ${file_tsConfigBuildJson}`,
-      saveTsConfigBuildJson,
-      verbose,
-      dir
-    )
+    taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir)
   ]);
 };
 

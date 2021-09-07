@@ -10,6 +10,7 @@ export { isValidPrettierConfig as isValidPrettierConfigInPackageJson } from "./i
 export { save as savePackageJson } from "./save";
 
 export { setNjp as setNjpInPackageJson } from "./setNjp";
+export { setSlp as setSlpInPackageJson } from "./setSlp";
 export { unsetType as unsetTypeInPackageJson } from "./unsetType";
 export { setSideEffects as setSideEffectsInPackageJson } from "./setSideEffects";
 export { unsetJsnextMain as unsetJsnextMainInPackageJson } from "./unsetJsnextMain";
