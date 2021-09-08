@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join, normalize, sep } from "path";
 import { file_packageJson, path_nodeModules } from "./constants";
-import { readJsonFileStore, unixStylePath } from "@sodaru-cli/base";
+import { ErrorSet, readJsonFileStore, unixStylePath } from "@sodaru-cli/base";
 
 export type ModuleNode = {
   name: string;
@@ -176,6 +176,34 @@ export const getDuplicateModules = (
   });
 
   return duplicateModules;
+};
+
+export const checkForRepeatedModules = (
+  modules: ModuleNodeWithPath[]
+): void => {
+  const repeatedModules = getDuplicateModules(modules);
+  if (repeatedModules.length > 0) {
+    const errors: Error[] = repeatedModules.map(repeatedModule => {
+      return new Error(
+        `module ${
+          repeatedModule.name
+        } has more than one version at ${repeatedModule.modules
+          .map((_module, i) => {
+            return (
+              i +
+              1 +
+              ". " +
+              [..._module.path, repeatedModule.name].join(" -> ") +
+              " (" +
+              _module.version +
+              ")"
+            );
+          })
+          .join(", ")}`
+      );
+    });
+    throw new ErrorSet(errors);
+  }
 };
 
 export const getAllDependencies = (module: ModuleNode): string[] => {

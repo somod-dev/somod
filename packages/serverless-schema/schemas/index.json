@@ -9,7 +9,7 @@
       "type": "string",
       "maxLength": 256
     },
-    "Properties": { "$ref": "./properties.json" },
+    "Parameters": { "$ref": "./parameters.json" },
     "Resources": { "$ref": "./resources/index.json" }
   },
   "additionalProperties": false
