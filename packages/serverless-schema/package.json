@@ -19,9 +19,7 @@
     "type": "git",
     "url": "git+ssh://git@gitlab.com/sodaru/cli/package-managers.git"
   },
-  "scripts": {
-    "test": "echo \"There are no tests for this package\""
-  },
+  "scripts": {},
   "bugs": {
     "url": "https://gitlab.com/sodaru/cli/package-managers/issues"
   }

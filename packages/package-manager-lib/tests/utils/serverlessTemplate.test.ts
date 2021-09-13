@@ -504,4 +504,232 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       }
     });
   });
+
+  test("with SLP::RefParameter without module", async () => {
+    createFiles(dir, {
+      "build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Resource1: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              Timeout: {
+                "SLP::RefParameter": {
+                  parameter: "timeout",
+                  module: "sample2"
+                }
+              }
+            }
+          }
+        }
+      })
+    });
+    await expect(
+      generateServerlessTemplate({
+        name: "sample",
+        version: "1.0.0",
+        dependencies: [],
+        packageLocation: dir
+      })
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        'Referenced module parameter {sample2, timeout} not found. Referenced in "sample" at "Resources/Resource1/Properties/Timeout"'
+      )
+    });
+  });
+
+  test("with SLP::RefParameter and with module but no Parameters section", async () => {
+    createFiles(dir, {
+      "build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Resource1: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              Timeout: {
+                "SLP::RefParameter": {
+                  parameter: "timeout",
+                  module: "sample2"
+                }
+              }
+            }
+          }
+        }
+      }),
+      "node_modules/sample2/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Resource3: {
+            Type: "AWS::Serverless::Function",
+            Properties: {}
+          }
+        }
+      })
+    });
+    await expect(
+      generateServerlessTemplate({
+        name: "sample",
+        version: "1.0.0",
+        dependencies: [
+          {
+            name: "sample2",
+            version: "1.0.0",
+            dependencies: [],
+            packageLocation: join(dir, "node_modules", "sample2")
+          }
+        ],
+        packageLocation: dir
+      })
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        'Referenced module parameter {sample2, timeout} not found. Referenced in "sample" at "Resources/Resource1/Properties/Timeout"'
+      )
+    });
+  });
+
+  test("with SLP::RefParameter and with module but no Parameter", async () => {
+    createFiles(dir, {
+      "build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Resource1: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              Timeout: {
+                "SLP::RefParameter": {
+                  parameter: "timeout",
+                  module: "sample2"
+                }
+              }
+            }
+          }
+        }
+      }),
+      "node_modules/sample2/build/serverless/template.json": JSON.stringify({
+        Parameters: {},
+        Resources: {
+          Resource3: {
+            Type: "AWS::Serverless::Function",
+            Properties: {}
+          }
+        }
+      })
+    });
+    await expect(
+      generateServerlessTemplate({
+        name: "sample",
+        version: "1.0.0",
+        dependencies: [
+          {
+            name: "sample2",
+            version: "1.0.0",
+            dependencies: [],
+            packageLocation: join(dir, "node_modules", "sample2")
+          }
+        ],
+        packageLocation: dir
+      })
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        'Referenced module parameter {sample2, timeout} not found. Referenced in "sample" at "Resources/Resource1/Properties/Timeout"'
+      )
+    });
+  });
+
+  test("with SLP::RefParameter and with valid module and parameter", async () => {
+    createFiles(dir, {
+      "build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Resource1: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              Timeout: {
+                "SLP::RefParameter": {
+                  parameter: "timeout",
+                  module: "sample2"
+                }
+              }
+            }
+          }
+        }
+      }),
+      "node_modules/sample2/build/serverless/template.json": JSON.stringify({
+        Parameters: {
+          timeout: {
+            SAMType: "String",
+            schema: {
+              type: "string",
+              maxLength: 32
+            }
+          }
+        },
+        Resources: {
+          Resource2: {
+            Type: "AWS::Serverless::Api",
+            Properties: {
+              Name: {
+                "SLP::ResourceName": "Resource2Api"
+              }
+            }
+          }
+        }
+      })
+    });
+    await expect(
+      generateServerlessTemplate({
+        name: "sample",
+        version: "1.0.0",
+        dependencies: [
+          {
+            name: "sample2",
+            version: "1.0.0",
+            dependencies: [],
+            packageLocation: join(dir, "node_modules", "sample2")
+          }
+        ],
+        packageLocation: dir
+      })
+    ).resolves.toEqual({
+      sample2: {
+        Parameters: {
+          timeout: {
+            SAMType: "String",
+            schema: {
+              type: "string",
+              maxLength: 32
+            }
+          }
+        },
+        Resources: {
+          Resource2: {
+            Type: "AWS::Serverless::Api",
+            Properties: {
+              Name: {
+                "SLP::ResourceName": "Resource2Api"
+              }
+            }
+          }
+        },
+        slpLocationPaths: [],
+        slpRefParameterPaths: [],
+        slpRefPaths: [],
+        slpResourceNamePaths: [["Resource2", "Properties", "Name"]]
+      },
+      sample: {
+        Resources: {
+          Resource1: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              Timeout: {
+                "SLP::RefParameter": {
+                  parameter: "timeout",
+                  module: "sample2"
+                }
+              }
+            }
+          }
+        },
+        slpLocationPaths: [],
+        slpRefParameterPaths: [["Resource1", "Properties", "Timeout"]],
+        slpRefPaths: [],
+        slpResourceNamePaths: []
+      }
+    });
+  });
 });

@@ -295,13 +295,17 @@ const validateSlpTemplate = (
     }
 
     if (
-      !(moduleTemplate && moduleTemplate.Parameters[refParameter.parameter])
+      !(
+        moduleTemplate &&
+        moduleTemplate.Parameters &&
+        moduleTemplate.Parameters[refParameter.parameter]
+      )
     ) {
       errors.push(
         Error(
           `Referenced module parameter {${refParameter.module}, ${
             refParameter.parameter
-          }} not found, Referenced in "${module}" at "Resources/${refParameterPath.join(
+          }} not found. Referenced in "${module}" at "Resources/${refParameterPath.join(
             "/"
           )}"`
         )
