@@ -11,5 +11,6 @@ module.exports = {
     ...commonConfig.collectCoverageFrom,
     "!src/tasks/codeSanity/**",
     "!src/tasks/build/compileTypeScript.ts"
-  ]
+  ],
+  transformIgnorePatterns: ["node_modules/(?!@sodaru|js-yaml)"]
 };

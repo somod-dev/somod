@@ -1,6 +1,8 @@
 import { ErrorSet } from "@sodaru-cli/base";
+import { createHash } from "crypto";
 import { existsSync } from "fs";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
+import { dump } from "js-yaml";
 import {
   cloneDeep,
   isArray,
@@ -8,9 +10,19 @@ import {
   isUndefined,
   mergeWith
 } from "lodash";
-import { join } from "path";
-import { file_templateJson, path_build, path_serverless } from "..";
-import { ModuleNode } from "./module";
+import { join, relative } from "path";
+import {
+  file_templateJson,
+  file_templateYaml,
+  path_build,
+  path_serverless
+} from "..";
+import {
+  checkForRepeatedModules,
+  getModuleGraph,
+  ModuleNode,
+  toList
+} from "./module";
 
 export type ServerlessTemplate = Record<string, SLPTemplate>;
 
@@ -50,10 +62,16 @@ type SLPLocation = {
   "SLP::Location": string;
 };
 
-// TODO: remove next line
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type SLPResourceName = {
   "SLP::ResourceName": string;
+};
+
+type SAMTemplate = {
+  Parameters: Record<string, { Type: string }>;
+  Resources: Record<
+    string,
+    { Type: string; DependsOn?: string; Properties: Record<string, unknown> }
+  >;
 };
 
 const KeywordSLPResourceName = "SLP::ResourceName";
@@ -140,7 +158,7 @@ const getSLPKeyword = (slpTemplate: SLPTemplate, paths: string[]): unknown => {
   paths.forEach(path => {
     keyword = keyword[path];
   });
-  return keyword;
+  return cloneDeep(keyword);
 };
 
 const replaceSLPKeyword = (
@@ -199,15 +217,15 @@ const validateSlpTemplate = (
 
     const dependsOn = resource["SLP::DependsOn"];
     if (dependsOn) {
-      if (
-        !(
-          serverlessTemplate[dependsOn.module] &&
-          serverlessTemplate[dependsOn.module].Resources[dependsOn.resource]
-        )
-      ) {
+      const moduleTemplate = dependsOn.module
+        ? serverlessTemplate[dependsOn.module]
+        : slpTemplate;
+      if (!(moduleTemplate && moduleTemplate.Resources[dependsOn.resource])) {
         errors.push(
           new Error(
-            `Dependent module resource {${dependsOn.module}, ${dependsOn.resource}} not found. Depended from {${module}, ${resourceLogicalId}}`
+            `Dependent module resource {${dependsOn.module || module}, ${
+              dependsOn.resource
+            }} not found. Depended from {${module}, ${resourceLogicalId}}`
           )
         );
       }
@@ -217,10 +235,10 @@ const validateSlpTemplate = (
   slpTemplate.slpRefPaths.forEach(refPath => {
     const reference = getSLPKeyword(slpTemplate, refPath) as SLPRef;
     const ref = reference["SLP::Ref"];
-    let moduleTemplate: SLPTemplate = slpTemplate;
-    if (ref.module) {
-      moduleTemplate = serverlessTemplate[ref.module];
-    }
+    const moduleTemplate: SLPTemplate = ref.module
+      ? serverlessTemplate[ref.module]
+      : slpTemplate;
+
     if (!(moduleTemplate && moduleTemplate.Resources[ref.resource])) {
       errors.push(
         Error(
@@ -430,8 +448,152 @@ export const generateServerlessTemplate = async (
   return serverlessTemplate;
 };
 
-/*
-// TODO: uncomment this and continue further
+const hash = (str: string): string => {
+  return createHash("sha256").update(str).digest("hex").substr(0, 8);
+};
+
+const resolveParameterName = (
+  moduleName: string,
+  parameterName: string
+): string => {
+  return "p" + hash(moduleName) + parameterName;
+};
+
+const resolveResourceLogicalId = (
+  moduleName: string,
+  resourceId: string
+): string => {
+  return "r" + hash(moduleName) + resourceId;
+};
+
+const resolveResourceName = (
+  moduleName: string,
+  resourceName: string
+): unknown => {
+  return {
+    "Fn::Join": [
+      "",
+      [
+        "slp",
+        {
+          "Fn::Select": [2, { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }]
+        },
+        hash(moduleName) + resourceName
+      ]
+    ]
+  };
+};
+
+const _generateSAMTemplate = (
+  dir: string,
+  serverlessTemplate: ServerlessTemplate
+): SAMTemplate => {
+  const samTemplate: SAMTemplate = {
+    Parameters: {},
+    Resources: {}
+  };
+
+  Object.keys(serverlessTemplate).forEach(moduleName => {
+    const slpTemplate = serverlessTemplate[moduleName];
+    if (slpTemplate.Parameters) {
+      Object.keys(slpTemplate.Parameters).forEach(paramName => {
+        const parameter = slpTemplate.Parameters[paramName];
+        samTemplate.Parameters[resolveParameterName(moduleName, paramName)] = {
+          Type: parameter.SAMType
+        };
+      });
+    }
+
+    // resolve SLP::Location
+    slpTemplate.slpLocationPaths.forEach(locationPath => {
+      const slpLocation = getSLPKeyword(
+        slpTemplate,
+        locationPath
+      ) as SLPLocation;
+      const relativeLocation = relative(dir, slpLocation["SLP::Location"])
+        .split("\\")
+        .join("/");
+      replaceSLPKeyword(slpTemplate, locationPath, relativeLocation);
+    });
+
+    // resolve SLP::ResourceName
+    slpTemplate.slpResourceNamePaths.forEach(resourceNamePath => {
+      const slpResourceName = getSLPKeyword(
+        slpTemplate,
+        resourceNamePath
+      ) as SLPResourceName;
+      replaceSLPKeyword(
+        slpTemplate,
+        resourceNamePath,
+        resolveResourceName(moduleName, slpResourceName["SLP::ResourceName"])
+      );
+    });
+
+    // resolve SLP::Ref
+    slpTemplate.slpRefPaths.forEach(refPath => {
+      const slpRef = getSLPKeyword(slpTemplate, refPath) as SLPRef;
+      if (!slpRef["SLP::Ref"].module) {
+        slpRef["SLP::Ref"].module = moduleName;
+      }
+      const resourceId = resolveResourceLogicalId(
+        slpRef["SLP::Ref"].module,
+        slpRef["SLP::Ref"].resource
+      );
+      if (slpRef["SLP::Ref"].attribute) {
+        const getAtt = {
+          "Fn::GetAtt": [resourceId, slpRef["SLP::Ref"].attribute]
+        };
+        replaceSLPKeyword(slpTemplate, refPath, getAtt);
+      } else {
+        const ref = {
+          Ref: resourceId
+        };
+        replaceSLPKeyword(slpTemplate, refPath, ref);
+      }
+    });
+
+    // resolve SLP::RefParameter
+    slpTemplate.slpRefParameterPaths.forEach(refParameterPath => {
+      const slpRefParameter = getSLPKeyword(
+        slpTemplate,
+        refParameterPath
+      ) as SLPRefParameter;
+      if (!slpRefParameter["SLP::RefParameter"].module) {
+        slpRefParameter["SLP::RefParameter"].module = moduleName;
+      }
+
+      const ref = {
+        Ref: resolveParameterName(
+          slpRefParameter["SLP::RefParameter"].module,
+          slpRefParameter["SLP::RefParameter"].parameter
+        )
+      };
+      replaceSLPKeyword(slpTemplate, refParameterPath, ref);
+    });
+
+    Object.keys(slpTemplate.Resources).forEach(resourceId => {
+      const resourceLogicalId = resolveResourceLogicalId(
+        moduleName,
+        resourceId
+      );
+      const resource = slpTemplate.Resources[resourceId];
+      const samResource: SAMTemplate["Resources"][string] = {
+        Type: resource.Type,
+        Properties: resource.Properties
+      };
+      if (resource["SLP::DependsOn"]) {
+        samResource.DependsOn = resolveResourceLogicalId(
+          resource["SLP::DependsOn"].module || moduleName,
+          resource["SLP::DependsOn"].resource
+        );
+      }
+      samTemplate.Resources[resourceLogicalId] = samResource;
+    });
+  });
+
+  return samTemplate;
+};
+
 export const generateSAMTemplate = async (
   dir: string,
   moduleIndicators: string[]
@@ -439,6 +601,24 @@ export const generateSAMTemplate = async (
   const rootModuleNode = await getModuleGraph(dir, moduleIndicators);
   const allModuleNodes = toList(rootModuleNode);
   checkForRepeatedModules(allModuleNodes);
-  const serverlessTemplate = generateServerlessTemplate(rootModuleNode);
+  const serverlessTemplate = await generateServerlessTemplate(rootModuleNode);
+  const samTemplate = _generateSAMTemplate(dir, serverlessTemplate);
+
+  const completeSamTemplate = {
+    AWSTemplateFormatVersion: "2010-09-09",
+    Transform: "AWS::Serverless-2016-10-31",
+    Globals: {
+      Function: {
+        Runtime: "nodejs14.x",
+        Handler: "index.handler"
+      }
+    },
+    ...samTemplate
+  };
+
+  const templateYamlPath = join(dir, file_templateYaml);
+
+  const templateStr = dump(completeSamTemplate);
+
+  await writeFile(templateYamlPath, templateStr);
 };
-*/
