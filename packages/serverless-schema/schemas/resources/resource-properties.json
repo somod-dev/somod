@@ -15,15 +15,20 @@
       }
     },
     "SLP::DependsOn": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["module", "resource"],
-      "properties": {
-        "module": { "$ref": "../expression.json#/definitions/moduleName" },
-        "resource": {
-          "$ref": "../expression.json#/definitions/resourceLogicalId"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["module", "resource"],
+        "properties": {
+          "module": { "$ref": "../expression.json#/definitions/moduleName" },
+          "resource": {
+            "$ref": "../expression.json#/definitions/resourceLogicalId"
+          }
         }
-      }
+      },
+      "minItems": 1,
+      "maxItems": 20
     },
     "SLP::Output": {
       "type": "object",

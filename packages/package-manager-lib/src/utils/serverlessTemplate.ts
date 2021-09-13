@@ -39,7 +39,7 @@ type SLPResource = {
   Type: string;
   Properties: Record<string, unknown>;
   "SLP::Extend"?: { module: string; resource: string };
-  "SLP::DependsOn"?: { module: string; resource: string };
+  "SLP::DependsOn"?: { module: string; resource: string }[];
   "SLP::Output"?: { default: boolean; attributes: string[] };
 };
 
@@ -70,7 +70,7 @@ type SAMTemplate = {
   Parameters: Record<string, { Type: string }>;
   Resources: Record<
     string,
-    { Type: string; DependsOn?: string; Properties: Record<string, unknown> }
+    { Type: string; DependsOn?: string[]; Properties: Record<string, unknown> }
   >;
 };
 
@@ -217,18 +217,22 @@ const validateSlpTemplate = (
 
     const dependsOn = resource["SLP::DependsOn"];
     if (dependsOn) {
-      const moduleTemplate = dependsOn.module
-        ? serverlessTemplate[dependsOn.module]
-        : slpTemplate;
-      if (!(moduleTemplate && moduleTemplate.Resources[dependsOn.resource])) {
-        errors.push(
-          new Error(
-            `Dependent module resource {${dependsOn.module || module}, ${
-              dependsOn.resource
-            }} not found. Depended from {${module}, ${resourceLogicalId}}`
-          )
-        );
-      }
+      dependsOn.forEach(_dependsOn => {
+        const moduleTemplate = _dependsOn.module
+          ? serverlessTemplate[_dependsOn.module]
+          : slpTemplate;
+        if (
+          !(moduleTemplate && moduleTemplate.Resources[_dependsOn.resource])
+        ) {
+          errors.push(
+            new Error(
+              `Dependent module resource {${_dependsOn.module || module}, ${
+                _dependsOn.resource
+              }} not found. Depended from {${module}, ${resourceLogicalId}}`
+            )
+          );
+        }
+      });
     }
   });
 
@@ -582,10 +586,12 @@ const _generateSAMTemplate = (
         Properties: resource.Properties
       };
       if (resource["SLP::DependsOn"]) {
-        samResource.DependsOn = resolveResourceLogicalId(
-          resource["SLP::DependsOn"].module || moduleName,
-          resource["SLP::DependsOn"].resource
-        );
+        samResource.DependsOn = resource["SLP::DependsOn"].map(_dependsOn => {
+          return resolveResourceLogicalId(
+            _dependsOn.module || moduleName,
+            _dependsOn.resource
+          );
+        });
       }
       samTemplate.Resources[resourceLogicalId] = samResource;
     });

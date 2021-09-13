@@ -376,10 +376,12 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
           Resource1: {
             Type: "AWS::Serverless::Function",
             Properties: {},
-            "SLP::DependsOn": {
-              module: "sample2",
-              resource: "Resource2"
-            }
+            "SLP::DependsOn": [
+              {
+                module: "sample2",
+                resource: "Resource2"
+              }
+            ]
           }
         }
       })
@@ -405,10 +407,12 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
           Resource1: {
             Type: "AWS::Serverless::Function",
             Properties: {},
-            "SLP::DependsOn": {
-              module: "sample2",
-              resource: "Resource2"
-            }
+            "SLP::DependsOn": [
+              {
+                module: "sample2",
+                resource: "Resource2"
+              }
+            ]
           }
         }
       }),
@@ -453,10 +457,12 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
                 "SLP::Location": "./functions/resource1"
               }
             },
-            "SLP::DependsOn": {
-              module: "sample2",
-              resource: "Resource2"
-            }
+            "SLP::DependsOn": [
+              {
+                module: "sample2",
+                resource: "Resource2"
+              }
+            ]
           }
         }
       }),
@@ -518,10 +524,12 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
                 )
               }
             },
-            "SLP::DependsOn": {
-              module: "sample2",
-              resource: "Resource2"
-            }
+            "SLP::DependsOn": [
+              {
+                module: "sample2",
+                resource: "Resource2"
+              }
+            ]
           }
         },
         slpLocationPaths: [["Resource1", "Properties", "CodeUri"]],
@@ -1415,10 +1423,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               module: "@sodaru/baseapi",
               resource: "BaseRestApi"
             },
-            "SLP::DependsOn": {
-              module: "@sodaru/baseapi",
-              resource: "BaseRestApiWelcomeFunction"
-            }
+            "SLP::DependsOn": [
+              {
+                module: "@sodaru/baseapi",
+                resource: "BaseRestApiWelcomeFunction"
+              }
+            ]
           },
           GetAuthGroupFunction: {
             Type: "AWS::Serverless::Function",
@@ -1446,7 +1456,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           },
           ListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
-            "SLP::DependsOn": { resource: "GetAuthGroupFunction" },
+            "SLP::DependsOn": [{ resource: "GetAuthGroupFunction" }],
             Properties: {
               Tags: {
                 Client: {
@@ -1492,7 +1502,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 Client: { Ref: "pa046855cClient" }
               }
             },
-            DependsOn: "ra046855cBaseRestApiWelcomeFunction"
+            DependsOn: ["ra046855cBaseRestApiWelcomeFunction"]
           },
           ra046855cBaseRestApiWelcomeFunction: {
             Type: "AWS::Serverless::Function",
@@ -1553,7 +1563,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 }
               }
             },
-            DependsOn: "r624eb34aGetAuthGroupFunction"
+            DependsOn: ["r624eb34aGetAuthGroupFunction"]
           }
         }
       })
