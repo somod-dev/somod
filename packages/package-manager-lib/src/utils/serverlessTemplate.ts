@@ -102,8 +102,8 @@ const getSLPKeywords = (chunk: unknown): SLPKeywords => {
       });
     }
   } else if (isArray(chunk)) {
-    chunk.forEach(index => {
-      const childKeywords = getSLPKeywords(chunk[index]);
+    chunk.forEach((arrayItem, index) => {
+      const childKeywords = getSLPKeywords(arrayItem);
       [
         "slpResourceNamePaths",
         "slpRefPaths",
@@ -111,7 +111,7 @@ const getSLPKeywords = (chunk: unknown): SLPKeywords => {
         "slpLocationPaths"
       ].forEach(paths => {
         childKeywords[paths].forEach((keywordPaths: string[]) => {
-          keywordPaths.unshift(index);
+          keywordPaths.unshift(index + "");
           keyWords[paths].push(keywordPaths);
         });
       });
@@ -226,7 +226,7 @@ const validateSlpTemplate = (
         Error(
           `Referenced module resource {${ref.module}, ${
             ref.resource
-          }} not found, Referenced in "${module}" at "Resources/${refPath.join(
+          }} not found. Referenced in "${module}" at "Resources/${refPath.join(
             "/"
           )}"`
         )
@@ -239,7 +239,7 @@ const validateSlpTemplate = (
         new Error(
           `Referenced module resource {${ref.module}, ${
             ref.resource
-          }} does not have SLP::Output, Referenced in "${module}" at "Resources/${refPath.join(
+          }} does not have SLP::Output. Referenced in "${module}" at "Resources/${refPath.join(
             "/"
           )}"`
         )
@@ -259,7 +259,7 @@ const validateSlpTemplate = (
               ref.resource
             }} does not have attribute ${
               ref.attribute
-            } in SLP::Output, Referenced in "${module}" at "Resources/${refPath.join(
+            } in SLP::Output. Referenced in "${module}" at "Resources/${refPath.join(
               "/"
             )}"`
           )
@@ -272,7 +272,7 @@ const validateSlpTemplate = (
           new Error(
             `Referenced module resource {${ref.module}, ${
               ref.resource
-            }} does not have default set to true in SLP::Output, Referenced in "${module}" at "Resources/${refPath.join(
+            }} does not have default set to true in SLP::Output. Referenced in "${module}" at "Resources/${refPath.join(
               "/"
             )}"`
           )
