@@ -1,17 +1,49 @@
 import { createFiles, createTempDir, deleteDir } from "../utils";
 import {
   generateSAMTemplate,
-  generateServerlessTemplate
+  buildTemplateJson
 } from "../../src/utils/serverlessTemplate";
 import { join } from "path";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
+import { existsSync } from "fs";
 
-describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
+describe("Test Util serverlessTemplate.buildTemplateJson", () => {
   let dir: string = null;
+  let buildTemplateJsonPath = null;
+  const moduleIndicators = ["slp"];
+
+  const singlePackageJson = {
+    "package.json": JSON.stringify({
+      name: "sample",
+      version: "1.0.0",
+      dependencies: {},
+      slp: true
+    })
+  };
+
+  const doublePackageJson = {
+    "package.json": JSON.stringify({
+      name: "sample",
+      version: "1.0.0",
+      dependencies: { sample2: "^1.0.0" },
+      slp: true
+    }),
+    "node_modules/sample2/package.json": JSON.stringify({
+      name: "sample2",
+      version: "1.0.0",
+      dependencies: {},
+      slp: true
+    })
+  };
+
+  const StringifyTemplate = (json: unknown): string => {
+    return JSON.stringify(json, null, 2);
+  };
 
   beforeEach(() => {
     dir = createTempDir();
+    buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
   });
 
   afterEach(() => {
@@ -19,222 +51,159 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with empty module", async () => {
+    createFiles(dir, { ...singlePackageJson });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({});
+      buildTemplateJson(dir, moduleIndicators)
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        `file "${join(dir, "serverless", "template.yaml")}" does not exist`
+      )
+    });
+    expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
 
   test("with only root module", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {}
-          }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {}
         }
-      })
-    });
-    await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample: {
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {}
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: []
       }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
+
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::Function", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                "SLP::Function": "Resource1"
-              }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              "SLP::Function": "Resource1"
             }
           }
         }
-      })
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/Resource1.ts": "",
+      ...singlePackageJson
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample: {
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                "SLP::Function": {
-                  module: "sample",
-                  function: "Resource1"
-                }
-              }
-            }
-          }
-        },
-        slpFunctionPaths: [["Resource1", "Properties", "CodeUri"]],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: []
-      }
-    });
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::ResourceName", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              FunctionName: {
-                "SLP::ResourceName": "Resource1"
-              }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            FunctionName: {
+              "SLP::ResourceName": "Resource1"
             }
           }
         }
-      })
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample: {
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              FunctionName: {
-                "SLP::ResourceName": "Resource1"
-              }
-            }
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: [["Resource1", "Properties", "FunctionName"]]
-      }
-    });
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::Output", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {},
-            "SLP::Output": {
-              default: true,
-              attributes: []
-            }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {},
+          "SLP::Output": {
+            default: true,
+            attributes: []
           }
         }
-      })
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample: {
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {},
-            "SLP::Output": {
-              default: true,
-              attributes: []
-            }
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: []
-      }
-    });
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::Extend without module", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {},
-            "SLP::Extend": {
-              module: "sample2",
-              resource: "Resource2"
-            }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {},
+          "SLP::Extend": {
+            module: "sample2",
+            resource: "Resource2"
           }
         }
-      })
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         "Extended module resource {sample2, Resource2} not found. Extended in {sample, Resource1}"
       )
     });
+    expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
 
   test("with SLP::Extend and with module but no resource", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {},
-            "SLP::Extend": {
-              module: "sample2",
-              resource: "Resource2"
-            }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {},
+          "SLP::Extend": {
+            module: "sample2",
+            resource: "Resource2"
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource3: {
@@ -245,19 +214,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         "Extended module resource {sample2, Resource2} not found. Extended in {sample, Resource1}"
@@ -266,31 +223,35 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::Extend and with valid module and resource", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                "SLP::Function": "resource1"
-              }
-            },
-            "SLP::Extend": {
-              module: "sample2",
-              resource: "Resource2"
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              "SLP::Function": "resource1"
             }
           },
-          Resource2: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                "SLP::Function": "resource2"
-              }
+          "SLP::Extend": {
+            module: "sample2",
+            resource: "Resource2"
+          }
+        },
+        Resource2: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              "SLP::Function": "resource2"
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/resource1.ts": "",
+      "serverless/functions/resource2.ts": "",
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource2: {
@@ -305,82 +266,34 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample2: {
-        Resources: {
-          Resource2: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              FunctionName: {
-                "SLP::ResourceName": "Resource2Function"
-              },
-              CodeUri: {
-                "SLP::Function": { module: "sample", function: "resource1" }
-              }
-            }
-          }
-        },
-        slpFunctionPaths: [["Resource2", "Properties", "CodeUri"]],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: [["Resource2", "Properties", "FunctionName"]]
-      },
-      sample: {
-        Resources: {
-          Resource2: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                "SLP::Function": { module: "sample", function: "resource2" }
-              }
-            }
-          }
-        },
-        slpFunctionPaths: [["Resource2", "Properties", "CodeUri"]],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: []
-      }
-    });
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::DependsOn without module", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {},
-            "SLP::DependsOn": [
-              {
-                module: "sample2",
-                resource: "Resource2"
-              }
-            ]
-          }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {},
+          "SLP::DependsOn": [
+            {
+              module: "sample2",
+              resource: "Resource2"
+            }
+          ]
         }
-      })
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         "Dependent module resource {sample2, Resource2} not found. Depended from {sample, Resource1}"
@@ -389,21 +302,23 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::DependsOn and with module but no resource", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {},
-            "SLP::DependsOn": [
-              {
-                module: "sample2",
-                resource: "Resource2"
-              }
-            ]
-          }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {},
+          "SLP::DependsOn": [
+            {
+              module: "sample2",
+              resource: "Resource2"
+            }
+          ]
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource3: {
@@ -414,19 +329,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         "Dependent module resource {sample2, Resource2} not found. Depended from {sample, Resource1}"
@@ -435,25 +338,28 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::DependsOn and with valid module and resource", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                "SLP::Function": "resource1"
-              }
-            },
-            "SLP::DependsOn": [
-              {
-                module: "sample2",
-                resource: "Resource2"
-              }
-            ]
-          }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              "SLP::Function": "resource1"
+            }
+          },
+          "SLP::DependsOn": [
+            {
+              module: "sample2",
+              resource: "Resource2"
+            }
+          ]
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/resource1.ts": "",
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource2: {
@@ -468,86 +374,35 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample2: {
-        Resources: {
-          Resource2: {
-            Type: "AWS::Serverless::Api",
-            Properties: {
-              Name: {
-                "SLP::ResourceName": "Resource2Api"
-              }
-            }
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: [["Resource2", "Properties", "Name"]]
-      },
-      sample: {
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                "SLP::Function": { module: "sample", function: "resource1" }
-              }
-            },
-            "SLP::DependsOn": [
-              {
-                module: "sample2",
-                resource: "Resource2"
-              }
-            ]
-          }
-        },
-        slpFunctionPaths: [["Resource1", "Properties", "CodeUri"]],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: []
-      }
-    });
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::RefParameter without module", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Timeout: {
-                "SLP::RefParameter": {
-                  parameter: "timeout",
-                  module: "sample2"
-                }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Timeout: {
+              "SLP::RefParameter": {
+                parameter: "timeout",
+                module: "sample2"
               }
             }
           }
         }
-      })
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module parameter {sample2, timeout} not found. Referenced in "sample" at "Resources/Resource1/Properties/Timeout"'
@@ -556,22 +411,24 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::RefParameter and with module but no Parameters section", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Timeout: {
-                "SLP::RefParameter": {
-                  parameter: "timeout",
-                  module: "sample2"
-                }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Timeout: {
+              "SLP::RefParameter": {
+                parameter: "timeout",
+                module: "sample2"
               }
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource3: {
@@ -582,19 +439,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module parameter {sample2, timeout} not found. Referenced in "sample" at "Resources/Resource1/Properties/Timeout"'
@@ -603,22 +448,24 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::RefParameter and with module but no Parameter", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Timeout: {
-                "SLP::RefParameter": {
-                  parameter: "timeout",
-                  module: "sample2"
-                }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Timeout: {
+              "SLP::RefParameter": {
+                parameter: "timeout",
+                module: "sample2"
               }
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Parameters: {},
         Resources: {
@@ -630,19 +477,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module parameter {sample2, timeout} not found. Referenced in "sample" at "Resources/Resource1/Properties/Timeout"'
@@ -651,22 +486,24 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::RefParameter and with valid module and parameter", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Timeout: {
-                "SLP::RefParameter": {
-                  parameter: "timeout",
-                  module: "sample2"
-                }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Timeout: {
+              "SLP::RefParameter": {
+                parameter: "timeout",
+                module: "sample2"
               }
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Parameters: {
           timeout: {
@@ -678,159 +515,72 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
           }
         },
         Resources: {
-          Resource2: {
-            Type: "AWS::Serverless::Api",
-            Properties: {
-              Name: {
-                "SLP::ResourceName": "Resource2Api"
-              }
-            }
+          Resource3: {
+            Type: "AWS::Serverless::Function",
+            Properties: {}
           }
         }
       })
     });
+
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample2: {
-        Parameters: {
-          timeout: {
-            SAMType: "String",
-            schema: {
-              type: "string",
-              maxLength: 32
-            }
-          }
-        },
-        Resources: {
-          Resource2: {
-            Type: "AWS::Serverless::Api",
-            Properties: {
-              Name: {
-                "SLP::ResourceName": "Resource2Api"
-              }
-            }
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: [["Resource2", "Properties", "Name"]]
-      },
-      sample: {
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Timeout: {
-                "SLP::RefParameter": {
-                  parameter: "timeout",
-                  module: "sample2"
-                }
-              }
-            }
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [["Resource1", "Properties", "Timeout"]],
-        slpRefPaths: [],
-        slpResourceNamePaths: []
-      }
-    });
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::RefParameter local parameter", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Parameters: {
-          timeout: {
-            SAMType: "String",
-            schema: {
-              type: "string",
-              maxLength: 32
-            }
+    const template = {
+      Parameters: {
+        timeout: {
+          SAMType: "String",
+          schema: {
+            type: "string",
+            maxLength: 32
           }
-        },
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Timeout: {
-                "SLP::RefParameter": {
-                  parameter: "timeout"
-                }
+        }
+      },
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Timeout: {
+              "SLP::RefParameter": {
+                parameter: "timeout"
               }
             }
           }
         }
-      })
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample: {
-        Parameters: {
-          timeout: {
-            SAMType: "String",
-            schema: {
-              type: "string",
-              maxLength: 32
-            }
-          }
-        },
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Timeout: {
-                "SLP::RefParameter": {
-                  parameter: "timeout"
-                }
-              }
-            }
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [["Resource1", "Properties", "Timeout"]],
-        slpRefPaths: [],
-        slpResourceNamePaths: []
-      }
-    });
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::Ref without module", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        module: "sample2",
-                        resource: "Resource2"
-                      }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  RestApiId: {
+                    "SLP::Ref": {
+                      module: "sample2",
+                      resource: "Resource2"
                     }
                   }
                 }
@@ -838,15 +588,14 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         }
-      })
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {sample2, Resource2} not found. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
@@ -855,21 +604,19 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::Ref and with module but no Resource", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        module: "sample2",
-                        resource: "Resource2"
-                      }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  RestApiId: {
+                    "SLP::Ref": {
+                      module: "sample2",
+                      resource: "Resource2"
                     }
                   }
                 }
@@ -877,7 +624,11 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource3: {
@@ -888,19 +639,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {sample2, Resource2} not found. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
@@ -909,21 +648,19 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::Ref and with module with Resource but no output", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        module: "sample2",
-                        resource: "Resource2"
-                      }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  RestApiId: {
+                    "SLP::Ref": {
+                      module: "sample2",
+                      resource: "Resource2"
                     }
                   }
                 }
@@ -931,7 +668,11 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource2: {
@@ -942,19 +683,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {sample2, Resource2} does not have SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
@@ -963,21 +692,19 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::Ref and with module with Resource but target output default is false", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        module: "sample2",
-                        resource: "Resource2"
-                      }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  RestApiId: {
+                    "SLP::Ref": {
+                      module: "sample2",
+                      resource: "Resource2"
                     }
                   }
                 }
@@ -985,7 +712,11 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource2: {
@@ -999,19 +730,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {sample2, Resource2} does not have default set to true in SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
@@ -1020,22 +739,20 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::Ref and with module with Resource but target output attributes does not include", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        module: "sample2",
-                        resource: "Resource2",
-                        attribute: "Id"
-                      }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  RestApiId: {
+                    "SLP::Ref": {
+                      module: "sample2",
+                      resource: "Resource2",
+                      attribute: "Id"
                     }
                   }
                 }
@@ -1043,7 +760,11 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource2: {
@@ -1058,19 +779,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
       })
     });
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
+      buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {sample2, Resource2} does not have attribute Id in SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
@@ -1079,35 +788,33 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
   });
 
   test("with SLP::Ref with a valid reference", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Description: {
-                "Fn::Sub": [
-                  "Invoked from ${restApiName}",
-                  {
-                    restApiName: {
-                      "SLP::Ref": {
-                        module: "sample2",
-                        resource: "Resource2",
-                        attribute: "Name"
-                      }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Description: {
+              "Fn::Sub": [
+                "Invoked from ${restApiName}",
+                {
+                  restApiName: {
+                    "SLP::Ref": {
+                      module: "sample2",
+                      resource: "Resource2",
+                      attribute: "Name"
                     }
                   }
-                ]
-              },
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        module: "sample2",
-                        resource: "Resource2"
-                      }
+                }
+              ]
+            },
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  RestApiId: {
+                    "SLP::Ref": {
+                      module: "sample2",
+                      resource: "Resource2"
                     }
                   }
                 }
@@ -1115,7 +822,11 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         }
-      }),
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource2: {
@@ -1129,214 +840,68 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
         }
       })
     });
+
     await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [
-          {
-            name: "sample2",
-            version: "1.0.0",
-            dependencies: [],
-            packageLocation: join(dir, "node_modules", "sample2")
-          }
-        ],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample: {
-        Resources: {
-          Resource1: {
-            Properties: {
-              Description: {
-                "Fn::Sub": [
-                  "Invoked from ${restApiName}",
-                  {
-                    restApiName: {
-                      "SLP::Ref": {
-                        attribute: "Name",
-                        module: "sample2",
-                        resource: "Resource2"
-                      }
-                    }
-                  }
-                ]
-              },
-              Events: {
-                ApiEvent: {
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        module: "sample2",
-                        resource: "Resource2"
-                      }
-                    }
-                  },
-                  Type: "Api"
-                }
-              }
-            },
-            Type: "AWS::Serverless::Function"
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [],
-        slpRefPaths: [
-          [
-            "Resource1",
-            "Properties",
-            "Description",
-            "Fn::Sub",
-            "1",
-            "restApiName"
-          ],
-          [
-            "Resource1",
-            "Properties",
-            "Events",
-            "ApiEvent",
-            "Properties",
-            "RestApiId"
-          ]
-        ],
-        slpResourceNamePaths: []
-      },
-      sample2: {
-        Resources: {
-          Resource2: {
-            Properties: {},
-            "SLP::Output": {
-              attributes: ["Name"],
-              default: true
-            },
-            Type: "AWS::Serverless::Api"
-          }
-        },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [],
-        slpRefPaths: [],
-        slpResourceNamePaths: []
-      }
-    });
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::Ref with a valid local reference", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          Resource1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Description: {
-                "Fn::Sub": [
-                  "Invoked from ${restApiName}",
-                  {
-                    restApiName: {
-                      "SLP::Ref": {
-                        resource: "Resource2",
-                        attribute: "Name"
-                      }
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Description: {
+              "Fn::Sub": [
+                "Invoked from ${restApiName}",
+                {
+                  restApiName: {
+                    "SLP::Ref": {
+                      resource: "Resource2",
+                      attribute: "Name"
                     }
                   }
-                ]
-              },
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        resource: "Resource2"
-                      }
+                }
+              ]
+            },
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  RestApiId: {
+                    "SLP::Ref": {
+                      resource: "Resource2"
                     }
                   }
                 }
               }
             }
-          },
-          Resource2: {
-            Type: "AWS::Serverless::Api",
-            Properties: {},
-            "SLP::Output": {
-              default: true,
-              attributes: ["Name"]
-            }
-          }
-        }
-      })
-    });
-    await expect(
-      generateServerlessTemplate({
-        name: "sample",
-        version: "1.0.0",
-        dependencies: [],
-        packageLocation: dir
-      })
-    ).resolves.toEqual({
-      sample: {
-        Resources: {
-          Resource1: {
-            Properties: {
-              Description: {
-                "Fn::Sub": [
-                  "Invoked from ${restApiName}",
-                  {
-                    restApiName: {
-                      "SLP::Ref": {
-                        attribute: "Name",
-                        resource: "Resource2"
-                      }
-                    }
-                  }
-                ]
-              },
-              Events: {
-                ApiEvent: {
-                  Properties: {
-                    RestApiId: {
-                      "SLP::Ref": {
-                        resource: "Resource2"
-                      }
-                    }
-                  },
-                  Type: "Api"
-                }
-              }
-            },
-            Type: "AWS::Serverless::Function"
-          },
-          Resource2: {
-            Properties: {},
-            "SLP::Output": {
-              attributes: ["Name"],
-              default: true
-            },
-            Type: "AWS::Serverless::Api"
           }
         },
-        slpFunctionPaths: [],
-        slpRefParameterPaths: [],
-        slpRefPaths: [
-          [
-            "Resource1",
-            "Properties",
-            "Description",
-            "Fn::Sub",
-            "1",
-            "restApiName"
-          ],
-          [
-            "Resource1",
-            "Properties",
-            "Events",
-            "ApiEvent",
-            "Properties",
-            "RestApiId"
-          ]
-        ],
-        slpResourceNamePaths: []
+        Resource2: {
+          Type: "AWS::Serverless::Api",
+          Properties: {},
+          "SLP::Output": {
+            default: true,
+            attributes: ["Name"]
+          }
+        }
       }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
     });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 });
 
