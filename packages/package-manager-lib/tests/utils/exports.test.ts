@@ -1,8 +1,8 @@
 import { get as getExports, Exports } from "../../src/utils/exports";
-import { writeFileSync } from "fs";
 import { join as pathJoin } from "path";
 import { sync as rimrafSync } from "rimraf";
 import { createFiles, createTempDir } from "../utils";
+import { isString } from "lodash";
 
 describe("Test getExports with invalid inputs", () => {
   test("no input", () => {
@@ -25,19 +25,18 @@ describe("Test getExports with invalid inputs", () => {
 
 const template = (
   description: string,
-  code: string,
+  code: string | Record<string, string>,
   expectedExports: Exports,
-  expectedError?: string,
-  files?: Record<string, string>
+  expectedError?: string
 ) => {
   describe(description, () => {
     let dir: string = null;
+    let file = null;
     beforeEach(() => {
       dir = createTempDir();
-      writeFileSync(pathJoin(dir, "code.ts"), code);
-      if (files) {
-        createFiles(dir, files);
-      }
+      const files = isString(code) ? { "code.ts": code } : code;
+      file = Object.keys(files)[0];
+      createFiles(dir, files);
     });
 
     afterEach(() => {
@@ -46,15 +45,14 @@ const template = (
 
     test("test", () => {
       if (expectedError) {
-        const _expectedError = expectedError.replace(
-          "${PATH}",
-          pathJoin(dir, "code.ts")
-        );
-        expect(() => getExports(pathJoin(dir, "code.ts"))).toThrowError(
+        const _expectedError = expectedError
+          .replace("${PATH}", pathJoin(dir, file))
+          .replace(/\$\{DIR\}/g, pathJoin(dir));
+        expect(() => getExports(pathJoin(dir, file))).toThrowError(
           _expectedError
         );
       } else {
-        expect(getExports(pathJoin(dir, "code.ts"))).toEqual(expectedExports);
+        expect(getExports(pathJoin(dir, file))).toEqual(expectedExports);
       }
     });
   });
@@ -202,51 +200,93 @@ template(
 
 template(
   "Test getExports with export All from ts file declaration",
-  `export * from "./a";`,
+  { "code.ts": `export * from "./a";`, "a.ts": "export const A = 10;" },
   {
     default: false,
     named: ["A"]
-  },
-  null,
-  { "a.ts": "export const A = 10;" }
+  }
 );
 
 template(
   "Test getExports with export All from tsx file declaration",
-  `export * from "./a";`,
+  { "code.ts": `export * from "./a";`, "a.tsx": "export const A = 10;" },
   {
     default: false,
     named: ["A"]
-  },
-  null,
-  { "a.tsx": "export const A = 10;" }
+  }
 );
 
 template(
   "Test getExports with export All from deep declaration",
-  `export * from "./a";`,
   {
-    default: false,
-    named: ["A", "C", "C1", "D"]
-  },
-  null,
-  {
+    "code.ts": `export * from "./a";`,
     "a.tsx": 'export const A = 10; export * from "./b/c";',
     "b/c.ts":
       'export const C = 20; export const C1 = 25; export * from "../d";',
     "d.ts": "export const D = 30; const D1 = 23; export default D1;"
+  },
+  {
+    default: false,
+    named: ["A", "C", "C1", "D"]
   }
 );
 
 template(
   "Test getExports with export All declaration from js file",
-  `export * from "./a";`,
+  { "code.ts": `export * from "./a";`, "a.js": "export const A = 10;" },
   {
     default: false,
     named: []
   },
-  "export * is supported only from .ts or .tsx files in ${PATH}",
-  { "a.js": "export const A = 10;" }
+  'unable to resolve module "${DIR}\\a.ts" or "${DIR}\\a.tsx" in ${PATH}'
+);
+
+template(
+  "Test getExports with export All declaration from js to js",
+  { "code.js": `export * from "./a";`, "a.js": "export const A = 10;" },
+  {
+    default: false,
+    named: ["A"]
+  }
+);
+
+template(
+  "Test getExports with export All declaration from js to ts",
+  { "code.js": `export * from "./a";`, "a.ts": "export const A = 10;" },
+  {
+    default: false,
+    named: []
+  },
+  'unable to resolve module "${DIR}\\a.js" in ${PATH}'
+);
+
+template(
+  "Test getExports with export All declaration from .d.ts to .d.ts",
+  { "code.d.ts": `export * from "./a";`, "a.d.ts": "export const A = 10;" },
+  {
+    default: false,
+    named: ["A"]
+  }
+);
+
+template(
+  "Test getExports with export All declaration from .d.ts to js",
+  { "code.d.ts": `export * from "./a";`, "a.js": "export const A = 10;" },
+  {
+    default: false,
+    named: []
+  },
+  'unable to resolve module "${DIR}\\a.d.ts" in ${PATH}'
+);
+
+template(
+  "Test getExports with export All declaration from jsx",
+  { "code.jsx": `export * from "./a";`, "a.jsx": "export const A = 10;" },
+  {
+    default: false,
+    named: []
+  },
+  'export * is not supported for file type ".jsx" in ${PATH}'
 );
 
 template(

@@ -113,13 +113,36 @@ const getExportsFromExportAllDeclaration = (
       const currentDir = dirname(file);
       const sourceTsFilePath = normalize(join(currentDir, source + ".ts"));
       const sourceTsxFilePath = normalize(join(currentDir, source + ".tsx"));
+      const sourceDTsFilePath = normalize(join(currentDir, source + ".d.ts"));
+      const sourceJsFilePath = normalize(join(currentDir, source + ".js"));
       let sourceFile = null;
-      if (existsSync(sourceTsFilePath)) {
-        sourceFile = sourceTsFilePath;
-      } else if (existsSync(sourceTsxFilePath)) {
-        sourceFile = sourceTsxFilePath;
+      if (file.endsWith(".d.ts")) {
+        if (existsSync(sourceDTsFilePath)) {
+          sourceFile = sourceDTsFilePath;
+        } else {
+          throw new Error(`unable to resolve module "${sourceDTsFilePath}"`);
+        }
+      } else if (file.endsWith(".ts") || file.endsWith(".tsx")) {
+        if (existsSync(sourceTsFilePath)) {
+          sourceFile = sourceTsFilePath;
+        } else if (existsSync(sourceTsxFilePath)) {
+          sourceFile = sourceTsxFilePath;
+        } else {
+          throw new Error(
+            `unable to resolve module "${sourceTsFilePath}" or "${sourceTsxFilePath}"`
+          );
+        }
+      } else if (file.endsWith(".js")) {
+        if (existsSync(sourceJsFilePath)) {
+          sourceFile = sourceJsFilePath;
+        } else {
+          throw new Error(`unable to resolve module "${sourceJsFilePath}"`);
+        }
       } else {
-        throw new Error("export * is supported only from .ts or .tsx files");
+        const fileExtension = file.substring(file.lastIndexOf("."));
+        throw new Error(
+          `export * is not supported for file type "${fileExtension}"`
+        );
       }
       const sourceExports = getExports(sourceFile);
       exports.push(...sourceExports.named);
