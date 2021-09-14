@@ -55,3 +55,6 @@ export const path_serverless = "serverless";
 export const path_functions = "functions";
 export const file_templateYaml = "template.yaml";
 export const file_templateJson = "template.json";
+
+export const path_slpWorkingDir = ".slp";
+export const path_lambdas = "lambdas";

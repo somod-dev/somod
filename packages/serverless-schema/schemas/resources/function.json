@@ -426,20 +426,15 @@
       "oneOf": [{ "required": ["CodeUri"] }, { "required": ["InlineCode"] }],
       "properties": {
         "CodeUri": {
-          "allOf": [
-            { "$ref": "../expression.json#/definitions/slpLocation" },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "SLP::Location": {
-                  "type": "string",
-                  "description": "In Serverless Packages functions exits as es6 module inside './functions' directory",
-                  "pattern": "^\\.\\/functions\\/[a-zA-Z0-9]+$"
-                }
-              }
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "SLP::Function": {
+              "type": "string",
+              "description": "The name of the function, this is the file name of es module under 'serverless/functions' directory (without file extension)",
+              "pattern": "^[a-zA-Z]+[a-zA-Z0-9]*$"
             }
-          ]
+          }
         },
         "InlineCode": {
           "type": "string"

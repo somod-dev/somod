@@ -1,7 +1,7 @@
 import { ErrorSet } from "@sodaru-cli/base";
 import { createHash } from "crypto";
 import { existsSync } from "fs";
-import { readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { dump } from "js-yaml";
 import {
   cloneDeep,
@@ -10,12 +10,15 @@ import {
   isUndefined,
   mergeWith
 } from "lodash";
-import { join, relative } from "path";
+import { join, dirname } from "path";
 import {
   file_templateJson,
   file_templateYaml,
   path_build,
-  path_serverless
+  path_functions,
+  path_lambdas,
+  path_serverless,
+  path_slpWorkingDir
 } from "..";
 import {
   checkForRepeatedModules,
@@ -32,7 +35,7 @@ type SLPTemplate = {
   slpResourceNamePaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::ResourceName
   slpRefPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Ref
   slpRefParameterPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::RefParameter
-  slpLocationPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Location
+  slpFunctionPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Function
 };
 
 type SLPResource = {
@@ -58,8 +61,12 @@ type SLPRefParameter = {
   };
 };
 
-type SLPLocation = {
-  "SLP::Location": string;
+// Note : In Template schema only function name is allowed, it is assumed that module is current module
+type SLPFunction = {
+  "SLP::Function": {
+    module: string;
+    function: string;
+  };
 };
 
 type SLPResourceName = {
@@ -77,14 +84,14 @@ type SAMTemplate = {
 const KeywordSLPResourceName = "SLP::ResourceName";
 const KeywordSLPRef = "SLP::Ref";
 const KeywordSLPRefParameter = "SLP::RefParameter";
-const KeywordSLPLocation = "SLP::Location";
+const KeywordSLPFunction = "SLP::Function";
 
 type SLPKeywords = Pick<
   SLPTemplate,
   | "slpResourceNamePaths"
   | "slpRefPaths"
   | "slpRefParameterPaths"
-  | "slpLocationPaths"
+  | "slpFunctionPaths"
 >;
 
 const getSLPKeywords = (chunk: unknown): SLPKeywords => {
@@ -92,7 +99,7 @@ const getSLPKeywords = (chunk: unknown): SLPKeywords => {
     slpResourceNamePaths: [],
     slpRefPaths: [],
     slpRefParameterPaths: [],
-    slpLocationPaths: []
+    slpFunctionPaths: []
   };
   if (isPlainObject(chunk)) {
     if (!isUndefined(chunk[KeywordSLPResourceName])) {
@@ -101,8 +108,8 @@ const getSLPKeywords = (chunk: unknown): SLPKeywords => {
       keyWords.slpRefPaths.push([]);
     } else if (!isUndefined(chunk[KeywordSLPRefParameter])) {
       keyWords.slpRefParameterPaths.push([]);
-    } else if (!isUndefined(chunk[KeywordSLPLocation])) {
-      keyWords.slpLocationPaths.push([]);
+    } else if (!isUndefined(chunk[KeywordSLPFunction])) {
+      keyWords.slpFunctionPaths.push([]);
     } else {
       Object.keys(chunk).forEach(key => {
         const childKeywords = getSLPKeywords(chunk[key]);
@@ -110,7 +117,7 @@ const getSLPKeywords = (chunk: unknown): SLPKeywords => {
           "slpResourceNamePaths",
           "slpRefPaths",
           "slpRefParameterPaths",
-          "slpLocationPaths"
+          "slpFunctionPaths"
         ].forEach(paths => {
           childKeywords[paths].forEach((keywordPaths: string[]) => {
             keywordPaths.unshift(key);
@@ -126,7 +133,7 @@ const getSLPKeywords = (chunk: unknown): SLPKeywords => {
         "slpResourceNamePaths",
         "slpRefPaths",
         "slpRefParameterPaths",
-        "slpLocationPaths"
+        "slpFunctionPaths"
       ].forEach(paths => {
         childKeywords[paths].forEach((keywordPaths: string[]) => {
           keywordPaths.unshift(index + "");
@@ -341,22 +348,23 @@ const validateSlpTemplate = (
   }
 };
 
-const updateAbsoluteLocation = (
-  packageLocation: string,
+const updateSLPFunctionWithModule = (
+  moduleName: string,
   slpTemplate: SLPTemplate
 ): void => {
-  slpTemplate.slpLocationPaths.forEach(locationPaths => {
-    const location = getSLPKeyword(slpTemplate, locationPaths) as SLPLocation;
-    const relativeLocation = location["SLP::Location"];
-    const absoluteLocation = join(
-      packageLocation,
-      path_build,
-      path_serverless,
-      relativeLocation
-    );
-    replaceSLPKeyword(slpTemplate, locationPaths, {
-      "SLP::Location": absoluteLocation
-    });
+  slpTemplate.slpFunctionPaths.forEach(functionPaths => {
+    const _function = getSLPKeyword(slpTemplate, functionPaths) as {
+      [KeywordSLPFunction]: string;
+    };
+
+    const slpFunction: SLPFunction = {
+      "SLP::Function": {
+        module: moduleName,
+        function: _function[KeywordSLPFunction]
+      }
+    };
+
+    replaceSLPKeyword(slpTemplate, functionPaths, slpFunction);
   });
 };
 
@@ -390,14 +398,14 @@ const updateServerlessTemplate = (
         "slpRefPaths",
         "slpRefParameterPaths",
         "slpResourceNamePaths",
-        "slpLocationPaths"
+        "slpFunctionPaths"
       ].forEach(
         (
           pathsKey:
             | "slpRefPaths"
             | "slpRefParameterPaths"
             | "slpResourceNamePaths"
-            | "slpLocationPaths"
+            | "slpFunctionPaths"
         ) => {
           const paths = slpTemplate[pathsKey];
           const originalPaths = serverlessTemplate[extend.module][pathsKey];
@@ -441,7 +449,7 @@ export const generateServerlessTemplate = async (
         cloneDeep(slpTemplate),
         cloneDeep(serverlessTemplate)
       );
-      updateAbsoluteLocation(_moduleNode.packageLocation, slpTemplate);
+      updateSLPFunctionWithModule(_moduleNode.name, slpTemplate);
       updateServerlessTemplate(
         _moduleNode.name,
         serverlessTemplate,
@@ -488,114 +496,139 @@ const resolveResourceName = (
   };
 };
 
-const _generateSAMTemplate = (
+const resolveFunctionLocation = async (
+  dir: string,
+  slpFunction: SLPFunction
+): Promise<string> => {
+  const { module, function: _function } = slpFunction["SLP::Function"];
+  const functionPath = join(
+    dir,
+    path_slpWorkingDir,
+    path_functions,
+    module,
+    _function + ".js"
+  );
+  const functionCode = `export { ${_function} as default } from "${module}"`;
+  const functionDir = dirname(functionPath);
+  await mkdir(functionDir, { recursive: true });
+  await writeFile(functionPath, functionCode);
+  return `${path_slpWorkingDir}/${path_lambdas}/${module}/${_function}`;
+};
+
+const _generateSAMTemplate = async (
   dir: string,
   serverlessTemplate: ServerlessTemplate
-): SAMTemplate => {
+): Promise<SAMTemplate> => {
   const samTemplate: SAMTemplate = {
     Parameters: {},
     Resources: {}
   };
 
-  Object.keys(serverlessTemplate).forEach(moduleName => {
-    const slpTemplate = serverlessTemplate[moduleName];
-    if (slpTemplate.Parameters) {
-      Object.keys(slpTemplate.Parameters).forEach(paramName => {
-        const parameter = slpTemplate.Parameters[paramName];
-        samTemplate.Parameters[resolveParameterName(moduleName, paramName)] = {
-          Type: parameter.SAMType
-        };
-      });
-    }
-
-    // resolve SLP::Location
-    slpTemplate.slpLocationPaths.forEach(locationPath => {
-      const slpLocation = getSLPKeyword(
-        slpTemplate,
-        locationPath
-      ) as SLPLocation;
-      const relativeLocation = relative(dir, slpLocation["SLP::Location"])
-        .split("\\")
-        .join("/");
-      replaceSLPKeyword(slpTemplate, locationPath, relativeLocation);
-    });
-
-    // resolve SLP::ResourceName
-    slpTemplate.slpResourceNamePaths.forEach(resourceNamePath => {
-      const slpResourceName = getSLPKeyword(
-        slpTemplate,
-        resourceNamePath
-      ) as SLPResourceName;
-      replaceSLPKeyword(
-        slpTemplate,
-        resourceNamePath,
-        resolveResourceName(moduleName, slpResourceName["SLP::ResourceName"])
-      );
-    });
-
-    // resolve SLP::Ref
-    slpTemplate.slpRefPaths.forEach(refPath => {
-      const slpRef = getSLPKeyword(slpTemplate, refPath) as SLPRef;
-      if (!slpRef["SLP::Ref"].module) {
-        slpRef["SLP::Ref"].module = moduleName;
-      }
-      const resourceId = resolveResourceLogicalId(
-        slpRef["SLP::Ref"].module,
-        slpRef["SLP::Ref"].resource
-      );
-      if (slpRef["SLP::Ref"].attribute) {
-        const getAtt = {
-          "Fn::GetAtt": [resourceId, slpRef["SLP::Ref"].attribute]
-        };
-        replaceSLPKeyword(slpTemplate, refPath, getAtt);
-      } else {
-        const ref = {
-          Ref: resourceId
-        };
-        replaceSLPKeyword(slpTemplate, refPath, ref);
-      }
-    });
-
-    // resolve SLP::RefParameter
-    slpTemplate.slpRefParameterPaths.forEach(refParameterPath => {
-      const slpRefParameter = getSLPKeyword(
-        slpTemplate,
-        refParameterPath
-      ) as SLPRefParameter;
-      if (!slpRefParameter["SLP::RefParameter"].module) {
-        slpRefParameter["SLP::RefParameter"].module = moduleName;
-      }
-
-      const ref = {
-        Ref: resolveParameterName(
-          slpRefParameter["SLP::RefParameter"].module,
-          slpRefParameter["SLP::RefParameter"].parameter
-        )
-      };
-      replaceSLPKeyword(slpTemplate, refParameterPath, ref);
-    });
-
-    Object.keys(slpTemplate.Resources).forEach(resourceId => {
-      const resourceLogicalId = resolveResourceLogicalId(
-        moduleName,
-        resourceId
-      );
-      const resource = slpTemplate.Resources[resourceId];
-      const samResource: SAMTemplate["Resources"][string] = {
-        Type: resource.Type,
-        Properties: resource.Properties
-      };
-      if (resource["SLP::DependsOn"]) {
-        samResource.DependsOn = resource["SLP::DependsOn"].map(_dependsOn => {
-          return resolveResourceLogicalId(
-            _dependsOn.module || moduleName,
-            _dependsOn.resource
-          );
+  await Promise.all(
+    Object.keys(serverlessTemplate).map(async moduleName => {
+      const slpTemplate = serverlessTemplate[moduleName];
+      if (slpTemplate.Parameters) {
+        Object.keys(slpTemplate.Parameters).forEach(paramName => {
+          const parameter = slpTemplate.Parameters[paramName];
+          samTemplate.Parameters[resolveParameterName(moduleName, paramName)] =
+            {
+              Type: parameter.SAMType
+            };
         });
       }
-      samTemplate.Resources[resourceLogicalId] = samResource;
-    });
-  });
+
+      // resolve SLP::Function
+      await Promise.all(
+        slpTemplate.slpFunctionPaths.map(async functionPath => {
+          const slpFunction = getSLPKeyword(
+            slpTemplate,
+            functionPath
+          ) as SLPFunction;
+          const functionLocation = await resolveFunctionLocation(
+            dir,
+            slpFunction
+          );
+          replaceSLPKeyword(slpTemplate, functionPath, functionLocation);
+        })
+      );
+
+      // resolve SLP::ResourceName
+      slpTemplate.slpResourceNamePaths.forEach(resourceNamePath => {
+        const slpResourceName = getSLPKeyword(
+          slpTemplate,
+          resourceNamePath
+        ) as SLPResourceName;
+        replaceSLPKeyword(
+          slpTemplate,
+          resourceNamePath,
+          resolveResourceName(moduleName, slpResourceName["SLP::ResourceName"])
+        );
+      });
+
+      // resolve SLP::Ref
+      slpTemplate.slpRefPaths.forEach(refPath => {
+        const slpRef = getSLPKeyword(slpTemplate, refPath) as SLPRef;
+        if (!slpRef["SLP::Ref"].module) {
+          slpRef["SLP::Ref"].module = moduleName;
+        }
+        const resourceId = resolveResourceLogicalId(
+          slpRef["SLP::Ref"].module,
+          slpRef["SLP::Ref"].resource
+        );
+        if (slpRef["SLP::Ref"].attribute) {
+          const getAtt = {
+            "Fn::GetAtt": [resourceId, slpRef["SLP::Ref"].attribute]
+          };
+          replaceSLPKeyword(slpTemplate, refPath, getAtt);
+        } else {
+          const ref = {
+            Ref: resourceId
+          };
+          replaceSLPKeyword(slpTemplate, refPath, ref);
+        }
+      });
+
+      // resolve SLP::RefParameter
+      slpTemplate.slpRefParameterPaths.forEach(refParameterPath => {
+        const slpRefParameter = getSLPKeyword(
+          slpTemplate,
+          refParameterPath
+        ) as SLPRefParameter;
+        if (!slpRefParameter["SLP::RefParameter"].module) {
+          slpRefParameter["SLP::RefParameter"].module = moduleName;
+        }
+
+        const ref = {
+          Ref: resolveParameterName(
+            slpRefParameter["SLP::RefParameter"].module,
+            slpRefParameter["SLP::RefParameter"].parameter
+          )
+        };
+        replaceSLPKeyword(slpTemplate, refParameterPath, ref);
+      });
+
+      Object.keys(slpTemplate.Resources).forEach(resourceId => {
+        const resourceLogicalId = resolveResourceLogicalId(
+          moduleName,
+          resourceId
+        );
+        const resource = slpTemplate.Resources[resourceId];
+        const samResource: SAMTemplate["Resources"][string] = {
+          Type: resource.Type,
+          Properties: resource.Properties
+        };
+        if (resource["SLP::DependsOn"]) {
+          samResource.DependsOn = resource["SLP::DependsOn"].map(_dependsOn => {
+            return resolveResourceLogicalId(
+              _dependsOn.module || moduleName,
+              _dependsOn.resource
+            );
+          });
+        }
+        samTemplate.Resources[resourceLogicalId] = samResource;
+      });
+    })
+  );
 
   return samTemplate;
 };
@@ -608,7 +641,7 @@ export const generateSAMTemplate = async (
   const allModuleNodes = toList(rootModuleNode);
   checkForRepeatedModules(allModuleNodes);
   const serverlessTemplate = await generateServerlessTemplate(rootModuleNode);
-  const samTemplate = _generateSAMTemplate(dir, serverlessTemplate);
+  const samTemplate = await _generateSAMTemplate(dir, serverlessTemplate);
 
   const completeSamTemplate = {
     AWSTemplateFormatVersion: "2010-09-09",

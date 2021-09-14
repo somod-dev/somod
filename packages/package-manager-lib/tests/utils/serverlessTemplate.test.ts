@@ -55,7 +55,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Properties: {}
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: []
@@ -63,7 +63,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
     });
   });
 
-  test("with SLP::Location", async () => {
+  test("with SLP::Function", async () => {
     createFiles(dir, {
       "build/serverless/template.json": JSON.stringify({
         Resources: {
@@ -71,7 +71,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               CodeUri: {
-                "SLP::Location": "./function/Resource1"
+                "SLP::Function": "Resource1"
               }
             }
           }
@@ -92,17 +92,15 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               CodeUri: {
-                "SLP::Location": join(
-                  dir,
-                  "build",
-                  "serverless",
-                  "./function/Resource1"
-                )
+                "SLP::Function": {
+                  module: "sample",
+                  function: "Resource1"
+                }
               }
             }
           }
         },
-        slpLocationPaths: [["Resource1", "Properties", "CodeUri"]],
+        slpFunctionPaths: [["Resource1", "Properties", "CodeUri"]],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: []
@@ -144,7 +142,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: [["Resource1", "Properties", "FunctionName"]]
@@ -186,7 +184,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: []
@@ -275,7 +273,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               CodeUri: {
-                "SLP::Location": "./functions/resource1"
+                "SLP::Function": "resource1"
               }
             },
             "SLP::Extend": {
@@ -287,7 +285,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               CodeUri: {
-                "SLP::Location": "./functions/resource2"
+                "SLP::Function": "resource2"
               }
             }
           }
@@ -330,17 +328,12 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
                 "SLP::ResourceName": "Resource2Function"
               },
               CodeUri: {
-                "SLP::Location": join(
-                  dir,
-                  "build",
-                  "serverless",
-                  "./functions/resource1"
-                )
+                "SLP::Function": { module: "sample", function: "resource1" }
               }
             }
           }
         },
-        slpLocationPaths: [["Resource2", "Properties", "CodeUri"]],
+        slpFunctionPaths: [["Resource2", "Properties", "CodeUri"]],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: [["Resource2", "Properties", "FunctionName"]]
@@ -351,17 +344,12 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               CodeUri: {
-                "SLP::Location": join(
-                  dir,
-                  "build",
-                  "serverless",
-                  "./functions/resource2"
-                )
+                "SLP::Function": { module: "sample", function: "resource2" }
               }
             }
           }
         },
-        slpLocationPaths: [["Resource2", "Properties", "CodeUri"]],
+        slpFunctionPaths: [["Resource2", "Properties", "CodeUri"]],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: []
@@ -454,7 +442,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               CodeUri: {
-                "SLP::Location": "./functions/resource1"
+                "SLP::Function": "resource1"
               }
             },
             "SLP::DependsOn": [
@@ -505,7 +493,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: [["Resource2", "Properties", "Name"]]
@@ -516,12 +504,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               CodeUri: {
-                "SLP::Location": join(
-                  dir,
-                  "build",
-                  "serverless",
-                  "./functions/resource1"
-                )
+                "SLP::Function": { module: "sample", function: "resource1" }
               }
             },
             "SLP::DependsOn": [
@@ -532,7 +515,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             ]
           }
         },
-        slpLocationPaths: [["Resource1", "Properties", "CodeUri"]],
+        slpFunctionPaths: [["Resource1", "Properties", "CodeUri"]],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: []
@@ -741,7 +724,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: [["Resource2", "Properties", "Name"]]
@@ -760,7 +743,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [["Resource1", "Properties", "Timeout"]],
         slpRefPaths: [],
         slpResourceNamePaths: []
@@ -824,7 +807,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             }
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [["Resource1", "Properties", "Timeout"]],
         slpRefPaths: [],
         slpResourceNamePaths: []
@@ -1196,7 +1179,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Function"
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [],
         slpRefPaths: [
           [
@@ -1229,7 +1212,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Api"
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [],
         slpRefPaths: [],
         slpResourceNamePaths: []
@@ -1331,7 +1314,7 @@ describe("Test Util serverlessTemplate.generateServerlessTemplate", () => {
             Type: "AWS::Serverless::Api"
           }
         },
-        slpLocationPaths: [],
+        slpFunctionPaths: [],
         slpRefParameterPaths: [],
         slpRefPaths: [
           [
@@ -1436,7 +1419,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               FunctionName: {
                 "SLP::ResourceName": "GetAuthGroup"
               },
-              CodeUri: { "SLP::Location": "./functions/getAuthGroup" },
+              CodeUri: { "SLP::Function": "getAuthGroup" },
               Events: {
                 ApiEvent: {
                   Type: "Api",
@@ -1539,7 +1522,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   ]
                 ]
               },
-              CodeUri: "build/serverless/functions/getAuthGroup",
+              CodeUri: ".slp/lambdas/@sodaru/auth-slp/getAuthGroup",
               Events: {
                 ApiEvent: {
                   Type: "Api",

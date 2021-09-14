@@ -65,17 +65,6 @@
         }
       }
     },
-    "slpLocation": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["SLP::Location"],
-      "properties": {
-        "SLP::Location": {
-          "type": "string",
-          "pattern": "^[a-zA-Z0-9-\\/\\.]+$"
-        }
-      }
-    },
     "stringLike": {
       "oneOf": [
         { "$ref": "#/definitions/string" },
