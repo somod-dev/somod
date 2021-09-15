@@ -1,9 +1,8 @@
 import { createHash } from "crypto";
 import { normalize } from "path";
-import { ErrorSet } from "@sodaru-cli/base";
 import {
+  checkForRepeatedModules,
   getAllDependencies,
-  getDuplicateModules,
   getModuleGraph,
   toList
 } from "./module";
@@ -21,29 +20,7 @@ const _getModuleInfo = async (
 ): Promise<ModuleInfo[]> => {
   const rootModuleNode = await getModuleGraph(dir, moduleIndicators);
   const allModuleNodes = toList(rootModuleNode);
-  const repeatedModules = getDuplicateModules(allModuleNodes);
-  if (repeatedModules.length > 0) {
-    const errors: Error[] = repeatedModules.map(repeatedModule => {
-      return new Error(
-        `module ${
-          repeatedModule.name
-        } has more than one version at ${repeatedModule.modules
-          .map((_module, i) => {
-            return (
-              i +
-              1 +
-              ". " +
-              [..._module.path, repeatedModule.name].join(" -> ") +
-              " (" +
-              _module.version +
-              ")"
-            );
-          })
-          .join(", ")}`
-      );
-    });
-    throw new ErrorSet(errors);
-  }
+  checkForRepeatedModules(allModuleNodes);
 
   const parsedPackageLocations: string[] = [];
 

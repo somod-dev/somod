@@ -10,6 +10,7 @@ export const file_tsConfigBuildJson = "tsconfig.build.json";
 export const file_nextEnvDTs = "next-env.d.ts";
 
 export const key_njp = "njp";
+export const key_slp = "slp";
 
 export const key_type = "type";
 
@@ -49,3 +50,13 @@ export const file_pagesJson = "pages.json";
 
 export const path_git = ".git";
 export const path_nextBuild = ".next";
+
+export const path_serverless = "serverless";
+export const path_functions = "functions";
+export const file_functionIndex_js = "functionIndex.js";
+export const file_functionIndex_dts = "functionIndex.d.ts";
+export const file_templateYaml = "template.yaml";
+export const file_templateJson = "template.json";
+
+export const path_slpWorkingDir = ".slp";
+export const path_lambdas = "lambdas";

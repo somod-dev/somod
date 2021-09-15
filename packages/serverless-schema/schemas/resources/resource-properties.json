@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/resource-properties.json",
+  "title": "JSON Schema for Resource in Serverless Template by Sodaru Technologies",
+  "definitions": {
+    "SLP::Extend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module", "resource"],
+      "properties": {
+        "module": { "$ref": "../expression.json#/definitions/moduleName" },
+        "resource": {
+          "$ref": "../expression.json#/definitions/resourceLogicalId"
+        }
+      }
+    },
+    "SLP::DependsOn": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["module", "resource"],
+        "properties": {
+          "module": { "$ref": "../expression.json#/definitions/moduleName" },
+          "resource": {
+            "$ref": "../expression.json#/definitions/resourceLogicalId"
+          }
+        }
+      },
+      "minItems": 1,
+      "maxItems": 20
+    },
+    "SLP::Output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": { "type": "boolean" },
+        "attributes": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-zA-Z0-9]+$" }
+        }
+      }
+    }
+  }
+}

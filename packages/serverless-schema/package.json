@@ -1,5 +1,5 @@
 {
-  "name": "@sodaru/serverless-schema",
+  "name": "@sodaru-cli/serverless-schema",
   "version": "1.4.0",
   "description": "JSON Schema for serverless templates",
   "keywords": [
@@ -8,11 +8,13 @@
     "json-schema",
     "schema"
   ],
-  "private": true,
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/serverless-schema#readme",
   "license": "UNLICENCED",
   "files": [
+    "dist",
     "schemas"
   ],
   "repository": {
@@ -20,9 +22,24 @@
     "url": "git+ssh://git@gitlab.com/sodaru/cli/package-managers.git"
   },
   "scripts": {
-    "test": "echo \"There are no tests for this package\""
+    "clean": "npx rimraf dist",
+    "typescript": "tsc",
+    "build": "npm run clean && npm run typescript",
+    "pretest": "npm run build",
+    "test": "npx jest",
+    "prepack": "npm run test"
   },
   "bugs": {
     "url": "https://gitlab.com/sodaru/cli/package-managers/issues"
+  },
+  "devDependencies": {
+    "@sodaru/jest-config": "^1.1.0",
+    "@types/node": "^16.9.1",
+    "ajv": "^8.6.3",
+    "typescript": "^4.4.3"
+  },
+  "peerDependencies": {
+    "ajv": "^8.6.3",
+    "tslib": "^2.3.1"
   }
 }

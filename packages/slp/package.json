@@ -1,19 +1,19 @@
 {
-  "name": "@sodaru-cli/njp",
+  "name": "@sodaru-cli/slp",
   "version": "1.4.0",
-  "description": "Next Js Package Builder",
+  "description": "ServerLess Package Builder",
   "keywords": [
     "sodaru",
-    "njp",
+    "slp",
     "package",
     "builder"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/njp#readme",
+  "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/slp#readme",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "bin": {
-    "njp": "./bin/njp.js"
+    "njp": "./bin/slp.js"
   },
   "files": [
     "bin",
@@ -25,22 +25,20 @@
   },
   "scripts": {
     "clean": "npx rimraf dist",
-    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify",
+    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@sodaru-cli/serverless-schema",
     "build": "npm run clean && npm run bundle",
     "pretest": "npm run build",
     "test": "echo 'No tests defined'",
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "@types/react": "^17.0.16",
-    "next": "^11.0.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "typescript": "^4.3.5"
   },
+  "todo": "TODO: add @sodaru-cli/serverless-schema as peer dependency after publishing the fiest version in to npm registry",
   "devDependencies": {
     "@sodaru-cli/base": "^1.2.0",
     "@sodaru-cli/package-manager-lib": "^1.4.0",
+    "@sodaru-cli/serverless-schema": "^1.4.0",
     "@types/node": "^16.4.13",
     "esbuild": "^0.12.28",
     "typescript": "^4.3.5"

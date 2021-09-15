@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/sns-topic.json",
+  "title": "JSON Schema for SNS Topic Resource in Serverless Template by Sodaru Technologies",
+  "definitions": {
+    "Subscription": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Endpoint", "Protocol"],
+      "properties": {
+        "Endpoint": { "$ref": "../expression.json#/definitions/stringLike" },
+        "Protocol": {
+          "enum": [
+            "http",
+            "https",
+            "email",
+            "email-json",
+            "sms",
+            "sqs",
+            "application",
+            "lambda",
+            "firehose"
+          ]
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::SNS::Topic" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["TopicName"],
+      "properties": {
+        "TopicName": {
+          "$ref": "../expression.json#/definitions/slpResourceName"
+        },
+        "ContentBasedDeduplication": { "type": "boolean" },
+        "DisplayName": { "$ref": "../expression.json#/definitions/stringLike" },
+        "FifoTopic": { "type": "boolean" },
+        "KmsMasterKeyId": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "Subscription": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Subscription" }
+        },
+        "Tags": { "$ref": "../tags.json#/definitions/tagsList" }
+      }
+    }
+  }
+}

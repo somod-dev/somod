@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/cognito-userpool-user-to-group.json",
+  "title": "JSON Schema for Cognito Userpool User to Group Attachment Resource in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::Cognito::UserPoolUserToGroupAttachment" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["UserPoolId", "Username", "GroupName"],
+      "properties": {
+        "UserPoolId": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "Username": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "GroupName": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

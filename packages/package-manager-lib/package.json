@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@typescript-eslint/typescript-estree": "^4.28.5",
+    "ajv": "^8.6.3",
+    "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2",
     "tslib": "^2.3.0",
@@ -35,7 +37,9 @@
   },
   "devDependencies": {
     "@sodaru-cli/base": "^1.2.0",
-    "@sodaru/jest-config": "^1.0.0",
+    "@sodaru-cli/serverless-schema": "^1.4.0",
+    "@sodaru/jest-config": "^1.1.0",
+    "@types/js-yaml": "^4.0.3",
     "@types/lodash": "^4.14.171",
     "@types/node": "^16.4.6",
     "@types/rimraf": "^3.0.1",
@@ -44,6 +48,12 @@
   },
   "peerDependencies": {
     "@sodaru-cli/base": "^1.2.0",
+    "@sodaru-cli/serverless-schema": "^1.4.0",
     "tslib": "^2.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@sodaru-cli/serverless-schema": {
+      "optional": true
+    }
   }
 }

@@ -1,33 +1,35 @@
+import { CommonOptions, taskRunner } from "@sodaru-cli/base";
 import {
-  buildUiPublic,
+  buildServerlessTemplate,
   compileTypeScript,
   deleteBuildDir,
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
-  doesTypingsIsBuildIndexInPackageJson,
-  doesNjpIsTrueInPackageJson,
   doesSideEffectsIsFalseInPackageJson,
+  doesSlpIsTrueInPackageJson,
   doesTypeIsNotSetInPackageJson,
+  doesTypingsIsBuildIndexInPackageJson,
+  file_functionIndex_js,
+  file_index_dts,
   file_index_js,
   file_packageJson,
-  file_pageIndex_js,
+  file_templateJson,
+  file_templateYaml,
   file_tsConfigBuildJson,
+  generateFunctionIndex,
   generateIndex,
-  generatePageIndex,
   isValidTsConfigBuildJson,
   key_jsnextMain,
   key_module,
-  key_typings,
-  key_njp,
   key_sideEffects,
+  key_slp,
   key_type,
+  key_typings,
   path_build,
-  path_public,
-  path_ui,
-  file_index_dts
+  path_serverless,
+  validateServerlessTemplateWithSchema
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
-import { CommonOptions, taskRunner } from "@sodaru-cli/base";
 
 export const BuildAction = async ({
   verbose
@@ -36,8 +38,8 @@ export const BuildAction = async ({
 
   await Promise.all([
     taskRunner(
-      `Check if ${key_njp} is true in ${file_packageJson}`,
-      doesNjpIsTrueInPackageJson,
+      `Check if ${key_slp} is true in ${file_packageJson}`,
+      doesSlpIsTrueInPackageJson,
       verbose,
       dir
     ),
@@ -76,8 +78,8 @@ export const BuildAction = async ({
       isValidTsConfigBuildJson,
       verbose,
       dir,
-      { jsx: "react" },
-      ["ui"]
+      {},
+      ["serverless"]
     )
   ]);
 
@@ -89,14 +91,21 @@ export const BuildAction = async ({
   );
   await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
   await taskRunner(
-    `Build ${path_build}/${path_ui}/${path_public}`,
-    buildUiPublic,
+    `validate ${path_serverless}/${file_templateYaml}`,
+    validateServerlessTemplateWithSchema,
     verbose,
     dir
   );
   await taskRunner(
-    `Generate ${path_build}/${path_ui}/${file_pageIndex_js}`,
-    generatePageIndex,
+    `Generate ${path_build}/${path_serverless}/${file_templateJson}`,
+    buildServerlessTemplate,
+    verbose,
+    dir,
+    ["slp"]
+  );
+  await taskRunner(
+    `Generate ${path_build}/${path_serverless}/${file_functionIndex_js}`,
+    generateFunctionIndex,
     verbose,
     dir
   );
@@ -106,9 +115,9 @@ export const BuildAction = async ({
     verbose,
     dir,
     [
-      `${path_ui}/${file_pageIndex_js.substring(
+      `${path_serverless}/${file_functionIndex_js.substring(
         0,
-        file_pageIndex_js.lastIndexOf(".js")
+        file_functionIndex_js.lastIndexOf(".js")
       )}`
     ]
   );

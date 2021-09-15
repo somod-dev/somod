@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/resources/dynamodb-table",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/dynamodb-table.json",
   "title": "JSON Schema for DynamoDB Table Resource in Serverless Template by Sodaru Technologies",
   "definitions": {
     "KeySchema": {
@@ -27,6 +27,15 @@
   "required": ["Type", "Properties"],
   "properties": {
     "Type": { "const": "AWS::DynamoDB::Table" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
     "Properties": {
       "type": "object",
       "additionalProperties": false,
@@ -37,7 +46,9 @@
         "BillingMode"
       ],
       "properties": {
-        "TableName": { "$ref": "../expression.json#/definitions/resourceName" },
+        "TableName": {
+          "$ref": "../expression.json#/definitions/slpResourceName"
+        },
         "KeySchema": { "$ref": "#/definitions/KeySchema" },
         "AttributeDefinitions": {
           "type": "array",

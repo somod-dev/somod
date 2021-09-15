@@ -14,4 +14,6 @@ export * from "./tasks/link";
 
 export * from "./tasks/dev";
 
+export * from "./tasks/serverless";
+
 export * from "./utils/constants";

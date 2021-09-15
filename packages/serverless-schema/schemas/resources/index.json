@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/index.json",
+  "title": "JSON Schema for Resources in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "^[a-zA-Z0-9]{1,32}$": {
+      "oneOf": [
+        { "$ref": "./api.json" },
+        { "$ref": "./function.json" },
+        { "$ref": "./dynamodb-table.json" },
+        { "$ref": "./cognito-userpool.json" },
+        { "$ref": "./cognito-userpool-client.json" },
+        { "$ref": "./cognito-userpool-group.json" },
+        { "$ref": "./cognito-userpool-user.json" },
+        { "$ref": "./cognito-userpool-user-to-group.json" },
+        { "$ref": "./sns-topic.json" },
+        { "$ref": "./sns-topic-policy.json" },
+        { "$ref": "./sns-subscription.json" },
+        { "$ref": "./sqs-queue.json" },
+        { "$ref": "./sqs-queue-policy.json" }
+      ]
+    }
+  }
+}

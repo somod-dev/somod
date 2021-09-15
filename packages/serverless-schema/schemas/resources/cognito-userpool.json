@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/resources/cognito-userpool",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/cognito-userpool.json",
   "title": "JSON Schema for Cognito Userpool Resource in Serverless Template by Sodaru Technologies",
   "definitions": {
     "RecoveryOption": {
@@ -304,13 +304,22 @@
   "required": ["Type", "Properties"],
   "properties": {
     "Type": { "const": "AWS::Cognito::UserPool" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
     "Properties": {
       "type": "object",
       "additionalProperties": false,
       "required": ["UserPoolName"],
       "properties": {
         "UserPoolName": {
-          "$ref": "../expression.json#/definitions/resourceName"
+          "$ref": "../expression.json#/definitions/slpResourceName"
         },
         "AccountRecoverySetting": {
           "$ref": "#/definitions/AccountRecoverySetting"

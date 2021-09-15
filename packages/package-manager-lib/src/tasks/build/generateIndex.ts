@@ -1,38 +1,42 @@
 import { existsSync } from "fs";
 import { writeFile } from "fs/promises";
+import { uniq } from "lodash";
 import { join } from "path";
 import {
   file_index_dts,
   file_index_js,
-  file_pageIndex_js,
-  path_build,
-  path_lib,
-  path_ui
+  path_build
 } from "../../utils/constants";
 
-export const generateIndex = async (dir: string): Promise<void> => {
+/**
+ *
+ * @param dir
+ * @param modules modules to be included in index , relative to ./build directory , default module "lib" is included
+ */
+export const generateIndex = async (
+  dir: string,
+  modules: string[] = []
+): Promise<void> => {
   const statements: string[] = [];
-  if (existsSync(join(dir, path_build, path_ui, file_pageIndex_js))) {
-    statements.push(
-      `export * from "./${path_ui}/${file_pageIndex_js.substr(
-        0,
-        file_pageIndex_js.length - ".js".length
-      )}";`
-    );
-  }
 
-  if (existsSync(join(dir, path_build, path_lib, file_index_js))) {
-    statements.push(`export * from "./${path_lib}";`);
-  }
+  const defaultModules = ["lib/index"];
+
+  const _modules = uniq([...defaultModules, ...modules]);
+
+  _modules.forEach(module => {
+    if (existsSync(join(dir, path_build, module + ".js"))) {
+      if (module.endsWith("/index")) {
+        module = module.substring(0, module.lastIndexOf("/index"));
+      }
+      statements.push(`export * from "./${module}";`);
+    }
+  });
 
   if (statements.length > 0) {
-    await writeFile(
-      join(dir, path_build, file_index_js),
-      statements.join("\n")
-    );
-    await writeFile(
-      join(dir, path_build, file_index_dts),
-      statements.join("\n")
-    );
+    const indexContent = statements.join("\n");
+    await Promise.all([
+      writeFile(join(dir, path_build, file_index_js), indexContent),
+      writeFile(join(dir, path_build, file_index_dts), indexContent)
+    ]);
   }
 };
