@@ -18,7 +18,6 @@ before_script:
   - npm i --global lerna
   - npm i
   - lerna bootstrap
-  - lerna run build --scope @sodaru-cli/package-manager-lib
 
 test:
   stage: test
