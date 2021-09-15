@@ -28,7 +28,7 @@ describe("Test Task generatePagesIndex", () => {
 
   test("for ui/pageIndex.js only", async () => {
     createFiles(dir, { "build/ui/pageIndex.js": "" });
-    await expect(generateIndex(dir)).resolves.toBeUndefined();
+    await expect(generateIndex(dir, ["ui/pageIndex"])).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/index.js"), { encoding: "utf8" })
     ).resolves.toEqual('export * from "./ui/pageIndex";');
@@ -50,16 +50,16 @@ describe("Test Task generatePagesIndex", () => {
 
   test("for both ui/pageIndex.js and lib/index.js", async () => {
     createFiles(dir, { "build/ui/pageIndex.js": "", "build/lib/index.js": "" });
-    await expect(generateIndex(dir)).resolves.toBeUndefined();
+    await expect(generateIndex(dir, ["ui/pageIndex"])).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/index.js"), { encoding: "utf8" })
     ).resolves.toEqual(
-      'export * from "./ui/pageIndex";\nexport * from "./lib";'
+      'export * from "./lib";\nexport * from "./ui/pageIndex";'
     );
     await expect(
       readFile(join(dir, "build/index.d.ts"), { encoding: "utf8" })
     ).resolves.toEqual(
-      'export * from "./ui/pageIndex";\nexport * from "./lib";'
+      'export * from "./lib";\nexport * from "./ui/pageIndex";'
     );
   });
 });

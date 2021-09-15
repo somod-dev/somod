@@ -53,6 +53,8 @@ export const path_nextBuild = ".next";
 
 export const path_serverless = "serverless";
 export const path_functions = "functions";
+export const file_functionIndex_js = "functionIndex.js";
+export const file_functionIndex_dts = "functionIndex.d.ts";
 export const file_templateYaml = "template.yaml";
 export const file_templateJson = "template.json";
 
