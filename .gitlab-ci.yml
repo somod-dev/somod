@@ -18,6 +18,7 @@ before_script:
   - npm i --global lerna
   - npm i
   - lerna bootstrap
+  - lerna run build --stream
 
 test:
   stage: test

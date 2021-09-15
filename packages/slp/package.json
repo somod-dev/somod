@@ -27,7 +27,7 @@
     "clean": "npx rimraf dist",
     "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@sodaru-cli/serverless-schema",
     "build": "npm run clean && npm run bundle",
-    "pretest": "npm run build",
+    "pretest": "$CI || npm run build",
     "test": "echo 'No tests defined'",
     "prepack": "npm run test"
   },

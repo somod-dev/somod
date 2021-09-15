@@ -25,7 +25,7 @@
     "clean": "npx rimraf dist",
     "typescript": "tsc",
     "build": "npm run clean && npm run typescript",
-    "pretest": "npm run build",
+    "pretest": "$CI || npm run build",
     "test": "npx jest",
     "prepack": "npm run test"
   },
