@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/resources/api",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/api.json",
   "title": "JSON Schema for Api Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
   "required": ["Type", "Properties"],
@@ -14,7 +14,6 @@
           "properties": {
             "AuthorizationScopes": {
               "type": "array",
-              "additionalItems": false,
               "items": { "type": "string" }
             },
             "Identity": {
@@ -50,7 +49,6 @@
           "properties": {
             "AuthorizationScopes": {
               "type": "array",
-              "additionalItems": false,
               "items": { "type": "string" }
             },
             "FunctionArn": {
@@ -66,22 +64,18 @@
               "properties": {
                 "Context": {
                   "type": "array",
-                  "additionalItems": false,
                   "items": { "type": "string" }
                 },
                 "Headers": {
                   "type": "array",
-                  "additionalItems": false,
                   "items": { "type": "string" }
                 },
                 "QueryStrings": {
                   "type": "array",
-                  "additionalItems": false,
                   "items": { "type": "string" }
                 },
                 "StageVariables": {
                   "type": "array",
-                  "additionalItems": false,
                   "items": { "type": "string" }
                 },
                 "ReauthorizeEvery": {
@@ -243,7 +237,6 @@
         "Auth": { "$ref": "#/definitions/ApiAuth" },
         "BinaryMediaTypes": {
           "type": "array",
-          "additionalItems": false,
           "items": { "type": "string", "pattern": "^[a-z]+~1[a-z0-9-]+$" }
         },
         "CacheClusterEnabled": {
@@ -361,7 +354,6 @@
         },
         "MethodSettings": {
           "type": "array",
-          "additionalItems": false,
           "items": {
             "type": "object",
             "additionalProperties": false,

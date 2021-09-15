@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/expression",
+  "$id": "https://json-schema.sodaru.com/serverless-template/expression.json",
   "title": "JSON Schema for Expression in Serverless Template by Sodaru Technologies",
   "definitions": {
     "string": { "type": "string" },
@@ -135,7 +135,8 @@
             { "$ref": "#/definitions/numberLike", "description": "cidrBits" }
           ],
           "minItems": 3,
-          "maxItems": 3
+          "maxItems": 3,
+          "additionalItems": false
         }
       }
     },
@@ -147,8 +148,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/booleanLike" },
           "minItems": 1,
-          "maxItems": 10,
-          "additionalItems": false
+          "maxItems": 10
         }
       }
     },
@@ -160,8 +160,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/booleanLike" },
           "minItems": 1,
-          "maxItems": 10,
-          "additionalItems": false
+          "maxItems": 10
         }
       }
     },
@@ -251,7 +250,8 @@
             { "$ref": "#/definitions/stringLike" }
           ],
           "minItems": 3,
-          "maxItems": 3
+          "maxItems": 3,
+          "additionalItems": false
         }
       }
     },
@@ -299,7 +299,8 @@
             }
           ],
           "minItems": 2,
-          "maxItems": 2
+          "maxItems": 2,
+          "additionalItems": false
         }
       }
     },
@@ -330,7 +331,8 @@
             }
           ],
           "minItems": 2,
-          "maxItems": 2
+          "maxItems": 2,
+          "additionalItems": false
         }
       }
     },
@@ -359,7 +361,8 @@
             }
           ],
           "minItems": 2,
-          "maxItems": 2
+          "maxItems": 2,
+          "additionalItems": false
         }
       }
     },
@@ -393,7 +396,8 @@
             }
           ],
           "minItems": 2,
-          "maxItems": 2
+          "maxItems": 2,
+          "additionalItems": false
         }
       }
     },

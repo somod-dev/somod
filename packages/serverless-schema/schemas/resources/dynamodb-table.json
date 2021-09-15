@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/resources/dynamodb-table",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/dynamodb-table.json",
   "title": "JSON Schema for DynamoDB Table Resource in Serverless Template by Sodaru Technologies",
   "definitions": {
     "KeySchema": {

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/policy",
+  "$id": "https://json-schema.sodaru.com/serverless-template/policy.json",
   "title": "JSON Schema for IAM Policy in Serverless Template by Sodaru Technologies",
   "definitions": {
     "Statement": {
@@ -32,7 +32,6 @@
             { "const": "*" },
             {
               "type": "array",
-              "additionalItems": false,
               "items": {
                 "type": "string"
               }
@@ -44,7 +43,6 @@
             { "const": "*" },
             {
               "type": "array",
-              "additionalItems": false,
               "items": {
                 "type": "string"
               }

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/resources/sns-subscription",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/sns-subscription.json",
   "title": "JSON Schema for SNS Subscription Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
   "required": ["Type", "Properties"],

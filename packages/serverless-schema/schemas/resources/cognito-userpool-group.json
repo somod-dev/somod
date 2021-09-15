@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/resources/cognito-userpool-group",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/cognito-userpool-group.json",
   "title": "JSON Schema for Cognito Userpool Group Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
   "required": ["Type", "Properties"],

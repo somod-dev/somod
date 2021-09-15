@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://sodaru.com/slp/template/resources/function",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/function.json",
   "title": "JSON Schema for Function Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
   "required": ["Type", "Properties"],
@@ -43,7 +43,7 @@
       },
       "if": {
         "properties": {
-          "Type": { "pattern": "Lambda|EventBridge" }
+          "Type": { "enum": ["Lambda", "EventBridge"] }
         }
       },
       "then": {
@@ -94,7 +94,6 @@
                 },
                 "AuthorizationScopes": {
                   "type": "array",
-                  "additionalItems": false,
                   "items": { "type": "string" }
                 },
                 "Authorizer": {
@@ -125,7 +124,6 @@
             },
             "RequestParameters": {
               "type": "array",
-              "additionalItems": false,
               "items": {
                 "type": "object",
                 "additionalProperties": false,
