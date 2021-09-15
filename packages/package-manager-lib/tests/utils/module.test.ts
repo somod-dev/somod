@@ -410,12 +410,6 @@ template(
 );
 
 describe("Test util module.toList", () => {
-  test("for null", () => {
-    expect(() => toList(null)).toThrowError(
-      "Cannot read property 'dependencies' of null"
-    );
-  });
-
   test("for no dependecy", () => {
     expect(
       toList({

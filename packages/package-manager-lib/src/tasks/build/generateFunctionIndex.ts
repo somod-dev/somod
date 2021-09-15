@@ -15,6 +15,7 @@ export const generateFunctionIndex = async (dir: string): Promise<void> => {
     const functions = await readdir(functionsDir);
     const statements = functions
       .filter(functionName => functionName.endsWith(".js")) // filter out .d.ts files
+      .sort()
       .map(functionName => {
         const moduleName = functionName.substring(
           0,

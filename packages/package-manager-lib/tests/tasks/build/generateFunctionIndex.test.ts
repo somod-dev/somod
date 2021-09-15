@@ -84,7 +84,7 @@ describe("Test Task generateFunctionIndex", () => {
       "build/serverless/functions/B.d.ts":
         "declare const var1 : string; export default var1;"
     },
-    'export { default as a } from "./functions/a";\nexport { default as B } from "./functions/B";',
-    'export { default as a } from "./functions/a";\nexport { default as B } from "./functions/B";'
+    'export { default as B } from "./functions/B";\nexport { default as a } from "./functions/a";',
+    'export { default as B } from "./functions/B";\nexport { default as a } from "./functions/a";'
   );
 });

@@ -1,5 +1,5 @@
 import { get as getExports, Exports } from "../../src/utils/exports";
-import { join as pathJoin } from "path";
+import { join as pathJoin, sep } from "path";
 import { sync as rimrafSync } from "rimraf";
 import { createFiles, createTempDir } from "../utils";
 import { isString } from "lodash";
@@ -238,7 +238,11 @@ template(
     default: false,
     named: []
   },
-  'unable to resolve module "${DIR}\\a.ts" or "${DIR}\\a.tsx" in ${PATH}'
+  'unable to resolve module "${DIR}' +
+    sep +
+    'a.ts" or "${DIR}' +
+    sep +
+    'a.tsx" in ${PATH}'
 );
 
 template(
@@ -257,7 +261,7 @@ template(
     default: false,
     named: []
   },
-  'unable to resolve module "${DIR}\\a.js" in ${PATH}'
+  'unable to resolve module "${DIR}' + sep + 'a.js" in ${PATH}'
 );
 
 template(
@@ -276,7 +280,7 @@ template(
     default: false,
     named: []
   },
-  'unable to resolve module "${DIR}\\a.d.ts" in ${PATH}'
+  'unable to resolve module "${DIR}' + sep + 'a.d.ts" in ${PATH}'
 );
 
 template(
