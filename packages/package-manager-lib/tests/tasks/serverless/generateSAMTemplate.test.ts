@@ -151,7 +151,7 @@ describe("Test Task generateSAMTemplate", () => {
         Globals: {
           Function: {
             Runtime: "nodejs14.x",
-            Handler: "index.handler"
+            Handler: "index.default"
           }
         },
         Parameters: { pa046855cClient: { Type: "String" } },

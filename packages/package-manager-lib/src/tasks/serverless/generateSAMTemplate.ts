@@ -17,7 +17,7 @@ export const generateSAMTemplate = async (
       Globals: {
         Function: {
           Runtime: "nodejs14.x",
-          Handler: "index.handler"
+          Handler: "index.default"
         }
       },
       ...samTemplate
