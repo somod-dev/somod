@@ -15,7 +15,7 @@ import {
   isUndefined,
   mergeWith
 } from "lodash";
-import { join, dirname } from "path";
+import { join, dirname, relative } from "path";
 import {
   file_templateJson,
   file_templateYaml,
@@ -637,7 +637,8 @@ const resolveResourceName = (
 
 const resolveFunctionLocation = async (
   dir: string,
-  slpFunction: SLPFunction
+  slpFunction: SLPFunction,
+  rootModuleName: string
 ): Promise<string> => {
   const { module, function: _function } = slpFunction[KeywordSLPFunction];
   const functionPath = join(
@@ -647,7 +648,16 @@ const resolveFunctionLocation = async (
     module,
     _function + ".js"
   );
-  const functionCode = `export { ${_function} as default } from "${module}";`;
+
+  let exportFrom = module;
+  if (module == rootModuleName) {
+    const rootModuleEntryPoint = join(dir, path_build);
+    exportFrom = relative(dirname(functionPath), rootModuleEntryPoint)
+      .split("\\")
+      .join("/");
+  }
+
+  const functionCode = `export { ${_function} as default } from "${exportFrom}";`;
   const functionDir = dirname(functionPath);
   await mkdir(functionDir, { recursive: true });
   await writeFile(functionPath, functionCode);
@@ -656,7 +666,8 @@ const resolveFunctionLocation = async (
 
 const _generateSAMTemplate = async (
   dir: string,
-  serverlessTemplate: ServerlessTemplate
+  serverlessTemplate: ServerlessTemplate,
+  rootModuleName: string
 ): Promise<SAMTemplate> => {
   const samTemplate: SAMTemplate = {
     Parameters: {},
@@ -685,7 +696,8 @@ const _generateSAMTemplate = async (
           ) as SLPFunction;
           const functionLocation = await resolveFunctionLocation(
             dir,
-            slpFunction
+            slpFunction,
+            rootModuleName
           );
           replaceSLPKeyword(slpTemplate, functionPath, functionLocation);
         })
@@ -786,7 +798,11 @@ export const generateSAMTemplate = async (
     rootModuleNode,
     true
   );
-  const samTemplate = await _generateSAMTemplate(dir, serverlessTemplate);
+  const samTemplate = await _generateSAMTemplate(
+    dir,
+    serverlessTemplate,
+    rootModuleNode.name
+  );
 
   return samTemplate;
 };

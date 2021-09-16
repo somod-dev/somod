@@ -955,6 +955,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   }
                 }
               }
+            },
+            BaseAnotherFunction: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: { "SLP::Function": "anotherFunction" }
+              }
             }
           }
         }),
@@ -1057,6 +1063,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             }
           }
         },
+        ra046855cBaseAnotherFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: ".slp/lambdas/@sodaru/baseapi/anotherFunction"
+          }
+        },
         r624eb34aGetAuthGroupFunction: {
           Type: "AWS::Serverless::Function",
           Properties: {
@@ -1106,11 +1118,20 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
 
     await expect(
       readFile(
+        join(dir, ".slp", "functions", "@sodaru/baseapi", "anotherFunction.js"),
+        { encoding: "utf8" }
+      )
+    ).resolves.toEqual(
+      'export { anotherFunction as default } from "@sodaru/baseapi";'
+    );
+
+    await expect(
+      readFile(
         join(dir, ".slp", "functions", "@sodaru/auth-slp", "getAuthGroup.js"),
         { encoding: "utf8" }
       )
     ).resolves.toEqual(
-      'export { getAuthGroup as default } from "@sodaru/auth-slp";'
+      'export { getAuthGroup as default } from "../../../../build";'
     );
   });
 });
