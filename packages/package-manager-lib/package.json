@@ -29,6 +29,7 @@
   "dependencies": {
     "@typescript-eslint/typescript-estree": "^4.28.5",
     "ajv": "^8.6.3",
+    "esbuild": "^0.12.28",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2",
