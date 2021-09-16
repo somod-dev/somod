@@ -5,6 +5,7 @@ import {
   deleteBuildDir,
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
+  doesServerlessFunctionsHaveDefaultExport,
   doesSideEffectsIsFalseInPackageJson,
   doesSlpIsTrueInPackageJson,
   doesTypeIsNotSetInPackageJson,
@@ -26,6 +27,7 @@ import {
   key_type,
   key_typings,
   path_build,
+  path_functions,
   path_serverless,
   validateServerlessTemplateWithSchema
 } from "@sodaru-cli/package-manager-lib";
@@ -80,6 +82,12 @@ export const BuildAction = async ({
       dir,
       {},
       ["serverless"]
+    ),
+    taskRunner(
+      `Check if ${path_serverless}/${path_functions} have default export`,
+      doesServerlessFunctionsHaveDefaultExport,
+      verbose,
+      dir
     )
   ]);
 
