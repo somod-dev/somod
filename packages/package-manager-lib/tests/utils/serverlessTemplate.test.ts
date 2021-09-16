@@ -1028,93 +1028,89 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       })
     });
 
-    await expect(generateSAMTemplate(dir, ["slp"])).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "template.yaml"), { encoding: "utf8" })
-    ).resolves.toEqual(
-      dump({
-        AWSTemplateFormatVersion: "2010-09-09",
-        Transform: "AWS::Serverless-2016-10-31",
-        Globals: {
-          Function: {
-            Runtime: "nodejs14.x",
-            Handler: "index.handler"
+    await expect(generateSAMTemplate(dir, ["slp"])).resolves.toEqual({
+      Parameters: { pa046855cClient: { Type: "String" } },
+      Resources: {
+        ra046855cBaseRestApi: {
+          Type: "AWS::Serverless::Api",
+          Properties: {
+            Tags: {
+              Client: { Ref: "pa046855cClient" }
+            }
+          },
+          DependsOn: ["ra046855cBaseRestApiWelcomeFunction"]
+        },
+        ra046855cBaseRestApiWelcomeFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            InlineCode:
+              'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  Method: "GET",
+                  Path: "/",
+                  RestApiId: { Ref: "ra046855cBaseRestApi" }
+                }
+              }
+            }
           }
         },
-        Parameters: { pa046855cClient: { Type: "String" } },
-        Resources: {
-          ra046855cBaseRestApi: {
-            Type: "AWS::Serverless::Api",
-            Properties: {
-              Tags: {
-                Client: { Ref: "pa046855cClient" }
-              }
-            },
-            DependsOn: ["ra046855cBaseRestApiWelcomeFunction"]
-          },
-          ra046855cBaseRestApiWelcomeFunction: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              InlineCode:
-                'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    Method: "GET",
-                    Path: "/",
-                    RestApiId: { Ref: "ra046855cBaseRestApi" }
-                  }
-                }
-              }
-            }
-          },
-          r624eb34aGetAuthGroupFunction: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              FunctionName: {
-                "Fn::Join": [
-                  "",
-                  [
-                    "slp",
-                    {
-                      "Fn::Select": [
-                        2,
-                        { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
-                      ]
-                    },
-                    "624eb34aGetAuthGroup"
-                  ]
+        r624eb34aGetAuthGroupFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            FunctionName: {
+              "Fn::Join": [
+                "",
+                [
+                  "slp",
+                  {
+                    "Fn::Select": [
+                      2,
+                      { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                    ]
+                  },
+                  "624eb34aGetAuthGroup"
                 ]
-              },
-              CodeUri: ".slp/lambdas/@sodaru/auth-slp/getAuthGroup",
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    Method: "GET",
-                    Path: "/auth-group/get",
-                    RestApiId: {
-                      Ref: "ra046855cBaseRestApi"
-                    }
+              ]
+            },
+            CodeUri: ".slp/lambdas/@sodaru/auth-slp/getAuthGroup",
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  Method: "GET",
+                  Path: "/auth-group/get",
+                  RestApiId: {
+                    Ref: "ra046855cBaseRestApi"
                   }
                 }
               }
             }
-          },
-          r624eb34aListAuthGroupsFunction: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              Tags: {
-                Client: {
-                  Ref: "pa046855cClient"
-                }
-              }
-            },
-            DependsOn: ["r624eb34aGetAuthGroupFunction"]
           }
+        },
+        r624eb34aListAuthGroupsFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Tags: {
+              Client: {
+                Ref: "pa046855cClient"
+              }
+            }
+          },
+          DependsOn: ["r624eb34aGetAuthGroupFunction"]
         }
-      })
+      }
+    });
+
+    await expect(
+      readFile(
+        join(dir, ".slp", "functions", "@sodaru/auth-slp", "getAuthGroup.js"),
+        { encoding: "utf8" }
+      )
+    ).resolves.toEqual(
+      'export { getAuthGroup as default } from "@sodaru/auth-slp";'
     );
   });
 });

@@ -7,7 +7,7 @@ import {
 import { createHash } from "crypto";
 import { existsSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
-import { dump, load } from "js-yaml";
+import { load } from "js-yaml";
 import {
   cloneDeep,
   isArray,
@@ -647,7 +647,7 @@ const resolveFunctionLocation = async (
     module,
     _function + ".js"
   );
-  const functionCode = `export { ${_function} as default } from "${module}"`;
+  const functionCode = `export { ${_function} as default } from "${module}";`;
   const functionDir = dirname(functionPath);
   await mkdir(functionDir, { recursive: true });
   await writeFile(functionPath, functionCode);
@@ -780,7 +780,7 @@ const _generateSAMTemplate = async (
 export const generateSAMTemplate = async (
   dir: string,
   moduleIndicators: string[]
-): Promise<void> => {
+): Promise<SAMTemplate> => {
   const rootModuleNode = await getModuleGraph(dir, moduleIndicators);
   const serverlessTemplate = await generateServerlessTemplate(
     rootModuleNode,
@@ -788,21 +788,5 @@ export const generateSAMTemplate = async (
   );
   const samTemplate = await _generateSAMTemplate(dir, serverlessTemplate);
 
-  const completeSamTemplate = {
-    AWSTemplateFormatVersion: "2010-09-09",
-    Transform: "AWS::Serverless-2016-10-31",
-    Globals: {
-      Function: {
-        Runtime: "nodejs14.x",
-        Handler: "index.handler"
-      }
-    },
-    ...samTemplate
-  };
-
-  const templateYamlPath = join(dir, file_templateYaml);
-
-  const templateStr = dump(completeSamTemplate);
-
-  await writeFile(templateYamlPath, templateStr);
+  return samTemplate;
 };
