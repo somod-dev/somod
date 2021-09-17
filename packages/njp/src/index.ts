@@ -1,8 +1,8 @@
 import { rootCommand } from "@sodaru-cli/base";
 import buildCommand from "./commands/build";
-import devCommand from "./commands/dev";
+import serveCommand from "./commands/serve";
 import initCommand from "./commands/init";
 
-const program = rootCommand("njp", [initCommand, buildCommand, devCommand]);
+const program = rootCommand("njp", [initCommand, buildCommand, serveCommand]);
 
 export default program;
