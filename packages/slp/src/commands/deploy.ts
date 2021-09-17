@@ -10,6 +10,7 @@ import {
   samCommand
 } from "@sodaru-cli/package-manager-lib";
 import { Command, Option } from "commander";
+import { BuildAction } from "./build";
 
 type DeployOptions = CommonOptions & {
   stage: "all" | "prepare" | "apply";
@@ -24,6 +25,8 @@ export const DeployAction = async ({
   const dir = process.cwd();
 
   if (stage == "all" || stage == "prepare") {
+    await BuildAction({ verbose });
+
     await taskRunner(
       `Deleting ${path_slpWorkingDir} directory`,
       deleteSlpWorkingDir,
