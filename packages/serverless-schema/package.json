@@ -8,7 +8,7 @@
     "json-schema",
     "schema"
   ],
-  "module": "dist/index.js",
+  "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/serverless-schema#readme",

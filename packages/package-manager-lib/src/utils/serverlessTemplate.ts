@@ -285,10 +285,23 @@ const validateSLPTemplateRefs = (
       return;
     }
 
+    if (moduleTemplate.Resources[ref.resource][KeywordSLPExtend]) {
+      errors.push(
+        new Error(
+          `Referenced module resource {${ref.module || module}, ${
+            ref.resource
+          }} must not have ${KeywordSLPExtend}. Referenced in "${module}" at "Resources/${refPath.join(
+            "/"
+          )}"`
+        )
+      );
+      return;
+    }
+
     if (!moduleTemplate.Resources[ref.resource][KeywordSLPOutput]) {
       errors.push(
         new Error(
-          `Referenced module resource {${ref.module}, ${
+          `Referenced module resource {${ref.module || module}, ${
             ref.resource
           }} does not have ${KeywordSLPOutput}. Referenced in "${module}" at "Resources/${refPath.join(
             "/"
@@ -306,7 +319,7 @@ const validateSLPTemplateRefs = (
       ) {
         errors.push(
           new Error(
-            `Referenced module resource {${ref.module}, ${
+            `Referenced module resource {${ref.module || module}, ${
               ref.resource
             }} does not have attribute ${
               ref.attribute
@@ -321,7 +334,7 @@ const validateSLPTemplateRefs = (
       if (!moduleTemplate.Resources[ref.resource][KeywordSLPOutput].default) {
         errors.push(
           new Error(
-            `Referenced module resource {${ref.module}, ${
+            `Referenced module resource {${ref.module || module}, ${
               ref.resource
             }} does not have default set to true in ${KeywordSLPOutput}. Referenced in "${module}" at "Resources/${refPath.join(
               "/"

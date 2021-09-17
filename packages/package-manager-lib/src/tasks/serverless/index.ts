@@ -4,3 +4,4 @@ export { validateSchema as validateServerlessTemplateWithSchema } from "./valida
 export { bundleFunctions as bundleServerlessFunctions } from "./bundleFunctions";
 export { doesFunctionsHaveDefaultExport as doesServerlessFunctionsHaveDefaultExport } from "./doesFunctionsHaveDefaultExport";
 export { samCommand } from "./samCommand";
+export { deleteSlpWorkingDir } from "./deleteSlpWorkingDir";

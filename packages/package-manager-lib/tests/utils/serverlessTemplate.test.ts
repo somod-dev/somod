@@ -647,6 +647,57 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
     });
   });
 
+  test("with SLP::Ref and with module with Extended Resource", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  RestApiId: {
+                    "SLP::Ref": {
+                      resource: "Resource2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        Resource2: {
+          Type: "AWS::Serverless::Api",
+          "SLP::Extend": {
+            module: "sample2",
+            resource: "Resource3"
+          },
+          Properties: {}
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...doublePackageJson,
+      "node_modules/sample2/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Resource3: {
+            Type: "AWS::Serverless::Api",
+            Properties: {}
+          }
+        }
+      })
+    });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        'Referenced module resource {sample, Resource2} must not have SLP::Extend. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
+      )
+    });
+  });
+
   test("with SLP::Ref and with module with Resource but no output", async () => {
     const template = {
       Resources: {
