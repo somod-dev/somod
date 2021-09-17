@@ -3,6 +3,7 @@ import {
   file_gitIgnore,
   file_packageJson,
   file_templateYaml,
+  file_tsConfigBuildJson,
   initGit,
   initLib,
   key_jsnextMain,
@@ -11,6 +12,7 @@ import {
   key_sideEffects,
   key_type,
   path_lib,
+  path_serverless,
   saveGitIgnore,
   savePackageJson,
   setModuleInPackageJson,
@@ -19,7 +21,8 @@ import {
   setTypingsInPackageJson,
   unsetJsnextMainInPackageJson,
   unsetTypeInPackageJson,
-  updateGitIgnore
+  updateGitIgnore,
+  updateTsConfigBuildJson
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 
@@ -69,7 +72,16 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       `/${file_templateYaml}`
     ]),
 
-    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir)
+    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
+
+    taskRunner(
+      `Intitalize ${file_tsConfigBuildJson}`,
+      updateTsConfigBuildJson,
+      verbose,
+      dir,
+      {},
+      [path_serverless]
+    )
   ]);
 
   await Promise.all([
