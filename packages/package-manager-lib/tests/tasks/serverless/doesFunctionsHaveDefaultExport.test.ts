@@ -44,18 +44,27 @@ describe("Test task doesServerlessFunctionsHaveDefaultExport", () => {
       "serverless/functions/aaaa.html": "<h1>cfd</h1>",
       "serverless/functions/bbb/": ""
     });
-    await expect(
-      doesServerlessFunctionsHaveDefaultExport(dir)
-    ).rejects.toMatchObject({
-      message: expect.stringContaining(
-        [
-          join(dir, "serverless/functions/aaaa.html") +
-            " must have a default export",
-          join(dir, "serverless/functions/bbb") +
-            " is not a File. serverless/functions must only contain files"
-        ].join("\n")
+
+    let errors: string[] = [];
+    try {
+      await doesServerlessFunctionsHaveDefaultExport(dir);
+    } catch (e) {
+      errors = e.message.split("\n");
+    }
+    expect(errors.length).toEqual(2);
+    expect(
+      errors.includes(
+        join(dir, "serverless/functions/aaaa.html") +
+          " must have a default export"
       )
-    });
+    ).toBeTruthy();
+
+    expect(
+      errors.includes(
+        join(dir, "serverless/functions/bbb") +
+          " is not a File. serverless/functions must only contain files"
+      )
+    ).toBeTruthy();
   });
 
   test("for all valid files", async () => {
