@@ -15,6 +15,7 @@ import {
   path_build,
   path_lib,
   path_serverless,
+  path_slpWorkingDir,
   saveGitIgnore,
   savePackageJson,
   setBuildInFilesInPackageJson,
@@ -78,7 +79,8 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     taskRunner(`Initialise GIT`, initGit, verbose, dir),
 
     taskRunner(`Initialize ${file_gitIgnore}`, updateGitIgnore, verbose, dir, [
-      `/${file_templateYaml}`
+      `/${file_templateYaml}`,
+      `/${path_slpWorkingDir}`
     ]),
 
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
