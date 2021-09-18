@@ -1,3 +1,4 @@
+import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { bundleServerlessFunctions } from "../../../src";
@@ -12,6 +13,12 @@ describe("Test task bundleServerlessFunctions", () => {
 
   afterEach(() => {
     deleteDir(dir);
+  });
+
+  test("for no functions", async () => {
+    createFiles(dir, { ".slp/": "" });
+    await expect(bundleServerlessFunctions(dir)).resolves.toBeUndefined();
+    expect(existsSync(join(dir, ".slp/lambdas"))).not.toBeTruthy();
   });
 
   test("for valid functions", async () => {
