@@ -7,6 +7,7 @@ import {
   file_index_js,
   path_build
 } from "../../utils/constants";
+import { get as getExports } from "../../utils/exports";
 
 /**
  *
@@ -24,11 +25,16 @@ export const generateIndex = async (
   const _modules = uniq([...defaultModules, ...modules]);
 
   _modules.forEach(module => {
-    if (existsSync(join(dir, path_build, module + ".js"))) {
-      if (module.endsWith("/index")) {
-        module = module.substring(0, module.lastIndexOf("/index"));
+    const modulePath = join(dir, path_build, module + ".js");
+    if (existsSync(modulePath)) {
+      const exports = getExports(modulePath);
+      if (exports.named.length > 0) {
+        // re-export only named exports
+        if (module.endsWith("/index")) {
+          module = module.substring(0, module.lastIndexOf("/index"));
+        }
+        statements.push(`export * from "./${module}";`);
       }
-      statements.push(`export * from "./${module}";`);
     }
   });
 

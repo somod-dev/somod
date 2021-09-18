@@ -27,7 +27,9 @@ describe("Test Task generatePagesIndex", () => {
   });
 
   test("for ui/pageIndex.js only", async () => {
-    createFiles(dir, { "build/ui/pageIndex.js": "" });
+    createFiles(dir, {
+      "build/ui/pageIndex.js": "export const Page1default = 10;"
+    });
     await expect(generateIndex(dir, ["ui/pageIndex"])).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/index.js"), { encoding: "utf8" })
@@ -38,7 +40,7 @@ describe("Test Task generatePagesIndex", () => {
   });
 
   test("for lib/index.js only", async () => {
-    createFiles(dir, { "build/lib/index.js": "" });
+    createFiles(dir, { "build/lib/index.js": "export const Index = 20;" });
     await expect(generateIndex(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/index.js"), { encoding: "utf8" })
@@ -49,7 +51,10 @@ describe("Test Task generatePagesIndex", () => {
   });
 
   test("for both ui/pageIndex.js and lib/index.js", async () => {
-    createFiles(dir, { "build/ui/pageIndex.js": "", "build/lib/index.js": "" });
+    createFiles(dir, {
+      "build/ui/pageIndex.js": "export const Page1default = 10;",
+      "build/lib/index.js": "export const Welcome = 10; export default Welcome;"
+    });
     await expect(generateIndex(dir, ["ui/pageIndex"])).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/index.js"), { encoding: "utf8" })
@@ -61,5 +66,16 @@ describe("Test Task generatePagesIndex", () => {
     ).resolves.toEqual(
       'export * from "./lib";\nexport * from "./ui/pageIndex";'
     );
+  });
+
+  test("for both ui/pageIndex.js and lib/index.js without named exports", async () => {
+    createFiles(dir, {
+      "build/ui/pageIndex.js":
+        "const Page1default = 10; export default Page1default",
+      "build/lib/index.js": ""
+    });
+    await expect(generateIndex(dir, ["ui/pageIndex"])).resolves.toBeUndefined();
+    expect(existsSync(join(dir, "build/index.js"))).not.toBeTruthy();
+    expect(existsSync(join(dir, "build/index.d.ts"))).not.toBeTruthy();
   });
 });
