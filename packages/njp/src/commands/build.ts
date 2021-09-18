@@ -24,7 +24,9 @@ import {
   path_build,
   path_public,
   path_ui,
-  file_index_dts
+  file_index_dts,
+  doesFilesHasBuildInPackageJson,
+  key_files
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 import { CommonOptions, taskRunner } from "@sodaru-cli/base";
@@ -68,6 +70,12 @@ export const BuildAction = async ({
     taskRunner(
       `Check if ${key_jsnextMain} is not set in ${file_packageJson}`,
       doesJsnextMainNotSetInPackageJson,
+      verbose,
+      dir
+    ),
+    await taskRunner(
+      `Check if ${key_files} include ${path_build} in ${file_packageJson}`,
+      doesFilesHasBuildInPackageJson,
       verbose,
       dir
     ),

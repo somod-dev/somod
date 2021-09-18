@@ -3,6 +3,7 @@ import {
   buildServerlessTemplate,
   compileTypeScript,
   deleteBuildDir,
+  doesFilesHasBuildInPackageJson,
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
   doesServerlessFunctionsHaveDefaultExport,
@@ -20,6 +21,7 @@ import {
   generateFunctionIndex,
   generateIndex,
   isValidTsConfigBuildJson,
+  key_files,
   key_jsnextMain,
   key_module,
   key_sideEffects,
@@ -72,6 +74,12 @@ export const BuildAction = async ({
     taskRunner(
       `Check if ${key_jsnextMain} is not set in ${file_packageJson}`,
       doesJsnextMainNotSetInPackageJson,
+      verbose,
+      dir
+    ),
+    await taskRunner(
+      `Check if ${key_files} include ${path_build} in ${file_packageJson}`,
+      doesFilesHasBuildInPackageJson,
       verbose,
       dir
     ),

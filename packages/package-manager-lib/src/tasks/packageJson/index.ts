@@ -1,6 +1,7 @@
 export { doesJsnextMainNotSet as doesJsnextMainNotSetInPackageJson } from "./doesJsnextMainNotSet";
 export { doesModuleIsBuildIndex as doesModuleIsBuildIndexInPackageJson } from "./doesModuleIsBuildIndex";
 export { doesTypingsIsBuildIndex as doesTypingsIsBuildIndexInPackageJson } from "./doesTypingsIsBuildIndex";
+export { doesFilesHasBuild as doesFilesHasBuildInPackageJson } from "./doesFilesHasBuild";
 export { doesNjpIsTrue as doesNjpIsTrueInPackageJson } from "./doesNjpIsTrue";
 export { doesSlpIsTrue as doesSlpIsTrueInPackageJson } from "./doesSlpIsTrue";
 export { doesSideEffectsIsFalse as doesSideEffectsIsFalseInPackageJson } from "./doesSideEffectsIsFalse";
@@ -17,5 +18,6 @@ export { setSideEffects as setSideEffectsInPackageJson } from "./setSideEffects"
 export { unsetJsnextMain as unsetJsnextMainInPackageJson } from "./unsetJsnextMain";
 export { setModule as setModuleInPackageJson } from "./setModule";
 export { setTypings as setTypingsInPackageJson } from "./setTypings";
+export { setBuildInFiles as setBuildInFilesInPackageJson } from "./setBuildInFiles";
 export { setEslintConfig as setEslintConfigInPackageJson } from "./setEslintConfig";
 export { setPrettierConfig as setPrettierConfigInPackageJson } from "./setPrettierConfig";

@@ -29,7 +29,10 @@ import {
   path_ui,
   file_tsConfigBuildJson,
   path_lib,
-  key_typings
+  key_typings,
+  path_build,
+  key_files,
+  setBuildInFilesInPackageJson
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 
@@ -68,6 +71,12 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   await taskRunner(
     `Unset ${key_jsnextMain} in ${file_packageJson}`,
     unsetJsnextMainInPackageJson,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `Include ${path_build} to ${key_files} in ${file_packageJson}`,
+    setBuildInFilesInPackageJson,
     verbose,
     dir
   );

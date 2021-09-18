@@ -6,15 +6,18 @@ import {
   file_tsConfigBuildJson,
   initGit,
   initLib,
+  key_files,
   key_jsnextMain,
   key_module,
   key_njp,
   key_sideEffects,
   key_type,
+  path_build,
   path_lib,
   path_serverless,
   saveGitIgnore,
   savePackageJson,
+  setBuildInFilesInPackageJson,
   setModuleInPackageJson,
   setSideEffectsInPackageJson,
   setSlpInPackageJson,
@@ -61,6 +64,12 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   await taskRunner(
     `Unset ${key_jsnextMain} in ${file_packageJson}`,
     unsetJsnextMainInPackageJson,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `Include ${path_build} to ${key_files} in ${file_packageJson}`,
+    setBuildInFilesInPackageJson,
     verbose,
     dir
   );
