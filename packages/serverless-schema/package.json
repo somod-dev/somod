@@ -36,10 +36,12 @@
     "@sodaru/jest-config": "^1.1.0",
     "@types/node": "^16.9.1",
     "ajv": "^8.6.3",
+    "ajv-formats": "^2.1.1",
     "typescript": "^4.4.3"
   },
   "peerDependencies": {
     "ajv": "^8.6.3",
+    "ajv-formats": "^2.1.1",
     "tslib": "^2.3.1"
   }
 }

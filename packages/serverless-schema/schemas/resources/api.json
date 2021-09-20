@@ -182,16 +182,14 @@
       "additionalProperties": false,
       "description": "refer https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-gateway-responses.html",
       "properties": {
-        "statusCode": { "type": "string", "pattern": "^[1-5][0-9][0-9]$" },
+        "statusCode": {
+          "$ref": "../openapi-extended.json#/definitions/XAmazonApigatewayGatewayResponse/properties/statusCode"
+        },
         "responseParameters": {
-          "type": "object",
-          "additionalProperties": false,
-          "patternProperties": { "^[a-zA-Z0-9.-]$": { "type": "string" } }
+          "$ref": "../openapi-extended.json#/definitions/XAmazonApigatewayGatewayResponse/properties/responseParameters"
         },
         "responseTemplates": {
-          "type": "object",
-          "additionalProperties": false,
-          "patternProperties": { "^[a-zA-Z0-9.-]$": { "type": "string" } }
+          "$ref": "../openapi-extended.json#/definitions/XAmazonApigatewayGatewayResponse/properties/responseTemplates"
         },
         "defaultResponse": { "type": "boolean" }
       }
@@ -315,6 +313,9 @@
             },
             "SecurityPolicy": { "enum": ["TLS_1_0", "TLS_1_2"] }
           }
+        },
+        "DefinitionBody": {
+          "$ref": "../openapi-extended.json"
         },
         "GatewayResponses": {
           "type": "object",

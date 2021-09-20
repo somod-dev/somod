@@ -1,7 +1,7 @@
 {
-  "id": "https://spec.openapis.org/oas/3.0/schema/2019-04-02",
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Validation schema for OpenAPI Specification 3.0.X.",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json-schema.sodaru.com/serverless-template/openapi-extended.json",
+  "description": "Validation schema for OpenAPI Specification 3.0.X. \n Extended with AWS API Gateway extensions.\n Open Api Schema Downloaded from https://github.com/OAI/OpenAPI-Specification/blob/main/schemas/v3.0/schema.json. \n AWS API Gateway Extensions https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html",
   "type": "object",
   "required": ["openapi", "info", "paths"],
   "properties": {
@@ -39,10 +39,48 @@
     },
     "components": {
       "$ref": "#/definitions/Components"
+    },
+    "x-amazon-apigateway-api-key-source": {
+      "description": "Specify the source to receive an API key to throttle API methods that require a key",
+      "enum": ["HEADER", "AUTHORIZER"]
+    },
+    "x-amazon-apigateway-binary-media-types": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9]+\\/[a-z0-9]+$" },
+      "minItems": 1
+    },
+    "x-amazon-apigateway-documentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "documentationParts"],
+      "properties": {
+        "version": { "type": "string" },
+        "documentationParts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocumentationPart"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "x-amazon-apigateway-gateway-responses": {
+      "$ref": "#/definitions/XAmazonApigatewayGatewayResponses"
+    },
+    "x-amazon-apigateway-minimum-compression-size": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10485760
+    },
+    "x-amazon-apigateway-policy": {
+      "$ref": "./policy.json"
+    },
+    "x-amazon-apigateway-request-validator": {
+      "$ref": "#/definitions/XAmazonApigatewayRequestValidator"
+    },
+    "x-amazon-apigateway-request-validators": {
+      "$ref": "#/definitions/XAmazonApigatewayRequestValidators"
     }
-  },
-  "patternProperties": {
-    "^x-": {}
   },
   "additionalProperties": false,
   "definitions": {
@@ -137,10 +175,20 @@
           "additionalProperties": {
             "$ref": "#/definitions/ServerVariable"
           }
+        },
+        "x-amazon-apigateway-endpoint-configuration": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "disableExecuteApiEndpoint": {
+              "type": "boolean"
+            },
+            "vpcEndpointIds": {
+              "type": "array",
+              "items": { "$ref": "./expression.json#/definitions/stringLike" }
+            }
+          }
         }
-      },
-      "patternProperties": {
-        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -318,8 +366,7 @@
         },
         "multipleOf": {
           "type": "number",
-          "minimum": 0,
-          "exclusiveMinimum": true
+          "exclusiveMinimum": 0
         },
         "maximum": {
           "type": "number"
@@ -787,7 +834,9 @@
         "^(get|put|post|delete|options|head|patch|trace)$": {
           "$ref": "#/definitions/Operation"
         },
-        "^x-": {}
+        "^x-amazon-apigateway-any-method$": {
+          "$ref": "#/definitions/XAmazonApiGatewayAnyMethodOperation"
+        }
       },
       "additionalProperties": false
     },
@@ -868,10 +917,10 @@
           "items": {
             "$ref": "#/definitions/Server"
           }
+        },
+        "x-amazon-apigateway-request-validator": {
+          "$ref": "#/definitions/XAmazonApigatewayRequestValidator"
         }
-      },
-      "patternProperties": {
-        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -952,12 +1001,14 @@
     },
     "ExampleXORExamples": {
       "description": "Example and examples are mutually exclusive",
+      "type": "object",
       "not": {
         "required": ["example", "examples"]
       }
     },
     "SchemaXORContent": {
       "description": "Schema and content are mutually exclusive, at least one is required",
+      "type": "object",
       "not": {
         "required": ["schema", "content"]
       },
@@ -1084,6 +1135,7 @@
     },
     "ParameterLocation": {
       "description": "Parameter location",
+      "type": "object",
       "oneOf": [
         {
           "description": "Parameter in path",
@@ -1195,10 +1247,14 @@
         },
         "description": {
           "type": "string"
+        },
+        "x-amazon-apigateway-authorizer": {
+          "$ref": "#/definitions/XAamazonApigatewayAuthorizer"
+        },
+        "x-amazon-apigateway-authtype": {
+          "type": "string",
+          "maxLength": 256
         }
-      },
-      "patternProperties": {
-        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -1218,10 +1274,10 @@
         "type": {
           "type": "string",
           "enum": ["http"]
+        },
+        "x-amazon-apigateway-authorizer": {
+          "$ref": "#/definitions/XAamazonApigatewayAuthorizer"
         }
-      },
-      "patternProperties": {
-        "^x-": {}
       },
       "additionalProperties": false,
       "oneOf": [
@@ -1261,10 +1317,10 @@
         },
         "description": {
           "type": "string"
+        },
+        "x-amazon-apigateway-authorizer": {
+          "$ref": "#/definitions/XAamazonApigatewayAuthorizer"
         }
-      },
-      "patternProperties": {
-        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -1282,10 +1338,10 @@
         },
         "description": {
           "type": "string"
+        },
+        "x-amazon-apigateway-authorizer": {
+          "$ref": "#/definitions/XAamazonApigatewayAuthorizer"
         }
-      },
-      "patternProperties": {
-        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -1475,6 +1531,388 @@
         }
       },
       "additionalProperties": false
+    },
+    "XAmazonApiGatewayAnyMethodOperation": {
+      "type": "object",
+      "required": ["responses", "x-amazon-apigateway-integration"],
+      "properties": {
+        "tags": {
+          "$ref": "#/definitions/Operation/properties/tags"
+        },
+        "summary": {
+          "$ref": "#/definitions/Operation/properties/summary"
+        },
+        "description": {
+          "$ref": "#/definitions/Operation/properties/description"
+        },
+        "externalDocs": {
+          "$ref": "#/definitions/Operation/properties/externalDocs"
+        },
+        "operationId": {
+          "$ref": "#/definitions/Operation/properties/operationId"
+        },
+        "parameters": {
+          "$ref": "#/definitions/Operation/properties/parameters"
+        },
+        "requestBody": {
+          "$ref": "#/definitions/Operation/properties/requestBody"
+        },
+        "responses": {
+          "type": "object"
+        },
+        "callbacks": {
+          "$ref": "#/definitions/Operation/properties/callbacks"
+        },
+        "deprecated": {
+          "$ref": "#/definitions/Operation/properties/deprecated"
+        },
+        "security": {
+          "$ref": "#/definitions/Operation/properties/security"
+        },
+        "servers": {
+          "$ref": "#/definitions/Operation/properties/servers"
+        },
+        "x-amazon-apigateway-integration": {
+          "$ref": "#/definitions/XAmazonApigatewayIntegration"
+        },
+        "x-amazon-apigateway-request-validator": {
+          "$ref": "#/definitions/XAmazonApigatewayRequestValidator"
+        }
+      },
+      "additionalProperties": false
+    },
+    "XAamazonApigatewayAuthorizer": {
+      "type": "object",
+      "description": "Defines a Lambda authorizer or JWT authorizer to be applied for authorization of method invocations in API Gateway.",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["token", "request"] },
+        "authorizerUri": {
+          "description": "ARN of the lambda for authorizer",
+          "$ref": "./expression.json#/definitions/stringLike"
+        },
+        "authorizerCredentials": {
+          "description": "The credentials required for invoking the authorizer, if any, in the form of an ARN of an IAM execution role. For example, \"arn:aws:iam::account-id:IAM_role\".",
+          "$ref": "./expression.json#/definitions/stringLike"
+        },
+        "identitySource": {
+          "type": "string",
+          "maxLength": 512,
+          "pattern": "^[a-zA-Z0-9\\.\\s,]+$"
+        },
+        "identityValidationExpression": {
+          "type": "string",
+          "format": "regex"
+        },
+        "authorizerResultTtlInSeconds": {
+          "type": "integer",
+          "description": "The number of seconds during which authorizer result is cached."
+        }
+      }
+    },
+    "DocumentationPart": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "TODO: can be still improved Refer https://docs.aws.amazon.com/apigateway/api-reference/resource/documentation-part",
+      "properties": {
+        "location": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "API",
+                "AUTHORIZER",
+                "MODEL",
+                "RESOURCE",
+                "METHOD",
+                "PATH_PARAMETER",
+                "QUERY_PARAMETER",
+                "REQUEST_HEADER",
+                "REQUEST_BODY",
+                "RESPONSE, RESPONSE_HEADER",
+                "RESPONSE_BODY"
+              ]
+            },
+            "path": {
+              "type": "string",
+              "format": "uri"
+            },
+            "method": {
+              "type": "string",
+              "pattern": "^(get|put|post|delete|options|head|patch|trace|\\*)$"
+            },
+            "statusCode": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "properties": {
+          "type": "object"
+        }
+      }
+    },
+    "XAmazonApigatewayGatewayResponses": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ACCESS_DENIED": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "API_CONFIGURATION_ERROR": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "AUTHORIZER_FAILURE": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "AUTHORIZER_CONFIGURATION_ERROR": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "BAD_REQUEST_PARAMETERS": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "BAD_REQUEST_BODY": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "DEFAULT_4XX": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "DEFAULT_5XX": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "EXPIRED_TOKEN": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "INVALID_SIGNATURE": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "INTEGRATION_FAILURE": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "INTEGRATION_TIMEOUT": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "INVALID_API_KEY": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "MISSING_AUTHENTICATION_TOKEN": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "QUOTA_EXCEEDED": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "REQUEST_TOO_LARGE": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "RESOURCE_NOT_FOUND": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "THROTTLED": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "UNAUTHORIZED": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        },
+        "UNSUPPORTED_MEDIA_TYPE": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse"
+        }
+      }
+    },
+    "IntegrationParameter": {
+      "type": "string",
+      "oneOf": [
+        {
+          "pattern": "^method.request.path.[a-zA-Z0-9._-]+$"
+        },
+        {
+          "pattern": "^method.request.querystring.[a-zA-Z0-9._-]+$"
+        },
+        {
+          "pattern": "^method.request.multivaluequerystring.[a-zA-Z0-9._-]+$"
+        },
+        {
+          "pattern": "^method.request.header.[a-zA-Z0-9._-]+$"
+        },
+        {
+          "pattern": "^method.request.multivalueheader.[a-zA-Z0-9._-]+$"
+        },
+        {
+          "pattern": "^method.request.body$"
+        },
+        {
+          "pattern": "^method.request.body..+$"
+        },
+        {
+          "pattern": "^stageVariables.[a-zA-Z0-9_-]+$"
+        },
+        {
+          "pattern": "^context.[a-zA-Z0-9._-]+$"
+        },
+        {
+          "pattern": "^'[a-zA-Z0-9._-]+'$"
+        }
+      ]
+    },
+    "XAmazonApigatewayGatewayResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "statusCode": {
+          "type": "integer",
+          "minimum": 100,
+          "exclusiveMaximum": 600
+        },
+        "responseParameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^gatewayresponse.(header|path|querystring).[a-zA-Z0-9._-]+$": {
+              "$ref": "#/definitions/IntegrationParameter"
+            }
+          }
+        },
+        "responseTemplates": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Defines GatewayResponse mapping templates, https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-gateway-responses.responseTemplates.html",
+          "patternProperties": {
+            "^[a-z0-9-]+\\^[a-z0-9-]+/$": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          }
+        }
+      }
+    },
+    "XAmazonApigatewayIntegration": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Specifies details of the backend integration used for this method. https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html",
+      "properties": {
+        "cacheKeyParameters": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "A list of request parameters whose values are to be cached."
+        },
+        "cacheNamespace": {
+          "type": "string",
+          "description": "An API-specific tag group of related cached parameters."
+        },
+        "connectionId": {
+          "$ref": "./expression.json#/definitions/stringLike"
+        },
+        "connectionType": {
+          "enum": ["VPC_LINK", "INTERNET"]
+        },
+        "credentials": {
+          "$ref": "./expression.json#/definitions/stringLike"
+        },
+        "contentHandling": {
+          "enum": ["CONVERT_TO_TEXT", "CONVERT_TO_BINARY"]
+        },
+        "httpMethod": {
+          "enum": [
+            "ANY",
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE",
+            "OPTIONS",
+            "HEAD",
+            "PATCH",
+            "TRACE"
+          ]
+        },
+        "passthroughBehavior": {
+          "enum": ["when_no_templates", "when_no_match", "never"]
+        },
+        "requestParameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^integration.request.(header|path|querystring|body).[a-zA-Z0-9._-]+$": {
+              "$ref": "#/definitions/IntegrationParameter"
+            }
+          }
+        },
+        "requestTemplates": {
+          "$ref": "#/definitions/XAmazonApigatewayGatewayResponse/properties/responseTemplates"
+        },
+        "responses": {
+          "type": "object",
+          "description": "Defines the method's responses and specifies parameter mappings or payload mappings from integration responses to method responses.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "statusCode": {
+                "$ref": "#/definitions/XAmazonApigatewayGatewayResponse/properties/statusCode"
+              },
+              "responseParameters": {
+                "type": "object",
+                "additionalProperties": false,
+                "patternProperties": {
+                  "^method.response.header.[a-zA-Z0-9._-]+$": {
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "pattern": "^method.request.header.[a-zA-Z0-9._-]+$"
+                      },
+                      {
+                        "pattern": "^method.request.body..+$"
+                      }
+                    ]
+                  }
+                }
+              },
+              "responseTemplates": {
+                "$ref": "#/definitions/XAmazonApigatewayGatewayResponse/properties/responseTemplates"
+              },
+              "contentHandling": {
+                "$ref": "#/definitions/XAmazonApigatewayIntegration/properties/contentHandling"
+              }
+            }
+          }
+        },
+        "timeoutInMillis": {
+          "type": "integer",
+          "minimum": 59,
+          "maximum": 29000
+        },
+        "type": {
+          "enum": ["http", "http_proxy", "aws_proxy", "aws", "mock"]
+        },
+        "tlsConfig": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": { "insecureSkipVerification": { "type": "boolean" } }
+        },
+        "uri": {
+          "$ref": "./expression.json#/definitions/stringLike"
+        }
+      }
+    },
+    "XAmazonApigatewayRequestValidator": {
+      "type": "string",
+      "description": "Specifies a request validator, by referencing a request_validator_name of the x-amazon-apigateway-request-validators object"
+    },
+    "XAmazonApigatewayRequestValidators": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "validateRequestBody": { "type": "boolean" },
+            "validateRequestParameters": { "type": "boolean" }
+          }
+        }
+      }
     }
   }
 }
