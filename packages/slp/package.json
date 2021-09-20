@@ -31,8 +31,11 @@
     "test": "echo 'No tests defined'",
     "prepack": "npm run test"
   },
+  "dependencies": {
+    "@sodaru-cli/serverless-schema": "^1.7.1"
+  },
+  "note": "@sodaru-cli/serverless-schema is added in dependencies instead of peer dependency because lerna version will not bump the version of peer dependency",
   "peerDependencies": {
-    "@sodaru-cli/serverless-schema": "^1.7.0",
     "typescript": "^4.3.5"
   },
   "devDependencies": {
