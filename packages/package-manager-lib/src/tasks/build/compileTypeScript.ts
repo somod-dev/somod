@@ -17,8 +17,7 @@ export const compileTypeScript = (
       {
         cwd: dir,
         windowsHide: true,
-        stdio: "pipe",
-        env: { FORCE_COLOR: "1" }
+        stdio: "pipe"
       }
     );
     childProcess.on("error", e => {
