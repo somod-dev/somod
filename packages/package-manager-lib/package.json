@@ -1,6 +1,6 @@
 {
   "name": "@sodaru-cli/package-manager-lib",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "Package Manager utility library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/package-manager-lib#readme",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@sodaru-cli/base": "^1.2.0",
-    "@sodaru-cli/serverless-schema": "^1.7.1",
+    "@sodaru-cli/serverless-schema": "^1.7.2",
     "@sodaru/jest-config": "^1.1.0",
     "@types/js-yaml": "^4.0.3",
     "@types/lodash": "^4.14.171",
