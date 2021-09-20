@@ -62,3 +62,4 @@ export const file_templateJson = "template.json";
 export const path_slpWorkingDir = ".slp";
 export const path_lambdas = "lambdas";
 export const path_samBuild = ".aws-sam";
+export const path_samConfig = "samconfig.toml";
