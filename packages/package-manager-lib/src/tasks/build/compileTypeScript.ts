@@ -37,5 +37,8 @@ export const compileTypeScript = (
     childProcess.stdout.on("data", chunk => {
       out += chunk;
     });
+    childProcess.stderr.on("data", chunk => {
+      out += chunk;
+    });
   });
 };
