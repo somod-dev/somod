@@ -20,6 +20,7 @@ import {
   path_slpWorkingDir,
   saveGitIgnore,
   savePackageJson,
+  saveTsConfigBuildJson,
   setBuildInFilesInPackageJson,
   setModuleInPackageJson,
   setSideEffectsInPackageJson,
@@ -101,7 +102,13 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
 
   await Promise.all([
     taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),
-    taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir)
+    taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir),
+    taskRunner(
+      `Save ${file_tsConfigBuildJson}`,
+      saveTsConfigBuildJson,
+      verbose,
+      dir
+    )
   ]);
 };
 
