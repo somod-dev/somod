@@ -44,7 +44,7 @@
             {
               "type": "array",
               "items": {
-                "type": "string"
+                "$ref": "./expression.json#/definitions/stringLike"
               }
             }
           ]

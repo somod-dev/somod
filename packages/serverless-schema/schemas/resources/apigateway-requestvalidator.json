@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/apigateway-requestvalidator.json",
+  "title": "JSON Schema for AWS::ApiGateway::RequestValidator Resource in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::ApiGateway::RequestValidator" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "Name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9]+$",
+          "maxLength": 128
+        },
+        "RestApiId": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "ValidateRequestBody": {
+          "type": "boolean"
+        },
+        "ValidateRequestParameters": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
