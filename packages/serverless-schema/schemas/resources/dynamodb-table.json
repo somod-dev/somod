@@ -24,7 +24,7 @@
     }
   },
   "type": "object",
-  "required": ["Type", "Properties"],
+  "required": ["Type", "Properties", "DeletionPolicy", "UpdateReplacePolicy"],
   "properties": {
     "Type": { "const": "AWS::DynamoDB::Table" },
     "SLP::Extend": {
@@ -36,6 +36,8 @@
     "SLP::Output": {
       "$ref": "./resource-properties.json#/definitions/SLP::Output"
     },
+    "DeletionPolicy": { "const": "Retain" },
+    "UpdateReplacePolicy": { "const": "Retain" },
     "Properties": {
       "type": "object",
       "additionalProperties": false,
@@ -110,21 +112,6 @@
           "properties": {
             "PointInTimeRecoveryEnabled": {
               "$ref": "../expression.json#/definitions/booleanLike"
-            }
-          }
-        },
-        "SSESpecification": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "KMSMasterKeyId": {
-              "$ref": "../expression.json#/definitions/stringLike"
-            },
-            "SSEEnabled": {
-              "$ref": "../expression.json#/definitions/booleanLike"
-            },
-            "SSEType": {
-              "const": "KMS"
             }
           }
         },

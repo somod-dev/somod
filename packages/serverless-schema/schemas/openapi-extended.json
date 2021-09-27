@@ -920,6 +920,9 @@
         },
         "x-amazon-apigateway-request-validator": {
           "$ref": "#/definitions/XAmazonApigatewayRequestValidator"
+        },
+        "x-amazon-apigateway-integration": {
+          "$ref": "#/definitions/XAmazonApigatewayIntegration"
         }
       },
       "additionalProperties": false
@@ -1726,19 +1729,7 @@
       "type": "string",
       "oneOf": [
         {
-          "pattern": "^method.request.path.[a-zA-Z0-9._-]+$"
-        },
-        {
-          "pattern": "^method.request.querystring.[a-zA-Z0-9._-]+$"
-        },
-        {
-          "pattern": "^method.request.multivaluequerystring.[a-zA-Z0-9._-]+$"
-        },
-        {
-          "pattern": "^method.request.header.[a-zA-Z0-9._-]+$"
-        },
-        {
-          "pattern": "^method.request.multivalueheader.[a-zA-Z0-9._-]+$"
+          "pattern": "^method.request.(path|querystring|multivaluequerystring|header|multivalueheader).[a-zA-Z0-9._-]+$"
         },
         {
           "pattern": "^method.request.body$"

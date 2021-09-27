@@ -109,44 +109,6 @@
             },
             "Method": { "$ref": "../expression.json#/definitions/stringLike" },
             "Path": { "$ref": "../expression.json#/definitions/stringLike" },
-            "RequestModel": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "Model": {
-                  "$ref": "../expression.json#/definitions/stringLike",
-                  "description": "TODO: add a manual validation to check that this matches the Name of a model defined in the Models property of the AWS::Serverless::Api"
-                },
-                "Required": {
-                  "$ref": "../expression.json#/definitions/booleanLike"
-                }
-              }
-            },
-            "RequestParameters": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "patternProperties": {
-                  "^method\\.request\\.(header|querystring|path)$": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                      "Caching": {
-                        "$ref": "../expression.json#/definitions/booleanLike"
-                      },
-                      "Required": {
-                        "$ref": "../expression.json#/definitions/booleanLike"
-                      }
-                    },
-                    "anyOf": [
-                      { "required": ["Caching"] },
-                      { "required": ["Required"] }
-                    ]
-                  }
-                }
-              }
-            },
             "RestApiId": {
               "$ref": "../expression.json#/definitions/stringLike"
             }

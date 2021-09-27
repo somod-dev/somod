@@ -243,42 +243,6 @@
         "CacheClusterSize": {
           "type": "string"
         },
-        "Cors": {
-          "oneOf": [
-            { "type": "string", "maxLength": 64 },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["AllowOrigin"],
-              "examples": [
-                {
-                  "AllowMethods": "'POST, GET'",
-                  "AllowHeaders": "'X-Forwarded-For'",
-                  "AllowOrigin": "'www.example.com'",
-                  "MaxAge": "'600'",
-                  "AllowCredentials": true
-                }
-              ],
-              "properties": {
-                "AllowOrigin": {
-                  "$ref": "../expression.json#/definitions/stringLike"
-                },
-                "AllowCredentials": {
-                  "$ref": "../expression.json#/definitions/booleanLike"
-                },
-                "AllowHeaders": {
-                  "$ref": "../expression.json#/definitions/stringLike"
-                },
-                "AllowMethods": {
-                  "$ref": "../expression.json#/definitions/stringLike"
-                },
-                "MaxAge": {
-                  "$ref": "../expression.json#/definitions/stringLike"
-                }
-              }
-            }
-          ]
-        },
         "Description": {
           "type": "string",
           "maxLength": 256

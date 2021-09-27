@@ -8,7 +8,6 @@
     "^[a-zA-Z0-9]{1,32}$": {
       "oneOf": [
         { "$ref": "./api.json" },
-        { "$ref": "./apigateway-requestvalidator.json" },
         { "$ref": "./function.json" },
         { "$ref": "./dynamodb-table.json" },
         { "$ref": "./cognito-userpool.json" },

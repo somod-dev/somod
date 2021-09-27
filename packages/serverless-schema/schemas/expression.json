@@ -82,6 +82,7 @@
     },
     "booleanLike": {
       "oneOf": [
+        { "$ref": "#/definitions/boolean" },
         { "$ref": "#/definitions/and" },
         { "$ref": "#/definitions/or" },
         { "$ref": "#/definitions/equals" },

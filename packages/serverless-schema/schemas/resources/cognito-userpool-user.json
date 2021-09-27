@@ -24,7 +24,7 @@
   "type": "object",
   "required": ["Type", "Properties"],
   "properties": {
-    "Type": { "const": "AWS::Cognito::UserPoolGroup" },
+    "Type": { "const": "AWS::Cognito::UserPoolUser" },
     "SLP::Extend": {
       "$ref": "./resource-properties.json#/definitions/SLP::Extend"
     },
@@ -40,9 +40,6 @@
       "required": ["UserPoolId", "Username"],
       "properties": {
         "UserPoolId": {
-          "$ref": "../expression.json#/definitions/stringLike"
-        },
-        "Username": {
           "$ref": "../expression.json#/definitions/stringLike"
         },
         "ClientMetadata": { "type": "object" },

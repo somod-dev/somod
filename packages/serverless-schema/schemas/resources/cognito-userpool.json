@@ -301,7 +301,7 @@
     }
   },
   "type": "object",
-  "required": ["Type", "Properties"],
+  "required": ["Type", "Properties", "DeletionPolicy"],
   "properties": {
     "Type": { "const": "AWS::Cognito::UserPool" },
     "SLP::Extend": {
@@ -313,6 +313,7 @@
     "SLP::Output": {
       "$ref": "./resource-properties.json#/definitions/SLP::Output"
     },
+    "DeletionPolicy": { "const": "Retain" },
     "Properties": {
       "type": "object",
       "additionalProperties": false,
