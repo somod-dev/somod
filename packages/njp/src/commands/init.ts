@@ -32,7 +32,13 @@ import {
   key_typings,
   path_build,
   key_files,
-  setBuildInFilesInPackageJson
+  setBuildInFilesInPackageJson,
+  file_prettierIgnore,
+  updatePrettierIgnore,
+  file_eslintIgnore,
+  updateEslintIgnore,
+  savePrettierIgnore,
+  saveEslintIgnore
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 
@@ -81,16 +87,40 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     dir
   );
 
+  const njpIgnorePaths = [
+    path_nextBuild,
+    file_tsConfigJson,
+    `/${path_pages}`,
+    `/${path_public}`,
+    file_nextEnvDTs
+  ];
+
   await Promise.all([
     taskRunner(`Initialise GIT`, initGit, verbose, dir),
 
-    taskRunner(`Initialize ${file_gitIgnore}`, updateGitIgnore, verbose, dir, [
-      path_nextBuild,
-      file_tsConfigJson,
-      `/${path_pages}`,
-      `/${path_public}`,
-      file_nextEnvDTs
-    ]),
+    taskRunner(
+      `Initialize ${file_gitIgnore}`,
+      updateGitIgnore,
+      verbose,
+      dir,
+      njpIgnorePaths
+    ),
+
+    taskRunner(
+      `Initialize ${file_prettierIgnore}`,
+      updatePrettierIgnore,
+      verbose,
+      dir,
+      njpIgnorePaths
+    ),
+
+    taskRunner(
+      `Initialize ${file_eslintIgnore}`,
+      updateEslintIgnore,
+      verbose,
+      dir,
+      njpIgnorePaths
+    ),
 
     taskRunner(
       `Intitalize ${file_tsConfigBuildJson}`,
@@ -108,6 +138,8 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   await Promise.all([
     taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),
     taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir),
+    taskRunner(`Save ${file_prettierIgnore}`, savePrettierIgnore, verbose, dir),
+    taskRunner(`Save ${file_eslintIgnore}`, saveEslintIgnore, verbose, dir),
     taskRunner(
       `Save ${file_tsConfigBuildJson}`,
       saveTsConfigBuildJson,

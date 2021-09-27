@@ -17,7 +17,7 @@ describe("Test Util ignoreFile.validate", () => {
     expect.assertions(1);
     await expect(validate(dir, [], ".someignore")).rejects.toMatchObject({
       message: expect.stringContaining(
-        "no such file or directory, open '" + join(dir, ".someignore") + "'"
+        ".someignore is not found in any directory in the path " + dir
       )
     });
   });
@@ -58,6 +58,28 @@ describe("Test Util ignoreFile.validate", () => {
     await expect(validate(dir, ["bin"], ".someignore")).rejects.toEqual(
       new Error(`build, bin must be in ${dir}/.someignore`)
     );
+  });
+
+  test("for valid file in parent dir", async () => {
+    expect.assertions(1);
+    createFiles(dir, {
+      ".someignore": "node_modules\nbuild",
+      "this/is/child/path/": ""
+    });
+    await expect(
+      validate(join(dir, "this/is/child/path/"), [], ".someignore")
+    ).resolves.toBeUndefined();
+  });
+
+  test("for invalid file", async () => {
+    expect.assertions(1);
+    createFiles(dir, {
+      ".someignore": "node_modules\nbin",
+      "this/is/child/path/": ""
+    });
+    await expect(
+      validate(join(dir, "this/is/child/path/"), [], ".someignore")
+    ).rejects.toEqual(new Error(`build must be in ${dir}/.someignore`));
   });
 });
 
@@ -111,5 +133,19 @@ describe("Test Util ignoreFile.update", () => {
     await expect(
       readIgnoreFileStore(join(dir, ".someignore"))
     ).resolves.toEqual(["", "node_modules", "", "bin", "build", ".next"]);
+  });
+
+  test("for valid file in parent dir", async () => {
+    createFiles(dir, {
+      ".someignore": "node_modules\nbin",
+      "this/is/child/path/": ""
+    });
+    await expect(
+      update(join(dir, "this/is/child/path/"), ["bin", ".next"], ".someignore")
+    ).resolves.toBeUndefined();
+
+    await expect(
+      readIgnoreFileStore(join(dir, ".someignore"))
+    ).resolves.toEqual(["node_modules", "bin", "build", ".next"]);
   });
 });

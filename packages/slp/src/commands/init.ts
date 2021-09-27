@@ -1,7 +1,9 @@
 import { CommonOptions, taskRunner } from "@sodaru-cli/base";
 import {
+  file_eslintIgnore,
   file_gitIgnore,
   file_packageJson,
+  file_prettierIgnore,
   file_templateYaml,
   file_tsConfigBuildJson,
   initGit,
@@ -18,8 +20,10 @@ import {
   path_samConfig,
   path_serverless,
   path_slpWorkingDir,
+  saveEslintIgnore,
   saveGitIgnore,
   savePackageJson,
+  savePrettierIgnore,
   saveTsConfigBuildJson,
   setBuildInFilesInPackageJson,
   setModuleInPackageJson,
@@ -28,7 +32,9 @@ import {
   setTypingsInPackageJson,
   unsetJsnextMainInPackageJson,
   unsetTypeInPackageJson,
+  updateEslintIgnore,
   updateGitIgnore,
+  updatePrettierIgnore,
   updateTsConfigBuildJson
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
@@ -78,15 +84,39 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     dir
   );
 
+  const slpIgnorePaths = [
+    `/${file_templateYaml}`,
+    `/${path_slpWorkingDir}`,
+    path_samBuild,
+    path_samConfig
+  ];
+
   await Promise.all([
     taskRunner(`Initialise GIT`, initGit, verbose, dir),
 
-    taskRunner(`Initialize ${file_gitIgnore}`, updateGitIgnore, verbose, dir, [
-      `/${file_templateYaml}`,
-      `/${path_slpWorkingDir}`,
-      path_samBuild,
-      path_samConfig
-    ]),
+    taskRunner(
+      `Initialize ${file_gitIgnore}`,
+      updateGitIgnore,
+      verbose,
+      dir,
+      slpIgnorePaths
+    ),
+
+    taskRunner(
+      `Initialize ${file_prettierIgnore}`,
+      updatePrettierIgnore,
+      verbose,
+      dir,
+      slpIgnorePaths
+    ),
+
+    taskRunner(
+      `Initialize ${file_eslintIgnore}`,
+      updateEslintIgnore,
+      verbose,
+      dir,
+      slpIgnorePaths
+    ),
 
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
 
@@ -103,6 +133,8 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   await Promise.all([
     taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),
     taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir),
+    taskRunner(`Save ${file_prettierIgnore}`, savePrettierIgnore, verbose, dir),
+    taskRunner(`Save ${file_eslintIgnore}`, saveEslintIgnore, verbose, dir),
     taskRunner(
       `Save ${file_tsConfigBuildJson}`,
       saveTsConfigBuildJson,

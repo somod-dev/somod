@@ -1,8 +1,6 @@
-import { join } from "path";
 import { file_prettierIgnore } from "../../utils/constants";
-import { saveIgnoreFileStore } from "@sodaru-cli/base";
+import { save } from "../../utils/ignoreFile";
 
 export const savePrettierIgnore = async (dir: string): Promise<void> => {
-  const prettierIgnorePath = join(dir, file_prettierIgnore);
-  await saveIgnoreFileStore(prettierIgnorePath);
+  await save(dir, file_prettierIgnore);
 };

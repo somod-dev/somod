@@ -1,8 +1,6 @@
-import { join } from "path";
 import { file_gitIgnore } from "../../utils/constants";
-import { saveIgnoreFileStore } from "@sodaru-cli/base";
+import { save } from "../../utils/ignoreFile";
 
 export const saveGitIgnore = async (dir: string): Promise<void> => {
-  const gitIgnorePath = join(dir, file_gitIgnore);
-  await saveIgnoreFileStore(gitIgnorePath);
+  await save(dir, file_gitIgnore);
 };

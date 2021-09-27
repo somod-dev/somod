@@ -4,17 +4,28 @@ import { path_build, path_nodeModules } from "./constants";
 import {
   readIgnoreFileStore,
   updateIgnoreFileStore,
+  saveIgnoreFileStore,
   unixStylePath
 } from "@sodaru-cli/base";
+import { existsSync } from "fs";
 
-const readIgnoreFile = async (dir: string, file: string): Promise<string[]> => {
-  const _ignoreFilePath = join(dir, file);
-  const ignoreContent = await readIgnoreFileStore(_ignoreFilePath);
-  return ignoreContent;
-};
+// read from ignore file in current dir to any parent dir
+// usefull in monorepo cases , .prettierignore and .eslintignore will be in parent directory at repo root, slp and njp are at package level
+const locateIgnoreFile = (dir: string, ignoreFileName: string): string => {
+  const paths = unixStylePath(normalize(dir)).split("/");
 
-const ignoreFilePath = (dir: string, file: string): string => {
-  return unixStylePath(normalize(join(dir, file)));
+  paths[0] += "/"; // correcting first path , in windows  "C:" => "C:/" , in linux "" => "/"
+
+  for (let i = paths.length; i > 0; i--) {
+    const ignoreFilePath = join(...paths.slice(0, i), ignoreFileName);
+    if (existsSync(ignoreFilePath)) {
+      return unixStylePath(ignoreFilePath);
+    }
+  }
+
+  throw new Error(
+    `${ignoreFileName} is not found in any directory in the path ${dir}`
+  );
 };
 
 const defaultPaths = [path_nodeModules, path_build];
@@ -24,7 +35,8 @@ export const validate = async (
   paths: string[],
   ignoreFile: string
 ): Promise<void> => {
-  const actualIgnorePaths = await readIgnoreFile(dir, ignoreFile);
+  const ignoreFilePath = locateIgnoreFile(dir, ignoreFile);
+  const actualIgnorePaths = await readIgnoreFileStore(ignoreFilePath);
 
   const expectedIgnorePaths = [...defaultPaths, ...paths];
 
@@ -38,7 +50,7 @@ export const validate = async (
 
   if (missingIgnorePaths.length > 0) {
     throw new Error(
-      `${missingIgnorePaths.join(", ")} must be in ${ignoreFilePath(
+      `${missingIgnorePaths.join(", ")} must be in ${locateIgnoreFile(
         dir,
         ignoreFile
       )}`
@@ -51,15 +63,17 @@ export const update = async (
   paths: string[],
   ignoreFile: string
 ): Promise<void> => {
-  const ignoreFilePath = join(dir, ignoreFile);
-  let actualIgnorePaths: string[] = null;
+  let ignoreFilePath: string = null;
   try {
-    actualIgnorePaths = await readIgnoreFile(dir, ignoreFile);
+    ignoreFilePath = locateIgnoreFile(dir, ignoreFile);
   } catch (e) {
-    actualIgnorePaths = [];
+    ignoreFilePath = null;
   }
 
-  // pad empty lines to make then unque for union operation
+  let actualIgnorePaths: string[] =
+    ignoreFilePath == null ? [] : await readIgnoreFileStore(ignoreFilePath);
+
+  // pad empty lines to make them unique for union operation
   actualIgnorePaths = actualIgnorePaths.map((ignorePath, i) => {
     if (ignorePath.trim() == "") {
       return padEnd("", i + 1, " ");
@@ -71,5 +85,19 @@ export const update = async (
     ignorePath => ignorePath.trim()
   );
 
-  updateIgnoreFileStore(ignoreFilePath, newIgnorePaths);
+  updateIgnoreFileStore(
+    ignoreFilePath || join(dir, ignoreFile),
+    newIgnorePaths
+  );
+};
+
+export const save = async (dir: string, ignoreFile: string): Promise<void> => {
+  let ignoreFilePath: string = null;
+  try {
+    ignoreFilePath = locateIgnoreFile(dir, ignoreFile);
+  } catch (e) {
+    ignoreFilePath = join(dir, ignoreFile);
+  }
+
+  await saveIgnoreFileStore(ignoreFilePath);
 };

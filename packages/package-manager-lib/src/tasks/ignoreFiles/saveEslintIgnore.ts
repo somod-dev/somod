@@ -1,8 +1,6 @@
-import { join } from "path";
 import { file_eslintIgnore } from "../../utils/constants";
-import { saveIgnoreFileStore } from "@sodaru-cli/base";
+import { save } from "../../utils/ignoreFile";
 
 export const saveEslintIgnore = async (dir: string): Promise<void> => {
-  const eslintIgnorePath = join(dir, file_eslintIgnore);
-  await saveIgnoreFileStore(eslintIgnorePath);
+  await save(dir, file_eslintIgnore);
 };
