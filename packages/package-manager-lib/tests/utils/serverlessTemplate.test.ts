@@ -85,6 +85,120 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
+  test("with reused modules", async () => {
+    /**
+     * The Dependency tree is
+     *             sample
+     *             /     \
+     *        sample2    sample3
+     *             \     /     \
+     *             sample4     sample5
+     */
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          "SLP::Extend": {
+            module: "sample3",
+            resource: "Sample3Function"
+          },
+          "SLP::DependsOn": [
+            {
+              module: "sample5",
+              resource: "AnotherFunction"
+            }
+          ],
+          Properties: {}
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "package.json": JSON.stringify({
+        name: "sample",
+        version: "1.0.0",
+        dependencies: { sample2: "^1.0.0", sample3: "^1.0.0" },
+        slp: true
+      }),
+      "node_modules/sample2/package.json": JSON.stringify({
+        name: "sample2",
+        version: "1.0.0",
+        dependencies: { sample4: "^1.0.0" },
+        slp: true
+      }),
+      "node_modules/sample2/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Sample2Function: {
+            Type: "AWS::Serverless::Function",
+            "SLP::DependsOn": [
+              {
+                module: "sample4",
+                resource: "OriginalFunction"
+              }
+            ],
+            Properties: {}
+          }
+        }
+      }),
+      "node_modules/sample3/package.json": JSON.stringify({
+        name: "sample3",
+        version: "1.0.0",
+        dependencies: { sample4: "^1.0.0", sample5: "^1.0.0" },
+        slp: true
+      }),
+      "node_modules/sample3/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Sample3Function: {
+            Type: "AWS::Serverless::Function",
+            "SLP::DependsOn": [
+              {
+                module: "sample4",
+                resource: "OriginalFunction"
+              }
+            ],
+            Properties: {}
+          }
+        }
+      }),
+      "node_modules/sample4/package.json": JSON.stringify({
+        name: "sample4",
+        version: "1.0.0",
+        dependencies: {},
+        slp: true
+      }),
+      "node_modules/sample4/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          OriginalFunction: {
+            Type: "AWS::Serverless::Function",
+            Properties: {}
+          }
+        }
+      }),
+      "node_modules/sample5/package.json": JSON.stringify({
+        name: "sample5",
+        version: "1.0.0",
+        dependencies: {},
+        slp: true
+      }),
+      "node_modules/sample5/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          AnotherFunction: {
+            Type: "AWS::Serverless::Function",
+            Properties: {}
+          }
+        }
+      })
+    });
+
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
+  });
+
   test("with SLP::Function", async () => {
     const template = {
       Resources: {

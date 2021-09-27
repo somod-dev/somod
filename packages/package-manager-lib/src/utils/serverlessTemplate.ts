@@ -200,7 +200,18 @@ const getOrderOfTraversal = (moduleNode: ModuleNode): ModuleNode[] => {
     parsed.unshift(currentNode);
   }
 
-  return parsed;
+  const parsedModuleNames: string[] = [];
+
+  const parsedUniq = parsed.filter(module => {
+    if (parsedModuleNames.includes(module.name)) {
+      return false;
+    } else {
+      parsedModuleNames.push(module.name);
+      return true;
+    }
+  });
+
+  return parsedUniq;
 };
 
 const validateSlpResourceExtend = (
