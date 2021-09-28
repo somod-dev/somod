@@ -51,26 +51,13 @@ describe("Test Task buildServerlessTemplate", () => {
         Resources: { Resource1: { Type: "Abcd", Properties: {} } }
       })
     });
-    await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
-      new Error(
-        [
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          "\"/Resources/Resource1\" must have required property 'DeletionPolicy'",
-          "\"/Resources/Resource1\" must have required property 'DeletionPolicy'",
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1" must match exactly one schema in oneOf'
-        ].join("\n")
+    await expect(
+      validateServerlessTemplateWithSchema(dir)
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        '"/Resources/Resource1" must match exactly one schema in oneOf'
       )
-    );
+    });
   });
 
   test("For simple valid template", async () => {

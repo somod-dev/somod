@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/ssm-parameter.json",
+  "title": "JSON Schema for SSM Parameter Resource in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "const": "AWS::SSM::Parameter" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Name", "Type", "Value"],
+      "properties": {
+        "Name": { "$ref": "../expression.json#/definitions/stringLike" },
+        "Type": { "enum": ["String", "StringList"] },
+        "Value": { "type": "string", "maxLength": 1048 },
+        "AllowedPattern": { "type": "string", "format": "regex" },
+        "Description": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9\\s._-]+$",
+          "maxLength": 1024
+        },
+        "Policies": {
+          "type": "string",
+          "description": "Assigning parameter policies , https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-store-policies.html",
+          "maxLength": 2048
+        },
+        "Tags": { "$ref": "../tags.json#/definitions/tagsMap" },
+        "Tier": { "enum": ["Advanced", "Intelligent-Tiering", "Standard"] }
+      }
+    }
+  }
+}

@@ -19,7 +19,8 @@
         { "$ref": "./sns-topic-policy.json" },
         { "$ref": "./sns-subscription.json" },
         { "$ref": "./sqs-queue.json" },
-        { "$ref": "./sqs-queue-policy.json" }
+        { "$ref": "./sqs-queue-policy.json" },
+        { "$ref": "./ssm-parameter.json" }
       ]
     }
   }
