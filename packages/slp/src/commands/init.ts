@@ -8,6 +8,7 @@ import {
   file_tsConfigBuildJson,
   initGit,
   initLib,
+  initTemplateYaml,
   installAwsLambdaTypesAsDevDependency,
   installAwsSdkAsDevDependency,
   installAwsSdkAsPeerDependency,
@@ -134,6 +135,13 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       dir,
       {},
       [path_serverless]
+    ),
+
+    taskRunner(
+      `Intitalize ${path_serverless}/${file_templateYaml}`,
+      initTemplateYaml,
+      verbose,
+      dir
     )
   ]);
 
