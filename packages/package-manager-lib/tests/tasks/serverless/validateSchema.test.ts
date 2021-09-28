@@ -56,8 +56,8 @@ describe("Test Task buildServerlessTemplate", () => {
         [
           '"/Resources/Resource1/Type" must be equal to constant',
           '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
-          '"/Resources/Resource1/Type" must be equal to constant',
+          "\"/Resources/Resource1\" must have required property 'DeletionPolicy'",
+          "\"/Resources/Resource1\" must have required property 'DeletionPolicy'",
           '"/Resources/Resource1/Type" must be equal to constant',
           '"/Resources/Resource1/Type" must be equal to constant',
           '"/Resources/Resource1/Type" must be equal to constant',
