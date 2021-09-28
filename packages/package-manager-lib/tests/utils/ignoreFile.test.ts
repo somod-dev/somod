@@ -116,11 +116,11 @@ describe("Test Util ignoreFile.update", () => {
       ".someignore": "node_modules\nbin"
     });
     await expect(
-      update(dir, ["bin", ".next"], ".someignore")
+      update(dir, ["bin", ".next", "/.slp"], ".someignore")
     ).resolves.toBeUndefined();
     await expect(
       readIgnoreFileStore(join(dir, ".someignore"))
-    ).resolves.toEqual(["node_modules", "bin", "build", ".next"]);
+    ).resolves.toEqual(["node_modules", "bin", "build", ".next", "/.slp"]);
   });
 
   test("for existing file with empty lines", async () => {
@@ -141,11 +141,21 @@ describe("Test Util ignoreFile.update", () => {
       "this/is/child/path/": ""
     });
     await expect(
-      update(join(dir, "this/is/child/path/"), ["bin", ".next"], ".someignore")
+      update(
+        join(dir, "this/is/child/path/"),
+        ["bin", ".next", "/.slp"],
+        ".someignore"
+      )
     ).resolves.toBeUndefined();
 
     await expect(
       readIgnoreFileStore(join(dir, ".someignore"))
-    ).resolves.toEqual(["node_modules", "bin", "build", ".next"]);
+    ).resolves.toEqual([
+      "node_modules",
+      "bin",
+      "build",
+      ".next",
+      "/this/is/child/path/.slp"
+    ]);
   });
 });

@@ -1,5 +1,5 @@
 import { difference, padEnd, union } from "lodash";
-import { join, normalize } from "path";
+import { dirname, join, normalize, relative } from "path";
 import { path_build, path_nodeModules } from "./constants";
 import {
   readIgnoreFileStore,
@@ -28,6 +28,21 @@ const locateIgnoreFile = (dir: string, ignoreFileName: string): string => {
   );
 };
 
+const relativeIgnorePaths = (
+  paths: string[],
+  dir: string,
+  ignoreFilePath: string
+): string[] => {
+  const relativePath =
+    "/" + unixStylePath(relative(dirname(ignoreFilePath), dir));
+  return paths.map(path => {
+    if (path.startsWith("/") && relativePath.length > 1) {
+      path = relativePath + path;
+    }
+    return path;
+  });
+};
+
 const defaultPaths = [path_nodeModules, path_build];
 
 export const validate = async (
@@ -38,7 +53,11 @@ export const validate = async (
   const ignoreFilePath = locateIgnoreFile(dir, ignoreFile);
   const actualIgnorePaths = await readIgnoreFileStore(ignoreFilePath);
 
-  const expectedIgnorePaths = [...defaultPaths, ...paths];
+  const expectedIgnorePaths = relativeIgnorePaths(
+    [...defaultPaths, ...paths],
+    dir,
+    ignoreFilePath
+  );
 
   const _actualIgnorePaths = actualIgnorePaths.map(p => p.trim());
   const _expectedIgnorePaths = expectedIgnorePaths.map(p => p.trim());
@@ -70,8 +89,13 @@ export const update = async (
     ignoreFilePath = null;
   }
 
-  let actualIgnorePaths: string[] =
-    ignoreFilePath == null ? [] : await readIgnoreFileStore(ignoreFilePath);
+  let actualIgnorePaths: string[] = [];
+
+  if (ignoreFilePath == null) {
+    ignoreFilePath = join(dir, ignoreFile);
+  } else {
+    actualIgnorePaths = await readIgnoreFileStore(ignoreFilePath);
+  }
 
   // pad empty lines to make them unique for union operation
   actualIgnorePaths = actualIgnorePaths.map((ignorePath, i) => {
@@ -81,14 +105,17 @@ export const update = async (
     return ignorePath;
   });
 
-  const newIgnorePaths = union(actualIgnorePaths, defaultPaths, paths).map(
+  const pathsToBeAdded = relativeIgnorePaths(
+    [...defaultPaths, ...paths],
+    dir,
+    ignoreFilePath
+  );
+
+  const newIgnorePaths = union(actualIgnorePaths, pathsToBeAdded).map(
     ignorePath => ignorePath.trim()
   );
 
-  updateIgnoreFileStore(
-    ignoreFilePath || join(dir, ignoreFile),
-    newIgnorePaths
-  );
+  updateIgnoreFileStore(ignoreFilePath, newIgnorePaths);
 };
 
 export const save = async (dir: string, ignoreFile: string): Promise<void> => {
