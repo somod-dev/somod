@@ -33,6 +33,13 @@ export const key_prettierConfigValue = "@sodaru/prettier-config";
 
 export const key_slpLambdaBundleExclude = "slpLambdaBundleExclude";
 
+export const key_peerDependencies = "peerDependencies";
+export const key_devDependencies = "devDependencies";
+export const key_moduleAwsSdk = "aws-sdk";
+export const key_moduleAwsSdkVersion = "2.952.0";
+
+export const key_moduleAwsLambdaTypes = "@types/aws-lambda";
+
 export const path_nodeModules = "node_modules";
 
 export const path_build = "build";

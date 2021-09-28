@@ -8,10 +8,17 @@ import {
   file_tsConfigBuildJson,
   initGit,
   initLib,
+  installAwsLambdaTypesAsDevDependency,
+  installAwsSdkAsDevDependency,
+  installAwsSdkAsPeerDependency,
+  key_devDependencies,
   key_files,
   key_jsnextMain,
   key_module,
+  key_moduleAwsLambdaTypes,
+  key_moduleAwsSdk,
   key_njp,
+  key_peerDependencies,
   key_sideEffects,
   key_type,
   path_build,
@@ -142,6 +149,27 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       dir
     )
   ]);
+
+  await taskRunner(
+    `install ${key_moduleAwsSdk} in ${key_devDependencies}`,
+    installAwsSdkAsDevDependency,
+    verbose,
+    dir
+  );
+
+  await taskRunner(
+    `install ${key_moduleAwsSdk} in ${key_peerDependencies}`,
+    installAwsSdkAsPeerDependency,
+    verbose,
+    dir
+  );
+
+  await taskRunner(
+    `install ${key_moduleAwsLambdaTypes} in ${key_devDependencies}`,
+    installAwsLambdaTypesAsDevDependency,
+    verbose,
+    dir
+  );
 };
 
 const initCommand = new Command("init");

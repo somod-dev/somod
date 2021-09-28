@@ -3,6 +3,7 @@ import {
   buildServerlessTemplate,
   compileTypeScript,
   deleteBuildDir,
+  doesAwsSdkIsRightVersionInPackageJson,
   doesFilesHasBuildInPackageJson,
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
@@ -24,6 +25,7 @@ import {
   key_files,
   key_jsnextMain,
   key_module,
+  key_moduleAwsSdk,
   key_sideEffects,
   key_slp,
   key_type,
@@ -94,6 +96,12 @@ export const BuildAction = async ({
     taskRunner(
       `Check if ${path_serverless}/${path_functions} have default export`,
       doesServerlessFunctionsHaveDefaultExport,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${key_moduleAwsSdk} has right version in ${file_packageJson}`,
+      doesAwsSdkIsRightVersionInPackageJson,
       verbose,
       dir
     )
