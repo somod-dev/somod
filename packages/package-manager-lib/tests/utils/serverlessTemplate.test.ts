@@ -1135,6 +1135,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         slp: true,
         dependencies: {}
       }),
+      "build/serverless/functions/getAuthGroup.js":
+        'import aws from "aws-sdk";\nimport { authorize }  from "@sodaru/restapi-sdk";\nconst a = () => {console.log("Success");};\nexport default a;',
+      "build/serverless/functionIndex.js":
+        'export { default as getAuthGroup } from "./functions/getAuthGroup";',
+      "build/index.js": 'export * from "./serverless/functionIndex"',
       "build/serverless/template.json": JSON.stringify({
         Resources: {
           CorrectRestApi: {
@@ -1195,6 +1200,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         slp: true,
         dependencies: {
           "@sodaru/baseapi": "^1.0.0"
+        },
+        slpLambdaBundleExclude: {
+          getAuthGroup: ["@sodaru/restapi-sdk"]
         }
       })
     });
@@ -1297,6 +1305,16 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       )
     ).resolves.toEqual(
       'export { getAuthGroup as default } from "../../../../build";'
+    );
+
+    await expect(
+      readFile(join(dir, ".slp", "lambdaBundleExclude.json"), {
+        encoding: "utf8"
+      })
+    ).resolves.toEqual(
+      JSON.stringify({
+        "@sodaru/auth-slp": { getAuthGroup: ["@sodaru/restapi-sdk"] }
+      })
     );
   });
 });

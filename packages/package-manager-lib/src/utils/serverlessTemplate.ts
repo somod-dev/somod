@@ -1,5 +1,6 @@
 import {
   ErrorSet,
+  readJsonFileStore,
   saveJsonFileStore,
   unixStylePath,
   updateJsonFileStore
@@ -17,8 +18,11 @@ import {
 } from "lodash";
 import { join, dirname, relative } from "path";
 import {
+  file_lambdaBundleExclude,
+  file_packageJson,
   file_templateJson,
   file_templateYaml,
+  key_slpLambdaBundleExclude,
   path_build,
   path_functions,
   path_lambdas,
@@ -813,6 +817,33 @@ const _generateSAMTemplate = async (
   return samTemplate;
 };
 
+const saveFunctionBundleExcludes = async (
+  dir: string,
+  rootModule: ModuleNode
+): Promise<void> => {
+  const excludes: Record<string, Record<string, string[]>> = {};
+
+  const allModules = getOrderOfTraversal(rootModule);
+  await Promise.all(
+    allModules.map(async module => {
+      const packageJsonPath = join(module.packageLocation, file_packageJson);
+      const packageJson = await readJsonFileStore(packageJsonPath);
+      if (isPlainObject(packageJson[key_slpLambdaBundleExclude])) {
+        excludes[module.name] = packageJson[
+          key_slpLambdaBundleExclude
+        ] as Record<string, string[]>;
+      }
+    })
+  );
+
+  await mkdir(join(dir, path_slpWorkingDir), { recursive: true });
+
+  await writeFile(
+    join(dir, path_slpWorkingDir, file_lambdaBundleExclude),
+    JSON.stringify(excludes)
+  );
+};
+
 export const generateSAMTemplate = async (
   dir: string,
   moduleIndicators: string[]
@@ -822,6 +853,7 @@ export const generateSAMTemplate = async (
     rootModuleNode,
     true
   );
+  await saveFunctionBundleExcludes(dir, rootModuleNode);
   const samTemplate = await _generateSAMTemplate(
     dir,
     serverlessTemplate,

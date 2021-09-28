@@ -31,6 +31,8 @@ export const key_eslintConfigValue = "@sodaru/eslint-config";
 export const key_prettierConfig = "prettier";
 export const key_prettierConfigValue = "@sodaru/prettier-config";
 
+export const key_slpLambdaBundleExclude = "slpLambdaBundleExclude";
+
 export const path_nodeModules = "node_modules";
 
 export const path_build = "build";
@@ -58,6 +60,8 @@ export const file_functionIndex_js = "functionIndex.js";
 export const file_functionIndex_dts = "functionIndex.d.ts";
 export const file_templateYaml = "template.yaml";
 export const file_templateJson = "template.json";
+
+export const file_lambdaBundleExclude = "lambdaBundleExclude.json";
 
 export const path_slpWorkingDir = ".slp";
 export const path_lambdas = "lambdas";

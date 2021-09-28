@@ -1,7 +1,10 @@
-import { unixStylePath } from "@sodaru-cli/base";
+import { readJsonFileStore, unixStylePath } from "@sodaru-cli/base";
 import { build, BuildResult } from "esbuild";
+import { existsSync } from "fs";
 import { writeFile } from "fs/promises";
+import { uniq } from "lodash";
 import { join, normalize } from "path";
+import { file_lambdaBundleExclude } from "..";
 import {
   file_packageJson,
   file_index_js,
@@ -12,9 +15,14 @@ import {
 export const bundle = (
   outDir: string,
   file: string,
+  external: string[] = [],
   sourceMap = false
 ): Promise<BuildResult> => {
   const outFile = join(outDir, file_index_js);
+
+  const defaultExternal = ["aws-sdk"];
+
+  const _external = uniq([...defaultExternal, ...external]);
 
   return build({
     entryPoints: [file],
@@ -22,7 +30,7 @@ export const bundle = (
     outfile: outFile,
     sourcemap: sourceMap,
     platform: "node",
-    external: ["aws-sdk"],
+    external: _external,
     minify: true,
     target: ["node14", "node12"]
   });
@@ -74,7 +82,26 @@ export const packageLambda = async (
     functionName
   );
 
-  await bundle(outDir, file, sourceMap);
+  let external: string[] = [];
+  const excludeFilePath = join(
+    _dir,
+    path_slpWorkingDir,
+    file_lambdaBundleExclude
+  );
+  if (existsSync(excludeFilePath)) {
+    const lambdaExcludes = (await readJsonFileStore(excludeFilePath)) as Record<
+      string,
+      Record<string, string[]>
+    >;
+    if (
+      lambdaExcludes[moduleName] &&
+      lambdaExcludes[moduleName][functionName]
+    ) {
+      external = lambdaExcludes[moduleName][functionName];
+    }
+  }
+
+  await bundle(outDir, file, external, sourceMap);
 
   await createPackageJson(moduleName, functionName, outDir);
 };
