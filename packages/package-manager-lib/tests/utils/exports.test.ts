@@ -1,5 +1,5 @@
 import { get as getExports, Exports } from "../../src/utils/exports";
-import { join as pathJoin, sep } from "path";
+import { join as pathJoin } from "path";
 import { sync as rimrafSync } from "rimraf";
 import { createFiles, createTempDir } from "../utils";
 import { isString } from "lodash";
@@ -238,11 +238,7 @@ template(
     default: false,
     named: []
   },
-  'unable to resolve module "${DIR}' +
-    sep +
-    'a.ts" or "${DIR}' +
-    sep +
-    'a.tsx" in ${PATH}'
+  'unable to resolve module "./a" in ${PATH}'
 );
 
 template(
@@ -261,7 +257,7 @@ template(
     default: false,
     named: []
   },
-  'unable to resolve module "${DIR}' + sep + 'a.js" in ${PATH}'
+  'unable to resolve module "./a" in ${PATH}'
 );
 
 template(
@@ -280,7 +276,7 @@ template(
     default: false,
     named: []
   },
-  'unable to resolve module "${DIR}' + sep + 'a.d.ts" in ${PATH}'
+  'unable to resolve module "./a" in ${PATH}'
 );
 
 template(
@@ -312,4 +308,23 @@ template(
     default: false,
     named: ["A"]
   }
+);
+
+template(
+  "Test getExports with repeated named exports",
+  `export const A = 10;export function A(){};`,
+  { default: false, named: [] },
+  "A is exported more than once. exported 2 times in ${PATH}"
+);
+
+template(
+  "Test getExports with repeated named exports from multiple files",
+  {
+    "code.js":
+      'export * from "./lib";\nexport * from "./serverless/functionIndex";',
+    "lib/index.js": "export const A = 10;",
+    "serverless/functionIndex.js": "export const A = 20;\nexport const B = 5;"
+  },
+  { default: false, named: [] },
+  "A is exported more than once. exported 2 times in ${PATH}"
 );

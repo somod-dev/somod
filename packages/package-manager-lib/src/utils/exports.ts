@@ -1,3 +1,4 @@
+import { ErrorSet } from "@sodaru-cli/base";
 import {
   parse,
   AST_NODE_TYPES,
@@ -5,6 +6,7 @@ import {
 } from "@typescript-eslint/typescript-estree";
 
 import { existsSync, readFileSync } from "fs";
+import { countBy } from "lodash";
 import { join, normalize, dirname } from "path";
 
 export type Exports = {
@@ -115,28 +117,46 @@ const getExportsFromExportAllDeclaration = (
       const sourceTsxFilePath = normalize(join(currentDir, source + ".tsx"));
       const sourceDTsFilePath = normalize(join(currentDir, source + ".d.ts"));
       const sourceJsFilePath = normalize(join(currentDir, source + ".js"));
+      const sourceIndexTsFilePath = normalize(
+        join(currentDir, source + "/index.ts")
+      );
+      const sourceIndexTsxFilePath = normalize(
+        join(currentDir, source + "/index.tsx")
+      );
+      const sourceIndexDTsFilePath = normalize(
+        join(currentDir, source + "/index.d.ts")
+      );
+      const sourceIndexJsFilePath = normalize(
+        join(currentDir, source + "/index.js")
+      );
       let sourceFile = null;
       if (file.endsWith(".d.ts")) {
         if (existsSync(sourceDTsFilePath)) {
           sourceFile = sourceDTsFilePath;
+        } else if (existsSync(sourceIndexDTsFilePath)) {
+          sourceFile = sourceIndexDTsFilePath;
         } else {
-          throw new Error(`unable to resolve module "${sourceDTsFilePath}"`);
+          throw new Error(`unable to resolve module "${source}"`);
         }
       } else if (file.endsWith(".ts") || file.endsWith(".tsx")) {
         if (existsSync(sourceTsFilePath)) {
           sourceFile = sourceTsFilePath;
         } else if (existsSync(sourceTsxFilePath)) {
           sourceFile = sourceTsxFilePath;
+        } else if (existsSync(sourceIndexTsFilePath)) {
+          sourceFile = sourceIndexTsFilePath;
+        } else if (existsSync(sourceIndexTsxFilePath)) {
+          sourceFile = sourceIndexTsxFilePath;
         } else {
-          throw new Error(
-            `unable to resolve module "${sourceTsFilePath}" or "${sourceTsxFilePath}"`
-          );
+          throw new Error(`unable to resolve module "${source}"`);
         }
       } else if (file.endsWith(".js")) {
         if (existsSync(sourceJsFilePath)) {
           sourceFile = sourceJsFilePath;
+        } else if (existsSync(sourceIndexJsFilePath)) {
+          sourceFile = sourceIndexJsFilePath;
         } else {
-          throw new Error(`unable to resolve module "${sourceJsFilePath}"`);
+          throw new Error(`unable to resolve module "${source}"`);
         }
       } else {
         const fileExtension = file.substring(file.lastIndexOf("."));
@@ -188,6 +208,27 @@ const getExportsFromStatement = (
   return exports;
 };
 
+const checkForDuplicateNamedExports = (
+  namedExports: string[],
+  file: string
+): void => {
+  const namedCount = countBy(namedExports);
+
+  const errors = Object.keys(namedCount)
+    .filter(namedExport => {
+      return namedCount[namedExport] > 1;
+    })
+    .map(namedExport => {
+      return new Error(
+        `${namedExport} is exported more than once. exported ${namedCount[namedExport]} times in ${file}`
+      );
+    });
+
+  if (errors.length > 0) {
+    throw new ErrorSet(errors);
+  }
+};
+
 const getExports = (file: string): Exports => {
   const fileContent = readFileSync(file, { encoding: "utf8" });
   const ast = parse(fileContent, { jsx: true });
@@ -201,6 +242,9 @@ const getExports = (file: string): Exports => {
   } catch (e) {
     throw new Error(e.message + " in " + file);
   }
+
+  checkForDuplicateNamedExports(exports.named, file);
+
   return exports;
 };
 

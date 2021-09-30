@@ -5,7 +5,8 @@ import { join } from "path";
 import {
   file_index_dts,
   file_index_js,
-  path_build
+  path_build,
+  path_lib
 } from "../../utils/constants";
 import { get as getExports } from "../../utils/exports";
 
@@ -20,7 +21,12 @@ export const generateIndex = async (
 ): Promise<void> => {
   const statements: string[] = [];
 
-  const defaultModules = ["lib/index"];
+  const defaultModules = [
+    `${path_lib}/${file_index_js.substring(
+      0,
+      file_index_js.lastIndexOf(".js")
+    )}`
+  ];
 
   const _modules = uniq([...defaultModules, ...modules]);
 
@@ -28,6 +34,12 @@ export const generateIndex = async (
     const modulePath = join(dir, path_build, module + ".js");
     if (existsSync(modulePath)) {
       const exports = getExports(modulePath);
+      if (
+        modulePath == join(dir, path_build, path_lib, file_index_js) &&
+        exports.default == true
+      ) {
+        statements.push(`export { default } from "./${path_lib}";`);
+      }
       if (exports.named.length > 0) {
         // re-export only named exports
         if (module.endsWith("/index")) {
@@ -39,10 +51,16 @@ export const generateIndex = async (
   });
 
   if (statements.length > 0) {
+    const indexPath = join(dir, path_build, file_index_js);
+    const indexDTsPath = join(dir, path_build, file_index_dts);
     const indexContent = statements.join("\n");
     await Promise.all([
-      writeFile(join(dir, path_build, file_index_js), indexContent),
-      writeFile(join(dir, path_build, file_index_dts), indexContent)
+      writeFile(indexPath, indexContent),
+      writeFile(indexDTsPath, indexContent)
     ]);
+    getExports(indexPath); // to verify generated index.js has right exports
+    getExports(indexDTsPath); // to verify generated index.d.ts has right exports
+  } else {
+    throw new Error(`There is nothing to export from this module`);
   }
 };
