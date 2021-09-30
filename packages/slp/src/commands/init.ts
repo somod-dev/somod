@@ -22,6 +22,7 @@ import {
   key_peerDependencies,
   key_sideEffects,
   key_type,
+  key_typings,
   path_build,
   path_lib,
   path_samBuild,
@@ -62,7 +63,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     dir
   );
   await taskRunner(
-    `Set ${key_module} in ${file_packageJson}`,
+    `Set ${key_typings} in ${file_packageJson}`,
     setTypingsInPackageJson,
     verbose,
     dir
@@ -126,8 +127,6 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       slpIgnorePaths
     ),
 
-    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
-
     taskRunner(
       `Intitalize ${file_tsConfigBuildJson}`,
       updateTsConfigBuildJson,
@@ -136,6 +135,8 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       {},
       [path_serverless]
     ),
+
+    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
 
     taskRunner(
       `Intitalize ${path_serverless}/${file_templateYaml}`,

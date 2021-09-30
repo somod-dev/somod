@@ -33,6 +33,7 @@ import {
   path_build,
   path_functions,
   path_serverless,
+  validateModuleDependency,
   validateServerlessTemplateWithSchema
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
@@ -79,7 +80,7 @@ export const BuildAction = async ({
       verbose,
       dir
     ),
-    await taskRunner(
+    taskRunner(
       `Check if ${key_files} include ${path_build} in ${file_packageJson}`,
       doesFilesHasBuildInPackageJson,
       verbose,
@@ -91,7 +92,14 @@ export const BuildAction = async ({
       verbose,
       dir,
       {},
-      ["serverless"]
+      [path_serverless]
+    ),
+    taskRunner(
+      `Validate module dependency`,
+      validateModuleDependency,
+      verbose,
+      dir,
+      [key_slp]
     ),
     taskRunner(
       `Check if ${path_serverless}/${path_functions} have default export`,
@@ -125,7 +133,7 @@ export const BuildAction = async ({
     buildServerlessTemplate,
     verbose,
     dir,
-    ["slp"]
+    [key_slp]
   );
   await taskRunner(
     `Generate ${path_build}/${path_serverless}/${file_functionIndex_js}`,

@@ -9,7 +9,6 @@ import {
   path_public,
   path_ui,
   startNextDev,
-  validateModuleDependency,
   watchRootModulePages,
   watchRootModulePublicAssets
 } from "@sodaru-cli/package-manager-lib";
@@ -29,13 +28,6 @@ export const ServeAction = async ({
   if (stage == "all" || stage == "prepare") {
     await BuildAction({ verbose });
 
-    await taskRunner(
-      `Validate module dependency`,
-      validateModuleDependency,
-      verbose,
-      dir,
-      [key_njp]
-    );
     await Promise.all([
       taskRunner(`Create ${path_pages}`, createPages, verbose, dir, [key_njp]),
       taskRunner(`Create ${path_public}`, createPublicAssets, verbose, dir, [

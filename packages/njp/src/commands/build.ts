@@ -26,7 +26,8 @@ import {
   path_ui,
   file_index_dts,
   doesFilesHasBuildInPackageJson,
-  key_files
+  key_files,
+  validateModuleDependency
 } from "@sodaru-cli/package-manager-lib";
 import { Command } from "commander";
 import { CommonOptions, taskRunner } from "@sodaru-cli/base";
@@ -73,7 +74,7 @@ export const BuildAction = async ({
       verbose,
       dir
     ),
-    await taskRunner(
+    taskRunner(
       `Check if ${key_files} include ${path_build} in ${file_packageJson}`,
       doesFilesHasBuildInPackageJson,
       verbose,
@@ -85,7 +86,14 @@ export const BuildAction = async ({
       verbose,
       dir,
       { jsx: "react" },
-      ["ui"]
+      [path_ui]
+    ),
+    taskRunner(
+      `Validate module dependency`,
+      validateModuleDependency,
+      verbose,
+      dir,
+      [key_njp]
     )
   ]);
 
