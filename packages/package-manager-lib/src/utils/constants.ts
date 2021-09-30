@@ -11,6 +11,7 @@ export const file_nextEnvDTs = "next-env.d.ts";
 
 export const key_njp = "njp";
 export const key_slp = "slp";
+export const key_emp = "emp";
 
 export const key_type = "type";
 
