@@ -663,18 +663,18 @@ const resolveResourceName = (
   };
 };
 
-const resolveFunctionLocation = async (
+export const prepareFunctionToBundle = async (
   dir: string,
-  slpFunction: SLPFunction,
-  rootModuleName: string
-): Promise<string> => {
-  const { module, function: _function } = slpFunction[KeywordSLPFunction];
+  module: string,
+  rootModuleName: string,
+  functionName: string
+): Promise<void> => {
   const functionPath = join(
     dir,
     path_slpWorkingDir,
     path_functions,
     module,
-    _function + ".js"
+    functionName + ".js"
   );
 
   let exportFrom = module;
@@ -685,10 +685,19 @@ const resolveFunctionLocation = async (
       .join("/");
   }
 
-  const functionCode = `export { ${_function} as default } from "${exportFrom}";`;
+  const functionCode = `export { ${functionName} as default } from "${exportFrom}";`;
   const functionDir = dirname(functionPath);
   await mkdir(functionDir, { recursive: true });
   await writeFile(functionPath, functionCode);
+};
+
+const resolveFunctionLocation = async (
+  dir: string,
+  slpFunction: SLPFunction,
+  rootModuleName: string
+): Promise<string> => {
+  const { module, function: _function } = slpFunction[KeywordSLPFunction];
+  await prepareFunctionToBundle(dir, module, rootModuleName, _function);
   return `${path_slpWorkingDir}/${path_lambdas}/${module}/${_function}`;
 };
 

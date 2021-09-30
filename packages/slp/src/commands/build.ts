@@ -1,6 +1,7 @@
 import { CommonOptions, taskRunner } from "@sodaru-cli/base";
 import {
   buildServerlessTemplate,
+  bundleRootServerlessFunctions,
   compileTypeScript,
   deleteBuildDir,
   doesAwsSdkIsRightVersionInPackageJson,
@@ -122,6 +123,12 @@ export const BuildAction = async ({
     dir
   );
   await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
+  await taskRunner(
+    `Bundle root module functions`,
+    bundleRootServerlessFunctions,
+    verbose,
+    dir
+  );
   await taskRunner(
     `validate ${path_serverless}/${file_templateYaml}`,
     validateServerlessTemplateWithSchema,
