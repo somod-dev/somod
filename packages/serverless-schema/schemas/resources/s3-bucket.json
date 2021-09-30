@@ -1,0 +1,464 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/s3-bucket.json",
+  "title": "JSON Schema for S3 Bucket Resource in Serverless Template by Sodaru Technologies",
+  "definitions": {
+    "IntelligentTieringConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Id", "Status", "Tierings"],
+      "properties": {
+        "Id": { "$ref": "../expression.json#/definitions/stringLike" },
+        "Prefix": { "$ref": "../expression.json#/definitions/stringLike" },
+        "Status": { "enum": ["Disabled", "Enabled"] },
+        "TagFilters": { "$ref": "../tags.json#/definitions/tagsList" },
+        "Tierings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["AccessTier", "Days"],
+            "properties": {
+              "AccessTier": {
+                "enum": ["ARCHIVE_ACCESS", "DEEP_ARCHIVE_ACCESS"]
+              },
+              "Days": { "type": "integer", "maximum": 730, "minimum": 90 }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 2
+        }
+      }
+    },
+    "InventoryConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Destination",
+        "Enabled",
+        "Id",
+        "IncludedObjectVersions",
+        "ScheduleFrequency"
+      ],
+      "properties": {
+        "Destination": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["BucketArn", "Format"],
+          "properties": {
+            "BucketAccountId": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "BucketArn": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "Format": { "enum": ["CSV", "ORC", "Parquet"] },
+            "Prefix": { "$ref": "../expression.json#/definitions/stringLike" }
+          }
+        },
+        "Enabled": { "type": "boolean" },
+        "Id": { "$ref": "../expression.json#/definitions/stringLike" },
+        "IncludedObjectVersions": { "enum": ["All", "Current"] },
+        "OptionalFields": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "Size",
+              "LastModifiedDate",
+              "StorageClass",
+              "ETag",
+              "IsMultipartUploaded",
+              "ReplicationStatus",
+              "EncryptionStatus",
+              "ObjectLockRetainUntilDate",
+              "ObjectLockMode",
+              "ObjectLockLegalHoldStatus",
+              "IntelligentTieringAccessTier",
+              "BucketKeyStatus"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "Prefix": { "$ref": "../expression.json#/definitions/stringLike" },
+        "ScheduleFrequency": { "enum": ["Daily", "Weekly"] }
+      }
+    },
+    "Rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "AbortIncompleteMultipartUpload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["DaysAfterInitiation"],
+          "properties": { "DaysAfterInitiation": { "type": "integer" } }
+        },
+        "ExpirationDate": { "type": "string", "format": "date-time" },
+        "ExpirationInDays": { "type": "integer" },
+        "ExpiredObjectDeleteMarker": { "type": "boolean" },
+        "Id": { "$ref": "../expression.json#/definitions/stringLike" },
+        "NoncurrentVersionExpirationInDays": { "type": "integer" },
+        "NoncurrentVersionTransitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["StorageClass", "TransitionInDays"],
+            "properties": {
+              "StorageClass": {
+                "enum": [
+                  "DEEP_ARCHIVE",
+                  "GLACIER",
+                  "INTELLIGENT_TIERING",
+                  "ONEZONE_IA",
+                  "STANDARD_IA"
+                ]
+              },
+              "TransitionInDays": { "type": "integer" }
+            }
+          }
+        },
+        "Prefix": { "$ref": "../expression.json#/definitions/stringLike" },
+        "Status": { "enum": ["Disabled", "Enabled"] },
+        "TagFilters": { "$ref": "../tags.json#/definitions/tagsList" },
+        "Transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "StorageClass": {
+                "enum": [
+                  "DEEP_ARCHIVE",
+                  "GLACIER",
+                  "INTELLIGENT_TIERING",
+                  "ONEZONE_IA",
+                  "STANDARD_IA"
+                ]
+              },
+              "TransitionDate": { "type": "string", "format": "date-time" },
+              "TransitionInDays": { "type": "integer" }
+            },
+            "oneOf": [
+              { "required": ["StorageClass", "TransitionDate"] },
+              { "required": ["StorageClass", "TransitionInDays"] }
+            ]
+          }
+        }
+      },
+      "oneOf": [
+        { "required": ["Status", "AbortIncompleteMultipartUpload"] },
+        { "required": ["Status", "ExpirationDate"] },
+        { "required": ["Status", "ExpirationInDays"] },
+        { "required": ["Status", "NoncurrentVersionExpirationInDays"] },
+        { "required": ["Status", "NoncurrentVersionTransitions"] },
+        { "required": ["Status", "Transitions"] }
+      ]
+    },
+    "LifecycleConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Rules"],
+      "properties": {
+        "Rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Rule"
+          },
+          "maxItems": 10
+        }
+      }
+    },
+    "NotificationFilter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["S3Key"],
+      "properties": {
+        "S3Key": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Rules"],
+          "properties": {
+            "Rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["Name", "Value"],
+                "properties": {
+                  "Name": { "enum": ["prefix", "suffix"] },
+                  "Value": {
+                    "$ref": "../expression.json#/definitions/stringLike"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "S3BucketEvent": {
+      "type": "string",
+      "description": "The Amazon S3 bucket event about which you want to publish messages to Lambda, SQS or SNS. Refer https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html"
+    },
+    "NotificationConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "LambdaConfigurations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["Event", "Function"],
+            "properties": {
+              "Event": { "$ref": "#/definitions/S3BucketEvent" },
+              "Filter": {
+                "$ref": "#/definitions/NotificationFilter"
+              },
+              "Function": {
+                "$ref": "../expression.json#/definitions/stringLike"
+              }
+            }
+          }
+        },
+        "QueueConfigurations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["Event", "Queue"],
+            "properties": {
+              "Event": {
+                "$ref": "#/definitions/S3BucketEvent"
+              },
+              "Filter": {
+                "$ref": "#/definitions/NotificationFilter"
+              },
+              "Queue": {
+                "$ref": "../expression.json#/definitions/stringLike"
+              }
+            }
+          }
+        },
+        "TopicConfigurations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["Event", "Topic"],
+            "properties": {
+              "Event": {
+                "$ref": "#/definitions/S3BucketEvent"
+              },
+              "Filter": {
+                "$ref": "#/definitions/NotificationFilter"
+              },
+              "Topic": {
+                "$ref": "../expression.json#/definitions/stringLike"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ObjectLockConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ObjectLockEnabled": { "enum": ["Enabled"] },
+        "Rule": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "DefaultRetention": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "Days": { "type": "integer" },
+                "Mode": { "enum": ["COMPLIANCE", "GOVERNANCE"] },
+                "Years": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "OwnershipControls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Rules"],
+      "properties": {
+        "Rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ObjectOwnership": {
+                "enum": ["ObjectWriter", "BucketOwnerPreferred"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "PublicAccessBlockConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "BlockPublicAcls": { "type": "boolean" },
+        "BlockPublicPolicy": { "type": "boolean" },
+        "IgnorePublicAcls": { "type": "boolean" },
+        "RestrictPublicBuckets": { "type": "boolean" }
+      }
+    },
+    "VersioningConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Status"],
+      "properties": {
+        "Status": { "enum": ["Enabled", "Suspended"] }
+      }
+    },
+    "WebsiteConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ErrorDocument": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "IndexDocument": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "RedirectAllRequestsTo": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["HostName"],
+          "properties": {
+            "HostName": { "type": "string", "format": "hostname" },
+            "Protocol": { "enum": ["http", "https"] }
+          }
+        },
+        "RoutingRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["RedirectRule"],
+            "properties": {
+              "RedirectRule": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "HostName": { "type": "string", "format": "hostname" },
+                  "HttpRedirectCode": {
+                    "type": "string",
+                    "pattern": "^[1-5][0-9]{2}$"
+                  },
+                  "Protocol": { "enum": ["http", "https"] },
+                  "ReplaceKeyPrefixWith": { "type": "string" },
+                  "ReplaceKeyWith": { "type": "string" }
+                }
+              },
+              "RoutingRuleCondition": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "HttpErrorCodeReturnedEquals": { "type": "string" },
+                  "KeyPrefixEquals": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": ["Type", "Properties", "DeletionPolicy", "UpdateReplacePolicy"],
+  "additionalProperties": false,
+  "properties": {
+    "Type": { "const": "AWS::S3::Bucket" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
+    "DeletionPolicy": { "const": "Retain" },
+    "UpdateReplacePolicy": { "const": "Retain" },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["BucketName"],
+      "properties": {
+        "BucketName": {
+          "$ref": "../expression.json#/definitions/slpResourceName"
+        },
+        "AccessControl": {
+          "enum": [
+            "Private",
+            "PublicRead",
+            "PublicReadWrite",
+            "AuthenticatedRead",
+            "LogDeliveryWrite",
+            "BucketOwnerRead",
+            "BucketOwnerFullControl",
+            "AwsExecRead"
+          ]
+        },
+        "IntelligentTieringConfigurations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/IntelligentTieringConfiguration" },
+          "maxItems": 10
+        },
+        "InventoryConfigurations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/InventoryConfiguration" },
+          "maxItems": 10
+        },
+        "LifecycleConfiguration": {
+          "$ref": "#/definitions/LifecycleConfiguration"
+        },
+        "LoggingConfiguration": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "DestinationBucketName": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "LogFilePrefix": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            }
+          }
+        },
+        "NotificationConfiguration": {
+          "$ref": "#/definitions/NotificationConfiguration"
+        },
+        "ObjectLockConfiguration": {
+          "$ref": "#/definitions/ObjectLockConfiguration"
+        },
+        "ObjectLockEnabled": {
+          "type": "boolean"
+        },
+        "OwnershipControls": {
+          "$ref": "#/definitions/OwnershipControls"
+        },
+        "PublicAccessBlockConfiguration": {
+          "$ref": "#/definitions/PublicAccessBlockConfiguration"
+        },
+        "Tags": { "$ref": "../tags.json#/definitions/tagsList" },
+        "VersioningConfiguration": {
+          "$ref": "#/definitions/VersioningConfiguration"
+        },
+        "WebsiteConfiguration": {
+          "$ref": "#/definitions/WebsiteConfiguration"
+        }
+      }
+    }
+  }
+}

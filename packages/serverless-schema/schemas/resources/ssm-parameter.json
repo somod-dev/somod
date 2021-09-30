@@ -4,6 +4,7 @@
   "title": "JSON Schema for SSM Parameter Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
   "required": ["Type", "Properties"],
+  "additionalProperties": false,
   "properties": {
     "Type": { "const": "AWS::SSM::Parameter" },
     "SLP::Extend": {
