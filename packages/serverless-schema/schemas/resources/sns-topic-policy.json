@@ -12,9 +12,6 @@
     "SLP::DependsOn": {
       "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
     },
-    "SLP::Output": {
-      "$ref": "./resource-properties.json#/definitions/SLP::Output"
-    },
     "Properties": {
       "type": "object",
       "additionalProperties": false,

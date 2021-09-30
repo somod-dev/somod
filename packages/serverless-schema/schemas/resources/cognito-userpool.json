@@ -311,7 +311,20 @@
       "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
     },
     "SLP::Output": {
-      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": {
+          "type": "boolean",
+          "description": "Generated ID, such as us-east-2_zgaEXAMPLE"
+        },
+        "attributes": {
+          "type": "array",
+          "items": { "enum": ["Arn", "ProviderName", "ProviderURL"] },
+          "uniqueItems": true
+        }
+      }
     },
     "DeletionPolicy": { "const": "Retain" },
     "Properties": {

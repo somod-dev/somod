@@ -32,7 +32,20 @@
       "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
     },
     "SLP::Output": {
-      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": {
+          "type": "boolean",
+          "description": "Name of the User"
+        },
+        "attributes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "maxItems": 0
+        }
+      }
     },
     "Properties": {
       "type": "object",

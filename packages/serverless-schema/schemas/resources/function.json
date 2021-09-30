@@ -378,7 +378,20 @@
       "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
     },
     "SLP::Output": {
-      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": {
+          "type": "boolean",
+          "description": "Function Name"
+        },
+        "attributes": {
+          "type": "array",
+          "items": { "enum": ["Arn"] },
+          "uniqueItems": true
+        }
+      }
     },
     "Properties": {
       "type": "object",

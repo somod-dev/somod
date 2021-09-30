@@ -206,7 +206,20 @@
       "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
     },
     "SLP::Output": {
-      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": {
+          "type": "boolean",
+          "description": "Id of the underlying API Gateway API"
+        },
+        "attributes": {
+          "type": "array",
+          "items": { "enum": ["RootResourceId"] },
+          "uniqueItems": true
+        }
+      }
     },
     "Properties": {
       "type": "object",

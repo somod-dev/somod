@@ -36,7 +36,22 @@
       "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
     },
     "SLP::Output": {
-      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": {
+          "type": "boolean",
+          "description": "Topic ARN"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "enum": ["TopicName"]
+          },
+          "uniqueItems": true
+        }
+      }
     },
     "Properties": {
       "type": "object",

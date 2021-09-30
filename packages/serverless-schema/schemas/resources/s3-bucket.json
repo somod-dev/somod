@@ -387,7 +387,28 @@
       "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
     },
     "SLP::Output": {
-      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": {
+          "type": "boolean",
+          "description": "Bucket Name"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "Arn",
+              "DomainName",
+              "DualStackDomainName",
+              "RegionalDomainName",
+              "WebsiteURL"
+            ]
+          },
+          "uniqueItems": true
+        }
+      }
     },
     "DeletionPolicy": { "const": "Retain" },
     "UpdateReplacePolicy": { "const": "Retain" },

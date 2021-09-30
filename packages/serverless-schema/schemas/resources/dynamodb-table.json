@@ -34,7 +34,20 @@
       "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
     },
     "SLP::Output": {
-      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": {
+          "type": "boolean",
+          "description": "Table Name"
+        },
+        "attributes": {
+          "type": "array",
+          "items": { "enum": ["Arn", "StreamArn"] },
+          "uniqueItems": true
+        }
+      }
     },
     "DeletionPolicy": { "const": "Retain" },
     "UpdateReplacePolicy": { "const": "Retain" },
