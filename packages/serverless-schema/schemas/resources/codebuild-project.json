@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/serverless-template/resources/codebuild-project.json",
+  "title": "JSON Schema for CodeBuild Project Resource in Serverless Template by Sodaru Technologies",
+  "definitions": {
+    "Artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type"],
+      "properties": {
+        "Type": { "const": "NO_ARTIFACTS" }
+      }
+    },
+    "ProjectCache": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Modes": {
+          "type": "array",
+          "items": { "enum": ["LOCAL_CUSTOM_CACHE"] },
+          "uniqueItems": true
+        },
+        "Type": { "const": "LOCAL" }
+      }
+    },
+    "Environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ComputeType", "Image", "Type"],
+      "properties": {
+        "ComputeType": { "const": "BUILD_GENERAL1_SMALL" },
+        "EnvironmentVariables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["Name", "Value"],
+            "properties": {
+              "Name": { "type": "string", "pattern": "^[a-zA-Z0-9_]+$" },
+              "Type": {
+                "enum": ["PARAMETER_STORE", "PLAINTEXT", "SECRETS_MANAGER"]
+              },
+              "Value": { "type": "string" }
+            }
+          },
+          "uniqueItems": true
+        },
+        "Image": { "type": "string" },
+        "Type": { "const": "ARM_CONTAINER" }
+      }
+    },
+    "LogsConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "CloudWatchLogs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Status"],
+          "properties": {
+            "GroupName": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            },
+            "Status": { "enum": ["DISABLED", "ENABLED"] },
+            "StreamName": {
+              "$ref": "../expression.json#/definitions/stringLike"
+            }
+          }
+        }
+      }
+    },
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["BuildSpec", "Type"],
+      "properties": {
+        "Type": { "const": "NO_SOURCE" },
+        "BuildSpec": { "type": "string" }
+      }
+    }
+  },
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "additionalProperties": false,
+  "properties": {
+    "Type": { "const": "AWS::SSM::Parameter" },
+    "SLP::Extend": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "$ref": "./resource-properties.json#/definitions/SLP::Output"
+    },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Name", "Artifacts", "Environment", "ServiceRole", "Source"],
+      "properties": {
+        "Name": { "$ref": "../expression.json#/definitions/slpResourceName" },
+        "Artifacts": { "$ref": "#/definitions/Artifacts" },
+        "Cache": { "$ref": "#/definitions/ProjectCache" },
+        "Description": { "type": "string", "maxLength": 255 },
+        "Environment": { "$ref": "#/definitions/Environment" },
+        "LogsConfig": { "$ref": "#/definitions/LogsConfig" },
+        "QueuedTimeoutInMinutes": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 480
+        },
+        "ResourceAccessRole": {
+          "$ref": "../expression.json#/definitions/stringLike"
+        },
+        "ServiceRole": { "$ref": "../expression.json#/definitions/stringLike" },
+        "Source": { "$ref": "#/definitions/Source" },
+        "Tags": { "$ref": "../tags.json#/definitions/tagsList" },
+        "TimeoutInMinutes": { "type": "integer", "minimum": 5, "maximum": 480 },
+        "Visibility": { "const": "PRIVATE" }
+      }
+    }
+  }
+}

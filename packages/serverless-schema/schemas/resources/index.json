@@ -21,7 +21,8 @@
         { "$ref": "./sqs-queue.json" },
         { "$ref": "./sqs-queue-policy.json" },
         { "$ref": "./ssm-parameter.json" },
-        { "$ref": "./s3-bucket.json" }
+        { "$ref": "./s3-bucket.json" },
+        { "$ref": "./codebuild-project.json" }
       ]
     }
   }
