@@ -42,7 +42,7 @@
         "AllowedPattern": { "type": "string", "format": "regex" },
         "Description": {
           "type": "string",
-          "pattern": "^[a-zA-Z0-9\\s._-]+$",
+          "pattern": "^[a-zA-Z0-9\\s._:,-]+$",
           "maxLength": 1024
         },
         "Policies": {

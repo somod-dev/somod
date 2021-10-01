@@ -74,7 +74,7 @@ export const ServeAction = async ({
   }
 };
 
-const serveCommand = new Command("dev");
+const serveCommand = new Command("serve");
 
 serveCommand.action(ServeAction);
 

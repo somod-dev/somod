@@ -12,9 +12,8 @@ Resources:
   SampleParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name:
-        SLP::ResourceName: Hello
-      Description: "TODO${":"} This is a sample resource , Delete this and add the valid resources for your module"
+      Name: Hello
+      Description: "TODO${":"} This is a sample resource, Delete this and add the valid resources for your module"
       Type: String
       Value: Good Luck
 

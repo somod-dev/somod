@@ -57,7 +57,7 @@ export const BuildAction = async ({
   const dir = process.cwd();
 
   const typescriptIncludePaths: string[] = [];
-  const moduleIndicators: string[] = [];
+  const moduleIndicators: string[] = [key_emp];
   if (type == "all" || type == "njp") {
     typescriptIncludePaths.push(path_ui);
     moduleIndicators.push(key_njp);
