@@ -4,6 +4,7 @@ import {
   createPublicAssets,
   createRootModulePages,
   createRootModulePublicAssets,
+  key_emp,
   key_njp,
   path_pages,
   path_public,
@@ -29,8 +30,12 @@ export const ServeAction = async ({
     await BuildAction({ verbose, type: "njp" });
 
     await Promise.all([
-      taskRunner(`Create ${path_pages}`, createPages, verbose, dir, [key_njp]),
+      taskRunner(`Create ${path_pages}`, createPages, verbose, dir, [
+        key_emp,
+        key_njp
+      ]),
       taskRunner(`Create ${path_public}`, createPublicAssets, verbose, dir, [
+        key_emp,
         key_njp
       ])
     ]);

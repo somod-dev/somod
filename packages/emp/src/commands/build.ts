@@ -186,7 +186,7 @@ export const BuildAction = async ({
       buildServerlessTemplate,
       verbose,
       dir,
-      [key_slp]
+      moduleIndicators
     );
     await taskRunner(
       `Generate ${path_build}/${path_serverless}/${file_functionIndex_js}`,
