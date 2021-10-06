@@ -1,29 +1,17 @@
-import { spawn } from "child_process";
+import { childProcess } from "@sodaru-cli/base";
 
-export const samCommand = (
+export const samCommand = async (
   dir: string,
   action: "validate" | "build" | "deploy",
   guided = false
 ): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const args: string[] = [action];
-    if (action == "deploy" && guided) {
-      args.push("--guided");
-    }
-    const childProcess = spawn(
-      process.platform === "win32" ? "sam.cmd" : "sam",
-      args,
-      {
-        cwd: dir,
-        windowsHide: true,
-        stdio: "inherit"
-      }
-    );
-    childProcess.on("error", e => {
-      reject(e);
-    });
-    childProcess.on("close", () => {
-      resolve();
-    });
-  });
+  const args: string[] = [action];
+  if (action == "deploy" && guided) {
+    args.push("--guided");
+  }
+  await childProcess(
+    dir,
+    process.platform === "win32" ? "sam.cmd" : "sam",
+    args
+  );
 };

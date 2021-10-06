@@ -1,21 +1,8 @@
-import { spawn } from "child_process";
+import { childProcess } from "@sodaru-cli/base";
 
-export const startNextDev = (dir: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const childProcess = spawn(
-      process.platform === "win32" ? "npx.cmd" : "npx",
-      ["next", "dev"],
-      {
-        cwd: dir,
-        windowsHide: true,
-        stdio: "inherit"
-      }
-    );
-    childProcess.on("error", e => {
-      reject(e);
-    });
-    childProcess.on("close", () => {
-      resolve();
-    });
-  });
+export const startNextDev = async (dir: string): Promise<void> => {
+  await childProcess(dir, process.platform === "win32" ? "npx.cmd" : "npx", [
+    "next",
+    "dev"
+  ]);
 };

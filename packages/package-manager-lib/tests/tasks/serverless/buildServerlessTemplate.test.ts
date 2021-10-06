@@ -91,6 +91,6 @@ describe("Test Task buildServerlessTemplate", () => {
       readFile(join(dir, "build", "serverless", "template.json"), {
         encoding: "utf8"
       })
-    ).resolves.toEqual(JSON.stringify(template, null, 2));
+    ).resolves.toEqual(JSON.stringify(template, null, 2) + "\n");
   });
 });

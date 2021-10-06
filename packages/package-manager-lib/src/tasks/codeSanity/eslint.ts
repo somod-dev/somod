@@ -1,13 +1,9 @@
-import { execSync } from "child_process";
+import { childProcess } from "@sodaru-cli/base";
 
 export const eslint = async (dir: string): Promise<void> => {
-  try {
-    execSync(`npx eslint ./ --no-error-on-unmatched-pattern`, {
-      cwd: dir,
-      windowsHide: true,
-      stdio: "pipe"
-    });
-  } catch (e) {
-    throw new Error(e.message);
-  }
+  await childProcess(dir, process.platform === "win32" ? "npx.cmd" : "npx", [
+    "eslint",
+    "./",
+    "--no-error-on-unmatched-pattern"
+  ]);
 };

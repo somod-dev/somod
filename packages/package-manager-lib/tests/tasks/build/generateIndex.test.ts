@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { existsSync } from "fs";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
@@ -6,26 +7,31 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 describe("Test Task generateIndex", () => {
   let dir: string = null;
+  const originalWarn = console.warn;
 
   beforeEach(() => {
     dir = createTempDir();
+    console.warn = jest.fn();
   });
 
   afterEach(() => {
     deleteDir(dir);
+    console.warn = originalWarn;
   });
 
   test("for no build dir", async () => {
-    await expect(generateIndex(dir)).rejects.toEqual(
-      new Error("There is nothing to export from this module")
+    await expect(generateIndex(dir)).resolves.toBeUndefined();
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("There is nothing to export from this module")
     );
     expect(existsSync(join(dir, "build"))).toBeFalsy();
   });
 
   test("for empty ui and lib dirs", async () => {
     createFiles(dir, { "build/ui/": "", "build/lib/": "" });
-    await expect(generateIndex(dir)).rejects.toEqual(
-      new Error("There is nothing to export from this module")
+    await expect(generateIndex(dir)).resolves.toBeUndefined();
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("There is nothing to export from this module")
     );
     await expect(readdir(join(dir, "build"))).resolves.toEqual(["lib", "ui"]);
   });
@@ -84,8 +90,9 @@ describe("Test Task generateIndex", () => {
         "const Page1default = 10; export default Page1default",
       "build/lib/index.js": ""
     });
-    await expect(generateIndex(dir, ["ui/pageIndex"])).rejects.toEqual(
-      new Error("There is nothing to export from this module")
+    await expect(generateIndex(dir, ["ui/pageIndex"])).resolves.toBeUndefined();
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("There is nothing to export from this module")
     );
     expect(existsSync(join(dir, "build/index.js"))).not.toBeTruthy();
     expect(existsSync(join(dir, "build/index.d.ts"))).not.toBeTruthy();

@@ -1,30 +1,16 @@
-import { spawn } from "child_process";
+import { childProcess } from "@sodaru-cli/base";
 import {
   key_moduleAwsSdk,
   key_moduleAwsSdkVersion
 } from "../../utils/constants";
 
-export const installAwsSdkAsPeerDependency = (dir: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const childProcess = spawn(
-      process.platform === "win32" ? "npm.cmd" : "npm",
-      [
-        "i",
-        key_moduleAwsSdk + "@" + key_moduleAwsSdkVersion,
-        "--save-peer",
-        "--save-exact"
-      ],
-      {
-        cwd: dir,
-        windowsHide: true,
-        stdio: "inherit"
-      }
-    );
-    childProcess.on("error", e => {
-      reject(e);
-    });
-    childProcess.on("close", () => {
-      resolve();
-    });
-  });
+export const installAwsSdkAsPeerDependency = async (
+  dir: string
+): Promise<void> => {
+  await childProcess(dir, process.platform === "win32" ? "npm.cmd" : "npm", [
+    "i",
+    key_moduleAwsSdk + "@" + key_moduleAwsSdkVersion,
+    "--save-peer",
+    "--save-exact"
+  ]);
 };

@@ -38,7 +38,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
   };
 
   const StringifyTemplate = (json: unknown): string => {
-    return JSON.stringify(json, null, 2);
+    return JSON.stringify(json, null, 2) + "\n";
   };
 
   beforeEach(() => {

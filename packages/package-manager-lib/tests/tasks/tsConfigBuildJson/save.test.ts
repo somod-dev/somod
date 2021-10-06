@@ -49,7 +49,8 @@ describe("Test Task saveTsConfigBuildJson", () => {
   "compilerOptions": {
     "allowJs": true
   }
-}`
+}
+`
     );
   });
 });

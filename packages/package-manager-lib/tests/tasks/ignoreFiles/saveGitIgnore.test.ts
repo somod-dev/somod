@@ -39,9 +39,6 @@ describe("Test Task saveGitIgnore", () => {
     await expect(saveGitIgnore(dir)).resolves.toBeUndefined();
     await expect(
       readFile(gitIgnorePath, { encoding: "utf8" })
-    ).resolves.toEqual(
-      `node_modules
-/build`
-    );
+    ).resolves.toEqual(`node_modules\n/build\n`);
   });
 });

@@ -44,7 +44,7 @@ describe("Test Task savePackageJson", () => {
     await expect(
       readFile(packageJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(
-      JSON.stringify({ name: "some-package", version: "1.0.0" }, null, 2)
+      JSON.stringify({ name: "some-package", version: "1.0.0" }, null, 2) + "\n"
     );
   });
 
@@ -60,7 +60,7 @@ describe("Test Task savePackageJson", () => {
     await expect(
       readFile(packageJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(
-      JSON.stringify({ name: "some-package", njp: true }, null, 2)
+      JSON.stringify({ name: "some-package", njp: true }, null, 2) + "\n"
     );
   });
 });

@@ -39,9 +39,6 @@ describe("Test Task savePrettierIgnore", () => {
     await expect(savePrettierIgnore(dir)).resolves.toBeUndefined();
     await expect(
       readFile(prettierIgnorePath, { encoding: "utf8" })
-    ).resolves.toEqual(
-      `node_modules
-/build`
-    );
+    ).resolves.toEqual(`node_modules\n/build\n`);
   });
 });

@@ -39,9 +39,6 @@ describe("Test Task saveEslintIgnore", () => {
     await expect(saveEslintIgnore(dir)).resolves.toBeUndefined();
     await expect(
       readFile(eslintIgnorePath, { encoding: "utf8" })
-    ).resolves.toEqual(
-      `node_modules
-/build`
-    );
+    ).resolves.toEqual(`node_modules\n/build\n`);
   });
 });
