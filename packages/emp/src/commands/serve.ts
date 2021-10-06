@@ -26,8 +26,15 @@ export const ServeAction = async ({
 }: ServeOptions): Promise<void> => {
   const dir = process.cwd();
 
+  /**
+   * This is a Internal Feature to Skip Build of root module during Production deployment
+   */
+  const isEntranseDeployment = process.env.ENTRANSE_DEPLOYMENT;
+
   if (stage == "all" || stage == "prepare") {
-    await BuildAction({ verbose, type: "njp" });
+    if (!isEntranseDeployment) {
+      await BuildAction({ verbose, type: "njp" });
+    }
 
     await Promise.all([
       taskRunner(`Create ${path_pages}`, createPages, verbose, dir, [

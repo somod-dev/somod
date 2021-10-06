@@ -25,8 +25,15 @@ export const DeployAction = async ({
 }: DeployOptions): Promise<void> => {
   const dir = process.cwd();
 
+  /**
+   * This is a Internal Feature to Skip Build of root module during Production deployment
+   */
+  const isEntranseDeployment = process.env.ENTRANSE_DEPLOYMENT;
+
   if (stage == "all" || stage == "prepare") {
-    await BuildAction({ verbose, type: "slp" });
+    if (!isEntranseDeployment) {
+      await BuildAction({ verbose, type: "slp" });
+    }
 
     await taskRunner(
       `Deleting ${path_slpWorkingDir} directory`,
