@@ -1,3 +1,4 @@
+import { logWarning } from "@sodaru-cli/base";
 import { existsSync } from "fs";
 import { writeFile } from "fs/promises";
 import { uniq } from "lodash";
@@ -61,6 +62,6 @@ export const generateIndex = async (
     getExports(indexPath); // to verify generated index.js has right exports
     getExports(indexDTsPath); // to verify generated index.d.ts has right exports
   } else {
-    throw new Error(`There is nothing to export from this module`);
+    logWarning(`There is nothing to export from this module`);
   }
 };
