@@ -14,7 +14,6 @@ export const compileTypeScript = async (
       dir,
       process.platform === "win32" ? "npx.cmd" : "npx",
       args,
-      {},
       true,
       true
     );
