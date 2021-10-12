@@ -40,13 +40,13 @@
               "Type": {
                 "enum": ["PARAMETER_STORE", "PLAINTEXT", "SECRETS_MANAGER"]
               },
-              "Value": { "type": "string" }
+              "Value": { "$ref": "../expression.json#/definitions/stringLike" }
             }
           },
           "uniqueItems": true
         },
-        "Image": { "type": "string" },
-        "Type": { "const": "ARM_CONTAINER" }
+        "Image": { "$ref": "../expression.json#/definitions/stringLike" },
+        "Type": { "const": "LINUX_CONTAINER" }
       }
     },
     "LogsConfig": {
@@ -83,7 +83,7 @@
   "required": ["Type", "Properties"],
   "additionalProperties": false,
   "properties": {
-    "Type": { "const": "AWS::SSM::Parameter" },
+    "Type": { "const": "AWS::CodeBuild::Project" },
     "SLP::Extend": {
       "$ref": "./resource-properties.json#/definitions/SLP::Extend"
     },
