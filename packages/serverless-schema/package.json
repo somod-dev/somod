@@ -1,6 +1,6 @@
 {
   "name": "@sodaru-cli/serverless-schema",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "description": "JSON Schema for serverless templates",
   "keywords": [
     "sodaru",
