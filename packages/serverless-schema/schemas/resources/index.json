@@ -23,6 +23,7 @@
         { "$ref": "./ssm-parameter.json" },
         { "$ref": "./s3-bucket.json" },
         { "$ref": "./codebuild-project.json" },
+        { "$ref": "./codestar-notification-rule.json" },
         { "$ref": "./iam-role.json" }
       ]
     }
