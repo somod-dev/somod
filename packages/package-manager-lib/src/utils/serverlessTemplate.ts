@@ -164,7 +164,7 @@ const parseSLPTemplateForSLPKeywords = (
 
 const getSLPTemplate = async (path: string): Promise<SLPTemplate> => {
   const slpTemplateStr = await readFile(path, { encoding: "utf8" });
-  // the schema for slpTemplate is @sodaru-cli/serverless-schema/schemas/index.json
+  // the schema for slpTemplate is @sodaru/serverless-schema/schemas/index.json
   const slpTemplate: OriginalSLPTemplate = JSON.parse(slpTemplateStr);
   return parseSLPTemplateForSLPKeywords(slpTemplate);
 };

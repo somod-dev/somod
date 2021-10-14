@@ -1,6 +1,7 @@
 node_modules
 dist
 package-lock.json
+lerna.json
 
 packages/package-manager-lib/coverage
 packages/package-manager-lib/tests/tasks/build/testData

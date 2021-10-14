@@ -25,14 +25,14 @@
   },
   "scripts": {
     "clean": "npx rimraf dist",
-    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@sodaru-cli/serverless-schema --external:esbuild",
+    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@sodaru/serverless-schema --external:esbuild",
     "build": "npm run clean && npm run bundle",
     "pretest": "$CI || npm run build",
     "test": "echo 'No tests defined'",
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "@sodaru-cli/serverless-schema": "^1.8.6",
+    "@sodaru/serverless-schema": "^1.0.0",
     "esbuild": "^0.12.28",
     "typescript": "^4.3.5"
   },

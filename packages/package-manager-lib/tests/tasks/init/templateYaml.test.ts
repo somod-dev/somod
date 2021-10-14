@@ -19,7 +19,7 @@ describe("Test Task initTemplateYaml", () => {
     await expect(
       readFile(join(dir, "serverless/template.yaml"), { encoding: "utf8" })
     ).resolves
-      .toEqual(`# yaml-language-server: $schema=../node_modules/@sodaru-cli/serverless-schema/schemas/index.json
+      .toEqual(`# yaml-language-server: $schema=../node_modules/@sodaru/serverless-schema/schemas/index.json
 
 Resources:
   SampleParameter:

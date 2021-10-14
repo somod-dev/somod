@@ -1,5 +1,5 @@
 import { ErrorSet } from "@sodaru-cli/base";
-import { loadSchemas } from "@sodaru-cli/serverless-schema";
+import { loadSchemas } from "@sodaru/serverless-schema";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { existsSync } from "fs";
