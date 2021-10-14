@@ -50,7 +50,7 @@
   },
   "peerDependencies": {
     "@sodaru-cli/base": "^1.3.2",
-    "@sodaru-cli/serverless-schema": "^1.4.0",
+    "@sodaru-cli/serverless-schema": "^1.8.6",
     "esbuild": "^0.12.28",
     "tslib": "^2.3.0"
   },
