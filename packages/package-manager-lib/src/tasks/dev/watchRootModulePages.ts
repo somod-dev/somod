@@ -5,6 +5,7 @@ import { path_pages, path_ui } from "../../utils/constants";
 import { copyDirectory } from "@sodaru-cli/base";
 import { exportRootModulePage } from "../../utils/pages";
 import watch from "../../utils/watch";
+import { sync as rimrafSync } from "rimraf";
 
 const createTempDir = (): string => {
   return mkdtempSync(join(tmpdir(), "sodaruPackageManagerLib-"));
@@ -18,9 +19,9 @@ export const watchRootModulePages = async (
   const pagesDir = join(dir, path_pages);
 
   if (existsSync(pagesDir)) {
-    copyDirectory(pagesDir, backupDir);
+    await copyDirectory(pagesDir, backupDir);
   }
-  return watch(
+  const closeWatch = watch(
     join(dir, path_ui, path_pages),
     pagesDir,
     file => {
@@ -31,4 +32,8 @@ export const watchRootModulePages = async (
     },
     backupDir
   );
+  return () => {
+    rimrafSync(backupDir);
+    closeWatch();
+  };
 };
