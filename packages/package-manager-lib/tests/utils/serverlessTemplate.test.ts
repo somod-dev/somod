@@ -328,6 +328,41 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
+  test("with SLP::ResourceName on extended resource", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          "SLP::Extend": { module: "sample2", resource: "Resource2" },
+          Properties: {
+            FunctionName: {
+              "SLP::ResourceName": "Resource1"
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "node_modules/sample2/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Resource2: {
+            Type: "AWS::Serverless::Function",
+            Properties: {}
+          }
+        }
+      }),
+      ...doublePackageJson
+    });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        'Extended Resource can not specify SLP::ResourceName. Specified in "sample" at "Resources/Resource1/Properties/FunctionName"'
+      )
+    });
+  });
+
   test("with SLP::Output", async () => {
     const template = {
       Resources: {
@@ -1146,6 +1181,258 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
   });
+
+  test("with SLP::RefResourceName without module", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Description: {
+              "Fn::Sub": [
+                "Invoked from ${restApiName}",
+                {
+                  restApiName: {
+                    "SLP::RefResourceName": {
+                      module: "sample1",
+                      resource: "Resource2",
+                      property: "Name"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
+    });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        `Referenced module resource name {sample1, Resource2, Name} not found. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
+      )
+    });
+  });
+
+  test("with SLP::RefResourceName without resource", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Description: {
+              "Fn::Sub": [
+                "Invoked from ${restApiName}",
+                {
+                  restApiName: {
+                    "SLP::RefResourceName": {
+                      resource: "Resource2",
+                      property: "Name"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
+    });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        `Referenced module resource name {undefined, Resource2, Name} not found. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
+      )
+    });
+  });
+
+  test("with SLP::RefResourceName without property", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Description: {
+              "Fn::Sub": [
+                "Invoked from ${restApiName}",
+                {
+                  restApiName: {
+                    "SLP::RefResourceName": {
+                      resource: "Resource2",
+                      property: "Name"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        Resource2: {
+          Type: "AWS::Serverless::Api",
+          Properties: {},
+          "SLP::Output": {
+            default: true,
+            attributes: ["Name"]
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
+    });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        `Referenced module resource name {undefined, Resource2, Name} not found. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
+      )
+    });
+  });
+
+  test("with SLP::RefResourceName with wrong property", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Description: {
+              "Fn::Sub": [
+                "Invoked from ${restApiName}",
+                {
+                  restApiName: {
+                    "SLP::RefResourceName": {
+                      resource: "Resource2",
+                      property: "StageName"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        Resource2: {
+          Type: "AWS::Serverless::Api",
+          Properties: { StageName: "Prod" },
+          "SLP::Output": {
+            default: true,
+            attributes: ["Name"]
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
+    });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        `Referenced module resource name property {undefined, Resource2, StageName} is not a valid SLP::ResourceName. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
+      )
+    });
+  });
+
+  test("with SLP::RefResourceName with valid local", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Description: {
+              "Fn::Sub": [
+                "Invoked from ${restApiName}",
+                {
+                  restApiName: {
+                    "SLP::RefResourceName": {
+                      resource: "Resource2",
+                      property: "Name"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        Resource2: {
+          Type: "AWS::Serverless::Api",
+          Properties: { Name: { "SLP::ResourceName": "restapi" } },
+          "SLP::Output": {
+            default: true,
+            attributes: ["Name"]
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
+    });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
+  });
+
+  test("with SLP::RefResourceName with valid dependent module", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Description: {
+              "Fn::Sub": [
+                "Invoked from ${restApiName}",
+                {
+                  restApiName: {
+                    "SLP::RefResourceName": {
+                      module: "sample2",
+                      resource: "Resource2",
+                      property: "Name"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "node_modules/sample2/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          Resource2: {
+            Type: "AWS::Serverless::Api",
+            Properties: { Name: { "SLP::ResourceName": "restapi" } },
+            "SLP::Output": {
+              default: true,
+              attributes: ["Name"]
+            }
+          }
+        }
+      }),
+      ...doublePackageJson
+    });
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
+  });
 });
 
 describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
@@ -1173,6 +1460,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
               Properties: {
+                Name: { "SLP::ResourceName": "rootRestApi" },
                 Tags: {
                   Client: { "SLP::RefParameter": { parameter: "Client" } }
                 }
@@ -1234,7 +1522,23 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 module: "@sodaru/baseapi",
                 resource: "BaseRestApiWelcomeFunction"
               }
-            ]
+            ],
+            Properties: {
+              Description: {
+                "Fn::Sub": [
+                  "Extends ${baseApi}",
+                  {
+                    baseApi: {
+                      "SLP::RefResourceName": {
+                        module: "@sodaru/baseapi",
+                        resource: "BaseRestApi",
+                        property: "Name"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
           },
           AuthLayer: {
             Type: "AWS::Serverless::LayerVersion",
@@ -1258,6 +1562,19 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Properties: {
               FunctionName: {
                 "SLP::ResourceName": "GetAuthGroup"
+              },
+              Description: {
+                "Fn::Sub": [
+                  "Uses layer ${authLayer}",
+                  {
+                    authLayer: {
+                      "SLP::RefResourceName": {
+                        resource: "AuthLayer",
+                        property: "LayerName"
+                      }
+                    }
+                  }
+                ]
               },
               CodeUri: { "SLP::Function": "getAuthGroup" },
               Layers: {
@@ -1317,6 +1634,43 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         ra046855cBaseRestApi: {
           Type: "AWS::Serverless::Api",
           Properties: {
+            Name: {
+              "Fn::Join": [
+                "",
+                [
+                  "slp",
+                  {
+                    "Fn::Select": [
+                      2,
+                      { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                    ]
+                  },
+                  "a046855crootRestApi"
+                ]
+              ]
+            },
+            Description: {
+              "Fn::Sub": [
+                "Extends ${baseApi}",
+                {
+                  baseApi: {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "slp",
+                        {
+                          "Fn::Select": [
+                            2,
+                            { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                          ]
+                        },
+                        "a046855crootRestApi"
+                      ]
+                    ]
+                  }
+                }
+              ]
+            },
             Tags: {
               Client: { Ref: "pa046855cClient" }
             }
@@ -1388,6 +1742,28 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               ]
             },
             CodeUri: ".slp/lambdas/@sodaru/auth-slp/getAuthGroup",
+            Description: {
+              "Fn::Sub": [
+                "Uses layer ${authLayer}",
+                {
+                  authLayer: {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "slp",
+                        {
+                          "Fn::Select": [
+                            2,
+                            { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                          ]
+                        },
+                        "624eb34aSodaruAuthLayer"
+                      ]
+                    ]
+                  }
+                }
+              ]
+            },
             Layers: {
               Ref: "r624eb34aAuthLayer"
             },

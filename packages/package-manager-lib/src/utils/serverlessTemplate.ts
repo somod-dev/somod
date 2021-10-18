@@ -44,6 +44,7 @@ const KeywordSLPOutput = "SLP::Output";
 const KeywordSLPResourceName = "SLP::ResourceName";
 const KeywordSLPRef = "SLP::Ref";
 const KeywordSLPRefParameter = "SLP::RefParameter";
+const KeywordSLPRefResourceName = "SLP::RefResourceName";
 const KeywordSLPFunction = "SLP::Function";
 const KeywordSLPFunctionLayer = "SLP::FunctionLayer";
 
@@ -59,6 +60,7 @@ type SLPKeywordPaths = {
   slpResourceNamePaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::ResourceName
   slpRefPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Ref
   slpRefParameterPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::RefParameter
+  slpRefResourceNamePaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::RefResourceName
   slpFunctionPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Function
   slpFunctionLayerPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Function
 };
@@ -67,6 +69,7 @@ const SLPKeywordPathsKeys: (keyof SLPKeywordPaths)[] = [
   "slpResourceNamePaths",
   "slpRefPaths",
   "slpRefParameterPaths",
+  "slpRefResourceNamePaths",
   "slpFunctionPaths",
   "slpFunctionLayerPaths"
 ];
@@ -92,6 +95,14 @@ type SLPRef = {
 type SLPRefParameter = {
   [KeywordSLPRefParameter]: {
     parameter: string;
+    module?: string;
+  };
+};
+
+type SLPRefResourceName = {
+  [KeywordSLPRefResourceName]: {
+    resource: string;
+    property: string;
     module?: string;
   };
 };
@@ -137,6 +148,7 @@ const getSLPKeywords = (chunk: unknown): SLPKeywordPaths => {
     slpResourceNamePaths: [],
     slpRefPaths: [],
     slpRefParameterPaths: [],
+    slpRefResourceNamePaths: [],
     slpFunctionPaths: [],
     slpFunctionLayerPaths: []
   };
@@ -147,6 +159,8 @@ const getSLPKeywords = (chunk: unknown): SLPKeywordPaths => {
       keyWords.slpRefPaths.push([]);
     } else if (!isUndefined(chunk[KeywordSLPRefParameter])) {
       keyWords.slpRefParameterPaths.push([]);
+    } else if (!isUndefined(chunk[KeywordSLPRefResourceName])) {
+      keyWords.slpRefResourceNamePaths.push([]);
     } else if (!isUndefined(chunk[KeywordSLPFunction])) {
       keyWords.slpFunctionPaths.push([]);
     } else if (!isUndefined(chunk[KeywordSLPFunctionLayer])) {
@@ -277,9 +291,10 @@ const validateSLPResourceDependsOn = (
   const dependsOn = resource[KeywordSLPDependsOn];
   if (dependsOn) {
     dependsOn.forEach(_dependsOn => {
-      const moduleTemplate = _dependsOn.module
-        ? serverlessTemplate[_dependsOn.module]
-        : slpTemplate;
+      const moduleTemplate =
+        _dependsOn.module && _dependsOn.module != module
+          ? serverlessTemplate[_dependsOn.module]
+          : slpTemplate;
       if (!(moduleTemplate && moduleTemplate.Resources[_dependsOn.resource])) {
         errors.push(
           new Error(
@@ -295,6 +310,29 @@ const validateSLPResourceDependsOn = (
   return errors;
 };
 
+const validateSLPTemplateResourceNames = (
+  module: string,
+  slpTemplate: SLPTemplate
+): Error[] => {
+  const errors: Error[] = [];
+
+  slpTemplate.slpResourceNamePaths.forEach(resourceNamePath => {
+    if (
+      !isUndefined(slpTemplate.Resources[resourceNamePath[0]][KeywordSLPExtend])
+    ) {
+      errors.push(
+        new Error(
+          `Extended Resource can not specify ${KeywordSLPResourceName}. Specified in "${module}" at "Resources/${resourceNamePath.join(
+            "/"
+          )}"`
+        )
+      );
+    }
+  });
+
+  return errors;
+};
+
 const validateSLPTemplateRefs = (
   module: string,
   slpTemplate: SLPTemplate,
@@ -305,13 +343,14 @@ const validateSLPTemplateRefs = (
   slpTemplate.slpRefPaths.forEach(refPath => {
     const reference = getSLPKeyword(slpTemplate, refPath) as SLPRef;
     const ref = reference[KeywordSLPRef];
-    const moduleTemplate: SLPTemplate = ref.module
-      ? serverlessTemplate[ref.module]
-      : slpTemplate;
+    const moduleTemplate: SLPTemplate =
+      ref.module && ref.module != module
+        ? serverlessTemplate[ref.module]
+        : slpTemplate;
 
     if (!(moduleTemplate && moduleTemplate.Resources[ref.resource])) {
       errors.push(
-        Error(
+        new Error(
           `Referenced module resource {${ref.module}, ${
             ref.resource
           }} not found. Referenced in "${module}" at "Resources/${refPath.join(
@@ -400,10 +439,10 @@ const validateSLPTemplateRefParameters = (
     ) as SLPRefParameter;
     const refParameter = referenceParameter[KeywordSLPRefParameter];
 
-    let moduleTemplate = slpTemplate;
-    if (refParameter.module) {
-      moduleTemplate = serverlessTemplate[refParameter.module];
-    }
+    const moduleTemplate =
+      refParameter.module && refParameter.module != module
+        ? serverlessTemplate[refParameter.module]
+        : slpTemplate;
 
     if (
       !(
@@ -413,7 +452,7 @@ const validateSLPTemplateRefParameters = (
       )
     ) {
       errors.push(
-        Error(
+        new Error(
           `Referenced module parameter {${refParameter.module}, ${
             refParameter.parameter
           }} not found. Referenced in "${module}" at "Resources/${refParameterPath.join(
@@ -422,6 +461,72 @@ const validateSLPTemplateRefParameters = (
         )
       );
       return;
+    }
+  });
+
+  return errors;
+};
+
+const validateSLPTemplateRefResourceNames = (
+  module: string,
+  slpTemplate: SLPTemplate,
+  serverlessTemplate: ServerlessTemplate
+): Error[] => {
+  const errors: Error[] = [];
+
+  slpTemplate.slpRefResourceNamePaths.forEach(refResourceNamePath => {
+    const referenceResourceName = getSLPKeyword(
+      slpTemplate,
+      refResourceNamePath
+    ) as SLPRefResourceName;
+    const refResourceName = referenceResourceName[KeywordSLPRefResourceName];
+
+    const moduleTemplate =
+      refResourceName.module && refResourceName.module != module
+        ? serverlessTemplate[refResourceName.module]
+        : slpTemplate;
+
+    if (
+      !(
+        moduleTemplate &&
+        moduleTemplate.Resources &&
+        moduleTemplate.Resources[refResourceName.resource] &&
+        moduleTemplate.Resources[refResourceName.resource].Properties &&
+        moduleTemplate.Resources[refResourceName.resource].Properties[
+          refResourceName.property
+        ]
+      )
+    ) {
+      errors.push(
+        new Error(
+          `Referenced module resource name {${refResourceName.module}, ${
+            refResourceName.resource
+          }, ${
+            refResourceName.property
+          }} not found. Referenced in "${module}" at "Resources/${refResourceNamePath.join(
+            "/"
+          )}"`
+        )
+      );
+      return;
+    }
+
+    const resourceNameProperty = moduleTemplate.Resources[
+      refResourceName.resource
+    ].Properties[refResourceName.property] as SLPResourceName;
+
+    if (isUndefined(resourceNameProperty[KeywordSLPResourceName])) {
+      errors.push(
+        new Error(
+          `Referenced module resource name property {${
+            refResourceName.module
+          }, ${refResourceName.resource}, ${
+            refResourceName.property
+          }} is not a valid ${KeywordSLPResourceName}. Referenced in "${module}" at "Resources/${refResourceNamePath.join(
+            "/"
+          )}"`
+        )
+      );
     }
   });
 
@@ -527,12 +632,22 @@ const validateSlpTemplate = (
     );
   });
 
+  errors.push(...validateSLPTemplateResourceNames(module, slpTemplate));
+
   errors.push(
     ...validateSLPTemplateRefs(module, slpTemplate, serverlessTemplate)
   );
 
   errors.push(
     ...validateSLPTemplateRefParameters(module, slpTemplate, serverlessTemplate)
+  );
+
+  errors.push(
+    ...validateSLPTemplateRefResourceNames(
+      module,
+      slpTemplate,
+      serverlessTemplate
+    )
   );
 
   errors.push(...validateSLPTemplateFunctions(dir, module, slpTemplate));
@@ -744,6 +859,17 @@ const resolveResourceName = (
   };
 };
 
+const resolveRefResourceName = (
+  slpTemplate: SLPTemplate,
+  resource: string,
+  property: string
+) => {
+  const resourceNameProperty =
+    slpTemplate.Resources[resource].Properties[property];
+
+  return resourceNameProperty;
+};
+
 export const prepareFunctionToBundle = async (
   dir: string,
   module: string,
@@ -935,6 +1061,25 @@ const _generateSAMTemplate = async (
           )
         };
         replaceSLPKeyword(slpTemplate, refParameterPath, ref);
+      });
+
+      // resolve SLP::RefResourceName
+      slpTemplate.slpRefResourceNamePaths.forEach(refResourceNamePath => {
+        const slpRefResourceName = getSLPKeyword(
+          slpTemplate,
+          refResourceNamePath
+        ) as SLPRefResourceName;
+        const refResourceName = slpRefResourceName[KeywordSLPRefResourceName];
+        if (!refResourceName.module) {
+          refResourceName.module = moduleName;
+        }
+
+        const resourceName = resolveRefResourceName(
+          serverlessTemplate[refResourceName.module],
+          refResourceName.resource,
+          refResourceName.property
+        );
+        replaceSLPKeyword(slpTemplate, refResourceNamePath, resourceName);
       });
 
       Object.keys(slpTemplate.Resources).forEach(resourceId => {

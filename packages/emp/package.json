@@ -34,7 +34,7 @@
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "@sodaru/serverless-schema": "^1.0.0",
+    "@sodaru/serverless-schema": "^1.1.0",
     "@types/react": "^17.0.16",
     "esbuild": "^0.12.28",
     "next": "^11.0.1",

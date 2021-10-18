@@ -1,7 +1,7 @@
 import { dump } from "js-yaml";
 import { validateServerlessTemplateWithSchema } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-describe("Test Task buildServerlessTemplate", () => {
+describe("Test Task validateServerlessTemplateWithSchema", () => {
   let dir: string = null;
 
   beforeEach(() => {
@@ -55,7 +55,7 @@ describe("Test Task buildServerlessTemplate", () => {
       validateServerlessTemplateWithSchema(dir)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        '"/Resources/Resource1" must match exactly one schema in oneOf'
+        '"/Resources/Resource1/Type" must be equal to one of the allowed values'
       )
     });
   });
@@ -66,7 +66,10 @@ describe("Test Task buildServerlessTemplate", () => {
         Resources: {
           Resource1: {
             Type: "AWS::Serverless::Function",
-            Properties: { CodeUri: { "SLP::Function": "resource1" } }
+            Properties: {
+              Architectures: ["arm64"],
+              CodeUri: { "SLP::Function": "resource1" }
+            }
           }
         }
       })
