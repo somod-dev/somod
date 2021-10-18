@@ -4,7 +4,7 @@ import { join } from "path";
 import { buildUiPublic } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
-describe("Test Task generatePagesIndex", () => {
+describe("Test Task buildUiPublic", () => {
   let dir: string = null;
 
   beforeEach(() => {

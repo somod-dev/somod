@@ -7,7 +7,7 @@ import {
 } from "@sodaru-cli/base";
 import { createHash } from "crypto";
 import { existsSync } from "fs";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "fs/promises";
 import { load } from "js-yaml";
 import {
   cloneDeep,
@@ -25,7 +25,9 @@ import {
   key_slpLambdaBundleExclude,
   path_build,
   path_functions,
+  path_function_layers,
   path_lambdas,
+  path_lambda_layers,
   path_serverless,
   path_slpWorkingDir
 } from "..";
@@ -43,12 +45,14 @@ const KeywordSLPResourceName = "SLP::ResourceName";
 const KeywordSLPRef = "SLP::Ref";
 const KeywordSLPRefParameter = "SLP::RefParameter";
 const KeywordSLPFunction = "SLP::Function";
+const KeywordSLPFunctionLayer = "SLP::FunctionLayer";
 
 type ServerlessTemplate = Record<string, SLPTemplate>;
 
 type OriginalSLPTemplate = {
   Parameters: Record<string, { SAMType: string; schema: unknown }>;
   Resources: Record<string, SLPResource>;
+  packageLocation: string;
 };
 
 type SLPKeywordPaths = {
@@ -56,13 +60,15 @@ type SLPKeywordPaths = {
   slpRefPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Ref
   slpRefParameterPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::RefParameter
   slpFunctionPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Function
+  slpFunctionLayerPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Function
 };
 
 const SLPKeywordPathsKeys: (keyof SLPKeywordPaths)[] = [
   "slpResourceNamePaths",
   "slpRefPaths",
   "slpRefParameterPaths",
-  "slpFunctionPaths"
+  "slpFunctionPaths",
+  "slpFunctionLayerPaths"
 ];
 
 type SLPTemplate = OriginalSLPTemplate & SLPKeywordPaths;
@@ -102,6 +108,18 @@ type SLPFunction = {
   };
 };
 
+type OriginalSLPFunctionLayer = {
+  [KeywordSLPFunctionLayer]: string;
+};
+
+// Note : In Template schema only layer name is allowed, it is assumed that module is current module
+type SLPFunctionLayer = {
+  [KeywordSLPFunctionLayer]: {
+    module: string;
+    layer: string;
+  };
+};
+
 type SLPResourceName = {
   [KeywordSLPResourceName]: string;
 };
@@ -119,7 +137,8 @@ const getSLPKeywords = (chunk: unknown): SLPKeywordPaths => {
     slpResourceNamePaths: [],
     slpRefPaths: [],
     slpRefParameterPaths: [],
-    slpFunctionPaths: []
+    slpFunctionPaths: [],
+    slpFunctionLayerPaths: []
   };
   if (isPlainObject(chunk)) {
     if (!isUndefined(chunk[KeywordSLPResourceName])) {
@@ -130,6 +149,8 @@ const getSLPKeywords = (chunk: unknown): SLPKeywordPaths => {
       keyWords.slpRefParameterPaths.push([]);
     } else if (!isUndefined(chunk[KeywordSLPFunction])) {
       keyWords.slpFunctionPaths.push([]);
+    } else if (!isUndefined(chunk[KeywordSLPFunctionLayer])) {
+      keyWords.slpFunctionLayerPaths.push([]);
     } else {
       Object.keys(chunk).forEach(key => {
         const childKeywords = getSLPKeywords(chunk[key]);
@@ -166,6 +187,7 @@ const getSLPTemplate = async (path: string): Promise<SLPTemplate> => {
   const slpTemplateStr = await readFile(path, { encoding: "utf8" });
   // the schema for slpTemplate is @sodaru/serverless-schema/schemas/index.json
   const slpTemplate: OriginalSLPTemplate = JSON.parse(slpTemplateStr);
+  slpTemplate.packageLocation = join(path, "..", "..", ".."); // template path = packagelocation/build/serverless/template.json
   return parseSLPTemplateForSLPKeywords(slpTemplate);
 };
 
@@ -441,6 +463,41 @@ const validateSLPTemplateFunctions = (
   return errors;
 };
 
+const validateSLPTemplateFunctionLayers = (
+  dir: string,
+  module: string,
+  slpTemplate: SLPTemplate
+): Error[] => {
+  const errors: Error[] = [];
+
+  slpTemplate.slpFunctionLayerPaths.forEach(functionLayerPath => {
+    const slpFunctionLayer = getSLPKeyword(
+      slpTemplate,
+      functionLayerPath
+    ) as OriginalSLPFunctionLayer;
+    const functionLayerName = slpFunctionLayer[KeywordSLPFunctionLayer];
+    const functionLayerFilePath = join(
+      dir,
+      path_serverless,
+      path_function_layers,
+      functionLayerName + ".json"
+    );
+    if (!existsSync(functionLayerFilePath)) {
+      errors.push(
+        new Error(
+          `Referenced module function layer {${module}, ${functionLayerName}} not found. Looked for file "${unixStylePath(
+            functionLayerFilePath
+          )}". Referenced in "${module}" at "Resources/${functionLayerPath.join(
+            "/"
+          )}"`
+        )
+      );
+    }
+  });
+
+  return errors;
+};
+
 const validateSlpTemplate = (
   dir: string,
   module: string,
@@ -480,6 +537,8 @@ const validateSlpTemplate = (
 
   errors.push(...validateSLPTemplateFunctions(dir, module, slpTemplate));
 
+  errors.push(...validateSLPTemplateFunctionLayers(dir, module, slpTemplate));
+
   if (errors.length > 0) {
     throw new ErrorSet(errors);
   }
@@ -506,12 +565,34 @@ const updateSLPFunctionWithModule = (
   });
 };
 
+const updateSLPFunctionLayerWithModule = (
+  moduleName: string,
+  slpTemplate: SLPTemplate
+): void => {
+  slpTemplate.slpFunctionLayerPaths.forEach(functionLayerPaths => {
+    const _functionLayer = getSLPKeyword(
+      slpTemplate,
+      functionLayerPaths
+    ) as OriginalSLPFunctionLayer;
+
+    const slpFunctionLayer: SLPFunctionLayer = {
+      [KeywordSLPFunctionLayer]: {
+        module: moduleName,
+        layer: _functionLayer[KeywordSLPFunctionLayer]
+      }
+    };
+
+    replaceSLPKeyword(slpTemplate, functionLayerPaths, slpFunctionLayer);
+  });
+};
+
 const updateServerlessTemplate = (
   module: string,
   serverlessTemplate: ServerlessTemplate,
   slpTemplate: SLPTemplate
 ): void => {
   updateSLPFunctionWithModule(module, slpTemplate);
+  updateSLPFunctionLayerWithModule(module, slpTemplate);
 
   const resources: SLPTemplate["Resources"] = {};
   Object.keys(slpTemplate.Resources).forEach(resourceLogicalId => {
@@ -691,6 +772,34 @@ export const prepareFunctionToBundle = async (
   await writeFile(functionPath, functionCode);
 };
 
+const prepareFunctionLayer = async (
+  dir: string,
+  packageLocation: string,
+  module: string,
+  layer: string
+): Promise<void> => {
+  const source = join(
+    packageLocation,
+    path_build,
+    path_serverless,
+    path_function_layers,
+    layer + ".json"
+  );
+
+  const dest = join(
+    dir,
+    path_slpWorkingDir,
+    path_lambda_layers,
+    module,
+    layer,
+    file_packageJson
+  );
+
+  const destDir = dirname(dest);
+  await mkdir(destDir, { recursive: true });
+  await copyFile(source, dest);
+};
+
 const resolveFunctionLocation = async (
   dir: string,
   slpFunction: SLPFunction,
@@ -699,6 +808,16 @@ const resolveFunctionLocation = async (
   const { module, function: _function } = slpFunction[KeywordSLPFunction];
   await prepareFunctionToBundle(dir, module, rootModuleName, _function);
   return `${path_slpWorkingDir}/${path_lambdas}/${module}/${_function}`;
+};
+
+const resolveFunctionLayerLocation = async (
+  dir: string,
+  packageLocation: string,
+  slpFunctionLayer: SLPFunctionLayer
+): Promise<string> => {
+  const { module, layer } = slpFunctionLayer[KeywordSLPFunctionLayer];
+  await prepareFunctionLayer(dir, packageLocation, module, layer);
+  return `${path_slpWorkingDir}/${path_lambda_layers}/${module}/${layer}`;
 };
 
 const _generateSAMTemplate = async (
@@ -737,6 +856,26 @@ const _generateSAMTemplate = async (
             rootModuleName
           );
           replaceSLPKeyword(slpTemplate, functionPath, functionLocation);
+        })
+      );
+
+      // resolve SLP::FunctionLayer
+      await Promise.all(
+        slpTemplate.slpFunctionLayerPaths.map(async functionLayerPath => {
+          const slpFunctionLayer = getSLPKeyword(
+            slpTemplate,
+            functionLayerPath
+          ) as SLPFunctionLayer;
+          const functionLayerLocation = await resolveFunctionLayerLocation(
+            dir,
+            slpTemplate.packageLocation,
+            slpFunctionLayer
+          );
+          replaceSLPKeyword(
+            slpTemplate,
+            functionLayerPath,
+            functionLayerLocation
+          );
         })
       );
 

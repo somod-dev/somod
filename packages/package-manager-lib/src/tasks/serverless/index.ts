@@ -6,3 +6,4 @@ export { bundleRootFunctions as bundleRootServerlessFunctions } from "./bundleRo
 export { doesFunctionsHaveDefaultExport as doesServerlessFunctionsHaveDefaultExport } from "./doesFunctionsHaveDefaultExport";
 export { samCommand } from "./samCommand";
 export { deleteSlpWorkingDir } from "./deleteSlpWorkingDir";
+export { buildFunctionLayers } from "./buildFunctionLayers";
