@@ -82,6 +82,8 @@ type SLPResource = {
   [KeywordSLPExtend]?: { module: string; resource: string };
   [KeywordSLPDependsOn]?: { module: string; resource: string }[];
   [KeywordSLPOutput]?: { default: boolean; attributes: string[] };
+  DeletionPolicy?: string;
+  UpdateReplacePolicy?: string;
 };
 
 type SLPRef = {
@@ -139,7 +141,13 @@ type SAMTemplate = {
   Parameters: Record<string, { Type: string }>;
   Resources: Record<
     string,
-    { Type: string; DependsOn?: string[]; Properties: Record<string, unknown> }
+    {
+      Type: string;
+      DependsOn?: string[];
+      DeletionPolicy?: string;
+      UpdateReplacePolicy?: string;
+      Properties: Record<string, unknown>;
+    }
   >;
 };
 
@@ -1102,6 +1110,13 @@ const _generateSAMTemplate = async (
             }
           );
         }
+        if (resource.DeletionPolicy) {
+          samResource.DeletionPolicy = resource.DeletionPolicy;
+        }
+        if (resource.UpdateReplacePolicy) {
+          samResource.UpdateReplacePolicy = resource.UpdateReplacePolicy;
+        }
+
         samTemplate.Resources[resourceLogicalId] = samResource;
       });
     })

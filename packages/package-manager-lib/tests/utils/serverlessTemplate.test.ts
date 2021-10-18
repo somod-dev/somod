@@ -1612,6 +1612,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 }
               }
             }
+          },
+          PermissionTable: {
+            Type: "AWS::DynamoDB::Table",
+            DeletionPolicy: "Retain",
+            UpdateReplacePolicy: "Retain"
           }
         }
       }),
@@ -1791,6 +1796,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             }
           },
           DependsOn: ["r624eb34aGetAuthGroupFunction"]
+        },
+        r624eb34aPermissionTable: {
+          Type: "AWS::DynamoDB::Table",
+          DeletionPolicy: "Retain",
+          UpdateReplacePolicy: "Retain"
         }
       }
     });
