@@ -3,5 +3,5 @@ dist
 package-lock.json
 lerna.json
 
-packages/package-manager-lib/coverage
-packages/package-manager-lib/tests/tasks/build/testData
+packages/sdk-lib/coverage
+packages/sdk-lib/tests/tasks/build/testData
