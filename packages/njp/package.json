@@ -1,7 +1,7 @@
 {
-  "name": "@sodaru-cli/njp",
-  "version": "1.8.6",
-  "description": "Next Js Package Builder",
+  "name": "@somod/njp",
+  "version": "0.0.0",
+  "description": "Sodaru module Next Js Package Builder",
   "keywords": [
     "sodaru",
     "njp",
@@ -9,7 +9,7 @@
     "builder"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "homepage": "https://gitlab.com/sodaru/cli/package-managers/packages/njp#readme",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/njp#readme",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "bin": {
@@ -21,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/cli/package-managers.git"
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
   },
   "scripts": {
     "clean": "npx rimraf dist",
@@ -39,8 +39,8 @@
     "typescript": "^4.3.5"
   },
   "devDependencies": {
-    "@sodaru-cli/base": "^1.3.2",
-    "@sodaru-cli/package-manager-lib": "^1.8.6",
+    "@sodaru/cli-base": "^1.0.0",
+    "@somod/sdk-lib": "^0.0.0",
     "@types/node": "^16.4.13",
     "esbuild": "^0.12.28",
     "typescript": "^4.3.5"

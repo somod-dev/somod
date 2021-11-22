@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/meta-schemas/resource.json",
+  "title": "JSON Meta Schema for Resource in SLP and EMP packages",
+  "type": "object",
+  "required": [
+    "$schema",
+    "$id",
+    "title",
+    "type",
+    "required",
+    "properties",
+    "additionalProperties"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "$id": { "type": "string", "format": "uri-reference" },
+    "title": { "type": "string" },
+    "type": { "const": "object" },
+    "definitions": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "https://json-schema.org/draft-07/schema"
+      },
+      "default": {}
+    },
+    "required": {
+      "type": "array",
+      "items": [{ "const": "Type" }, { "const": "Properties" }],
+      "minItems": 2,
+      "additionalItems": {
+        "enum": [
+          "SLP::Extend",
+          "SLP::DependsOn",
+          "SLP::Output",
+          "DeletionPolicy",
+          "UpdateReplacePolicy",
+          "Metadata"
+        ]
+      },
+      "maxItems": 8,
+      "uniqueItems": true
+    },
+    "properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Type", "SLP::Extend", "SLP::DependsOn", "Properties"],
+      "properties": {
+        "Type": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["const"],
+              "properties": { "const": { "type": "string" } }
+            },
+            { "const": { "type": "string" } }
+          ]
+        },
+        "SLP::Extend": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$ref"],
+          "properties": {
+            "$ref": {
+              "type": "string",
+              "pattern": "\\/resource-properties.json#\\/definitions\\/SLP::Extend$"
+            }
+          }
+        },
+        "SLP::DependsOn": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$ref"],
+          "properties": {
+            "$ref": {
+              "type": "string",
+              "pattern": "\\/resource-properties.json#\\/definitions\\/SLP::DependsOn$"
+            }
+          }
+        },
+        "SLP::Output": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "additionalProperties",
+            "required",
+            "properties"
+          ],
+          "properties": {
+            "type": { "const": "object" },
+            "additionalProperties": { "const": false },
+            "required": { "const": ["default", "attributes"] },
+            "properties": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["default", "attributes"],
+              "properties": {
+                "default": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["type", "description"],
+                  "properties": {
+                    "type": { "const": "boolean" },
+                    "description": { "type": "string" }
+                  }
+                },
+                "attributes": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["type", "items"],
+                      "properties": {
+                        "type": { "const": "array" },
+                        "items": { "const": { "type": "string" } },
+                        "maxItems": { "const": 0 }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["type", "items", "uniqueItems"],
+                      "properties": {
+                        "type": { "const": "array" },
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": ["enum"],
+                          "properties": {
+                            "enum": {
+                              "type": "array",
+                              "items": { "type": "string" }
+                            }
+                          }
+                        },
+                        "uniqueItems": { "const": true }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "DeletionPolicy": { "const": { "const": "Retain" } },
+        "UpdateReplacePolicy": { "const": { "const": "Retain" } },
+        "Metadata": { "$ref": "https://json-schema.org/draft-07/schema" },
+        "Properties": {
+          "allOf": [
+            {
+              "type": "object",
+              "required": [
+                "type",
+                "additionalProperties",
+                "required",
+                "properties"
+              ],
+              "properties": {
+                "type": { "const": "object" },
+                "additionalProperties": { "type": "boolean" },
+                "required": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "properties": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "https://json-schema.org/draft-07/schema"
+                  },
+                  "default": {}
+                }
+              }
+            },
+            {
+              "$ref": "https://json-schema.org/draft-07/schema"
+            }
+          ]
+        }
+      }
+    },
+    "additionalProperties": { "const": false }
+  },
+  "additionalProperties": false
+}

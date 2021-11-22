@@ -2,13 +2,13 @@
   "packages": [
     "packages/*"
   ],
-  "version": "1.8.6",
+  "version": "0.0.0",
   "command": {
     "version": {
       "allowBranch": "main"
     },
     "publish": {
-      "registry": "https://gitlab.com/api/v4/projects/28321199/packages/npm/"
+      "registry": "https://gitlab.com/api/v4/projects/XXXXXX/packages/npm/"
     }
   }
 }

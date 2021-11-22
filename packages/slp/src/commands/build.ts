@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@sodaru-cli/base";
+import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
   buildFunctionLayers,
   buildServerlessTemplate,
@@ -37,7 +37,7 @@ import {
   path_serverless,
   validateModuleDependency,
   validateServerlessTemplateWithSchema
-} from "@sodaru-cli/package-manager-lib";
+} from "@somod/sdk-lib";
 import { Command } from "commander";
 
 export const BuildAction = async ({

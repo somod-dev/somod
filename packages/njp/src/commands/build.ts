@@ -28,9 +28,9 @@ import {
   doesFilesHasBuildInPackageJson,
   key_files,
   validateModuleDependency
-} from "@sodaru-cli/package-manager-lib";
+} from "@somod/sdk-lib";
 import { Command } from "commander";
-import { CommonOptions, taskRunner } from "@sodaru-cli/base";
+import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 
 export const BuildAction = async ({
   verbose

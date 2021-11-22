@@ -1,0 +1,24 @@
+{
+  "$schema": "../meta-schemas/index.json",
+  "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/index.json",
+  "title": "JSON Schema for Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Resources"],
+  "properties": {
+    "Description": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "Parameters": { "$ref": "./components/parameters.json" },
+    "Resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z0-9]{1,64}$": {
+          "oneOf": [{ "$ref": "./resource.json" }]
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

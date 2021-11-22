@@ -1,0 +1,44 @@
+{
+  "$schema": "../meta-schemas/resource.json",
+  "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/resource.json",
+  "title": "Basic Schema for Resource in Serverless Template by SOdaru technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "properties": {
+    "Type": { "type": "string" },
+    "SLP::Extend": {
+      "$ref": "./components/resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "./components/resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": { "type": "boolean", "description": "" },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "DeletionPolicy": {
+      "const": "Retain"
+    },
+    "UpdateReplacePolicy": {
+      "const": "Retain"
+    },
+    "Metadata": { "type": "object" },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [""],
+      "properties": {}
+    }
+  },
+  "additionalProperties": false
+}

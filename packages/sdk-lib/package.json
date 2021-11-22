@@ -1,0 +1,64 @@
+{
+  "name": "@somod/sdk-lib",
+  "version": "0.0.0",
+  "description": "Sodaru Module SDK library",
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/sdk-lib#readme",
+  "license": "UNLICENSED",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+  },
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "typescript": "tsc",
+    "build": "npm run clean && npm run typescript",
+    "pretest": "$CI || npm run build",
+    "test": "npx jest",
+    "prepack": "npm run test"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+  },
+  "dependencies": {
+    "@typescript-eslint/typescript-estree": "^4.28.5",
+    "ajv": "^8.8.2",
+    "ajv-formats": "^2.1.1",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "rimraf": "^3.0.2",
+    "semver": "^7.3.5",
+    "tslib": "^2.3.0",
+    "watchpack": "^2.2.0"
+  },
+  "devDependencies": {
+    "@sodaru/cli-base": "^1.0.0",
+    "@sodev/jest-config": "^1.1.1",
+    "@somod/serverless-schema": "^0.0.0",
+    "@types/js-yaml": "^4.0.3",
+    "@types/lodash": "^4.14.171",
+    "@types/node": "^16.4.6",
+    "@types/rimraf": "^3.0.1",
+    "@types/semver": "^7.3.9",
+    "esbuild": "^0.12.28",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5"
+  },
+  "peerDependencies": {
+    "@sodaru/cli-base": "^1.0.0",
+    "@somod/serverless-schema": "^0.0.0",
+    "esbuild": "^0.12.28",
+    "tslib": "^2.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@somod/serverless-schema": {
+      "optional": true
+    }
+  }
+}

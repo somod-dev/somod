@@ -1,0 +1,55 @@
+{
+  "name": "@somod/serverless-schema",
+  "version": "0.0.0",
+  "description": "Serverless Schema to validate the slp and somod packages",
+  "keywords": [
+    "schema",
+    "slp",
+    "sodaru",
+    "somod",
+    "modules"
+  ],
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/serverless-schema#readme",
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "meta-schemas",
+    "schemas"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+  },
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "typescript": "tsc",
+    "build": "npm run clean && npm run typescript",
+    "pretest": "$CI || npm run build",
+    "test": "npx jest",
+    "prepack": "npm run test"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+  },
+  "peerDependencies": {
+    "ajv": "^8.8.2",
+    "ajv-formats": "^2.1.1",
+    "lodash": "^4.17.21",
+    "tslib": "^2.3.1"
+  },
+  "devDependencies": {
+    "@sodev/jest-config": "^1.1.1",
+    "@types/lodash": "^4.14.177",
+    "@types/node": "^16.11.9",
+    "@types/rimraf": "^3.0.2",
+    "ajv": "^8.8.2",
+    "ajv-formats": "^2.1.1",
+    "lodash": "^4.17.21",
+    "rimraf": "^3.0.2",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.2"
+  }
+}

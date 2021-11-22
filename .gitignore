@@ -1,4 +1,4 @@
 node_modules
 dist
 
-/packages/package-manager-lib/coverage
+/packages/sdk-lib/coverage

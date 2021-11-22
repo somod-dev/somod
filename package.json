@@ -1,7 +1,7 @@
 {
-  "name": "@sodaru-cli/package-managers",
+  "name": "@somod/sdk",
   "version": "0.0.0",
-  "description": "Package Management Utilities",
+  "description": "Sodaru Module (somod) - SDK",
   "scripts": {
     "eslint": "npx eslint ./",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
@@ -9,36 +9,36 @@
   },
   "eslintConfig": {
     "extends": [
-      "@sodaru/eslint-config"
+      "@sodev/eslint-config"
     ],
     "rules": {
       "no-console": 1
     }
   },
-  "prettier": "@sodaru/prettier-config",
+  "prettier": "@sodev/prettier-config",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/cli/package-managers.git"
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
   },
   "keywords": [
     "sodaru",
     "njp",
     "slp",
-    "emp",
+    "somod",
     "nextjs-package",
     "serverless-package",
-    "entranse-module-package"
+    "sodaru-module-package"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://gitlab.com/sodaru/cli/package-managers/issues"
+    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
-  "homepage": "https://gitlab.com/sodaru/cli/package-managers#readme",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk#readme",
   "private": true,
   "devDependencies": {
-    "@sodaru/eslint-config": "^1.1.0",
-    "@sodaru/prettier-config": "^1.1.0",
+    "@sodev/eslint-config": "^1.0.0",
+    "@sodev/prettier-config": "^1.0.0",
     "lerna": "^4.0.0"
   }
 }

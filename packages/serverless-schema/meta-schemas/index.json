@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/meta-schemas/index.json",
+  "title": "JSON Meta Schema to generate Schema for SLP and EMP packages",
+  "type": "object",
+  "required": [
+    "$schema",
+    "$id",
+    "title",
+    "type",
+    "required",
+    "properties",
+    "additionalProperties"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "$id": { "type": "string", "format": "uri-reference" },
+    "title": { "type": "string" },
+    "type": { "const": "object" },
+    "definitions": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "https://json-schema.org/draft-07/schema"
+      },
+      "default": {}
+    },
+    "required": { "const": ["Resources"] },
+    "properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Description", "Parameters", "Resources"],
+      "properties": {
+        "Description": {
+          "const": {
+            "type": "string",
+            "maxLength": 256
+          }
+        },
+        "Parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$ref"],
+          "properties": { "$ref": { "type": "string" } }
+        },
+        "Resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "additionalProperties", "patternProperties"],
+          "properties": {
+            "type": { "const": "object" },
+            "additionalProperties": { "const": false },
+            "patternProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["^[a-zA-Z0-9]{1,64}$"],
+              "properties": {
+                "^[a-zA-Z0-9]{1,64}$": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["oneOf"],
+                  "properties": {
+                    "oneOf": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["$ref"],
+                            "properties": {
+                              "$ref": {
+                                "type": "string",
+                                "format": "uri-reference"
+                              }
+                            }
+                          },
+                          { "$ref": "./resource.json" }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "additionalProperties": { "const": false }
+  },
+  "additionalProperties": false
+}

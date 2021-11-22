@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@sodaru-cli/base";
+import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
   initGit,
   initLib,
@@ -39,7 +39,7 @@ import {
   updateEslintIgnore,
   savePrettierIgnore,
   saveEslintIgnore
-} from "@sodaru-cli/package-manager-lib";
+} from "@somod/sdk-lib";
 import { Command } from "commander";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {

@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@sodaru-cli/base";
+import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
   createPages,
   createPublicAssets,
@@ -11,7 +11,7 @@ import {
   startNextDev,
   watchRootModulePages,
   watchRootModulePublicAssets
-} from "@sodaru-cli/package-manager-lib";
+} from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 import { BuildAction } from "./build";
 

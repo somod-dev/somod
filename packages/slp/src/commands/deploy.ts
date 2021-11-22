@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@sodaru-cli/base";
+import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
   bundleServerlessFunctions,
   deleteSlpWorkingDir,
@@ -8,7 +8,7 @@ import {
   path_lambdas,
   path_slpWorkingDir,
   samCommand
-} from "@sodaru-cli/package-manager-lib";
+} from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 import { BuildAction } from "./build";
 
