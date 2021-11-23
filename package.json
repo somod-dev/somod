@@ -6,7 +6,7 @@
     "eslint": "npx eslint ./",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
     "check-sanity": "npm run prettier && npm run eslint",
-    "prepublish": "node appendPeer.js"
+    "prepublish": "npx lerna-utilities appendPeer"
   },
   "eslintConfig": {
     "extends": [
@@ -39,7 +39,7 @@
   "private": true,
   "devDependencies": {
     "@sodev/eslint-config": "^1.0.0",
-    "@sodev/lerna-utilities": "^0.0.1",
+    "@sodev/lerna-utilities": "^0.0.2",
     "@sodev/prettier-config": "^1.0.0",
     "lerna": "^4.0.0"
   }
