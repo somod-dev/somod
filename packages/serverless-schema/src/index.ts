@@ -165,13 +165,13 @@ const parseAndLoad = async (
 
 export const compile = async (
   dir: string,
-  ajv: Ajv,
-  id?: string
+  ajv: Ajv
 ): Promise<ValidateFunction> => {
   const packageJsonStr = await readFile(join(dir, "package.json"), {
     encoding: "utf8"
   });
   const packageJson = JSON.parse(packageJsonStr);
+  const id = packageJson.serverlessSchema;
 
   const thisModuleName = "@somod/serverless-schema";
 

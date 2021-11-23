@@ -61,17 +61,6 @@ describe("Test compile", () => {
     });
   });
 
-  test("custom schema will load successfully", async () => {
-    const ajv = new Ajv();
-    addFormats(ajv);
-    const validate = await compile(
-      join(__dirname, ".."),
-      ajv,
-      "https://json-schema.sodaru.com/@somod/serverless-schema/tests/test-schema.json"
-    );
-    expect(validate.errors).toBeNull();
-  });
-
   test("private scope schema will load successfully", async () => {
     const ajv = new Ajv();
     addFormats(ajv);
@@ -96,7 +85,9 @@ describe("Test compile", () => {
         join(dir, "package.json"),
         JSON.stringify({
           name: "@somod/test-scope-in-serverless-schema",
-          version: "1.0.0"
+          version: "1.0.0",
+          serverlessSchema:
+            "https://json-schema.sodaru.com/@somod/test-scope-in-serverless-schema/test-scope.json"
         })
       );
 
@@ -116,19 +107,8 @@ describe("Test compile", () => {
         { encoding: "utf8" }
       );
 
-      const correctedSamplePrivateScopeResource = samplePrivateScopeResource
-        .replace(
-          "https://json-schema.sodaru.com/@somod/serverless-schema/tests/ssm-parameter.json",
-          "https://json-schema.sodaru.com/@somod/test-scope-in-serverless-schema/ssm-parameter.json"
-        )
-        .replace(
-          "../meta-schemas/resource.json",
-          "../node_modules/@somod/serverless-schema/meta-schemas/resource.json"
-        )
-        .replace(
-          /..\/schemas/g,
-          "../node_modules/@somod/serverless-schema/schemas"
-        );
+      const correctedSamplePrivateScopeResource =
+        samplePrivateScopeResource.replace(/__/g, "");
 
       await writeFile(
         join(dir, "ssm-parameter.json"),
@@ -137,11 +117,7 @@ describe("Test compile", () => {
 
       // Stage Setup -- END
 
-      const validate = await compile(
-        dir,
-        ajv,
-        "https://json-schema.sodaru.com/@somod/test-scope-in-serverless-schema/test-scope.json"
-      );
+      const validate = await compile(dir, ajv);
       expect(validate.errors).toBeNull();
     } finally {
       rimrafSync(dir);

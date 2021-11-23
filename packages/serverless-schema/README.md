@@ -5,28 +5,24 @@
 ## Install
 
 ```
-npm i @sodaru/serverless-schema;
+npm i @somod/serverless-schema;
 ```
 
 ## Overview
 
-At [sodaru](https://sodaru.com), serverless backend is authered in special npm packages called `slp` or `emp`. These npm packages contains a part of AWS SAM Template which can be shared useing npm
+At [sodaru](https://sodaru.com), serverless backend is authered in special npm packages called `slp` or `somod`. These npm packages contains a part of AWS SAM Template which can be shared using npm
 
 More on design [here](https://docs.google.com/presentation/d/1mxlUuocYzJfEmOmBrdyPbB1hktiQQHzDAReXXLcOCyM#slide=id.gfb6ddf4b5a_0_0)
 
-### Scopes and Schemas
+### Schemas
 
-- All `slp` and `emp` packages must adhere to common schema [schemas/index.json](./schemas/index.json)
+- All `slp` and `somod` packages must adhere to common schema [schemas/index.json](./schemas/index.json)
 
-- Each package can adhere to more specific schema defined for its scope
-  - Built-In Scope specific schemas
-    - `@sodaru` - [./schemas/sodaru.json](./schemas/sodaru.json)
-    - `@somod` - [./schemas/somod.json](./schemas/emp.json)
-    - `@socloud` - [./schemas/socloud.json](./schemas/entranse.json)
+- Each package can adhere to more specific schema
 
-#### Creating Schemas for Private Scopes
+#### Creating Schemas for Specific package
 
-To create a schema specific to a scope , follow these steps
+To create a schema specific to a usecase , follow these steps
 
 - create a new npm package and add this package (`@somod/serverless-schema`) as _dev_ and _peer_ dependency
 - auther the JSON schemas in the root directory of the created package
@@ -36,9 +32,20 @@ To create a schema specific to a scope , follow these steps
     _Example:_ a schema file at `/schemas/my-scope.json` in a package named `@private-scope/my-schemas` will have  
     `https://json-schema.sodaru.com/`**`@private-scope/my-schemas`**`/`**`schemas/my-scope.json`**
 
+#### Using package specific schema
+
+- install the package specific schema as dev dependency
+- add the `id` of the schema to be used in `package.json`
+
+  ```JSON
+  {
+    "serverlessSchema":"<id of the schema>"
+  }
+  ```
+
 ## Usage
 
-To compile a schema in ajv
+### To compile a schema in ajv
 
 ```TS
 import { compile } from "@somod/serverless-schema";
@@ -46,13 +53,12 @@ import { compile } from "@somod/serverless-schema";
 /**
  * @param dir - is the root directory of the slp or emp package where is schema is used to validate
  * @param ajv - is an Ajv instance
- * @param scopeOrId - is one of the build in scopes '@sodaru', '@emp', '@entranse' OR the '$id' of the scope specific schema
  */
-const validate = await compile(dir, ajv, scopeOrId);
+const validate = await compile(dir, ajv);
 
 ```
 
-To use in VS-Code,
+### To use in VS-Code,
 
 add a comment in `template.yaml`
 
