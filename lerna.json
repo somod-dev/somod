@@ -10,5 +10,9 @@
     "publish": {
       "registry": "https://gitlab.com/api/v4/projects/XXXXXX/packages/npm/"
     }
+  },
+  "peer":{
+    "@somod/slp": "@somod/serverless-schema",
+    "@somod/somod": "@somod/serverless-schema"
   }
 }

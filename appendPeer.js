@@ -2,7 +2,7 @@
 const { readdir, readFile, writeFile } = require("fs/promises");
 const { join } = require("path");
 
-const updatePeer = async dir => {
+const appendPeer = async dir => {
   const path_packages = "packages";
   const file_packageJson = "package.json";
   const packages = await readdir(join(dir, path_packages));
@@ -20,16 +20,21 @@ const updatePeer = async dir => {
     })
   );
 
-  Object.keys(packageInfo).forEach(packageName => {
+  const lernaJsonStr = await readFile(join(dir, "lerna.json"), {
+    encoding: "utf8"
+  });
+
+  const lernaJson = JSON.parse(lernaJsonStr);
+  const peerInfo = lernaJson.peer;
+
+  Object.keys(peerInfo).forEach(packageName => {
     const { packageJson } = packageInfo[packageName];
-    if (packageJson.peerDependencies) {
-      Object.keys(packageJson.peerDependencies).forEach(peerDependency => {
-        if (packageInfo[peerDependency]) {
-          packageJson.peerDependencies[peerDependency] =
-            "^" + packageInfo[peerDependency].packageJson.version;
-        }
-      });
+    if (!packageJson.peerDependencies) {
+      packageJson.peerDependencies = {};
     }
+    const peerDependency = peerInfo[packageName];
+    packageJson.peerDependencies[peerDependency] =
+      "^" + packageInfo[peerDependency].packageJson.version;
   });
 
   await Promise.all(
@@ -43,6 +48,6 @@ const updatePeer = async dir => {
   );
 };
 
-updatePeer(__dirname).then(() => {
-  console.log("Updated Peer");
+appendPeer(__dirname).then(() => {
+  console.log("Appended Peer");
 });
