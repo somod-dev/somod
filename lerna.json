@@ -2,7 +2,7 @@
   "packages": [
     "packages/*"
   ],
-  "version": "0.0.4",
+  "version": "0.0.5",
   "command": {
     "version": {
       "allowBranch": "main"
@@ -11,7 +11,7 @@
       "registry": "https://gitlab.com/api/v4/projects/XXXXXX/packages/npm/"
     }
   },
-  "peer":{
+  "peer": {
     "@somod/slp": "@somod/serverless-schema",
     "@somod/somod": "@somod/serverless-schema"
   }
