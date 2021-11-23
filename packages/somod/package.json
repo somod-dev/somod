@@ -1,6 +1,6 @@
 {
   "name": "@somod/somod",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Sodaru Module (somod) SDK",
   "keywords": [
     "sodaru",
@@ -34,7 +34,7 @@
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "@somod/serverless-schema": "^0.0.2",
+    "@somod/serverless-schema": "^0.0.3",
     "@types/react": "^17.0.16",
     "esbuild": "^0.12.28",
     "next": "^11.0.1",
@@ -44,8 +44,8 @@
   },
   "devDependencies": {
     "@sodaru/cli-base": "^1.0.0",
-    "@somod/sdk-lib": "^0.0.2",
-    "@somod/serverless-schema": "^0.0.2",
+    "@somod/sdk-lib": "^0.0.3",
+    "@somod/serverless-schema": "^0.0.3",
     "@types/node": "^16.4.13",
     "esbuild": "^0.12.28",
     "typescript": "^4.3.5"

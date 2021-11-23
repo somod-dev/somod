@@ -1,6 +1,6 @@
 {
   "name": "@somod/slp",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "ServerLess Package Builder",
   "keywords": [
     "sodaru",
@@ -32,14 +32,14 @@
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "@somod/serverless-schema": "^0.0.2",
+    "@somod/serverless-schema": "^0.0.3",
     "esbuild": "^0.12.28",
     "typescript": "^4.3.5"
   },
   "devDependencies": {
     "@sodaru/cli-base": "^1.0.0",
-    "@somod/sdk-lib": "^0.0.2",
-    "@somod/serverless-schema": "^0.0.2",
+    "@somod/sdk-lib": "^0.0.3",
+    "@somod/serverless-schema": "^0.0.3",
     "@types/node": "^16.4.13",
     "esbuild": "^0.12.28",
     "typescript": "^4.3.5"
