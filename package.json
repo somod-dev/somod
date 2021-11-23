@@ -5,7 +5,8 @@
   "scripts": {
     "eslint": "npx eslint ./",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
-    "check-sanity": "npm run prettier && npm run eslint"
+    "check-sanity": "npm run prettier && npm run eslint",
+    "postversion": "node updatePeerVersion.js"
   },
   "eslintConfig": {
     "extends": [
