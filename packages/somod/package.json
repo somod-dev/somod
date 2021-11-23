@@ -34,7 +34,7 @@
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "@somod/serverless-schema": "^0.0.1",
+    "@somod/serverless-schema": "^0.0.2",
     "@types/react": "^17.0.16",
     "esbuild": "^0.12.28",
     "next": "^11.0.1",

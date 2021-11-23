@@ -6,7 +6,7 @@
     "eslint": "npx eslint ./",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
     "check-sanity": "npm run prettier && npm run eslint",
-    "postversion": "node updatePeerVersion.js"
+    "version": "node updatePeerVersion.js"
   },
   "eslintConfig": {
     "extends": [

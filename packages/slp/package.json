@@ -32,7 +32,7 @@
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "@somod/serverless-schema": "^0.0.1",
+    "@somod/serverless-schema": "^0.0.2",
     "esbuild": "^0.12.28",
     "typescript": "^4.3.5"
   },
