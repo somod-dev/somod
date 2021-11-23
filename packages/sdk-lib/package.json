@@ -1,6 +1,6 @@
 {
   "name": "@somod/sdk-lib",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Sodaru Module SDK library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/sdk-lib#readme",
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@sodaru/cli-base": "^1.0.0",
     "@sodev/jest-config": "^1.1.1",
-    "@somod/serverless-schema": "^0.0.0",
+    "@somod/serverless-schema": "^0.0.1",
     "@types/js-yaml": "^4.0.3",
     "@types/lodash": "^4.14.171",
     "@types/node": "^16.4.6",
