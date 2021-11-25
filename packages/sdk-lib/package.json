@@ -40,6 +40,7 @@
   "devDependencies": {
     "@sodaru/cli-base": "^1.0.0",
     "@sodev/jest-config": "^1.1.1",
+    "@sodev/test-utils": "^0.0.1",
     "@somod/serverless-schema": "^1.0.0",
     "@types/js-yaml": "^4.0.3",
     "@types/lodash": "^4.14.171",

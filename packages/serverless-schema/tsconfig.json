@@ -2,14 +2,10 @@
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,
-    "module": "CommonJS",
-    "target": "ES5",
+    "emitDeclarationOnly": true,
     "rootDir": "./src",
-    "lib": ["ESNext"],
-    "esModuleInterop": true,
-    "moduleResolution": "Node",
-    "importHelpers": true,
-    "sourceMap": true
+    "lib": ["ESNext"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/commands", "src/cli.ts"]
 }

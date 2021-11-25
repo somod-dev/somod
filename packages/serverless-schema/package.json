@@ -12,6 +12,9 @@
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/serverless-schema#readme",
   "license": "UNLICENSED",
+  "bin": {
+    "serverless-schema": "./bin/serverless-schema.js"
+  },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
@@ -26,7 +29,9 @@
   "scripts": {
     "clean": "npx rimraf dist",
     "typescript": "tsc",
-    "build": "npm run clean && npm run typescript",
+    "build:compiler": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:ajv --external:ajv-formats",
+    "build:builder": "npx esbuild src/cli.ts --bundle --outdir=dist --platform=node --minify --external:ajv --external:ajv-formats",
+    "build": "npm run clean && npm run typescript && npm run build:compiler && npm run build:builder",
     "pretest": "$CI || npm run build",
     "test": "npx jest",
     "prepack": "npm run test"
@@ -36,11 +41,11 @@
   },
   "peerDependencies": {
     "ajv": "^8.8.2",
-    "ajv-formats": "^2.1.1",
-    "lodash": "^4.17.21",
-    "tslib": "^2.3.1"
+    "ajv-formats": "^2.1.1"
   },
   "devDependencies": {
+    "@sodaru/cli-base": "^1.0.0",
+    "@sodev/test-utils": "^0.0.1",
     "@sodev/jest-config": "^1.1.1",
     "@types/lodash": "^4.14.177",
     "@types/node": "^16.11.9",
@@ -49,7 +54,6 @@
     "ajv-formats": "^2.1.1",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2",
-    "tslib": "^2.3.1",
     "typescript": "^4.5.2"
   }
 }

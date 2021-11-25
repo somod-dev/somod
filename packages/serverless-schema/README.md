@@ -32,6 +32,19 @@ To create a schema specific to a usecase , follow these steps
     _Example:_ a schema file at `/schemas/my-scope.json` in a package named `@private-scope/my-schemas` will have  
     `https://json-schema.sodaru.com/`**`@private-scope/my-schemas`**`/`**`schemas/my-scope.json`**
 
+#### Building Schemas for Specific Package
+
+The schemas files in package specific schemas project will be referring to other schemas in `node_modules`.  
+But when these schemas are installed , the schema files are already under `node_modules`, references to other schemas changes. so building the schemas before `publish` is must to correct these references
+
+```JSON
+{
+  "scripts":{
+    "prepublish": "npx serverless-schema build <dirs...>"
+  }
+}
+```
+
 #### Using package specific schema
 
 - install the package specific schema as dev dependency
