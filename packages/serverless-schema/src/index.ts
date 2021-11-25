@@ -3,6 +3,7 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import { load } from "./lib/load";
 import { idBase } from "./lib/common";
+export { buildSchemaDir as build } from "./lib/build";
 
 export const compile = async (
   dir: string,

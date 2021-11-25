@@ -1,5 +1,6 @@
 import { AnySchemaObject } from "ajv";
-import { readFile, writeFile } from "fs/promises";
+import { readdir, readFile, stat, writeFile } from "fs/promises";
+import { join } from "path";
 import { getModuleFromUri, parseSchema } from "./common";
 
 const correctUriReference = (input: string, base: string): string => {
@@ -22,8 +23,27 @@ const correctReferences = (schema: string): string => {
   return JSON.stringify(schemaObj, null, 2);
 };
 
-export const buildSchema = async (file: string): Promise<void> => {
+const buildSchema = async (file: string): Promise<void> => {
   const schema = await readFile(file, { encoding: "utf8" });
   const correctedSchema = correctReferences(schema);
   await writeFile(file, correctedSchema);
+};
+
+export const buildSchemaDir = async (dir: string): Promise<void> => {
+  const dirsToBuild: string[] = [dir];
+  while (dirsToBuild.length > 0) {
+    const dirToBuild = dirsToBuild.shift();
+    const files = await readdir(dirToBuild);
+    await Promise.all(
+      files.map(async file => {
+        const fileOrDirPath = join(dirToBuild, file);
+        const stats = await stat(fileOrDirPath);
+        if (stats.isDirectory()) {
+          dirsToBuild.push(fileOrDirPath);
+        } else {
+          await buildSchema(fileOrDirPath);
+        }
+      })
+    );
+  }
 };

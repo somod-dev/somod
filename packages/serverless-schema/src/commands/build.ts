@@ -1,27 +1,7 @@
 import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import { Command } from "commander";
-import { readdir, stat } from "fs/promises";
 import { join } from "path";
-import { buildSchema } from "../lib/build";
-
-const buildSchemaDir = async (dir: string): Promise<void> => {
-  const dirsToBuild: string[] = [dir];
-  while (dirsToBuild.length > 0) {
-    const dirToBuild = dirsToBuild.shift();
-    const files = await readdir(dirToBuild);
-    await Promise.all(
-      files.map(async file => {
-        const fileOrDirPath = join(dirToBuild, file);
-        const stats = await stat(fileOrDirPath);
-        if (stats.isDirectory()) {
-          dirsToBuild.push(fileOrDirPath);
-        } else {
-          await buildSchema(fileOrDirPath);
-        }
-      })
-    );
-  }
-};
+import { buildSchemaDir } from "../lib/build";
 
 const buildSchemaDirs = async (
   dir: string,

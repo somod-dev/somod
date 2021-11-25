@@ -1,7 +1,6 @@
-import { createTempDir, deleteDir } from "@sodev/test-utils";
-import { copyDirectory } from "@sodaru/cli-base";
+import { createTempDir, deleteDir, copyDirectory } from "@sodev/test-utils";
 import { join, dirname } from "path";
-import { buildSchema } from "../../src/lib/build";
+import { buildSchemaDir } from "../../src/lib/build";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { AnySchemaObject } from "ajv";
 
@@ -76,10 +75,9 @@ describe("Test lib build", () => {
       expect(actual).toEqual(expected);
     };
 
-    await buildSchema(join(dir, "schemas", "index.json"));
-    await assertSchema("index.json");
+    await buildSchemaDir(join(dir, "schemas"));
 
-    await buildSchema(join(dir, "schemas", "ssm-parameter.json"));
+    await assertSchema("index.json");
     await assertSchema("ssm-parameter.json");
   });
 });

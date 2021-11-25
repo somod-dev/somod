@@ -1,5 +1,4 @@
-import { createTempDir, deleteDir } from "@sodev/test-utils";
-import { copyDirectory } from "@sodaru/cli-base";
+import { createTempDir, deleteDir, copyDirectory } from "@sodev/test-utils";
 import { join, dirname } from "path";
 import { load } from "../../src/lib/load";
 import Ajv from "ajv";
