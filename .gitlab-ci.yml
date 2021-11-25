@@ -26,6 +26,7 @@ publish:
   stage: publish
   script:
     - npm run check-sanity
+    - git diff ./packages/serverless-schema/bin/serverless-schema.js
     - git describe --exact-match | grep ^v && lerna publish from-git --yes
   only:
     - tags
