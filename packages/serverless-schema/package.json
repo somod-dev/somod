@@ -1,6 +1,6 @@
 {
   "name": "@somod/serverless-schema",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Serverless Schema to validate the slp and somod packages",
   "keywords": [
     "schema",
@@ -45,8 +45,8 @@
   },
   "devDependencies": {
     "@sodaru/cli-base": "^1.0.0",
-    "@sodev/test-utils": "^0.0.1",
     "@sodev/jest-config": "^1.1.1",
+    "@sodev/test-utils": "^0.0.1",
     "@types/lodash": "^4.14.177",
     "@types/node": "^16.11.9",
     "@types/rimraf": "^3.0.2",

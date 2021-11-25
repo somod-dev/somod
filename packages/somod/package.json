@@ -1,6 +1,6 @@
 {
   "name": "@somod/somod",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sodaru Module (somod) SDK",
   "keywords": [
     "sodaru",
@@ -43,8 +43,8 @@
   },
   "devDependencies": {
     "@sodaru/cli-base": "^1.0.0",
-    "@somod/sdk-lib": "^1.0.0",
-    "@somod/serverless-schema": "^1.0.0",
+    "@somod/sdk-lib": "^1.0.1",
+    "@somod/serverless-schema": "^1.0.1",
     "@types/node": "^16.4.13",
     "esbuild": "^0.12.28",
     "typescript": "^4.3.5"
