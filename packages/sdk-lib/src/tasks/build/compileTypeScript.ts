@@ -14,8 +14,8 @@ export const compileTypeScript = async (
       dir,
       process.platform === "win32" ? "npx.cmd" : "npx",
       args,
-      { show: "on", return: "on" },
-      { show: "on", return: "on" }
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
     );
   } catch (e) {
     if (

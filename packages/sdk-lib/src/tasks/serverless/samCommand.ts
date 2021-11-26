@@ -12,6 +12,7 @@ export const samCommand = async (
   await childProcess(
     dir,
     process.platform === "win32" ? "sam.cmd" : "sam",
-    args
+    args,
+    { show: "on", return: "off" }
   );
 };
