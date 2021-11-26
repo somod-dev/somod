@@ -1,4 +1,4 @@
-import { childProcess } from "@sodaru/cli-base";
+import { childProcess, ChildProcessError } from "@sodaru/cli-base";
 import { file_tsConfigBuildJson } from "../../utils/constants";
 
 export const compileTypeScript = async (
@@ -13,13 +13,17 @@ export const compileTypeScript = async (
     await childProcess(
       dir,
       process.platform === "win32" ? "npx.cmd" : "npx",
-      args
+      args,
+      { show: "on", return: "on" },
+      { show: "on", return: "on" }
     );
   } catch (e) {
-    // e is of type { stdout?: string; stderr?: string }
     if (
-      !(e.stdout as string)?.startsWith(
-        "error TS18003: No inputs were found in config file"
+      !(
+        e instanceof ChildProcessError &&
+        e.result.stdout.startsWith(
+          "error TS18003: No inputs were found in config file"
+        )
       )
     ) {
       throw e;
