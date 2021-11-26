@@ -1,4 +1,4 @@
-# `@sodaru/njp`
+# `@somod/njp`
 
 > Enhances NPM Package to be NextJsPackage (NJP)
 

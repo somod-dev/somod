@@ -1,14 +1,14 @@
-# `@sodaru/emp`
+# `@somod/somod`
 
-> Enhances NPM Package to be Entranse Module Package (EMP)
+> Enhances NPM Package to be Sodaru Module Package (SOMOD)
 
 This is a combination of [njp](../njp) and [slp](../slp)
 
 ## Usage
 
 ```SH
- > emp init
- > emp build
- > emp deploy
- > emp serve
+ > somod init
+ > somod build
+ > somod deploy
+ > somod serve
 ```

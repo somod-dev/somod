@@ -1,4 +1,4 @@
-# `@sodaru/slp`
+# `@somod/slp`
 
 > Enhances NPM Package to be ServerLessPackage (SLP)
 
