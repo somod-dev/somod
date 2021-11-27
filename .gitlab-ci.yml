@@ -10,7 +10,7 @@ cache:
     - node_modules
 
 before_script:
-  - npm i --ignore-scripts
+  - npm i
   - lerna bootstrap
   - lerna run build --stream
 
@@ -24,6 +24,7 @@ test:
 
 publish:
   stage: publish
+  cache: []
   script:
     - npm run check-sanity
     - git describe --exact-match | grep ^v && lerna publish from-git --yes
