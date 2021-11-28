@@ -13,6 +13,7 @@ export const samCommand = async (
     dir,
     process.platform === "win32" ? "sam.cmd" : "sam",
     args,
+    { show: "on", return: "off" },
     { show: "on", return: "off" }
   );
 };
