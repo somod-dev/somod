@@ -80,5 +80,5 @@ describe("Test Task compileTypeScript", () => {
     await expect(
       readFile(join(dir, "build/lib/a.d.ts"), { encoding: "utf8" })
     ).resolves.toEqual("export declare const a = 10;" + EOL);
-  });
+  }, 10000);
 });
