@@ -88,14 +88,21 @@ describe("Test Task generateIndex", () => {
     createFiles(dir, {
       "build/ui/pageIndex.js":
         "const Page1default = 10; export default Page1default",
-      "build/lib/index.js": ""
+      "build/ui/pageIndex.d.ts": "export const Page1default = 10;",
+      "build/lib/index.js": "",
+      "build/lib/index.d.ts": ""
     });
     await expect(generateIndex(dir, ["ui/pageIndex"])).resolves.toBeUndefined();
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining("There is nothing to export from this module")
+    await expect(
+      readFile(join(dir, "build/index.js"), { encoding: "utf8" })
+    ).resolves.toEqual(
+      'export * from "./lib";\nexport * from "./ui/pageIndex";'
     );
-    expect(existsSync(join(dir, "build/index.js"))).not.toBeTruthy();
-    expect(existsSync(join(dir, "build/index.d.ts"))).not.toBeTruthy();
+    await expect(
+      readFile(join(dir, "build/index.d.ts"), { encoding: "utf8" })
+    ).resolves.toEqual(
+      'export * from "./lib";\nexport * from "./ui/pageIndex";'
+    );
   });
 
   test("for lib/index.js with default export", async () => {
