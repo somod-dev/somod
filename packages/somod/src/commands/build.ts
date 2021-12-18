@@ -3,9 +3,10 @@ import {
   buildFunctionLayers,
   buildServerlessTemplate,
   buildUiPublic,
-  bundleRootServerlessFunctions,
+  bundleServerlessFunctions,
   compileTypeScript,
   deleteBuildDir,
+  deleteSlpWorkingDir,
   doesAwsSdkIsRightVersionInPackageJson,
   doesEmpIsTrueInPackageJson,
   doesFilesHasBuildInPackageJson,
@@ -42,6 +43,7 @@ import {
   path_public,
   path_serverless,
   path_ui,
+  prepeareServerlessRootFunctionsForBundling,
   validateModuleDependency,
   validateServerlessTemplateWithSchema
 } from "@somod/sdk-lib";
@@ -49,11 +51,13 @@ import { Command, Option } from "commander";
 
 type BuildActions = CommonOptions & {
   type: "all" | "njp" | "slp";
+  invokedFromDeploy?: boolean;
 };
 
 export const BuildAction = async ({
   verbose,
-  type
+  type,
+  invokedFromDeploy
 }: BuildActions): Promise<void> => {
   const dir = process.cwd();
 
@@ -170,12 +174,6 @@ export const BuildAction = async ({
     );
   };
   const slpBuildTasks = async () => {
-    await taskRunner(
-      `Bundle root module functions`,
-      bundleRootServerlessFunctions,
-      verbose,
-      dir
-    );
     await taskRunner(`Copy Layers to build`, buildFunctionLayers, verbose, dir);
     await taskRunner(
       `validate ${path_serverless}/${file_templateYaml}`,
@@ -225,6 +223,19 @@ export const BuildAction = async ({
       )}`
     ]
   );
+
+  if (!invokedFromDeploy && (type == "all" || type == "slp")) {
+    await taskRunner(
+      `Test if serverless functions in root module can be bundled`,
+      async dir => {
+        await deleteSlpWorkingDir(dir);
+        await prepeareServerlessRootFunctionsForBundling(dir);
+        await bundleServerlessFunctions(dir, false);
+      },
+      verbose,
+      dir
+    );
+  }
 };
 
 const buildCommand = new Command("build");

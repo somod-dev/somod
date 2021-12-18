@@ -2,9 +2,10 @@ import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
   buildFunctionLayers,
   buildServerlessTemplate,
-  bundleRootServerlessFunctions,
+  bundleServerlessFunctions,
   compileTypeScript,
   deleteBuildDir,
+  deleteSlpWorkingDir,
   doesAwsSdkIsRightVersionInPackageJson,
   doesFilesHasBuildInPackageJson,
   doesJsnextMainNotSetInPackageJson,
@@ -35,14 +36,20 @@ import {
   path_build,
   path_functions,
   path_serverless,
+  prepeareServerlessRootFunctionsForBundling,
   validateModuleDependency,
   validateServerlessTemplateWithSchema
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
+type BuildOptions = CommonOptions & {
+  invokedFromDeploy?: boolean;
+};
+
 export const BuildAction = async ({
-  verbose
-}: CommonOptions): Promise<void> => {
+  verbose,
+  invokedFromDeploy
+}: BuildOptions): Promise<void> => {
   const dir = process.cwd();
 
   await Promise.all([
@@ -125,26 +132,6 @@ export const BuildAction = async ({
   );
   await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
   await taskRunner(
-    `Bundle root module functions`,
-    bundleRootServerlessFunctions,
-    verbose,
-    dir
-  );
-  await taskRunner(`Copy Layers to build`, buildFunctionLayers, verbose, dir);
-  await taskRunner(
-    `validate ${path_serverless}/${file_templateYaml}`,
-    validateServerlessTemplateWithSchema,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Generate ${path_build}/${path_serverless}/${file_templateJson}`,
-    buildServerlessTemplate,
-    verbose,
-    dir,
-    [key_slp]
-  );
-  await taskRunner(
     `Generate ${path_build}/${path_serverless}/${file_functionIndex_js}`,
     generateFunctionIndex,
     verbose,
@@ -162,6 +149,33 @@ export const BuildAction = async ({
       )}`
     ]
   );
+  await taskRunner(`Copy Layers to build`, buildFunctionLayers, verbose, dir);
+  await taskRunner(
+    `validate ${path_serverless}/${file_templateYaml}`,
+    validateServerlessTemplateWithSchema,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `Generate ${path_build}/${path_serverless}/${file_templateJson}`,
+    buildServerlessTemplate,
+    verbose,
+    dir,
+    [key_slp]
+  );
+
+  if (!invokedFromDeploy) {
+    await taskRunner(
+      `Test if serverless functions in root module can be bundled`,
+      async dir => {
+        await deleteSlpWorkingDir(dir);
+        await prepeareServerlessRootFunctionsForBundling(dir);
+        await bundleServerlessFunctions(dir, false);
+      },
+      verbose,
+      dir
+    );
+  }
 };
 
 const buildCommand = new Command("build");

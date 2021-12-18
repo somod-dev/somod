@@ -32,7 +32,7 @@ export const DeployAction = async ({
 
   if (stage == "all" || stage == "prepare") {
     if (!isEntranseDeployment) {
-      await BuildAction({ verbose, type: "slp" });
+      await BuildAction({ verbose, type: "slp", invokedFromDeploy: true });
     }
 
     await taskRunner(

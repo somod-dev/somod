@@ -25,7 +25,7 @@ export const DeployAction = async ({
   const dir = process.cwd();
 
   if (stage == "all" || stage == "prepare") {
-    await BuildAction({ verbose });
+    await BuildAction({ verbose, invokedFromDeploy: true });
 
     await taskRunner(
       `Deleting ${path_slpWorkingDir} directory`,

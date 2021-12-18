@@ -9,11 +9,9 @@ import {
   file_packageJson
 } from "../../utils/constants";
 import { prepareFunctionToBundle } from "../../utils/serverlessTemplate";
-import { bundleFunctions } from "./bundleFunctions";
 
-export const bundleRootFunctions = async (
-  dir: string,
-  sourceMap = false
+export const prepeareRootFunctionsForBundling = async (
+  dir: string
 ): Promise<void> => {
   const functionsDir = normalize(
     join(dir, path_build, path_serverless, path_functions)
@@ -26,20 +24,20 @@ export const bundleRootFunctions = async (
   if (existsSync(functionsDir)) {
     const functions = await readdir(functionsDir);
     await Promise.all(
-      functions.map(async _function => {
-        const functionName = _function.substring(
-          0,
-          _function.lastIndexOf(".js")
-        );
-        await prepareFunctionToBundle(
-          dir,
-          rootModuleName,
-          rootModuleName,
-          functionName
-        );
-      })
+      functions
+        .filter(func => func.endsWith(".js"))
+        .map(async _function => {
+          const functionName = _function.substring(
+            0,
+            _function.lastIndexOf(".js")
+          );
+          await prepareFunctionToBundle(
+            dir,
+            rootModuleName,
+            rootModuleName,
+            functionName
+          );
+        })
     );
-
-    await bundleFunctions(dir, sourceMap);
   }
 };
