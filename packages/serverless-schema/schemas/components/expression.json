@@ -193,7 +193,7 @@
           "type": "array",
           "items": [
             {
-              "oneOf": [
+              "anyOf": [
                 { "$ref": "#/definitions/stringLike" },
                 { "$ref": "#/definitions/numberLike" },
                 { "$ref": "#/definitions/booleanLike" },
@@ -201,7 +201,7 @@
               ]
             },
             {
-              "oneOf": [
+              "anyOf": [
                 { "$ref": "#/definitions/stringLike" },
                 { "$ref": "#/definitions/numberLike" },
                 { "$ref": "#/definitions/booleanLike" },
@@ -224,7 +224,7 @@
           "items": [
             { "$ref": "#/definitions/string" },
             {
-              "oneOf": [
+              "anyOf": [
                 { "$ref": "#/definitions/stringLike" },
                 { "$ref": "#/definitions/numberLike" },
                 { "$ref": "#/definitions/booleanLike" },
@@ -232,7 +232,7 @@
               ]
             },
             {
-              "oneOf": [
+              "anyOf": [
                 { "$ref": "#/definitions/stringLike" },
                 { "$ref": "#/definitions/numberLike" },
                 { "$ref": "#/definitions/booleanLike" },
@@ -302,7 +302,7 @@
                 {
                   "type": "array",
                   "items": {
-                    "oneOf": [
+                    "anyOf": [
                       { "$ref": "#/definitions/stringLike" },
                       { "$ref": "#/definitions/numberLike" }
                     ]
@@ -393,34 +393,39 @@
       "additionalProperties": false,
       "properties": {
         "Fn::Sub": {
-          "type": "array",
-          "items": [
-            { "$ref": "#/definitions/string" },
+          "oneOf": [
+            { "type": "string", "maxLength": 1024 },
             {
-              "type": "object",
-              "additionalProperties": false,
-              "patternProperties": {
-                "^[a-zA-Z0-9]+$": {
-                  "oneOf": [
-                    { "$ref": "#/definitions/string" },
-                    { "$ref": "#/definitions/base64" },
-                    { "$ref": "#/definitions/findInMap" },
-                    { "$ref": "#/definitions/getAZs" },
-                    { "$ref": "#/definitions/if" },
-                    { "$ref": "#/definitions/join" },
-                    { "$ref": "#/definitions/select" },
-                    { "$ref": "#/definitions/ref" },
-                    { "$ref": "#/definitions/slpRef" },
-                    { "$ref": "#/definitions/slpRefParameter" },
-                    { "$ref": "#/definitions/slpRefResourceName" }
-                  ]
+              "type": "array",
+              "items": [
+                { "$ref": "#/definitions/string" },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "patternProperties": {
+                    "^[a-zA-Z0-9]+$": {
+                      "oneOf": [
+                        { "$ref": "#/definitions/string" },
+                        { "$ref": "#/definitions/base64" },
+                        { "$ref": "#/definitions/findInMap" },
+                        { "$ref": "#/definitions/getAZs" },
+                        { "$ref": "#/definitions/if" },
+                        { "$ref": "#/definitions/join" },
+                        { "$ref": "#/definitions/select" },
+                        { "$ref": "#/definitions/ref" },
+                        { "$ref": "#/definitions/slpRef" },
+                        { "$ref": "#/definitions/slpRefParameter" },
+                        { "$ref": "#/definitions/slpRefResourceName" }
+                      ]
+                    }
+                  }
                 }
-              }
+              ],
+              "minItems": 2,
+              "maxItems": 2,
+              "additionalItems": false
             }
-          ],
-          "minItems": 2,
-          "maxItems": 2,
-          "additionalItems": false
+          ]
         }
       }
     },

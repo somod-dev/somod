@@ -80,7 +80,7 @@ type SLPResource = {
   Type: string;
   Properties: Record<string, unknown>;
   [KeywordSLPExtend]?: { module: string; resource: string };
-  [KeywordSLPDependsOn]?: { module: string; resource: string }[];
+  [KeywordSLPDependsOn]?: { module?: string; resource: string }[];
   [KeywordSLPOutput]?: { default: boolean; attributes: string[] };
   DeletionPolicy?: string;
   UpdateReplacePolicy?: string;
@@ -109,20 +109,12 @@ type SLPRefResourceName = {
   };
 };
 
-type OriginalSLPFunction = {
-  [KeywordSLPFunction]: string;
-};
-
 // Note : In Template schema only function name is allowed, it is assumed that module is current module
 type SLPFunction = {
   [KeywordSLPFunction]: {
     module: string;
     function: string;
   };
-};
-
-type OriginalSLPFunctionLayer = {
-  [KeywordSLPFunctionLayer]: string;
 };
 
 // Note : In Template schema only layer name is allowed, it is assumed that module is current module
@@ -205,12 +197,62 @@ const parseSLPTemplateForSLPKeywords = (
   return { ...slpTemplate, ...slpKeywords };
 };
 
-const getSLPTemplate = async (path: string): Promise<SLPTemplate> => {
+/**
+ * some of the slp keywords references the modulename , by default the module name is the current module of the SLP Template
+ * fill the default value of modulename
+ */
+const updateDefaultModuleInSLPTemplate = (
+  module: string,
+  slpTemplate: SLPTemplate
+): void => {
+  // keywords that needs to fill the default value for module
+  const pathsKeyToKeywordMap = {
+    slpRefPaths: KeywordSLPRef,
+    slpRefParameterPaths: KeywordSLPRefParameter,
+    slpRefResourceNamePaths: KeywordSLPRefResourceName,
+    slpFunctionPaths: KeywordSLPFunction,
+    slpFunctionLayerPaths: KeywordSLPFunctionLayer
+  };
+  Object.keys(pathsKeyToKeywordMap).forEach(slpKeywordPathsKey => {
+    const keyword = pathsKeyToKeywordMap[slpKeywordPathsKey];
+    slpTemplate[slpKeywordPathsKey].forEach((slpKeywordPaths: string[]) => {
+      const keywordValue = getSLPKeyword(slpTemplate, slpKeywordPaths);
+      if (keyword == KeywordSLPFunction || keyword == KeywordSLPFunctionLayer) {
+        keywordValue[keyword] = {
+          module,
+          [keyword == KeywordSLPFunction ? "function" : "layer"]:
+            keywordValue[keyword]
+        };
+      } else if (keywordValue[keyword].module === undefined) {
+        keywordValue[keyword].module = module;
+      }
+      replaceSLPKeyword(slpTemplate, slpKeywordPaths, keywordValue);
+    });
+  });
+
+  Object.keys(slpTemplate.Resources).forEach(logicalResourceId => {
+    const resource = slpTemplate.Resources[logicalResourceId];
+    if (resource[KeywordSLPDependsOn]) {
+      resource[KeywordSLPDependsOn].forEach(dependsOn => {
+        if (dependsOn.module === undefined) {
+          dependsOn.module = module;
+        }
+      });
+    }
+  });
+};
+
+const getSLPTemplate = async (
+  module: string,
+  path: string
+): Promise<SLPTemplate> => {
   const slpTemplateStr = await readFile(path, { encoding: "utf8" });
   // the schema for slpTemplate is @sodaru/serverless-schema/schemas/index.json
-  const slpTemplate: OriginalSLPTemplate = JSON.parse(slpTemplateStr);
-  slpTemplate.packageLocation = join(path, "..", "..", ".."); // template path = packagelocation/build/serverless/template.json
-  return parseSLPTemplateForSLPKeywords(slpTemplate);
+  const originalSlpTemplate: OriginalSLPTemplate = JSON.parse(slpTemplateStr);
+  originalSlpTemplate.packageLocation = join(path, "..", "..", ".."); // template path = packagelocation/build/serverless/template.json
+  const slpTemplate = parseSLPTemplateForSLPKeywords(originalSlpTemplate);
+  updateDefaultModuleInSLPTemplate(module, slpTemplate);
+  return slpTemplate;
 };
 
 const getSLPKeyword = (slpTemplate: SLPTemplate, paths: string[]): unknown => {
@@ -549,10 +591,8 @@ const validateSLPTemplateFunctions = (
   const errors: Error[] = [];
 
   slpTemplate.slpFunctionPaths.forEach(functionPath => {
-    const slpFunction = getSLPKeyword(
-      slpTemplate,
-      functionPath
-    ) as OriginalSLPFunction;
+    const slpFunction = getSLPKeyword(slpTemplate, functionPath) as SLPFunction;
+
     const functionName = slpFunction[KeywordSLPFunction];
     const functionFilePath = join(
       dir,
@@ -587,7 +627,7 @@ const validateSLPTemplateFunctionLayers = (
     const slpFunctionLayer = getSLPKeyword(
       slpTemplate,
       functionLayerPath
-    ) as OriginalSLPFunctionLayer;
+    ) as SLPFunctionLayer;
     const functionLayerName = slpFunctionLayer[KeywordSLPFunctionLayer];
     const functionLayerFilePath = join(
       dir,
@@ -667,56 +707,11 @@ const validateSlpTemplate = (
   }
 };
 
-const updateSLPFunctionWithModule = (
-  moduleName: string,
-  slpTemplate: SLPTemplate
-): void => {
-  slpTemplate.slpFunctionPaths.forEach(functionPaths => {
-    const _function = getSLPKeyword(
-      slpTemplate,
-      functionPaths
-    ) as OriginalSLPFunction;
-
-    const slpFunction: SLPFunction = {
-      [KeywordSLPFunction]: {
-        module: moduleName,
-        function: _function[KeywordSLPFunction]
-      }
-    };
-
-    replaceSLPKeyword(slpTemplate, functionPaths, slpFunction);
-  });
-};
-
-const updateSLPFunctionLayerWithModule = (
-  moduleName: string,
-  slpTemplate: SLPTemplate
-): void => {
-  slpTemplate.slpFunctionLayerPaths.forEach(functionLayerPaths => {
-    const _functionLayer = getSLPKeyword(
-      slpTemplate,
-      functionLayerPaths
-    ) as OriginalSLPFunctionLayer;
-
-    const slpFunctionLayer: SLPFunctionLayer = {
-      [KeywordSLPFunctionLayer]: {
-        module: moduleName,
-        layer: _functionLayer[KeywordSLPFunctionLayer]
-      }
-    };
-
-    replaceSLPKeyword(slpTemplate, functionLayerPaths, slpFunctionLayer);
-  });
-};
-
 const updateServerlessTemplate = (
   module: string,
   serverlessTemplate: ServerlessTemplate,
   slpTemplate: SLPTemplate
 ): void => {
-  updateSLPFunctionWithModule(module, slpTemplate);
-  updateSLPFunctionLayerWithModule(module, slpTemplate);
-
   const resources: SLPTemplate["Resources"] = {};
   Object.keys(slpTemplate.Resources).forEach(resourceLogicalId => {
     const resource = slpTemplate.Resources[resourceLogicalId];
@@ -776,7 +771,10 @@ const generateServerlessTemplate = async (
       file_templateJson
     );
     if (existsSync(templateJsonLocation)) {
-      const slpTemplate = await getSLPTemplate(templateJsonLocation);
+      const slpTemplate = await getSLPTemplate(
+        _moduleNode.name,
+        templateJsonLocation
+      );
       updateServerlessTemplate(
         _moduleNode.name,
         serverlessTemplate,
@@ -801,6 +799,19 @@ const getRootOriginalSlpTemplate = async (
   return rootSlpTemplate;
 };
 
+const validateAndGetRootSlpTemplate = async (
+  dir: string,
+  moduleName: string,
+  serverlessTemplate: ServerlessTemplate
+): Promise<OriginalSLPTemplate> => {
+  const originalRootSlpTemplate = await getRootOriginalSlpTemplate(dir);
+  const rootSlpTemplate = parseSLPTemplateForSLPKeywords(
+    cloneDeep(originalRootSlpTemplate)
+  );
+  validateSlpTemplate(dir, moduleName, rootSlpTemplate, serverlessTemplate);
+  return originalRootSlpTemplate;
+};
+
 export const buildTemplateJson = async (
   dir: string,
   moduleIndicators: string[]
@@ -809,16 +820,12 @@ export const buildTemplateJson = async (
   const allModuleNodes = toList(rootModuleNode);
   checkForRepeatedModules(allModuleNodes);
   const serverlessTemplate = await generateServerlessTemplate(rootModuleNode);
-  const originalRootSlpTemplate = await getRootOriginalSlpTemplate(dir);
-  const rootSlpTemplate = parseSLPTemplateForSLPKeywords(
-    cloneDeep(originalRootSlpTemplate)
-  );
-  validateSlpTemplate(
+  const originalRootSlpTemplate = await validateAndGetRootSlpTemplate(
     dir,
     rootModuleNode.name,
-    rootSlpTemplate,
     serverlessTemplate
   );
+
   const templateJsonPath = join(
     dir,
     path_build,

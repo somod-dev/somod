@@ -19,7 +19,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["module", "resource"],
+        "required": ["resource"],
         "properties": {
           "module": { "$ref": "./expression.json#/definitions/moduleName" },
           "resource": {
