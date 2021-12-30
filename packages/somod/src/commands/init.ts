@@ -5,25 +5,20 @@ import {
   file_nextEnvDTs,
   file_packageJson,
   file_prettierIgnore,
+  file_samConfig,
   file_templateYaml,
   file_tsConfigBuildJson,
   file_tsConfigJson,
   initGit,
   initLib,
+  initSodev,
   initTemplateYaml,
   initWelcomePage,
-  installAwsLambdaTypesAsDevDependency,
-  installAwsSdkAsDevDependency,
-  installAwsSdkAsPeerDependency,
-  key_devDependencies,
-  key_emp,
   key_files,
   key_jsnextMain,
   key_module,
-  key_moduleAwsLambdaTypes,
-  key_moduleAwsSdk,
-  key_peerDependencies,
   key_sideEffects,
+  key_somod,
   key_type,
   key_typings,
   path_build,
@@ -32,7 +27,6 @@ import {
   path_pages,
   path_public,
   path_samBuild,
-  path_samConfig,
   path_serverless,
   path_slpWorkingDir,
   path_ui,
@@ -42,9 +36,9 @@ import {
   savePrettierIgnore,
   saveTsConfigBuildJson,
   setBuildInFilesInPackageJson,
-  setEmpInPackageJson,
   setModuleInPackageJson,
   setSideEffectsInPackageJson,
+  setSomodInPackageJson,
   setTypingsInPackageJson,
   unsetJsnextMainInPackageJson,
   unsetTypeInPackageJson,
@@ -58,8 +52,8 @@ import { Command } from "commander";
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
   await taskRunner(
-    `Set ${key_emp} in ${file_packageJson}`,
-    setEmpInPackageJson,
+    `Set ${key_somod} in ${file_packageJson}`,
+    setSomodInPackageJson,
     verbose,
     dir
   );
@@ -100,7 +94,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     dir
   );
 
-  const empIgnorePaths = [
+  const somodIgnorePaths = [
     path_nextBuild,
     file_tsConfigJson,
     `/${path_pages}`,
@@ -109,7 +103,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     `/${file_templateYaml}`,
     `/${path_slpWorkingDir}`,
     path_samBuild,
-    path_samConfig
+    file_samConfig
   ];
 
   await Promise.all([
@@ -120,7 +114,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       updateGitIgnore,
       verbose,
       dir,
-      empIgnorePaths
+      somodIgnorePaths
     ),
 
     taskRunner(
@@ -128,7 +122,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       updatePrettierIgnore,
       verbose,
       dir,
-      empIgnorePaths
+      somodIgnorePaths
     ),
 
     taskRunner(
@@ -136,7 +130,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       updateEslintIgnore,
       verbose,
       dir,
-      empIgnorePaths
+      somodIgnorePaths
     ),
 
     taskRunner(
@@ -171,26 +165,8 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     )
   ]);
 
-  await taskRunner(
-    `install ${key_moduleAwsSdk} in ${key_devDependencies}`,
-    installAwsSdkAsDevDependency,
-    verbose,
-    dir
-  );
-
-  await taskRunner(
-    `install ${key_moduleAwsSdk} in ${key_peerDependencies}`,
-    installAwsSdkAsPeerDependency,
-    verbose,
-    dir
-  );
-
-  await taskRunner(
-    `install ${key_moduleAwsLambdaTypes} in ${key_devDependencies}`,
-    installAwsLambdaTypesAsDevDependency,
-    verbose,
-    dir
-  );
+  await taskRunner(`run sodev prettier`, initSodev, verbose, dir, "prettier");
+  await taskRunner(`run sodev eslint`, initSodev, verbose, dir, "eslint");
 };
 
 const initCommand = new Command("init");

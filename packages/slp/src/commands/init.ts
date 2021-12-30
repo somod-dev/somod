@@ -4,29 +4,23 @@ import {
   file_gitIgnore,
   file_packageJson,
   file_prettierIgnore,
+  file_samConfig,
   file_templateYaml,
   file_tsConfigBuildJson,
   initGit,
   initLib,
+  initSodev,
   initTemplateYaml,
-  installAwsLambdaTypesAsDevDependency,
-  installAwsSdkAsDevDependency,
-  installAwsSdkAsPeerDependency,
-  key_devDependencies,
   key_files,
   key_jsnextMain,
   key_module,
-  key_moduleAwsLambdaTypes,
-  key_moduleAwsSdk,
   key_njp,
-  key_peerDependencies,
   key_sideEffects,
   key_type,
   key_typings,
   path_build,
   path_lib,
   path_samBuild,
-  path_samConfig,
   path_serverless,
   path_slpWorkingDir,
   saveEslintIgnore,
@@ -97,7 +91,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     `/${file_templateYaml}`,
     `/${path_slpWorkingDir}`,
     path_samBuild,
-    path_samConfig
+    file_samConfig
   ];
 
   await Promise.all([
@@ -159,26 +153,8 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     )
   ]);
 
-  await taskRunner(
-    `install ${key_moduleAwsSdk} in ${key_devDependencies}`,
-    installAwsSdkAsDevDependency,
-    verbose,
-    dir
-  );
-
-  await taskRunner(
-    `install ${key_moduleAwsSdk} in ${key_peerDependencies}`,
-    installAwsSdkAsPeerDependency,
-    verbose,
-    dir
-  );
-
-  await taskRunner(
-    `install ${key_moduleAwsLambdaTypes} in ${key_devDependencies}`,
-    installAwsLambdaTypesAsDevDependency,
-    verbose,
-    dir
-  );
+  await taskRunner(`run sodev prettier`, initSodev, verbose, dir, "prettier");
+  await taskRunner(`run sodev eslint`, initSodev, verbose, dir, "eslint");
 };
 
 const initCommand = new Command("init");

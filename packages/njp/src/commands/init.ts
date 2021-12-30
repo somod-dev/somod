@@ -38,7 +38,8 @@ import {
   file_eslintIgnore,
   updateEslintIgnore,
   savePrettierIgnore,
-  saveEslintIgnore
+  saveEslintIgnore,
+  initSodev
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -134,6 +135,9 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
     taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir)
   ]);
+
+  await taskRunner(`run sodev prettier`, initSodev, verbose, dir, "prettier");
+  await taskRunner(`run sodev eslint`, initSodev, verbose, dir, "eslint");
 
   await Promise.all([
     taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),

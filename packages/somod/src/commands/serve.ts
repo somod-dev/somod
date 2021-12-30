@@ -4,7 +4,7 @@ import {
   createPublicAssets,
   createRootModulePages,
   createRootModulePublicAssets,
-  key_emp,
+  key_somod,
   key_njp,
   path_pages,
   path_public,
@@ -38,11 +38,11 @@ export const ServeAction = async ({
 
     await Promise.all([
       taskRunner(`Create ${path_pages}`, createPages, verbose, dir, [
-        key_emp,
+        key_somod,
         key_njp
       ]),
       taskRunner(`Create ${path_public}`, createPublicAssets, verbose, dir, [
-        key_emp,
+        key_somod,
         key_njp
       ])
     ]);

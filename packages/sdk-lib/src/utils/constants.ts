@@ -11,7 +11,7 @@ export const file_nextEnvDTs = "next-env.d.ts";
 
 export const key_njp = "njp";
 export const key_slp = "slp";
-export const key_emp = "emp";
+export const key_somod = "somod";
 
 export const key_type = "type";
 
@@ -25,21 +25,7 @@ export const key_sideEffects = "sideEffects";
 export const key_jsnextMain = "jsnext:main";
 export const key_files = "files";
 
-export const key_eslintConfig = "eslintConfig";
-export const key_eslintConfigExtends = "extends";
-export const key_eslintConfigValue = "@sodaru/eslint-config";
-
-export const key_prettierConfig = "prettier";
-export const key_prettierConfigValue = "@sodaru/prettier-config";
-
 export const key_slpLambdaBundleExclude = "slpLambdaBundleExclude";
-
-export const key_peerDependencies = "peerDependencies";
-export const key_devDependencies = "devDependencies";
-export const key_moduleAwsSdk = "aws-sdk";
-export const key_moduleAwsSdkVersion = "2.952.0";
-
-export const key_moduleAwsLambdaTypes = "@types/aws-lambda";
 
 export const path_nodeModules = "node_modules";
 
@@ -76,4 +62,4 @@ export const path_slpWorkingDir = ".slp";
 export const path_lambdas = "lambdas";
 export const path_lambda_layers = "lambda-layers";
 export const path_samBuild = ".aws-sam";
-export const path_samConfig = "samconfig.toml";
+export const file_samConfig = "samconfig.toml";

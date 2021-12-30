@@ -7,8 +7,7 @@ import {
   compileTypeScript,
   deleteBuildDir,
   deleteSlpWorkingDir,
-  doesAwsSdkIsRightVersionInPackageJson,
-  doesEmpIsTrueInPackageJson,
+  doesSomodIsTrueInPackageJson,
   doesFilesHasBuildInPackageJson,
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
@@ -28,11 +27,10 @@ import {
   generateIndex,
   generatePageIndex,
   isValidTsConfigBuildJson,
-  key_emp,
+  key_somod,
   key_files,
   key_jsnextMain,
   key_module,
-  key_moduleAwsSdk,
   key_njp,
   key_sideEffects,
   key_slp,
@@ -62,7 +60,7 @@ export const BuildAction = async ({
   const dir = process.cwd();
 
   const typescriptIncludePaths: string[] = [];
-  const moduleIndicators: string[] = [key_emp];
+  const moduleIndicators: string[] = [key_somod];
   if (type == "all" || type == "njp") {
     typescriptIncludePaths.push(path_ui);
     moduleIndicators.push(key_njp);
@@ -74,8 +72,8 @@ export const BuildAction = async ({
 
   const validations: Promise<unknown>[] = [
     taskRunner(
-      `Check if ${key_emp} is true in ${file_packageJson}`,
-      doesEmpIsTrueInPackageJson,
+      `Check if ${key_somod} is true in ${file_packageJson}`,
+      doesSomodIsTrueInPackageJson,
       verbose,
       dir
     ),
@@ -137,12 +135,6 @@ export const BuildAction = async ({
       taskRunner(
         `Check if ${path_serverless}/${path_functions} have default export`,
         doesServerlessFunctionsHaveDefaultExport,
-        verbose,
-        dir
-      ),
-      taskRunner(
-        `Check if ${key_moduleAwsSdk} has right version in ${file_packageJson}`,
-        doesAwsSdkIsRightVersionInPackageJson,
         verbose,
         dir
       )

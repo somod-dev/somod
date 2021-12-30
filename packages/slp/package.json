@@ -25,23 +25,23 @@
   },
   "scripts": {
     "clean": "npx rimraf dist",
-    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@sodaru/serverless-schema --external:esbuild",
+    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@sodaru/serverless-schema --external:esbuild  --external:@sodev/sodev",
     "build": "npm run clean && npm run bundle",
     "pretest": "$CI || npm run build",
     "test": "echo 'No tests defined'",
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "esbuild": "^0.12.28",
-    "tslib": "^2.3.1",
-    "typescript": "^4.3.5"
+    "@somod/slp-lib": "^1.1.2",
+    "@sodev/sodev": "^1.1.0",
+    "esbuild": "^0.12.28"
   },
   "devDependencies": {
     "@sodaru/cli-base": "^1.0.0",
     "@somod/sdk-lib": "^1.1.2",
     "@somod/serverless-schema": "^1.1.2",
-    "@types/node": "^16.4.13",
     "esbuild": "^0.12.28",
+    "tslib": "^2.3.0",
     "typescript": "^4.3.5"
   }
 }

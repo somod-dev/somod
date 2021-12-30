@@ -4,7 +4,7 @@ import {
   deleteSlpWorkingDir,
   file_templateYaml,
   generateSAMTemplate,
-  key_emp,
+  key_somod,
   key_slp,
   path_lambdas,
   path_slpWorkingDir,
@@ -47,7 +47,7 @@ export const DeployAction = async ({
       generateSAMTemplate,
       verbose,
       dir,
-      [key_emp, key_slp]
+      [key_somod, key_slp]
     );
 
     await taskRunner(

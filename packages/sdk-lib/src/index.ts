@@ -6,8 +6,6 @@ export * from "./tasks/tsConfigBuildJson";
 
 export * from "./tasks/init";
 
-export * from "./tasks/codeSanity";
-
 export * from "./tasks/build";
 
 export * from "./tasks/link";

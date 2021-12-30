@@ -1,0 +1,36 @@
+{
+  "name": "@somod/njp-lib",
+  "version": "1.1.2",
+  "description": "Libraries for njp",
+  "keywords": [
+    "njp-lib"
+  ],
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/njp-lib#readme",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+  },
+  "scripts": {
+    "test": "echo 'No Tests here'",
+    "prepack": "npm run test"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+  },
+  "peerDependencies": {
+    "@somod/common-lib": "^1.1.2",
+    "@types/react": "^17.0.16",
+    "next": "^11.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@somod/common-lib": "^1.1.2",
+    "@types/react": "^17.0.16",
+    "next": "^11.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}
