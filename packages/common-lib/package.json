@@ -1,6 +1,6 @@
 {
   "name": "@somod/common-lib",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Common Dependencies for Sodaru Modules",
   "keywords": [
     "lib",
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@sodev/jest-config": "^1.1.1",
-    "@somod/common-lib-dev": "^1.1.1",
+    "@somod/common-lib-dev": "^1.1.2",
     "ajv": "^8.8.2",
     "ajv-formats": "^2.1.1",
     "lodash": "^4.17.21",
