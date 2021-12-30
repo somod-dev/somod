@@ -1,0 +1,32 @@
+{
+  "name": "@somod/common-lib-dev",
+  "version": "1.1.1",
+  "description": "Common Dependencies for Sodaru Modules",
+  "keywords": [
+    "lib",
+    "dependencies",
+    "common",
+    "somod",
+    "sodaru"
+  ],
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/common-lib-dev#readme",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+  },
+  "scripts": {
+    "test": "echo 'No tests defined'"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+  },
+  "peerDependencies": {
+    "@types/json-schema": "^7.0.9",
+    "@types/lodash": "^4.14.178",
+    "@types/uuid": "^8.3.3",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.5.4"
+  }
+}
