@@ -1,6 +1,5 @@
 import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
-  buildFunctionLayers,
   buildServerlessTemplate,
   buildUiPublic,
   bundleServerlessFunctions,
@@ -166,7 +165,6 @@ export const BuildAction = async ({
     );
   };
   const slpBuildTasks = async () => {
-    await taskRunner(`Copy Layers to build`, buildFunctionLayers, verbose, dir);
     await taskRunner(
       `validate ${path_serverless}/${file_templateYaml}`,
       validateServerlessTemplateWithSchema,

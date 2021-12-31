@@ -277,32 +277,6 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with SLP::FunctionLayer with wrong layer name", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::LayerVersion",
-          Properties: {
-            ContentUri: {
-              "SLP::FunctionLayer": "Resource1"
-            }
-          }
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...singlePackageJson
-    });
-    await expect(
-      buildTemplateJson(dir, moduleIndicators)
-    ).rejects.toMatchObject({
-      message: expect.stringContaining(
-        `Referenced module function layer {sample, Resource1} not found. Looked for file "${dir}/serverless/function-layers/Resource1.json". Referenced in "sample" at "Resources/Resource1/Properties/ContentUri"`
-      )
-    });
-  });
-
   test("with SLP::ResourceName", async () => {
     const template = {
       Resources: {
@@ -1501,10 +1475,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         slp: true,
         dependencies: {}
       }),
-      "build/serverless/function-layers/authLayer.json": JSON.stringify({
-        name: "authlayer",
-        dependencies: { "@sodaru/auth-server-sdk": "^1.0.0" }
-      }),
       "build/serverless/functions/getAuthGroup.js":
         'import aws from "aws-sdk";\nimport { authorize }  from "@sodaru/restapi-sdk";\nconst a = () => {console.log("Success");};\nexport default a;',
       "build/serverless/functionIndex.js":
@@ -1552,9 +1522,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               },
               CompatibleArchitectures: ["arm64"],
               CompatibleRuntimes: ["nodejs14.x"],
-              ContentUri: {
-                "SLP::FunctionLayer": "authLayer"
-              }
+              Libraries: { "@sodaru/auth-server-sdk": "^1.0.0" }
             }
           },
           GetAuthGroupFunction: {
@@ -1725,7 +1693,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             },
             CompatibleArchitectures: ["arm64"],
             CompatibleRuntimes: ["nodejs14.x"],
-            ContentUri: ".slp/lambda-layers/@sodaru/auth-slp/authLayer"
+            ContentUri: ".slp/lambda-layers/@sodaru/auth-slp/SodaruAuthLayer"
           }
         },
         r624eb34aGetAuthGroupFunction: {
@@ -1821,16 +1789,24 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           ".slp",
           "lambda-layers",
           "@sodaru/auth-slp",
-          "authLayer",
+          "SodaruAuthLayer",
           "package.json"
         ),
         { encoding: "utf8" }
       )
     ).resolves.toEqual(
-      JSON.stringify({
-        name: "authlayer",
-        dependencies: { "@sodaru/auth-server-sdk": "^1.0.0" }
-      })
+      JSON.stringify(
+        {
+          name: "@sodaru/auth-slp-sodaruauthlayer",
+          version: "1.0.0",
+          description: "Lambda function layer - SodaruAuthLayer",
+          dependencies: {
+            "@sodaru/auth-server-sdk": "^1.0.0"
+          }
+        },
+        null,
+        2
+      )
     );
 
     await expect(

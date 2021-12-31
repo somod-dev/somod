@@ -1,0 +1,84 @@
+{
+  "$schema": "../../meta-schemas/resource.json",
+  "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/resources/function-layer.json",
+  "title": "JSON Schema for Layer Version Resource in Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Type", "Properties"],
+  "additionalProperties": false,
+  "properties": {
+    "Type": { "const": "AWS::Serverless::LayerVersion" },
+    "SLP::Extend": {
+      "$ref": "../components/resource-properties.json#/definitions/SLP::Extend"
+    },
+    "SLP::DependsOn": {
+      "$ref": "../components/resource-properties.json#/definitions/SLP::DependsOn"
+    },
+    "SLP::Output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "attributes"],
+      "properties": {
+        "default": {
+          "type": "boolean",
+          "description": "ARN of the Lambda Layer Version"
+        },
+        "attributes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "maxItems": 0
+        }
+      }
+    },
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["BuildMethod", "BuildArchitecture"],
+      "properties": {
+        "BuildMethod": { "const": "nodejs14.x" },
+        "BuildArchitecture": { "const": "arm64" }
+      }
+    },
+    "Properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "LayerName",
+        "CompatibleArchitectures",
+        "CompatibleRuntimes",
+        "ContentUri"
+      ],
+      "properties": {
+        "LayerName": {
+          "$ref": "../components/expression.json#/definitions/slpResourceName"
+        },
+        "CompatibleArchitectures": {
+          "type": "array",
+          "items": { "const": "arm64" },
+          "minItems": 1,
+          "uniqueItems": true,
+          "maxItems": 1
+        },
+        "CompatibleRuntimes": {
+          "type": "array",
+          "items": { "enum": ["nodejs14.x"] },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "Libraries": {
+          "type": "object",
+          "description": "All dependent libraries to be installed in the layer",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "maxProperties": 32,
+          "patternProperties": {
+            "^(@[a-z0-9\\-]+\\/){0,1}[a-z0-9\\-]+$": {
+              "type": "string",
+              "description": "semver expression"
+            }
+          }
+        },
+        "Description": { "type": "string", "maxLength": 256 }
+      }
+    }
+  }
+}

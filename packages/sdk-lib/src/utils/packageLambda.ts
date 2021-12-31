@@ -20,7 +20,15 @@ export const bundle = (
 ): Promise<BuildResult> => {
   const outFile = join(outDir, file_index_js);
 
-  const defaultExternal = ["aws-sdk"];
+  const defaultExternal = [
+    "@somod/slp-lib",
+    "aws-sdk",
+    "ajv",
+    "ajv-formats",
+    "lodash",
+    "tslib",
+    "uuid"
+  ]; // exclude everything from the slp-lib, slp-lib is added as layer to every Lambda
 
   const _external = uniq([...defaultExternal, ...external]);
 
