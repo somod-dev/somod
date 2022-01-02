@@ -32,6 +32,13 @@
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
+  "toBeBundled": [
+    "ajv",
+    "ajv-formats",
+    "lodash",
+    "tslib",
+    "uuid"
+  ],
   "peerDependencies": {
     "ajv": "^8.8.2",
     "ajv-formats": "^2.1.1",

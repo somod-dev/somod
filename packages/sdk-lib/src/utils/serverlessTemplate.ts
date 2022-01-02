@@ -30,6 +30,7 @@ import {
   path_serverless,
   path_slpWorkingDir
 } from "..";
+import { getToBeBundledLibraries } from "./library";
 import {
   checkForRepeatedModules,
   getModuleGraph,
@@ -921,7 +922,39 @@ const resolveFunctionLayer = async (
   return _layerResource;
 };
 
-const _generateSAMTemplate = async (
+const baseLayerName = "baseLayer";
+const baseModuleName = "@somod/slp";
+
+const getBaseLambdaLayer = async (
+  dir: string
+): Promise<SAMTemplate["Resources"][string]> => {
+  const toBeBundledLibraries = await getToBeBundledLibraries(dir, "slp");
+  const module = baseModuleName;
+  const layerName = baseLayerName;
+  const defaultLayer: SAMTemplate["Resources"][string] & {
+    Metadata: Record<string, unknown>;
+  } = {
+    Type: "AWS::Serverless::LayerVersion",
+    Metadata: {
+      BuildMethod: "nodejs14.x",
+      BuildArchitecture: "arm64"
+    },
+    Properties: {
+      LayerName: resolveResourceName(module, layerName),
+      Description:
+        "Set of npm libraries to be requiired in all Lambda funtions",
+      CompatibleArchitectures: ["arm64"],
+      CompatibleRuntimes: ["nodejs14.x"],
+      ContentUri: `${path_slpWorkingDir}/${path_lambda_layers}/${module}/${layerName}`
+    }
+  };
+
+  await prepareFunctionLayer(dir, module, layerName, toBeBundledLibraries);
+
+  return defaultLayer;
+};
+
+const convertServerlessTemplateIntoSAMTemplate = async (
   dir: string,
   serverlessTemplate: ServerlessTemplate,
   rootModuleName: string
@@ -1088,6 +1121,22 @@ const _generateSAMTemplate = async (
     })
   );
 
+  const baseLambdaLayer = await getBaseLambdaLayer(dir);
+  const baseLayerId = resolveResourceLogicalId(baseModuleName, baseLayerName);
+  samTemplate.Resources = {
+    [baseLayerId]: baseLambdaLayer,
+    ...samTemplate.Resources
+  };
+
+  Object.keys(samTemplate.Resources).forEach(resourceId => {
+    if (samTemplate.Resources[resourceId].Type == "AWS::Serverless::Function") {
+      const layers = (samTemplate.Resources[resourceId].Properties.Layers ||
+        []) as { $ref: string }[];
+      layers.unshift({ $ref: baseLayerId });
+      samTemplate.Resources[resourceId].Properties.Layers = layers;
+    }
+  });
+
   return samTemplate;
 };
 
@@ -1128,7 +1177,7 @@ export const generateSAMTemplate = async (
     true
   );
   await saveFunctionBundleExcludes(dir, rootModuleNode);
-  const samTemplate = await _generateSAMTemplate(
+  const samTemplate = await convertServerlessTemplateIntoSAMTemplate(
     dir,
     serverlessTemplate,
     rootModuleNode.name

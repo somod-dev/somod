@@ -45,7 +45,7 @@
         "LayerName",
         "CompatibleArchitectures",
         "CompatibleRuntimes",
-        "ContentUri"
+        "Libraries"
       ],
       "properties": {
         "LayerName": {
@@ -55,14 +55,13 @@
           "type": "array",
           "items": { "const": "arm64" },
           "minItems": 1,
-          "uniqueItems": true,
           "maxItems": 1
         },
         "CompatibleRuntimes": {
           "type": "array",
-          "items": { "enum": ["nodejs14.x"] },
+          "items": { "const": "nodejs14.x" },
           "minItems": 1,
-          "uniqueItems": true
+          "maxItems": 1
         },
         "Libraries": {
           "type": "object",

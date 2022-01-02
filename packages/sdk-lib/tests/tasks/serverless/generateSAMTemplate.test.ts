@@ -1,15 +1,21 @@
-import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { generateSAMTemplate } from "../../../src";
-import { createFiles, createTempDir, deleteDir } from "../../utils";
+import {
+  copyCommonLib,
+  createFiles,
+  createTempDir,
+  deleteDir
+} from "../../utils";
 
 describe("Test Task generateSAMTemplate", () => {
   let dir: string = null;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dir = createTempDir();
+    await copyCommonLib(dir, "common");
+    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {
@@ -26,7 +32,59 @@ describe("Test Task generateSAMTemplate", () => {
       })
     });
     await expect(generateSAMTemplate(dir, ["slp"])).resolves.toBeUndefined();
-    expect(existsSync(join(dir, "template.yaml"))).toBeFalsy();
+    await expect(
+      readFile(join(dir, "template.yaml"), { encoding: "utf8" })
+    ).resolves.toEqual(
+      dump({
+        AWSTemplateFormatVersion: "2010-09-09",
+        Transform: "AWS::Serverless-2016-10-31",
+        Globals: {
+          Function: {
+            Runtime: "nodejs14.x",
+            Handler: "index.default"
+          }
+        },
+        Parameters: {},
+        Resources: {
+          r64967c02baseLayer: {
+            Type: "AWS::Serverless::LayerVersion",
+            Metadata: {
+              BuildMethod: "nodejs14.x",
+              BuildArchitecture: "arm64"
+            },
+            Properties: {
+              LayerName: {
+                "Fn::Join": [
+                  "",
+                  [
+                    "slp",
+                    {
+                      "Fn::Select": [
+                        2,
+                        {
+                          "Fn::Split": [
+                            "/",
+                            {
+                              Ref: "AWS::StackId"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "64967c02baseLayer"
+                  ]
+                ]
+              },
+              Description:
+                "Set of npm libraries to be requiired in all Lambda funtions",
+              CompatibleArchitectures: ["arm64"],
+              CompatibleRuntimes: ["nodejs14.x"],
+              ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer"
+            }
+          }
+        }
+      })
+    );
   });
 
   test("for all valid input", async () => {
@@ -156,6 +214,42 @@ describe("Test Task generateSAMTemplate", () => {
         },
         Parameters: { pa046855cClient: { Type: "String" } },
         Resources: {
+          r64967c02baseLayer: {
+            Type: "AWS::Serverless::LayerVersion",
+            Metadata: {
+              BuildMethod: "nodejs14.x",
+              BuildArchitecture: "arm64"
+            },
+            Properties: {
+              LayerName: {
+                "Fn::Join": [
+                  "",
+                  [
+                    "slp",
+                    {
+                      "Fn::Select": [
+                        2,
+                        {
+                          "Fn::Split": [
+                            "/",
+                            {
+                              Ref: "AWS::StackId"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "64967c02baseLayer"
+                  ]
+                ]
+              },
+              Description:
+                "Set of npm libraries to be requiired in all Lambda funtions",
+              CompatibleArchitectures: ["arm64"],
+              CompatibleRuntimes: ["nodejs14.x"],
+              ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer"
+            }
+          },
           ra046855cBaseRestApi: {
             Type: "AWS::Serverless::Api",
             Properties: {
@@ -179,7 +273,8 @@ describe("Test Task generateSAMTemplate", () => {
                     RestApiId: { Ref: "ra046855cBaseRestApi" }
                   }
                 }
-              }
+              },
+              Layers: [{ $ref: "r64967c02baseLayer" }]
             }
           },
           r624eb34aGetAuthGroupFunction: {
@@ -212,7 +307,8 @@ describe("Test Task generateSAMTemplate", () => {
                     }
                   }
                 }
-              }
+              },
+              Layers: [{ $ref: "r64967c02baseLayer" }]
             }
           },
           r624eb34aListAuthGroupsFunction: {
@@ -222,7 +318,8 @@ describe("Test Task generateSAMTemplate", () => {
                 Client: {
                   Ref: "pa046855cClient"
                 }
-              }
+              },
+              Layers: [{ $ref: "r64967c02baseLayer" }]
             },
             DependsOn: ["r624eb34aGetAuthGroupFunction"]
           }

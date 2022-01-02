@@ -19,17 +19,24 @@
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
+  "toBeBundled": [
+    "@somod/common-lib",
+    "@types/react",
+    "next",
+    "react",
+    "react-dom"
+  ],
   "peerDependencies": {
     "@somod/common-lib": "^1.1.2",
     "@types/react": "^17.0.16",
-    "next": "^11.0.1",
+    "next": "^12.0.7",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@somod/common-lib": "^1.1.2",
     "@types/react": "^17.0.16",
-    "next": "^11.0.1",
+    "next": "^12.0.7",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   }

@@ -11,8 +11,10 @@ import {
   path_slpWorkingDir,
   path_lambdas
 } from "./constants";
+import { getToBeBundledLibraries } from "./library";
 
-export const bundle = (
+export const bundle = async (
+  dir: string,
   outDir: string,
   file: string,
   external: string[] = [],
@@ -20,19 +22,11 @@ export const bundle = (
 ): Promise<BuildResult> => {
   const outFile = join(outDir, file_index_js);
 
-  const defaultExternal = [
-    "@somod/slp-lib",
-    "aws-sdk",
-    "ajv",
-    "ajv-formats",
-    "lodash",
-    "tslib",
-    "uuid"
-  ]; // exclude everything from the slp-lib, slp-lib is added as layer to every Lambda
+  const slpLibToBundle = await getToBeBundledLibraries(dir, "slp");
 
-  const _external = uniq([...defaultExternal, ...external]);
+  const _external = uniq([...Object.keys(slpLibToBundle), ...external]);
 
-  return build({
+  return await build({
     entryPoints: [file],
     bundle: true,
     outfile: outFile,
@@ -40,7 +34,7 @@ export const bundle = (
     platform: "node",
     external: _external,
     minify: true,
-    target: ["node14", "node12"]
+    target: ["node14"]
   });
 };
 
@@ -109,7 +103,7 @@ export const packageLambda = async (
     }
   }
 
-  await bundle(outDir, file, external, sourceMap);
+  await bundle(dir, outDir, file, external, sourceMap);
 
   await createPackageJson(moduleName, functionName, outDir);
 };

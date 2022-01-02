@@ -2,13 +2,20 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { bundleServerlessFunctions } from "../../../src";
-import { createFiles, createTempDir, deleteDir } from "../../utils";
+import {
+  copyCommonLib,
+  createFiles,
+  createTempDir,
+  deleteDir
+} from "../../utils";
 
 describe("Test task bundleServerlessFunctions", () => {
   let dir: string = null;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dir = createTempDir();
+    await copyCommonLib(dir, "common");
+    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {

@@ -1,12 +1,12 @@
-import { createFiles, createTempDir, deleteDir } from "../utils";
-import {
-  generateSAMTemplate,
-  buildTemplateJson
-} from "../../src/utils/serverlessTemplate";
-import { join } from "path";
+import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
-import { existsSync } from "fs";
+import { join } from "path";
+import {
+  buildTemplateJson,
+  generateSAMTemplate
+} from "../../src/utils/serverlessTemplate";
+import { copyCommonLib, createFiles, createTempDir, deleteDir } from "../utils";
 
 describe("Test Util serverlessTemplate.buildTemplateJson", () => {
   let dir: string = null;
@@ -1421,6 +1421,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
   });
 
   test("for all valid input", async () => {
+    await copyCommonLib(dir, "common");
+    await copyCommonLib(dir, "slp");
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
@@ -1545,11 +1547,13 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 ]
               },
               CodeUri: { "SLP::Function": "getAuthGroup" },
-              Layers: {
-                "SLP::Ref": {
-                  resource: "AuthLayer"
+              Layers: [
+                {
+                  "SLP::Ref": {
+                    resource: "AuthLayer"
+                  }
                 }
-              },
+              ],
               Events: {
                 ApiEvent: {
                   Type: "Api",
@@ -1604,6 +1608,42 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     await expect(generateSAMTemplate(dir, ["slp"])).resolves.toEqual({
       Parameters: { pa046855cClient: { Type: "String" } },
       Resources: {
+        r64967c02baseLayer: {
+          Metadata: {
+            BuildArchitecture: "arm64",
+            BuildMethod: "nodejs14.x"
+          },
+          Properties: {
+            CompatibleArchitectures: ["arm64"],
+            CompatibleRuntimes: ["nodejs14.x"],
+            ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer",
+            Description:
+              "Set of npm libraries to be requiired in all Lambda funtions",
+            LayerName: {
+              "Fn::Join": [
+                "",
+                [
+                  "slp",
+                  {
+                    "Fn::Select": [
+                      2,
+                      {
+                        "Fn::Split": [
+                          "/",
+                          {
+                            Ref: "AWS::StackId"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "64967c02baseLayer"
+                ]
+              ]
+            }
+          },
+          Type: "AWS::Serverless::LayerVersion"
+        },
         ra046855cBaseRestApi: {
           Type: "AWS::Serverless::Api",
           Properties: {
@@ -1664,13 +1704,15 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   RestApiId: { Ref: "ra046855cBaseRestApi" }
                 }
               }
-            }
+            },
+            Layers: [{ $ref: "r64967c02baseLayer" }]
           }
         },
         ra046855cBaseAnotherFunction: {
           Type: "AWS::Serverless::Function",
           Properties: {
-            CodeUri: ".slp/lambdas/@sodaru/baseapi/anotherFunction"
+            CodeUri: ".slp/lambdas/@sodaru/baseapi/anotherFunction",
+            Layers: [{ $ref: "r64967c02baseLayer" }]
           }
         },
         r624eb34aAuthLayer: {
@@ -1737,9 +1779,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 }
               ]
             },
-            Layers: {
-              Ref: "r624eb34aAuthLayer"
-            },
+            Layers: [
+              { $ref: "r64967c02baseLayer" },
+              {
+                Ref: "r624eb34aAuthLayer"
+              }
+            ],
             Events: {
               ApiEvent: {
                 Type: "Api",
@@ -1761,7 +1806,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               Client: {
                 Ref: "pa046855cClient"
               }
-            }
+            },
+            Layers: [{ $ref: "r64967c02baseLayer" }]
           },
           DependsOn: ["r624eb34aGetAuthGroupFunction"]
         },
@@ -1826,6 +1872,42 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       JSON.stringify({
         "@sodaru/auth-slp": { getAuthGroup: ["@sodaru/restapi-sdk"] }
       })
+    );
+
+    await expect(
+      readFile(
+        join(
+          dir,
+          ".slp",
+          "lambda-layers",
+          "@somod/slp",
+          "baseLayer",
+          "package.json"
+        ),
+        {
+          encoding: "utf8"
+        }
+      )
+    ).resolves.toEqual(
+      JSON.stringify(
+        {
+          name: "@somod/slp-baselayer",
+          version: "1.0.0",
+          description: "Lambda function layer - baseLayer",
+          dependencies: {
+            ajv: "^8.8.2",
+            "ajv-formats": "^2.1.1",
+            lodash: "^4.17.21",
+            tslib: "^2.3.1",
+            uuid: "^8.3.2",
+            "@somod/common-lib": "^1.1.2",
+            "aws-sdk": "2.952.0",
+            "@somod/slp-lib": "1.1.2"
+          }
+        },
+        null,
+        2
+      )
     );
   });
 });
