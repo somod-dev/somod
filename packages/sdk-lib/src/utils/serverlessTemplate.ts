@@ -46,6 +46,7 @@ const KeywordSLPRef = "SLP::Ref";
 const KeywordSLPRefParameter = "SLP::RefParameter";
 const KeywordSLPRefResourceName = "SLP::RefResourceName";
 const KeywordSLPFunction = "SLP::Function";
+const KeywordSLPFunctionLayerLibraries = "SLP::FunctionLayerLibraries";
 
 type ServerlessTemplate = Record<string, SLPTemplate>;
 
@@ -61,6 +62,7 @@ type SLPKeywordPaths = {
   slpRefParameterPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::RefParameter
   slpRefResourceNamePaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::RefResourceName
   slpFunctionPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of SLP::Function
+  slpFunctionLayerLibrariesPaths: string[][]; //list of JSON Paths relative to Resources for the occurances of KeywordSLPFunctionLayerLibraries
 };
 
 const SLPKeywordPathsKeys: (keyof SLPKeywordPaths)[] = [
@@ -68,7 +70,8 @@ const SLPKeywordPathsKeys: (keyof SLPKeywordPaths)[] = [
   "slpRefPaths",
   "slpRefParameterPaths",
   "slpRefResourceNamePaths",
-  "slpFunctionPaths"
+  "slpFunctionPaths",
+  "slpFunctionLayerLibrariesPaths"
 ];
 
 type SLPTemplate = OriginalSLPTemplate & SLPKeywordPaths;
@@ -114,6 +117,15 @@ type SLPFunction = {
   };
 };
 
+type SLPFunctionLayerLibraries = {
+  LayerName: SLPResourceName;
+  CompatibleArchitectures: string[];
+  CompatibleRuntimes: string[];
+  RetentionPolicy: "Delete";
+  Description: string;
+  [KeywordSLPFunctionLayerLibraries]: Record<string, string>;
+};
+
 type SLPResourceName = {
   [KeywordSLPResourceName]: string;
 };
@@ -138,7 +150,8 @@ const getSLPKeywords = (chunk: unknown): SLPKeywordPaths => {
     slpRefPaths: [],
     slpRefParameterPaths: [],
     slpRefResourceNamePaths: [],
-    slpFunctionPaths: []
+    slpFunctionPaths: [],
+    slpFunctionLayerLibrariesPaths: []
   };
   if (isPlainObject(chunk)) {
     if (!isUndefined(chunk[KeywordSLPResourceName])) {
@@ -151,17 +164,19 @@ const getSLPKeywords = (chunk: unknown): SLPKeywordPaths => {
       keyWords.slpRefResourceNamePaths.push([]);
     } else if (!isUndefined(chunk[KeywordSLPFunction])) {
       keyWords.slpFunctionPaths.push([]);
-    } else {
-      Object.keys(chunk).forEach(key => {
-        const childKeywords = getSLPKeywords(chunk[key]);
-        SLPKeywordPathsKeys.forEach(paths => {
-          childKeywords[paths].forEach((keywordPaths: string[]) => {
-            keywordPaths.unshift(key);
-            keyWords[paths].push(keywordPaths);
-          });
+    } else if (!isUndefined(chunk[KeywordSLPFunctionLayerLibraries])) {
+      keyWords.slpFunctionLayerLibrariesPaths.push([]);
+    }
+
+    Object.keys(chunk).forEach(key => {
+      const childKeywords = getSLPKeywords(chunk[key]);
+      SLPKeywordPathsKeys.forEach(paths => {
+        childKeywords[paths].forEach((keywordPaths: string[]) => {
+          keywordPaths.unshift(key);
+          keyWords[paths].push(keywordPaths);
         });
       });
-    }
+    });
   } else if (isArray(chunk)) {
     chunk.forEach((arrayItem, index) => {
       const childKeywords = getSLPKeywords(arrayItem);
@@ -903,23 +918,20 @@ const prepareFunctionLayer = async (
 const resolveFunctionLayer = async (
   dir: string,
   module: string,
-  layerResource: SLPResource
-): Promise<SLPResource> => {
-  const _layerResource = cloneDeep(layerResource);
+  layerProperties: SLPFunctionLayerLibraries
+): Promise<SLPResource["Properties"]> => {
+  const _layerProperties = cloneDeep(
+    layerProperties
+  ) as SLPResource["Properties"];
 
-  const layerName = _layerResource.Properties.LayerName[
-    KeywordSLPResourceName
-  ] as string;
-  const dependencies = _layerResource.Properties.Libraries as Record<
-    string,
-    string
-  >;
+  const layerName = layerProperties.LayerName[KeywordSLPResourceName];
+  const dependencies = layerProperties[KeywordSLPFunctionLayerLibraries];
   await prepareFunctionLayer(dir, module, layerName, dependencies);
 
-  _layerResource.Properties.ContentUri = `${path_slpWorkingDir}/${path_lambda_layers}/${module}/${layerName}`;
-  delete _layerResource.Properties.Libraries;
+  _layerProperties.ContentUri = `${path_slpWorkingDir}/${path_lambda_layers}/${module}/${layerName}`;
+  delete _layerProperties[KeywordSLPFunctionLayerLibraries];
 
-  return _layerResource;
+  return _layerProperties;
 };
 
 const baseLayerName = "baseLayer";
@@ -945,6 +957,7 @@ const getBaseLambdaLayer = async (
         "Set of npm libraries to be requiired in all Lambda funtions",
       CompatibleArchitectures: ["arm64"],
       CompatibleRuntimes: ["nodejs14.x"],
+      RetentionPolicy: "Delete",
       ContentUri: `${path_slpWorkingDir}/${path_lambda_layers}/${module}/${layerName}`
     }
   };
@@ -993,23 +1006,23 @@ const convertServerlessTemplateIntoSAMTemplate = async (
         })
       );
 
-      // resolve AWS::Serverless::LayerVersion
+      // resolve SLP::FunctionLayerLibraries
       // Layer version must be resolved before SLP::ResourceName , because LayerVersion uses the unresolved name for the layer
       await Promise.all(
-        Object.keys(slpTemplate.Resources)
-          .filter(
-            logicalResourceId =>
-              slpTemplate.Resources[logicalResourceId].Type ==
-              "AWS::Serverless::LayerVersion"
-          )
-          .map(async logicalResourceId => {
-            slpTemplate.Resources[logicalResourceId] =
-              await resolveFunctionLayer(
-                dir,
-                moduleName,
-                slpTemplate.Resources[logicalResourceId]
-              );
-          })
+        slpTemplate.slpFunctionLayerLibrariesPaths.map(
+          async functionLayerPath => {
+            const slpFunctionLayer = getSLPKeyword(
+              slpTemplate,
+              functionLayerPath
+            ) as SLPFunctionLayerLibraries;
+            const functionLayer = await resolveFunctionLayer(
+              dir,
+              rootModuleName,
+              slpFunctionLayer
+            );
+            replaceSLPKeyword(slpTemplate, functionLayerPath, functionLayer);
+          }
+        )
       );
 
       // resolve SLP::ResourceName

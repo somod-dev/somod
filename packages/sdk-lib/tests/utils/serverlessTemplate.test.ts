@@ -251,14 +251,17 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
     });
   });
 
-  test("with SLP::FunctionLayer", async () => {
+  test("with SLP::FunctionLayerLibraries", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::LayerVersion",
           Properties: {
-            ContentUri: {
-              "SLP::FunctionLayer": "Resource1"
+            LayerName: {
+              "SLP::ResourceName": "my-layer"
+            },
+            "SLP::FunctionLayerLibraries": {
+              lodash: "^8.3.1"
             }
           }
         }
@@ -1522,9 +1525,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               LayerName: {
                 "SLP::ResourceName": "SodaruAuthLayer"
               },
+              RetentionPolicy: "Delete",
               CompatibleArchitectures: ["arm64"],
               CompatibleRuntimes: ["nodejs14.x"],
-              Libraries: { "@sodaru/auth-server-sdk": "^1.0.0" }
+              "SLP::FunctionLayerLibraries": {
+                "@sodaru/auth-server-sdk": "^1.0.0"
+              }
             }
           },
           GetAuthGroupFunction: {
@@ -1616,6 +1622,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           Properties: {
             CompatibleArchitectures: ["arm64"],
             CompatibleRuntimes: ["nodejs14.x"],
+            RetentionPolicy: "Delete",
             ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer",
             Description:
               "Set of npm libraries to be requiired in all Lambda funtions",
@@ -1735,6 +1742,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             },
             CompatibleArchitectures: ["arm64"],
             CompatibleRuntimes: ["nodejs14.x"],
+            RetentionPolicy: "Delete",
             ContentUri: ".slp/lambda-layers/@sodaru/auth-slp/SodaruAuthLayer"
           }
         },

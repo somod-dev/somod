@@ -45,7 +45,8 @@
         "LayerName",
         "CompatibleArchitectures",
         "CompatibleRuntimes",
-        "Libraries"
+        "SLP::FunctionLayerLibraries",
+        "RetentionPolicy"
       ],
       "properties": {
         "LayerName": {
@@ -63,7 +64,8 @@
           "minItems": 1,
           "maxItems": 1
         },
-        "Libraries": {
+        "RetentionPolicy": { "const": "Delete" },
+        "SLP::FunctionLayerLibraries": {
           "type": "object",
           "description": "All dependent libraries to be installed in the layer",
           "additionalProperties": false,

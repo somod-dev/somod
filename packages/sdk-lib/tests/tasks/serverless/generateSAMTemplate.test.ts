@@ -79,6 +79,7 @@ describe("Test Task generateSAMTemplate", () => {
                 "Set of npm libraries to be requiired in all Lambda funtions",
               CompatibleArchitectures: ["arm64"],
               CompatibleRuntimes: ["nodejs14.x"],
+              RetentionPolicy: "Delete",
               ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer"
             }
           }
@@ -247,6 +248,7 @@ describe("Test Task generateSAMTemplate", () => {
                 "Set of npm libraries to be requiired in all Lambda funtions",
               CompatibleArchitectures: ["arm64"],
               CompatibleRuntimes: ["nodejs14.x"],
+              RetentionPolicy: "Delete",
               ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer"
             }
           },
