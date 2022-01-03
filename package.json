@@ -39,7 +39,7 @@
   "private": true,
   "devDependencies": {
     "@sodev/eslint-config": "^1.1.0",
-    "@sodev/lerna-utilities": "^1.0.0",
+    "@sodev/lerna-utilities": "^1.1.0",
     "@sodev/prettier-config": "^1.1.0",
     "lerna": "^4.0.0"
   }

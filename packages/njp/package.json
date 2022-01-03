@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "@sodev/sodev": "^1.1.0",
-    "@somod/njp-lib": "^1.1.3"
+    "@somod/njp-lib": "^1.2.1"
   },
   "devDependencies": {
     "@sodaru/cli-base": "^1.0.0",
