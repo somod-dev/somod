@@ -37,7 +37,7 @@ describe("Test Util library.getToBeBundledLibraries", () => {
     await copyCommonLib(dir, "common");
     const libVersion = await copyCommonLib(dir, "njp");
     await expect(getToBeBundledLibraries(dir, "njp")).resolves.toEqual({
-      "@somod/common-lib": undefined,
+      "@somod/common-lib": expect.stringContaining(""), // can not guarantee the version of common-lib
       "@somod/njp-lib": libVersion,
       "@types/react": "^17.0.16",
       ajv: "^8.8.2",
@@ -71,7 +71,7 @@ describe("Test Util library.getToBeBundledLibraries", () => {
       )
     });
     await expect(getToBeBundledLibraries(dir, "slp")).resolves.toEqual({
-      "@somod/common-lib": undefined,
+      "@somod/common-lib": expect.stringContaining(""),
       "@somod/slp-lib": libVersion,
       ajv: "^8.8.2",
       "ajv-formats": "^2.1.1",
@@ -87,7 +87,7 @@ describe("Test Util library.getToBeBundledLibraries", () => {
     await copyCommonLib(dir, "njp");
     const libVersion = await copyCommonLib(dir, "slp");
     await expect(getToBeBundledLibraries(dir, "njp")).resolves.toEqual({
-      "@somod/common-lib": undefined,
+      "@somod/common-lib": expect.stringContaining(""),
       "@somod/njp-lib": libVersion,
       "@types/react": "^17.0.16",
       ajv: "^8.8.2",
@@ -100,7 +100,7 @@ describe("Test Util library.getToBeBundledLibraries", () => {
       uuid: "^8.3.2"
     });
     await expect(getToBeBundledLibraries(dir, "slp")).resolves.toEqual({
-      "@somod/common-lib": undefined,
+      "@somod/common-lib": expect.stringContaining(""),
       "@somod/slp-lib": libVersion,
       ajv: "^8.8.2",
       "ajv-formats": "^2.1.1",

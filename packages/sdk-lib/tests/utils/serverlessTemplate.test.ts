@@ -1874,8 +1874,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       })
     );
 
-    await expect(
-      readFile(
+    const lambdaLayerContent = JSON.parse(
+      await readFile(
         join(
           dir,
           ".slp",
@@ -1888,25 +1888,21 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           encoding: "utf8"
         }
       )
-    ).resolves.toEqual(
-      JSON.stringify(
-        {
-          name: "@somod/slp-baselayer",
-          version: "1.0.0",
-          description: "Lambda function layer - baseLayer",
-          dependencies: {
-            ajv: "^8.8.2",
-            "ajv-formats": "^2.1.1",
-            lodash: "^4.17.21",
-            tslib: "^2.3.1",
-            uuid: "^8.3.2",
-            "aws-sdk": "2.952.0",
-            "@somod/slp-lib": "1.1.2"
-          }
-        },
-        null,
-        2
-      )
     );
+    expect(lambdaLayerContent).toEqual({
+      name: "@somod/slp-baselayer",
+      version: "1.0.0",
+      description: "Lambda function layer - baseLayer",
+      dependencies: {
+        ajv: "^8.8.2",
+        "ajv-formats": "^2.1.1",
+        lodash: "^4.17.21",
+        tslib: "^2.3.1",
+        uuid: "^8.3.2",
+        "aws-sdk": "2.952.0",
+        "@somod/common-lib": expect.stringContaining(""),
+        "@somod/slp-lib": expect.stringContaining("")
+      }
+    });
   });
 });

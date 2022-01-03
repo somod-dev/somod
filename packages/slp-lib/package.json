@@ -33,9 +33,10 @@
     "aws-sdk"
   ],
   "peerDependencies": {
+    "@somod/common-lib": "^1.1.3",
+    "aws-sdk": "2.952.0",
     "@somod/serverless-schema": "^1.1.2",
-    "@types/aws-lambda": "^8.10.85",
-    "aws-sdk": "2.952.0"
+    "@types/aws-lambda": "^8.10.85"
   },
   "devDependencies": {
     "@sodev/jest-config": "^1.1.1",
