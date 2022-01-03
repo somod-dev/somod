@@ -56,7 +56,9 @@ export const DeployAction = async ({
       dir,
       "validate"
     );
+  }
 
+  if (stage == "all" || stage == "apply") {
     await taskRunner(
       `Building ${file_templateYaml}`,
       samCommand,
@@ -64,9 +66,7 @@ export const DeployAction = async ({
       dir,
       "build"
     );
-  }
 
-  if (stage == "all" || stage == "apply") {
     await taskRunner(
       `Deploying ${file_templateYaml}`,
       samCommand,
