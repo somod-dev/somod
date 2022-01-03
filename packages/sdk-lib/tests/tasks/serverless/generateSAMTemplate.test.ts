@@ -274,7 +274,7 @@ describe("Test Task generateSAMTemplate", () => {
                   }
                 }
               },
-              Layers: [{ $ref: "r64967c02baseLayer" }]
+              Layers: [{ Ref: "r64967c02baseLayer" }]
             }
           },
           r624eb34aGetAuthGroupFunction: {
@@ -308,7 +308,7 @@ describe("Test Task generateSAMTemplate", () => {
                   }
                 }
               },
-              Layers: [{ $ref: "r64967c02baseLayer" }]
+              Layers: [{ Ref: "r64967c02baseLayer" }]
             }
           },
           r624eb34aListAuthGroupsFunction: {
@@ -319,7 +319,7 @@ describe("Test Task generateSAMTemplate", () => {
                   Ref: "pa046855cClient"
                 }
               },
-              Layers: [{ $ref: "r64967c02baseLayer" }]
+              Layers: [{ Ref: "r64967c02baseLayer" }]
             },
             DependsOn: ["r624eb34aGetAuthGroupFunction"]
           }

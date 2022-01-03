@@ -1705,14 +1705,14 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 }
               }
             },
-            Layers: [{ $ref: "r64967c02baseLayer" }]
+            Layers: [{ Ref: "r64967c02baseLayer" }]
           }
         },
         ra046855cBaseAnotherFunction: {
           Type: "AWS::Serverless::Function",
           Properties: {
             CodeUri: ".slp/lambdas/@sodaru/baseapi/anotherFunction",
-            Layers: [{ $ref: "r64967c02baseLayer" }]
+            Layers: [{ Ref: "r64967c02baseLayer" }]
           }
         },
         r624eb34aAuthLayer: {
@@ -1780,7 +1780,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               ]
             },
             Layers: [
-              { $ref: "r64967c02baseLayer" },
+              { Ref: "r64967c02baseLayer" },
               {
                 Ref: "r624eb34aAuthLayer"
               }
@@ -1807,7 +1807,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 Ref: "pa046855cClient"
               }
             },
-            Layers: [{ $ref: "r64967c02baseLayer" }]
+            Layers: [{ Ref: "r64967c02baseLayer" }]
           },
           DependsOn: ["r624eb34aGetAuthGroupFunction"]
         },

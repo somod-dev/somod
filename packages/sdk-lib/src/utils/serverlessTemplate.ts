@@ -1131,8 +1131,8 @@ const convertServerlessTemplateIntoSAMTemplate = async (
   Object.keys(samTemplate.Resources).forEach(resourceId => {
     if (samTemplate.Resources[resourceId].Type == "AWS::Serverless::Function") {
       const layers = (samTemplate.Resources[resourceId].Properties.Layers ||
-        []) as { $ref: string }[];
-      layers.unshift({ $ref: baseLayerId });
+        []) as { Ref: string }[];
+      layers.unshift({ Ref: baseLayerId });
       samTemplate.Resources[resourceId].Properties.Layers = layers;
     }
   });
