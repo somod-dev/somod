@@ -34,8 +34,6 @@
     "prepack": "npm run test"
   },
   "peerDependencies": {
-    "@somod/njp-lib": "^1.1.2",
-    "@somod/slp-lib": "^1.1.2",
     "@sodev/sodev": "^1.1.0",
     "esbuild": "^0.12.28"
   },

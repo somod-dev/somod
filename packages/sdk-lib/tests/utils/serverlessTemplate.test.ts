@@ -1900,7 +1900,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             lodash: "^4.17.21",
             tslib: "^2.3.1",
             uuid: "^8.3.2",
-            "@somod/common-lib": "^1.1.2",
             "aws-sdk": "2.952.0",
             "@somod/slp-lib": "1.1.2"
           }
