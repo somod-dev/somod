@@ -4,7 +4,8 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "rootDir": "./src",
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    "moduleResolution": "node"
   },
   "include": ["src"],
   "exclude": ["src/commands", "src/cli.ts"]

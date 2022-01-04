@@ -3,7 +3,7 @@
   "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/resources/function-layer.json",
   "title": "JSON Schema for Layer Version Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
-  "required": ["Type", "Properties"],
+  "required": ["Type", "Properties", "Metadata"],
   "additionalProperties": false,
   "properties": {
     "Type": { "const": "AWS::Serverless::LayerVersion" },
