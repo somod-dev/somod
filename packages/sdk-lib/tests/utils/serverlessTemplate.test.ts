@@ -1521,6 +1521,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               default: true,
               attributes: []
             },
+            Metadata: { BuildArchitecture: "arm64", BuildMethod: "nodejs14.x" },
             Properties: {
               LayerName: {
                 "SLP::ResourceName": "SodaruAuthLayer"
@@ -1724,6 +1725,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         },
         r624eb34aAuthLayer: {
           Type: "AWS::Serverless::LayerVersion",
+          Metadata: { BuildArchitecture: "arm64", BuildMethod: "nodejs14.x" },
           Properties: {
             LayerName: {
               "Fn::Join": [

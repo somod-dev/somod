@@ -1122,12 +1122,16 @@ const convertServerlessTemplateIntoSAMTemplate = async (
             }
           );
         }
-        if (resource.DeletionPolicy) {
-          samResource.DeletionPolicy = resource.DeletionPolicy;
-        }
-        if (resource.UpdateReplacePolicy) {
-          samResource.UpdateReplacePolicy = resource.UpdateReplacePolicy;
-        }
+
+        // copy other resource attributes as is
+        Object.keys(resource).forEach(resourceAttribute => {
+          if (
+            !["Type", "Properties", "DependsOn"].includes(resourceAttribute) &&
+            !resourceAttribute.startsWith("SLP::")
+          ) {
+            samResource[resourceAttribute] = resource[resourceAttribute];
+          }
+        });
 
         samTemplate.Resources[resourceLogicalId] = samResource;
       });
