@@ -206,23 +206,6 @@ export const checkForRepeatedModules = (
   }
 };
 
-export const getAllDependencies = (module: ModuleNode): string[] => {
-  const queue: ModuleNode[] = [module];
-  const dependencies: string[] = [];
-  let node = queue.shift();
-  while (node) {
-    node.dependencies.forEach(dependencyNode => {
-      const dependencyName = dependencyNode.name;
-      if (!dependencies.includes(dependencyName)) {
-        dependencies.push(dependencyName);
-        queue.push(dependencyNode);
-      }
-    });
-    node = queue.shift();
-  }
-  return dependencies;
-};
-
 export const resolve = (
   moduleNames: string[],
   dependencyMap: Record<string, string[]>
@@ -260,4 +243,36 @@ export const resolve = (
     throw new Error("Can not resolve");
   }
   return notOverridedModules[0];
+};
+
+export const toChildFirstList = (moduleNode: ModuleNode): ModuleNode[] => {
+  const toBeParsed: ModuleNode[] = [moduleNode];
+  const parsed: ModuleNode[] = [];
+
+  while (toBeParsed.length > 0) {
+    const currentNode = toBeParsed.pop();
+    currentNode.dependencies.forEach(child => toBeParsed.push(child));
+    parsed.unshift(currentNode);
+  }
+
+  const parsedModuleNames: string[] = [];
+
+  const parsedUniq = parsed.filter(module => {
+    if (parsedModuleNames.includes(module.name)) {
+      return false;
+    } else {
+      parsedModuleNames.push(module.name);
+      return true;
+    }
+  });
+
+  return parsedUniq;
+};
+
+export const getAllDependencies = (module: ModuleNode): string[] => {
+  const allModuleNodes = toChildFirstList(module);
+  const allModuleNames = allModuleNodes.map(moduleNode => moduleNode.name);
+
+  allModuleNames.pop(); // remove the root modulename
+  return allModuleNames;
 };

@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { file_templateYaml, path_serverless } from "../../utils/constants";
-import { buildTemplateJson } from "../../utils/serverlessTemplate";
+import { buildTemplateJson } from "../../utils/serverless";
 
 export const buildServerlessTemplate = async (
   dir: string,

@@ -162,7 +162,7 @@ describe("Test util getModuleInfo", () => {
       {
         name: "m1",
         version: "1.0.0",
-        dependencies: ["m2", "m3", "m4", "m5"],
+        dependencies: ["m4", "m5", "m2", "m3"],
         packageLocation: dir
       },
       {

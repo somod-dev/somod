@@ -2,10 +2,8 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
-import {
-  buildTemplateJson,
-  generateSAMTemplate
-} from "../../src/utils/serverlessTemplate";
+import { generateSAMTemplate } from "../../src/utils/serverlessTemplate";
+import { buildTemplateJson } from "../../src/utils/serverless";
 import { copyCommonLib, createFiles, createTempDir, deleteDir } from "../utils";
 
 describe("Test Util serverlessTemplate.buildTemplateJson", () => {
@@ -56,7 +54,11 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        `file "${join(dir, "serverless", "template.yaml")}" does not exist`
+        `ENOENT: no such file or directory, open '${join(
+          dir,
+          "serverless",
+          "template.yaml"
+        )}'`
       )
     });
     expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
@@ -333,11 +335,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
     });
     await expect(
       buildTemplateJson(dir, moduleIndicators)
-    ).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Extended Resource can not specify SLP::ResourceName. Specified in "sample" at "Resources/Resource1/Properties/FunctionName"'
-      )
-    });
+    ).resolves.toBeUndefined();
   });
 
   test("with SLP::Output", async () => {
@@ -1227,7 +1225,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        `Referenced module resource name {undefined, Resource2, Name} not found. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
+        `Referenced module resource name {sample, Resource2, Name} not found. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
     });
   });
@@ -1271,7 +1269,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        `Referenced module resource name {undefined, Resource2, Name} not found. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
+        `Referenced module resource name {sample, Resource2, Name} not found. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
     });
   });
@@ -1315,7 +1313,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        `Referenced module resource name property {undefined, Resource2, StageName} is not a valid SLP::ResourceName. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
+        `Referenced module resource name property {sample, Resource2, StageName} is not a valid SLP::ResourceName. Referenced in "sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
     });
   });
