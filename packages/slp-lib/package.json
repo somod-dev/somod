@@ -33,7 +33,7 @@
     "aws-sdk"
   ],
   "peerDependencies": {
-    "@somod/common-lib": "^1.2.6",
+    "@somod/common-lib": "^1.2.5",
     "@types/aws-lambda": "^8.10.85",
     "aws-sdk": "2.952.0"
   },
