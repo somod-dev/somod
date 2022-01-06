@@ -18,10 +18,7 @@ import { getToBeBundledLibraries } from "../library";
 import { ModuleNode } from "../module";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
 import { validate as validateExtend } from "./keywords/extend";
-import {
-  applyBaseLayer,
-  validate as validateFunction
-} from "./keywords/function";
+import { validate as validateFunction } from "./keywords/function";
 import { validate as validateRef } from "./keywords/ref";
 import { validate as validateRefParameter } from "./keywords/refParameter";
 import { validate as validateRefResourceName } from "./keywords/refResourceName";
@@ -104,8 +101,6 @@ export const loadSLPTemplate = async (
     type == "source"
       ? await loadSourceSLPTemplate(moduleNode)
       : await loadBuiltSLPTemplate(moduleNode);
-
-  applyBaseLayer(originalSlpTemplate);
 
   const slpTemplate: SLPTemplate = {
     ...originalSlpTemplate,

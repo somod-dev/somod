@@ -25,8 +25,6 @@ export const key_sideEffects = "sideEffects";
 export const key_jsnextMain = "jsnext:main";
 export const key_files = "files";
 
-export const key_slpLambdaBundleExclude = "slpLambdaBundleExclude";
-
 export const path_nodeModules = "node_modules";
 
 export const path_build = "build";

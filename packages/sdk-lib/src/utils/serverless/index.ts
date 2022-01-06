@@ -8,7 +8,8 @@ import { apply as applyDependsOn } from "./keywords/dependsOn";
 import { apply as applyExtend } from "./keywords/extend";
 import {
   apply as applyFunction,
-  prepare as prepareFunction
+  prepare as prepareFunction,
+  saveExcludes as saveExcludesFunction
 } from "./keywords/function";
 import {
   apply as applyFunctionLayerLibraries,
@@ -56,7 +57,7 @@ export const buildTemplateJson = async (
   await buildRootSLPTemplate(rootModuleNode);
 };
 
-export const generateSamTemplate = async (
+export const generateSAMTemplate = async (
   dir: string,
   moduleIndicators: string[]
 ): Promise<SAMTemplate> => {
@@ -88,7 +89,8 @@ export const generateSamTemplate = async (
 
   await Promise.all([
     prepareFunction(dir, serverlessTemplate),
-    prepareFunctionLayerLibraries(dir, serverlessTemplate)
+    prepareFunctionLayerLibraries(dir, serverlessTemplate),
+    saveExcludesFunction(dir, serverlessTemplate)
   ]);
 
   const samTemplate: SAMTemplate = { Parameters: {}, Resources: {} };

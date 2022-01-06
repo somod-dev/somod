@@ -1,8 +1,10 @@
 import { unixStylePath } from "@sodaru/cli-base";
 import { existsSync } from "fs";
 import { mkdir, writeFile } from "fs/promises";
+import { cloneDeep } from "lodash";
 import { dirname, join, relative } from "path";
 import {
+  file_lambdaBundleExclude,
   path_build,
   path_functions,
   path_lambdas,
@@ -13,19 +15,22 @@ import { baseLayerName, baseModuleName } from "../slpTemplate";
 import {
   KeywordSLPFunction,
   KeywordSLPRef,
-  OriginalSLPTemplate,
   ServerlessTemplate,
   SLPFunction,
   SLPRef,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword, replaceSLPKeyword } from "../utils";
+import {
+  getSLPKeyword,
+  replaceSLPKeyword,
+  updateKeywordPathsInSLPTemplate
+} from "../utils";
 
 export const validate = (slpTemplate: SLPTemplate): Error[] => {
   const errors: Error[] = [];
 
   slpTemplate.keywordPaths[KeywordSLPFunction].forEach(functionKeywordPath => {
-    const functionName = getSLPKeyword<SLPFunction>(
+    const _function = getSLPKeyword<SLPFunction>(
       slpTemplate,
       functionKeywordPath
     )[KeywordSLPFunction];
@@ -42,15 +47,15 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
       functionFilePath,
       path_serverless,
       path_functions,
-      functionName + (slpTemplate.root ? ".ts" : ".js")
+      _function.name + (slpTemplate.root ? ".ts" : ".js")
     );
 
     if (!existsSync(functionFilePath)) {
       errors.push(
         new Error(
-          `Referenced module function {${
-            slpTemplate.module
-          }, ${functionName}} not found. Looked for file "${unixStylePath(
+          `Referenced module function {${slpTemplate.module}, ${
+            _function.name
+          }} not found. Looked for file "${unixStylePath(
             functionFilePath
           )}". Referenced in "${
             slpTemplate.module
@@ -63,37 +68,41 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
   return errors;
 };
 
-export const applyBaseLayer = (originalSlpTemplate: OriginalSLPTemplate) => {
-  Object.keys(originalSlpTemplate.Resources).forEach(resourceId => {
-    if (
-      originalSlpTemplate.Resources[resourceId].Type ==
-      "AWS::Serverless::Function"
-    ) {
-      const layers = (originalSlpTemplate.Resources[resourceId].Properties
-        .Layers || []) as SLPRef[];
-      layers.unshift({
-        [KeywordSLPRef]: { module: baseModuleName, resource: baseLayerName }
-      });
-      originalSlpTemplate.Resources[resourceId].Properties.Layers = layers;
-    }
+const applyBaseLayer = (slpTemplate: SLPTemplate, resourceId: string) => {
+  const layers = (slpTemplate.Resources[resourceId].Properties.Layers ||
+    []) as SLPRef[];
+  layers.unshift({
+    [KeywordSLPRef]: { module: baseModuleName, resource: baseLayerName }
   });
+  slpTemplate.Resources[resourceId].Properties.Layers = layers;
+  slpTemplate.original.Resources[resourceId].Properties.Layers = layers;
 };
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
     slpTemplate.keywordPaths[KeywordSLPFunction].forEach(
       functionKeywordPath => {
-        const functionName = getSLPKeyword<SLPFunction>(
+        const _functionName = getSLPKeyword<SLPFunction>(
           slpTemplate,
           functionKeywordPath
         )[KeywordSLPFunction];
         replaceSLPKeyword(
           slpTemplate,
           functionKeywordPath,
-          `${path_slpWorkingDir}/${path_lambdas}/${slpTemplate.module}/${functionName}`
+          `${path_slpWorkingDir}/${path_lambdas}/${slpTemplate.module}/${_functionName.name}`
         );
+
+        const resourceId = functionKeywordPath[0];
+        applyBaseLayer(slpTemplate, resourceId);
       }
     );
+    if (slpTemplate.keywordPaths[KeywordSLPFunction].length > 0) {
+      const functionKeywordPaths = cloneDeep(
+        slpTemplate.keywordPaths[KeywordSLPFunction]
+      );
+      updateKeywordPathsInSLPTemplate(slpTemplate);
+      slpTemplate.keywordPaths[KeywordSLPFunction] = functionKeywordPaths;
+    }
   });
 };
 
@@ -106,7 +115,7 @@ export const prepare = async (
       await Promise.all(
         slpTemplate.keywordPaths[KeywordSLPFunction].map(
           async functionKeywordPath => {
-            const functionName = getSLPKeyword<SLPFunction>(
+            const { name: functionName } = getSLPKeyword<SLPFunction>(
               slpTemplate,
               functionKeywordPath
             )[KeywordSLPFunction];
@@ -132,5 +141,33 @@ export const prepare = async (
         )
       );
     })
+  );
+};
+
+export const saveExcludes = async (
+  dir: string,
+  serverlessTemplate: ServerlessTemplate
+): Promise<void> => {
+  const excludes: Record<string, Record<string, string[]>> = {};
+
+  Object.values(serverlessTemplate).forEach(slpTemplate => {
+    excludes[slpTemplate.module] = {};
+    slpTemplate.keywordPaths[KeywordSLPFunction].forEach(
+      functionKeywordPath => {
+        const _function = getSLPKeyword<SLPFunction>(
+          slpTemplate,
+          functionKeywordPath
+        )[KeywordSLPFunction];
+
+        excludes[slpTemplate.module][_function.name] = _function.exclude || [];
+      }
+    );
+  });
+
+  await mkdir(join(dir, path_slpWorkingDir), { recursive: true });
+
+  await writeFile(
+    join(dir, path_slpWorkingDir, file_lambdaBundleExclude),
+    JSON.stringify(excludes)
   );
 };

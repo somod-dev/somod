@@ -2,7 +2,7 @@ import { writeFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
-import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverlessTemplate";
+import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverless";
 
 export const generateSAMTemplate = async (
   dir: string,

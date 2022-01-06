@@ -156,7 +156,7 @@ describe("Test Task generateSAMTemplate", () => {
               FunctionName: {
                 "SLP::ResourceName": "GetAuthGroup"
               },
-              CodeUri: { "SLP::Function": "getAuthGroup" },
+              CodeUri: { "SLP::Function": { name: "getAuthGroup" } },
               Events: {
                 ApiEvent: {
                   Type: "Api",
@@ -275,8 +275,7 @@ describe("Test Task generateSAMTemplate", () => {
                     RestApiId: { Ref: "ra046855cBaseRestApi" }
                   }
                 }
-              },
-              Layers: [{ Ref: "r64967c02baseLayer" }]
+              }
             }
           },
           r624eb34aGetAuthGroupFunction: {
@@ -327,8 +326,7 @@ describe("Test Task generateSAMTemplate", () => {
                 Client: {
                   Ref: "pa046855cClient"
                 }
-              },
-              Layers: [{ Ref: "r64967c02baseLayer" }]
+              }
             },
             DependsOn: ["r624eb34aGetAuthGroupFunction"]
           }

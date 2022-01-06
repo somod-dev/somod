@@ -73,7 +73,11 @@ export type SLPRefResourceName = {
 };
 
 export type SLPFunction = {
-  [KeywordSLPFunction]: string;
+  [KeywordSLPFunction]: {
+    name: string;
+    exclude?: string[];
+    customResourceHandler?: boolean;
+  };
 };
 
 export type SLPFunctionLayerLibraries = {

@@ -2,8 +2,10 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
-import { generateSAMTemplate } from "../../src/utils/serverlessTemplate";
-import { buildTemplateJson } from "../../src/utils/serverless";
+import {
+  buildTemplateJson,
+  generateSAMTemplate
+} from "../../src/utils/serverless";
 import { copyCommonLib, createFiles, createTempDir, deleteDir } from "../utils";
 import { NoSLPTemplateError } from "../../src/utils/serverless/slpTemplate";
 
@@ -203,7 +205,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
           Type: "AWS::Serverless::Function",
           Properties: {
             CodeUri: {
-              "SLP::Function": "Resource1"
+              "SLP::Function": { name: "Resource1" }
             }
           }
         }
@@ -229,7 +231,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
           Type: "AWS::Serverless::Function",
           Properties: {
             CodeUri: {
-              "SLP::Function": "Resource1"
+              "SLP::Function": { name: "Resource1" }
             }
           }
         }
@@ -426,7 +428,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
           Type: "AWS::Serverless::Function",
           Properties: {
             CodeUri: {
-              "SLP::Function": "resource1"
+              "SLP::Function": { name: "resource1" }
             }
           },
           "SLP::Extend": {
@@ -438,7 +440,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
           Type: "AWS::Serverless::Function",
           Properties: {
             CodeUri: {
-              "SLP::Function": "resource2"
+              "SLP::Function": { name: "resource2" }
             }
           }
         }
@@ -541,7 +543,7 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
           Type: "AWS::Serverless::Function",
           Properties: {
             CodeUri: {
-              "SLP::Function": "resource1"
+              "SLP::Function": { name: "resource1" }
             }
           },
           "SLP::DependsOn": [
@@ -1462,7 +1464,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             BaseAnotherFunction: {
               Type: "AWS::Serverless::Function",
               Properties: {
-                CodeUri: { "SLP::Function": "anotherFunction" }
+                CodeUri: { "SLP::Function": { name: "anotherFunction" } }
               }
             }
           }
@@ -1546,7 +1548,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   }
                 ]
               },
-              CodeUri: { "SLP::Function": "getAuthGroup" },
+              CodeUri: {
+                "SLP::Function": {
+                  name: "getAuthGroup",
+                  exclude: ["@sodaru/restapi-sdk"]
+                }
+              },
               Layers: [
                 {
                   "SLP::Ref": {
@@ -1598,9 +1605,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         slp: true,
         dependencies: {
           "@sodaru/baseapi": "^1.0.0"
-        },
-        slpLambdaBundleExclude: {
-          getAuthGroup: ["@sodaru/restapi-sdk"]
         }
       })
     });
@@ -1719,8 +1723,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   RestApiId: { Ref: "ra046855cBaseRestApi" }
                 }
               }
-            },
-            Layers: [{ Ref: "r64967c02baseLayer" }]
+            }
           }
         },
         ra046855cBaseAnotherFunction: {
@@ -1844,8 +1847,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               Client: {
                 Ref: "pa046855cClient"
               }
-            },
-            Layers: [{ Ref: "r64967c02baseLayer" }]
+            }
           },
           DependsOn: ["r624eb34aGetAuthGroupFunction"]
         },
@@ -1908,6 +1910,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       })
     ).resolves.toEqual(
       JSON.stringify({
+        "@somod/slp": {},
+        "@sodaru/baseapi": { anotherFunction: [] },
         "@sodaru/auth-slp": { getAuthGroup: ["@sodaru/restapi-sdk"] }
       })
     );

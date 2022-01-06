@@ -427,9 +427,28 @@
           "additionalProperties": false,
           "properties": {
             "SLP::Function": {
-              "type": "string",
-              "description": "The name of the function, this is the file name of es module under 'serverless/functions' directory (without file extension)",
-              "pattern": "^[a-zA-Z]+[a-zA-Z0-9]*$"
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "The name of the function, this is the file name of es module under 'serverless/functions' directory (without file extension)",
+                  "pattern": "^[a-zA-Z]+[a-zA-Z0-9]*$"
+                },
+                "exclude": {
+                  "type": "array",
+                  "description": "libraries to exclude while bundling this function, excluded libraries must be included as layers",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^(@[a-zA-Z0-9\\-_]+\\/)?[a-zA-Z0-9\\-_]+$"
+                  },
+                  "maxItems": 100
+                },
+                "customResourceHandler": {
+                  "type": "boolean"
+                }
+              }
             }
           }
         },
