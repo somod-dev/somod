@@ -8,8 +8,7 @@ import { apply as applyDependsOn } from "./keywords/dependsOn";
 import { apply as applyExtend } from "./keywords/extend";
 import {
   apply as applyFunction,
-  prepare as prepareFunction,
-  saveExcludes as saveExcludesFunction
+  prepare as prepareFunction
 } from "./keywords/function";
 import {
   apply as applyFunctionLayerLibraries,
@@ -91,8 +90,7 @@ export const generateSAMTemplate = async (
 
   await Promise.all([
     prepareFunction(dir, serverlessTemplate),
-    prepareFunctionLayerLibraries(dir, serverlessTemplate),
-    saveExcludesFunction(dir, serverlessTemplate)
+    prepareFunctionLayerLibraries(dir, serverlessTemplate)
   ]);
 
   const samTemplate: SAMTemplate = { Parameters: {}, Resources: {} };

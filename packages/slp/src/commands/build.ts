@@ -33,7 +33,7 @@ import {
   path_build,
   path_functions,
   path_serverless,
-  prepeareServerlessRootFunctionsForBundling,
+  path_slpWorkingDir,
   validateModuleDependency,
   validateServerlessTemplateWithSchema
 } from "@somod/sdk-lib";
@@ -146,6 +146,14 @@ export const BuildAction = async ({
     verbose,
     dir
   );
+
+  await taskRunner(
+    `Deleting ${path_slpWorkingDir} directory`,
+    deleteSlpWorkingDir,
+    verbose,
+    dir
+  );
+
   await taskRunner(
     `Generate ${path_build}/${path_serverless}/${file_templateJson}`,
     buildServerlessTemplate,
@@ -156,12 +164,8 @@ export const BuildAction = async ({
 
   if (!invokedFromDeploy) {
     await taskRunner(
-      `Test if serverless functions in root module can be bundled`,
-      async dir => {
-        await deleteSlpWorkingDir(dir);
-        await prepeareServerlessRootFunctionsForBundling(dir);
-        await bundleServerlessFunctions(dir, false);
-      },
+      `bundle serverless functions in root module`,
+      bundleServerlessFunctions,
       verbose,
       dir
     );

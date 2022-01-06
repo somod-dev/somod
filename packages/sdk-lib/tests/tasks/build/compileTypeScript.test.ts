@@ -48,7 +48,7 @@ describe("Test Task compileTypeScript", () => {
       )
     });
     expect(existsSync(join(dir, "build"))).toBeFalsy();
-  });
+  }, 10000);
 
   test("for tsconfig.json file", async () => {
     createFiles(dir, {
@@ -60,13 +60,13 @@ describe("Test Task compileTypeScript", () => {
       )
     });
     expect(existsSync(join(dir, "build"))).toBeFalsy();
-  });
+  }, 10000);
 
   test("for tsconfig.build.json without any files", async () => {
     createFiles(dir, { "tsconfig.build.json": JSON.stringify(validTsConfig) });
     await expect(compileTypeScript(dir)).resolves.toBeUndefined();
     expect(existsSync(join(dir, "build"))).toBeFalsy();
-  });
+  }, 10000);
 
   test("for tsconfig.build.json with files", async () => {
     createFiles(dir, {

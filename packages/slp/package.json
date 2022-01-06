@@ -41,6 +41,7 @@
     "@sodaru/cli-base": "^1.0.0",
     "@somod/sdk-lib": "^1.2.5",
     "@somod/serverless-schema": "^1.2.5",
+    "@types/node": "^17.0.8",
     "esbuild": "^0.12.28",
     "tslib": "^2.3.0",
     "typescript": "^4.3.5"

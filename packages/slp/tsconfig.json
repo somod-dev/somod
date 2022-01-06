@@ -1,3 +1,6 @@
 {
+  "compilerOptions": {
+    "lib": ["ESNext"]
+  },
   "include": ["src", "tests"]
 }

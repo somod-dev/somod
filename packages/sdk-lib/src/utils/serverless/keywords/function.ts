@@ -142,9 +142,11 @@ export const prepare = async (
       );
     })
   );
+
+  await saveExcludes(dir, serverlessTemplate);
 };
 
-export const saveExcludes = async (
+const saveExcludes = async (
   dir: string,
   serverlessTemplate: ServerlessTemplate
 ): Promise<void> => {

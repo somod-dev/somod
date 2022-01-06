@@ -10,7 +10,11 @@ import {
   deleteDir
 } from "../../utils";
 import { NoSLPTemplateError } from "../../../src/utils/serverless/slpTemplate";
-import { path_functions, path_slpWorkingDir } from "../../../src";
+import {
+  file_lambdaBundleExclude,
+  path_functions,
+  path_slpWorkingDir
+} from "../../../src";
 
 describe("Test Util serverless.buildTemplateJson", () => {
   let dir: string = null;
@@ -233,6 +237,11 @@ describe("Test Util serverless.buildTemplateJson", () => {
     ).resolves.toEqual(
       'export { Resource1 as default } from "../../../build";'
     );
+    await expect(
+      readFile(join(dir, path_slpWorkingDir, file_lambdaBundleExclude), {
+        encoding: "utf8"
+      })
+    ).resolves.toEqual('{"sample":{"Resource1":[]}}');
   });
 
   test("with SLP::Function with wrong function name", async () => {

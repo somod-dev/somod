@@ -6,7 +6,7 @@
     "eslint": "npx eslint ./",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
     "check-sanity": "npm run prettier && npm run eslint",
-    "prepack": "npx lerna-utilities appendPeer"
+    "version": "npx lerna-utilities appendPeer"
   },
   "eslintConfig": {
     "extends": [
