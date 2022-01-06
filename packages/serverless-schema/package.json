@@ -1,6 +1,6 @@
 {
   "name": "@somod/serverless-schema",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Serverless Schema to validate the slp and somod packages",
   "keywords": [
     "schema",
