@@ -14,14 +14,27 @@ import {
   path_build,
   path_serverless
 } from "../constants";
+import { getToBeBundledLibraries } from "../library";
 import { ModuleNode } from "../module";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
 import { validate as validateExtend } from "./keywords/extend";
-import { validate as validateFunction } from "./keywords/function";
+import {
+  applyBaseLayer,
+  validate as validateFunction
+} from "./keywords/function";
 import { validate as validateRef } from "./keywords/ref";
 import { validate as validateRefParameter } from "./keywords/refParameter";
 import { validate as validateRefResourceName } from "./keywords/refResourceName";
-import { OriginalSLPTemplate, ServerlessTemplate, SLPTemplate } from "./types";
+import {
+  KeywordSLPFunctionLayerLibraries,
+  KeywordSLPOutput,
+  KeywordSLPResourceName,
+  OriginalSLPTemplate,
+  ServerlessTemplate,
+  SLPResource,
+  SLPTemplate,
+  SLPTemplateType
+} from "./types";
 import { updateKeywordPathsInSLPTemplate } from "./utils";
 
 export class NoSLPTemplateError extends Error {
@@ -82,8 +95,6 @@ const loadSourceSLPTemplate = async (
   }
 };
 
-export type SLPTemplateType = "source" | "build" | "dependent";
-
 export const loadSLPTemplate = async (
   moduleNode: ModuleNode,
   type: SLPTemplateType = "dependent"
@@ -93,6 +104,8 @@ export const loadSLPTemplate = async (
     type == "source"
       ? await loadSourceSLPTemplate(moduleNode)
       : await loadBuiltSLPTemplate(moduleNode);
+
+  applyBaseLayer(originalSlpTemplate);
 
   const slpTemplate: SLPTemplate = {
     ...originalSlpTemplate,
@@ -105,6 +118,48 @@ export const loadSLPTemplate = async (
 
   updateKeywordPathsInSLPTemplate(slpTemplate);
   return slpTemplate;
+};
+
+export const baseModuleName = "@somod/slp";
+export const baseLayerName = "baseLayer";
+
+export const loadBaseSlpTemplate = async (
+  dir: string
+): Promise<SLPTemplate> => {
+  const toBeBundledLibraries = await getToBeBundledLibraries(dir, "slp");
+
+  const originalSlpTemplate: OriginalSLPTemplate = {
+    Resources: {
+      [baseLayerName]: {
+        Type: "AWS::Serverless::LayerVersion",
+        Metadata: {
+          BuildMethod: "nodejs14.x",
+          BuildArchitecture: "arm64"
+        },
+        [KeywordSLPOutput]: { default: true, attributes: [] },
+        Properties: {
+          LayerName: { [KeywordSLPResourceName]: baseLayerName },
+          Description:
+            "Set of npm libraries to be requiired in all Lambda funtions",
+          CompatibleArchitectures: ["arm64"],
+          CompatibleRuntimes: ["nodejs14.x"],
+          RetentionPolicy: "Delete",
+          [KeywordSLPFunctionLayerLibraries]: toBeBundledLibraries
+        }
+      } as SLPResource
+    }
+  };
+
+  const baseSlpTemplate = {
+    ...originalSlpTemplate,
+    root: false,
+    module: baseModuleName,
+    packageLocation: "",
+    keywordPaths: null,
+    original: cloneDeep(originalSlpTemplate)
+  };
+  updateKeywordPathsInSLPTemplate(baseSlpTemplate);
+  return baseSlpTemplate;
 };
 
 export const loadSLPTemplates = async (

@@ -8,17 +8,11 @@ import {
   key_slpLambdaBundleExclude,
   path_build,
   path_functions,
-  path_lambda_layers,
   path_slpWorkingDir
 } from "..";
-import { getToBeBundledLibraries } from "./library";
 import { getModuleGraph, ModuleNode, toChildFirstList } from "./module";
 import { generateSamTemplate } from "./serverless";
 import { SAMTemplate } from "./serverless/types";
-import {
-  getSAMResourceLogicalId,
-  getSAMResourceName
-} from "./serverless/utils";
 
 export const prepareFunctionToBundle = async (
   dir: string,
@@ -46,69 +40,6 @@ export const prepareFunctionToBundle = async (
   const functionDir = dirname(functionPath);
   await mkdir(functionDir, { recursive: true });
   await writeFile(functionPath, functionCode);
-};
-
-const prepareFunctionLayer = async (
-  dir: string,
-  module: string,
-  name: string,
-  dependencies: Record<string, string>
-): Promise<void> => {
-  const layerPackageJson = {
-    name: module + "-" + name.toLowerCase(),
-    version: "1.0.0",
-    description: `Lambda function layer - ${name}`,
-    dependencies
-  };
-
-  const layerPackageJsonPath = join(
-    dir,
-    path_slpWorkingDir,
-    path_lambda_layers,
-    module,
-    name,
-    file_packageJson
-  );
-
-  const destDir = dirname(layerPackageJsonPath);
-  await mkdir(destDir, { recursive: true });
-  await writeFile(
-    layerPackageJsonPath,
-    JSON.stringify(layerPackageJson, null, 2)
-  );
-};
-
-const baseLayerName = "baseLayer";
-const baseModuleName = "@somod/slp";
-
-const getBaseLambdaLayer = async (
-  dir: string
-): Promise<SAMTemplate["Resources"][string]> => {
-  const toBeBundledLibraries = await getToBeBundledLibraries(dir, "slp");
-  const module = baseModuleName;
-  const layerName = baseLayerName;
-  const defaultLayer: SAMTemplate["Resources"][string] & {
-    Metadata: Record<string, unknown>;
-  } = {
-    Type: "AWS::Serverless::LayerVersion",
-    Metadata: {
-      BuildMethod: "nodejs14.x",
-      BuildArchitecture: "arm64"
-    },
-    Properties: {
-      LayerName: getSAMResourceName(module, layerName),
-      Description:
-        "Set of npm libraries to be requiired in all Lambda funtions",
-      CompatibleArchitectures: ["arm64"],
-      CompatibleRuntimes: ["nodejs14.x"],
-      RetentionPolicy: "Delete",
-      ContentUri: `${path_slpWorkingDir}/${path_lambda_layers}/${module}/${layerName}`
-    }
-  };
-
-  await prepareFunctionLayer(dir, module, layerName, toBeBundledLibraries);
-
-  return defaultLayer;
 };
 
 const saveFunctionBundleExcludes = async (
@@ -146,22 +77,6 @@ export const generateSAMTemplate = async (
 
   await saveFunctionBundleExcludes(dir, rootModuleNode);
   const samTemplate = await generateSamTemplate(dir, moduleIndicators);
-
-  const baseLambdaLayer = await getBaseLambdaLayer(dir);
-  const baseLayerId = getSAMResourceLogicalId(baseModuleName, baseLayerName);
-  samTemplate.Resources = {
-    [baseLayerId]: baseLambdaLayer,
-    ...samTemplate.Resources
-  };
-
-  Object.keys(samTemplate.Resources).forEach(resourceId => {
-    if (samTemplate.Resources[resourceId].Type == "AWS::Serverless::Function") {
-      const layers = (samTemplate.Resources[resourceId].Properties.Layers ||
-        []) as { Ref: string }[];
-      layers.unshift({ Ref: baseLayerId });
-      samTemplate.Resources[resourceId].Properties.Layers = layers;
-    }
-  });
 
   return samTemplate;
 };

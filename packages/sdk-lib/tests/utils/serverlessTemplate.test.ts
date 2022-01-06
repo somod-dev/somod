@@ -40,9 +40,11 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
     return JSON.stringify(json, null, 2) + "\n";
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dir = createTempDir();
     buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
+    await copyCommonLib(dir, "common");
+    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {

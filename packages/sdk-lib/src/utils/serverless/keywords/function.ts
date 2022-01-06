@@ -9,10 +9,14 @@ import {
   path_serverless,
   path_slpWorkingDir
 } from "../../constants";
+import { baseLayerName, baseModuleName } from "../slpTemplate";
 import {
   KeywordSLPFunction,
+  KeywordSLPRef,
+  OriginalSLPTemplate,
   ServerlessTemplate,
   SLPFunction,
+  SLPRef,
   SLPTemplate
 } from "../types";
 import { getSLPKeyword, replaceSLPKeyword } from "../utils";
@@ -57,6 +61,22 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
   });
 
   return errors;
+};
+
+export const applyBaseLayer = (originalSlpTemplate: OriginalSLPTemplate) => {
+  Object.keys(originalSlpTemplate.Resources).forEach(resourceId => {
+    if (
+      originalSlpTemplate.Resources[resourceId].Type ==
+      "AWS::Serverless::Function"
+    ) {
+      const layers = (originalSlpTemplate.Resources[resourceId].Properties
+        .Layers || []) as SLPRef[];
+      layers.unshift({
+        [KeywordSLPRef]: { module: baseModuleName, resource: baseLayerName }
+      });
+      originalSlpTemplate.Resources[resourceId].Properties.Layers = layers;
+    }
+  });
 };
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {

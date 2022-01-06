@@ -21,13 +21,13 @@ import { apply as applyRefResourceName } from "./keywords/refResourceName";
 import { apply as applyResourceName } from "./keywords/resourceName";
 import {
   buildRootSLPTemplate,
+  loadBaseSlpTemplate,
   loadSLPTemplate,
   loadSLPTemplates,
   mergeSLPTemplates,
-  SLPTemplateType,
   validate
 } from "./slpTemplate";
-import { KeywordSLPExtend, SAMTemplate } from "./types";
+import { KeywordSLPExtend, SAMTemplate, SLPTemplateType } from "./types";
 import { getSAMParameterName, getSAMResourceLogicalId } from "./utils";
 
 export const buildTemplateJson = async (
@@ -45,6 +45,10 @@ export const buildTemplateJson = async (
   const allChildSlpTemplates = await loadSLPTemplates(allChildModules);
 
   const rootSlpTemplate = await loadSLPTemplate(rootModuleNode, "source"); // root slp template.yaml must exist
+
+  const baseSlpTemplate = await loadBaseSlpTemplate(dir);
+  allChildSlpTemplates.unshift(baseSlpTemplate);
+
   const serverlessTemplate = mergeSLPTemplates(allChildSlpTemplates);
 
   validate(rootSlpTemplate, serverlessTemplate);
@@ -66,6 +70,9 @@ export const generateSamTemplate = async (
     templateTypes.push("build"); // load from build for root module
   }
   const allSlpTemplates = await loadSLPTemplates(allModules, templateTypes);
+
+  const baseSlpTemplate = await loadBaseSlpTemplate(dir);
+  allSlpTemplates.unshift(baseSlpTemplate);
 
   const serverlessTemplate = mergeSLPTemplates(allSlpTemplates);
 
