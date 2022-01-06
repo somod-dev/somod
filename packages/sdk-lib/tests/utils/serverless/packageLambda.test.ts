@@ -1,5 +1,13 @@
-import { copyCommonLib, createFiles, createTempDir, deleteDir } from "../utils";
-import { bundle, packageLambda } from "../../src/utils/packageLambda";
+import {
+  copyCommonLib,
+  createFiles,
+  createTempDir,
+  deleteDir
+} from "../../utils";
+import {
+  bundle,
+  packageLambda
+} from "../../../src/utils/serverless/packageLambda";
 import { join } from "path";
 import { readFile } from "fs/promises";
 import { existsSync } from "fs";

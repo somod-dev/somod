@@ -4,14 +4,14 @@ import { existsSync } from "fs";
 import { writeFile } from "fs/promises";
 import { uniq } from "lodash";
 import { join, normalize } from "path";
-import { file_lambdaBundleExclude } from "..";
 import {
   file_packageJson,
   file_index_js,
   path_slpWorkingDir,
-  path_lambdas
-} from "./constants";
-import { getToBeBundledLibraries } from "./library";
+  path_lambdas,
+  file_lambdaBundleExclude
+} from "../constants";
+import { getToBeBundledLibraries } from "../library";
 
 export const bundle = async (
   dir: string,

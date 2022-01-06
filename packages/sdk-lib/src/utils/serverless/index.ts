@@ -55,6 +55,8 @@ export const buildTemplateJson = async (
   validate(rootSlpTemplate, serverlessTemplate);
 
   await buildRootSLPTemplate(rootModuleNode);
+
+  await prepareFunction(dir, { [rootSlpTemplate.module]: rootSlpTemplate });
 };
 
 export const generateSAMTemplate = async (
