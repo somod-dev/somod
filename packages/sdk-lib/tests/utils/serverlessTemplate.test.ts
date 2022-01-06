@@ -5,6 +5,7 @@ import { join } from "path";
 import { generateSAMTemplate } from "../../src/utils/serverlessTemplate";
 import { buildTemplateJson } from "../../src/utils/serverless";
 import { copyCommonLib, createFiles, createTempDir, deleteDir } from "../utils";
+import { NoSLPTemplateError } from "../../src/utils/serverless/slpTemplate";
 
 describe("Test Util serverlessTemplate.buildTemplateJson", () => {
   let dir: string = null;
@@ -50,17 +51,9 @@ describe("Test Util serverlessTemplate.buildTemplateJson", () => {
 
   test("with empty module", async () => {
     createFiles(dir, { ...singlePackageJson });
-    await expect(
-      buildTemplateJson(dir, moduleIndicators)
-    ).rejects.toMatchObject({
-      message: expect.stringContaining(
-        `ENOENT: no such file or directory, open '${join(
-          dir,
-          "serverless",
-          "template.yaml"
-        )}'`
-      )
-    });
+    await expect(buildTemplateJson(dir, moduleIndicators)).rejects.toEqual(
+      new NoSLPTemplateError(join(dir, "serverless", "template.yaml"))
+    );
     expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
 
@@ -1626,11 +1619,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Description:
               "Set of npm libraries to be requiired in all Lambda funtions",
             LayerName: {
-              "Fn::Join": [
-                "",
-                [
-                  "slp",
-                  {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "64967c02",
+                  slpResourceName: "baseLayer",
+                  stackId: {
                     "Fn::Select": [
                       2,
                       {
@@ -1642,9 +1636,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                         ]
                       }
                     ]
-                  },
-                  "64967c02baseLayer"
-                ]
+                  }
+                }
               ]
             }
           },
@@ -1654,18 +1647,25 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           Type: "AWS::Serverless::Api",
           Properties: {
             Name: {
-              "Fn::Join": [
-                "",
-                [
-                  "slp",
-                  {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "a046855c",
+                  slpResourceName: "rootRestApi",
+                  stackId: {
                     "Fn::Select": [
                       2,
-                      { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                      {
+                        "Fn::Split": [
+                          "/",
+                          {
+                            Ref: "AWS::StackId"
+                          }
+                        ]
+                      }
                     ]
-                  },
-                  "a046855crootRestApi"
-                ]
+                  }
+                }
               ]
             },
             Description: {
@@ -1673,18 +1673,25 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 "Extends ${baseApi}",
                 {
                   baseApi: {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "slp",
-                        {
+                    "Fn::Sub": [
+                      "slp${stackId}${moduleHash}${slpResourceName}",
+                      {
+                        moduleHash: "a046855c",
+                        slpResourceName: "rootRestApi",
+                        stackId: {
                           "Fn::Select": [
                             2,
-                            { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                            {
+                              "Fn::Split": [
+                                "/",
+                                {
+                                  Ref: "AWS::StackId"
+                                }
+                              ]
+                            }
                           ]
-                        },
-                        "a046855crootRestApi"
-                      ]
+                        }
+                      }
                     ]
                   }
                 }
@@ -1726,18 +1733,25 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           Metadata: { BuildArchitecture: "arm64", BuildMethod: "nodejs14.x" },
           Properties: {
             LayerName: {
-              "Fn::Join": [
-                "",
-                [
-                  "slp",
-                  {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "624eb34a",
+                  slpResourceName: "SodaruAuthLayer",
+                  stackId: {
                     "Fn::Select": [
                       2,
-                      { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                      {
+                        "Fn::Split": [
+                          "/",
+                          {
+                            Ref: "AWS::StackId"
+                          }
+                        ]
+                      }
                     ]
-                  },
-                  "624eb34aSodaruAuthLayer"
-                ]
+                  }
+                }
               ]
             },
             CompatibleArchitectures: ["arm64"],
@@ -1750,18 +1764,25 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           Type: "AWS::Serverless::Function",
           Properties: {
             FunctionName: {
-              "Fn::Join": [
-                "",
-                [
-                  "slp",
-                  {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "624eb34a",
+                  slpResourceName: "GetAuthGroup",
+                  stackId: {
                     "Fn::Select": [
                       2,
-                      { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                      {
+                        "Fn::Split": [
+                          "/",
+                          {
+                            Ref: "AWS::StackId"
+                          }
+                        ]
+                      }
                     ]
-                  },
-                  "624eb34aGetAuthGroup"
-                ]
+                  }
+                }
               ]
             },
             CodeUri: ".slp/lambdas/@sodaru/auth-slp/getAuthGroup",
@@ -1770,18 +1791,25 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 "Uses layer ${authLayer}",
                 {
                   authLayer: {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "slp",
-                        {
+                    "Fn::Sub": [
+                      "slp${stackId}${moduleHash}${slpResourceName}",
+                      {
+                        moduleHash: "624eb34a",
+                        slpResourceName: "SodaruAuthLayer",
+                        stackId: {
                           "Fn::Select": [
                             2,
-                            { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                            {
+                              "Fn::Split": [
+                                "/",
+                                {
+                                  Ref: "AWS::StackId"
+                                }
+                              ]
+                            }
                           ]
-                        },
-                        "624eb34aSodaruAuthLayer"
-                      ]
+                        }
+                      }
                     ]
                   }
                 }

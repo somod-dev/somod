@@ -6,7 +6,11 @@ import {
   SLPRef,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword } from "./utils";
+import {
+  getSAMResourceLogicalId,
+  getSLPKeyword,
+  replaceSLPKeyword
+} from "../utils";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -18,6 +22,9 @@ export const validate = (
     const ref = getSLPKeyword<SLPRef>(slpTemplate, refKeywordPath)[
       KeywordSLPRef
     ];
+    if (!ref.module) {
+      ref.module = slpTemplate.module;
+    }
     const referencedSLPTemplate =
       ref.module == slpTemplate.module
         ? slpTemplate
@@ -66,4 +73,20 @@ export const validate = (
   });
 
   return errors;
+};
+
+export const apply = (serverlessTemplate: ServerlessTemplate) => {
+  Object.values(serverlessTemplate).forEach(slpTemplate => {
+    slpTemplate.keywordPaths[KeywordSLPRef].forEach(refPath => {
+      const ref = getSLPKeyword<SLPRef>(slpTemplate, refPath)[KeywordSLPRef];
+      const resourceId = getSAMResourceLogicalId(
+        ref.module || slpTemplate.module,
+        ref.resource
+      );
+      const refValue = ref.attribute
+        ? { "Fn::GetAtt": [resourceId, ref.attribute] }
+        : { Ref: resourceId };
+      replaceSLPKeyword(slpTemplate, refPath, refValue);
+    });
+  });
 };

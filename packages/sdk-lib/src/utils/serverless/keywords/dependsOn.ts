@@ -1,10 +1,11 @@
 import {
   KeywordSLPDependsOn,
+  SAMTemplate,
   ServerlessTemplate,
   SLPDependsOn,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword } from "./utils";
+import { getSAMResourceLogicalId, getSLPKeyword } from "../utils";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -19,6 +20,9 @@ export const validate = (
         dependsOnKeywordPath
       )[KeywordSLPDependsOn];
       dependsOn.forEach(_dependsOn => {
+        if (!_dependsOn.module) {
+          _dependsOn.module = slpTemplate.module;
+        }
         const dependedModule =
           _dependsOn.module == slpTemplate.module
             ? slpTemplate
@@ -35,4 +39,28 @@ export const validate = (
   );
 
   return errors;
+};
+
+export const apply = (serverlessTemplate: ServerlessTemplate) => {
+  Object.values(serverlessTemplate).forEach(slpTemplate => {
+    slpTemplate.keywordPaths[KeywordSLPDependsOn].forEach(dependsOnPath => {
+      const resourceId = dependsOnPath[0]; // dependsOn is always applied as Resource Property
+
+      const dependsOn = getSLPKeyword<SLPDependsOn>(slpTemplate, dependsOnPath)[
+        KeywordSLPDependsOn
+      ];
+
+      const dependsOnValue = dependsOn.map(_dependsOn =>
+        getSAMResourceLogicalId(
+          _dependsOn.module || slpTemplate.module,
+          _dependsOn.resource
+        )
+      );
+
+      (
+        slpTemplate.Resources[resourceId] as SAMTemplate["Resources"][string]
+      ).DependsOn = dependsOnValue;
+      delete slpTemplate.Resources[resourceId][KeywordSLPDependsOn];
+    });
+  });
 };

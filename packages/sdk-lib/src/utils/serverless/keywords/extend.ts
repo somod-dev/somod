@@ -1,12 +1,11 @@
-import { cloneDeep, isArray, mergeWith } from "lodash";
+import { isArray, mergeWith } from "lodash";
 import {
   KeywordSLPExtend,
   ServerlessTemplate,
   SLPExtend,
-  SLPResource,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword } from "./utils";
+import { getSLPKeyword } from "../utils";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -30,32 +29,28 @@ export const validate = (
   return errors;
 };
 
-export const apply = (
-  slpTemplate: SLPTemplate,
-  serverlessTemplate: ServerlessTemplate
-): void => {
-  slpTemplate.keywordPaths[KeywordSLPExtend].forEach(extendKeywordPath => {
-    const extendedResource = getSLPKeyword<SLPExtend>(
-      slpTemplate,
-      extendKeywordPath
-    ) as SLPResource;
+export const apply = (serverlessTemplate: ServerlessTemplate): void => {
+  Object.values(serverlessTemplate).forEach(slpTemplate => {
+    slpTemplate.keywordPaths[KeywordSLPExtend].forEach(extendKeywordPath => {
+      const resourceId = extendKeywordPath[0]; // SLP::Extend is used as Resource attribute only
+      const extendedResource = slpTemplate.Resources[resourceId];
 
-    const extend = extendedResource[KeywordSLPExtend];
+      let extend = extendedResource[KeywordSLPExtend];
+      delete extendedResource[KeywordSLPExtend];
 
-    const extendChain = [extend];
+      while (
+        serverlessTemplate[extend.module].original.Resources[extend.resource][
+          KeywordSLPExtend
+        ]
+      ) {
+        extend =
+          serverlessTemplate[extend.module].original.Resources[extend.resource][
+            KeywordSLPExtend
+          ];
+      }
 
-    while (extendChain.length > 0) {
-      const _extend = extendChain.shift();
-
-      const targetTemplate = serverlessTemplate[_extend.module];
-      const source =
-        targetTemplate.extendedResources[_extend.resource] ||
-        targetTemplate.Resources[_extend.resource];
-
-      const sourceResource = cloneDeep(source);
-
-      targetTemplate.extendedResources[_extend.resource] = mergeWith(
-        sourceResource,
+      serverlessTemplate[extend.module].Resources[extend.resource] = mergeWith(
+        serverlessTemplate[extend.module].Resources[extend.resource],
         extendedResource,
         (objValue, srcValue) => {
           if (isArray(objValue)) {
@@ -63,10 +58,6 @@ export const apply = (
           }
         }
       );
-
-      if (targetTemplate[_extend.resource][KeywordSLPExtend]) {
-        extendChain.push(targetTemplate[_extend.resource][KeywordSLPExtend]);
-      }
-    }
+    });
   });
 };

@@ -54,11 +54,10 @@ describe("Test Task generateSAMTemplate", () => {
             },
             Properties: {
               LayerName: {
-                "Fn::Join": [
-                  "",
-                  [
-                    "slp",
-                    {
+                "Fn::Sub": [
+                  "slp${stackId}${moduleHash}${slpResourceName}",
+                  {
+                    stackId: {
                       "Fn::Select": [
                         2,
                         {
@@ -71,8 +70,9 @@ describe("Test Task generateSAMTemplate", () => {
                         }
                       ]
                     },
-                    "64967c02baseLayer"
-                  ]
+                    moduleHash: "64967c02",
+                    slpResourceName: "baseLayer"
+                  }
                 ]
               },
               Description:
@@ -223,11 +223,10 @@ describe("Test Task generateSAMTemplate", () => {
             },
             Properties: {
               LayerName: {
-                "Fn::Join": [
-                  "",
-                  [
-                    "slp",
-                    {
+                "Fn::Sub": [
+                  "slp${stackId}${moduleHash}${slpResourceName}",
+                  {
+                    stackId: {
                       "Fn::Select": [
                         2,
                         {
@@ -240,8 +239,9 @@ describe("Test Task generateSAMTemplate", () => {
                         }
                       ]
                     },
-                    "64967c02baseLayer"
-                  ]
+                    moduleHash: "64967c02",
+                    slpResourceName: "baseLayer"
+                  }
                 ]
               },
               Description:
@@ -283,18 +283,25 @@ describe("Test Task generateSAMTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               FunctionName: {
-                "Fn::Join": [
-                  "",
-                  [
-                    "slp",
-                    {
+                "Fn::Sub": [
+                  "slp${stackId}${moduleHash}${slpResourceName}",
+                  {
+                    stackId: {
                       "Fn::Select": [
                         2,
-                        { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }
+                        {
+                          "Fn::Split": [
+                            "/",
+                            {
+                              Ref: "AWS::StackId"
+                            }
+                          ]
+                        }
                       ]
                     },
-                    "624eb34aGetAuthGroup"
-                  ]
+                    moduleHash: "624eb34a",
+                    slpResourceName: "GetAuthGroup"
+                  }
                 ]
               },
               CodeUri: ".slp/lambdas/@sodaru/auth-slp/getAuthGroup",

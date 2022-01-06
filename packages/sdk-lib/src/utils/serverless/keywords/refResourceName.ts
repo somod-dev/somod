@@ -5,7 +5,7 @@ import {
   SLPRefResourceName,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword } from "./utils";
+import { getSLPKeyword, replaceSLPKeyword } from "../utils";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -19,6 +19,10 @@ export const validate = (
         slpTemplate,
         refResourceNameKeywordPath
       )[KeywordSLPRefResourceName];
+
+      if (!refResourceName.module) {
+        refResourceName.module = slpTemplate.module;
+      }
 
       const referencedSLPTemplate =
         refResourceName.module == slpTemplate.module
@@ -65,4 +69,27 @@ export const validate = (
   );
 
   return errors;
+};
+
+export const apply = (serverlessTemplate: ServerlessTemplate): void => {
+  Object.values(serverlessTemplate).forEach(slpTemplate => {
+    slpTemplate.keywordPaths[KeywordSLPRefResourceName].forEach(
+      refResourceNameKeywordPath => {
+        const refResourceName = getSLPKeyword<SLPRefResourceName>(
+          slpTemplate,
+          refResourceNameKeywordPath
+        )[KeywordSLPRefResourceName];
+        if (!refResourceName.module) {
+          refResourceName.module = slpTemplate.module;
+        }
+        replaceSLPKeyword(
+          slpTemplate,
+          refResourceNameKeywordPath,
+          serverlessTemplate[refResourceName.module].Resources[
+            refResourceName.resource
+          ].Properties[refResourceName.property]
+        );
+      }
+    );
+  });
 };

@@ -72,12 +72,8 @@ export type SLPRefResourceName = {
   };
 };
 
-// Note : In Template schema only function name is allowed, it is assumed that module is current module
 export type SLPFunction = {
-  [KeywordSLPFunction]: {
-    module: string;
-    function: string;
-  };
+  [KeywordSLPFunction]: string;
 };
 
 export type SLPFunctionLayerLibraries = {
@@ -102,7 +98,7 @@ export type SLPResource = {
 } & Partial<SLPExtend & SLPDependsOn & SLPOutput>;
 
 export type OriginalSLPTemplate = {
-  Parameters: Record<string, { SAMType: string; schema: JSONSchema7 }>;
+  Parameters?: Record<string, { SAMType: string; schema: JSONSchema7 }>;
   Resources: Record<string, SLPResource>;
 };
 
@@ -111,7 +107,7 @@ export type SLPTemplate = OriginalSLPTemplate & {
   packageLocation: string;
   root: boolean;
   keywordPaths: Record<KeywordAny, string[][]>;
-  extendedResources: Record<string, SLPResource>; // resources from this template , which are extended in dependent modules, the value is the merged resource
+  original: OriginalSLPTemplate;
 };
 
 export type ServerlessTemplate = Record<string, SLPTemplate>;

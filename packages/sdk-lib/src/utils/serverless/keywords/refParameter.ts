@@ -4,7 +4,11 @@ import {
   SLPRefParameter,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword } from "./utils";
+import {
+  getSAMParameterName,
+  getSLPKeyword,
+  replaceSLPKeyword
+} from "../utils";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -18,6 +22,10 @@ export const validate = (
         slpTemplate,
         refParameterKeywordPath
       )[KeywordSLPRefParameter];
+
+      if (!refParameter.module) {
+        refParameter.module = slpTemplate.module;
+      }
 
       const referencedSLPTemplate =
         refParameter.module == slpTemplate.module
@@ -44,4 +52,23 @@ export const validate = (
   );
 
   return errors;
+};
+
+export const apply = (serverlessTemplate: ServerlessTemplate) => {
+  Object.values(serverlessTemplate).forEach(slpTemplate => {
+    slpTemplate.keywordPaths[KeywordSLPRefParameter].forEach(
+      refParameterPath => {
+        const refParameter = getSLPKeyword<SLPRefParameter>(
+          slpTemplate,
+          refParameterPath
+        )[KeywordSLPRefParameter];
+        const parameterName = getSAMParameterName(
+          refParameter.module || slpTemplate.module,
+          refParameter.parameter
+        );
+        const refParameterValue = { Ref: parameterName };
+        replaceSLPKeyword(slpTemplate, refParameterPath, refParameterValue);
+      }
+    );
+  });
 };

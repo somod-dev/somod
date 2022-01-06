@@ -6,7 +6,8 @@ import {
 } from "@sodaru/cli-base";
 import { mkdir, readFile } from "fs/promises";
 import { load } from "js-yaml";
-import { join, dirname } from "path";
+import { cloneDeep } from "lodash";
+import { dirname, join } from "path";
 import {
   file_templateJson,
   file_templateYaml,
@@ -15,79 +16,125 @@ import {
 } from "../constants";
 import { ModuleNode } from "../module";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
-import { apply, validate as validateExtend } from "./keywords/extend";
+import { validate as validateExtend } from "./keywords/extend";
 import { validate as validateFunction } from "./keywords/function";
 import { validate as validateRef } from "./keywords/ref";
 import { validate as validateRefParameter } from "./keywords/refParameter";
 import { validate as validateRefResourceName } from "./keywords/refResourceName";
-import {
-  updateCurrentModuleInSLPTemplate,
-  updateKeywordPathsInSLPTemplate
-} from "./keywords/utils";
 import { OriginalSLPTemplate, ServerlessTemplate, SLPTemplate } from "./types";
+import { updateKeywordPathsInSLPTemplate } from "./utils";
 
-const loadDependentSLPTemplate = async (
+export class NoSLPTemplateError extends Error {
+  constructor(file: string) {
+    super("SLP template not found : " + file);
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+const loadBuiltSLPTemplate = async (
   moduleNode: ModuleNode
 ): Promise<OriginalSLPTemplate> => {
-  const slpTemplate = (await readJsonFileStore(
-    join(
-      moduleNode.packageLocation,
-      path_build,
-      path_serverless,
-      file_templateJson
-    )
-  )) as OriginalSLPTemplate;
+  const templateLocation = join(
+    moduleNode.packageLocation,
+    path_build,
+    path_serverless,
+    file_templateJson
+  );
+  try {
+    const slpTemplate = (await readJsonFileStore(
+      templateLocation
+    )) as OriginalSLPTemplate;
 
-  return slpTemplate;
+    return slpTemplate;
+  } catch (e) {
+    const newError =
+      e.message ==
+      `ENOENT: no such file or directory, open '${templateLocation}'`
+        ? new NoSLPTemplateError(templateLocation)
+        : e;
+    throw newError;
+  }
 };
 
-const loadRootSLPTemplate = async (
+const loadSourceSLPTemplate = async (
   moduleNode: ModuleNode
 ): Promise<OriginalSLPTemplate> => {
-  const templateYamlPath = join(
+  const templateLocation = join(
     moduleNode.packageLocation,
     path_serverless,
     file_templateYaml
   );
-  const templateYamlContent = await readFile(templateYamlPath, {
-    encoding: "utf8"
-  });
-  const slpTemplate = load(templateYamlContent) as OriginalSLPTemplate;
+  try {
+    const templateYamlContent = await readFile(templateLocation, {
+      encoding: "utf8"
+    });
+    const slpTemplate = load(templateYamlContent) as OriginalSLPTemplate;
 
-  return slpTemplate;
+    return slpTemplate;
+  } catch (e) {
+    const newError =
+      e.message ==
+      `ENOENT: no such file or directory, open '${templateLocation}'`
+        ? new NoSLPTemplateError(templateLocation)
+        : e;
+    throw newError;
+  }
 };
+
+export type SLPTemplateType = "source" | "build" | "dependent";
 
 export const loadSLPTemplate = async (
   moduleNode: ModuleNode,
-  root = false
+  type: SLPTemplateType = "dependent"
 ): Promise<SLPTemplate> => {
   // the schema for slpTemplate is @somod/serverless-schema/schemas/index.json
-  const originalSlpTemplate = root
-    ? await loadRootSLPTemplate(moduleNode)
-    : await loadDependentSLPTemplate(moduleNode);
+  const originalSlpTemplate =
+    type == "source"
+      ? await loadSourceSLPTemplate(moduleNode)
+      : await loadBuiltSLPTemplate(moduleNode);
 
   const slpTemplate: SLPTemplate = {
     ...originalSlpTemplate,
-    root,
+    root: type == "source" || type == "build",
     module: moduleNode.name,
     packageLocation: moduleNode.packageLocation,
-    extendedResources: {},
-    keywordPaths: null
+    keywordPaths: null,
+    original: cloneDeep(originalSlpTemplate)
   };
 
-  slpTemplate.extendedResources = {};
   updateKeywordPathsInSLPTemplate(slpTemplate);
-  updateCurrentModuleInSLPTemplate(moduleNode.name, slpTemplate);
   return slpTemplate;
+};
+
+export const loadSLPTemplates = async (
+  modules: ModuleNode[],
+  types: SLPTemplateType[] = []
+): Promise<SLPTemplate[]> => {
+  let slpTemplates = await Promise.all(
+    modules.map(async (module, i) => {
+      try {
+        return await loadSLPTemplate(module, types[i] || "dependent");
+      } catch (e) {
+        if (e instanceof NoSLPTemplateError) {
+          return false;
+        } else {
+          throw e;
+        }
+      }
+    })
+  );
+
+  slpTemplates = slpTemplates.filter(slpTemplate => !!slpTemplate);
+  return slpTemplates as SLPTemplate[];
 };
 
 export const mergeSLPTemplates = (
   slpTemplates: SLPTemplate[]
 ): ServerlessTemplate => {
-  const serverlessTemplate: ServerlessTemplate = {};
+  const serverlessTemplate: Record<string, SLPTemplate> = {};
 
   slpTemplates.forEach(slpTemplate => {
-    apply(slpTemplate, serverlessTemplate);
     serverlessTemplate[slpTemplate.module] = slpTemplate;
   });
 
@@ -97,7 +144,7 @@ export const mergeSLPTemplates = (
 export const buildRootSLPTemplate = async (
   rootModuleNode: ModuleNode
 ): Promise<void> => {
-  const originalSLPTemplate = await loadRootSLPTemplate(rootModuleNode);
+  const originalSLPTemplate = await loadSourceSLPTemplate(rootModuleNode);
 
   const templateJsonPath = join(
     rootModuleNode.packageLocation,
