@@ -1,11 +1,6 @@
 import { createHash } from "crypto";
 import { normalize } from "path";
-import {
-  checkForRepeatedModules,
-  getAllDependencies,
-  getModuleGraph,
-  toList
-} from "./module";
+import { getAllDependencies, getModuleGraph, toList } from "./module";
 
 export type ModuleInfo = {
   name: string;
@@ -20,7 +15,6 @@ const _getModuleInfo = async (
 ): Promise<ModuleInfo[]> => {
   const rootModuleNode = await getModuleGraph(dir, moduleIndicators);
   const allModuleNodes = toList(rootModuleNode);
-  checkForRepeatedModules(allModuleNodes);
 
   const parsedPackageLocations: string[] = [];
 

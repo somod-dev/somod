@@ -2,6 +2,8 @@ import { existsSync } from "fs";
 import { join, normalize, sep } from "path";
 import { file_packageJson, path_nodeModules } from "./constants";
 import { ErrorSet, readJsonFileStore, unixStylePath } from "@sodaru/cli-base";
+import { uniqBy } from "lodash";
+import { createHash } from "crypto";
 
 export type ModuleNode = {
   name: string;
@@ -59,7 +61,29 @@ const findPackageLocation = (
   }
 };
 
-export const getModuleGraph = async (
+export class ModuleGraph {
+  private static cache: Record<string, ModuleNode> = {};
+  private hash: string;
+
+  constructor(dir: string, moduleIndicators: string[]) {
+    const _dir = normalize(dir);
+    const _moduleIndicators = [...moduleIndicators].sort();
+
+    this.hash = createHash("sha256")
+      .update(_dir + "::" + _moduleIndicators.join())
+      .digest("hex");
+  }
+
+  get() {
+    return ModuleGraph.cache[this.hash];
+  }
+
+  set(moduleNode: ModuleNode) {
+    ModuleGraph.cache[this.hash] = moduleNode;
+  }
+}
+
+const _getModuleGraph = async (
   dir: string,
   moduleIndicators: string[]
 ): Promise<ModuleNode> => {
@@ -120,22 +144,35 @@ export const getModuleGraph = async (
   return module;
 };
 
+export const getModuleGraph = async (
+  dir: string,
+  moduleIndicators: string[]
+): Promise<ModuleNode> => {
+  const moduleGraph = new ModuleGraph(dir, moduleIndicators);
+  let moduleNode = moduleGraph.get();
+  if (!moduleNode) {
+    moduleNode = await _getModuleGraph(dir, moduleIndicators);
+    moduleGraph.set(moduleNode);
+  }
+  return moduleNode;
+};
+
 type ModuleNodeWithPath = ModuleNode & {
   path: string[];
 };
 
 export const toList = (moduleNode: ModuleNode): ModuleNodeWithPath[] => {
-  const dependencies: ModuleNodeWithPath[] = [];
+  const list: ModuleNodeWithPath[] = [];
   moduleNode.dependencies.forEach(dependency => {
     const childDependecies = toList(dependency);
     childDependecies.forEach(childDependecy => {
       childDependecy.path.unshift(moduleNode.name);
-      dependencies.push(childDependecy);
+      list.push(childDependecy);
     });
   });
   const thisNode: ModuleNodeWithPath = { ...moduleNode, path: [] };
-  dependencies.unshift(thisNode);
-  return dependencies;
+  list.unshift(thisNode);
+  return list;
 };
 
 type DuplicateModules = {
@@ -246,33 +283,17 @@ export const resolve = (
 };
 
 export const toChildFirstList = (moduleNode: ModuleNode): ModuleNode[] => {
-  const toBeParsed: ModuleNode[] = [moduleNode];
-  const parsed: ModuleNode[] = [];
+  const list = toList(moduleNode);
 
-  while (toBeParsed.length > 0) {
-    const currentNode = toBeParsed.pop();
-    currentNode.dependencies.forEach(child => toBeParsed.push(child));
-    parsed.unshift(currentNode);
-  }
+  const uniqueChildFirstList = uniqBy(list.reverse(), m => m.name);
 
-  const parsedModuleNames: string[] = [];
-
-  const parsedUniq = parsed.filter(module => {
-    if (parsedModuleNames.includes(module.name)) {
-      return false;
-    } else {
-      parsedModuleNames.push(module.name);
-      return true;
-    }
-  });
-
-  return parsedUniq;
+  return uniqueChildFirstList;
 };
 
 export const getAllDependencies = (module: ModuleNode): string[] => {
-  const allModuleNodes = toChildFirstList(module);
-  const allModuleNames = allModuleNodes.map(moduleNode => moduleNode.name);
+  const allModuleNodes = toList(module);
+  allModuleNodes.shift(); // remove the root module
+  const allModuleNames = uniqBy(allModuleNodes, m => m.name).map(m => m.name);
 
-  allModuleNames.pop(); // remove the root modulename
   return allModuleNames;
 };

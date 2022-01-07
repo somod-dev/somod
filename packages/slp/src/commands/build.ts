@@ -34,7 +34,7 @@ import {
   path_functions,
   path_serverless,
   path_slpWorkingDir,
-  validateModuleDependency,
+  validateDependencyModules,
   validateServerlessTemplateWithSchema
 } from "@somod/sdk-lib";
 import { Command } from "commander";
@@ -102,7 +102,7 @@ export const BuildAction = async ({
     ),
     taskRunner(
       `Validate module dependency`,
-      validateModuleDependency,
+      validateDependencyModules,
       verbose,
       dir,
       [key_slp]

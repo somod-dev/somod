@@ -40,7 +40,7 @@ const getSLPKeywordPaths = (chunk: unknown): SLPTemplate["keywordPaths"] => {
 export const updateKeywordPathsInSLPTemplate = (
   slpTemplate: SLPTemplate
 ): void => {
-  const slpKeywords = getSLPKeywordPaths(slpTemplate.Resources);
+  const slpKeywords = getSLPKeywordPaths(slpTemplate.original.Resources);
   slpTemplate.keywordPaths = slpKeywords;
 };
 

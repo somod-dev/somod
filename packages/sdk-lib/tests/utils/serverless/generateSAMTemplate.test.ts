@@ -1,5 +1,5 @@
-import { readFile } from "fs/promises";
-import { join } from "path";
+import { mkdir, readFile, writeFile } from "fs/promises";
+import { dirname, join } from "path";
 import { generateSAMTemplate } from "../../../src/utils/serverless";
 import {
   copyCommonLib,
@@ -8,20 +8,217 @@ import {
   deleteDir
 } from "../../utils";
 
+const createCfnLambdaDependency = async (dir: string) => {
+  const cfnLambdaPackageJsonFile = join(
+    dir,
+    "node_modules/@solib/cfn-lambda/package.json"
+  );
+  await mkdir(dirname(cfnLambdaPackageJsonFile), {
+    recursive: true
+  });
+  await writeFile(
+    cfnLambdaPackageJsonFile,
+    JSON.stringify({ version: "1.0.0" })
+  );
+};
+
+const stackId = {
+  "Fn::Select": [
+    2,
+    {
+      "Fn::Split": [
+        "/",
+        {
+          Ref: "AWS::StackId"
+        }
+      ]
+    }
+  ]
+};
+
 describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
   let dir: string = null;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dir = createTempDir();
+    await copyCommonLib(dir, "common");
+    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {
     deleteDir(dir);
   });
 
+  test("for simple template", async () => {
+    await createCfnLambdaDependency(dir);
+
+    createFiles(dir, {
+      "build/serverless/functions/getAuthGroup.js":
+        'import aws from "aws-sdk";\nimport { authorize }  from "@sodaru/restapi-sdk";\nconst a = () => {console.log("Success");};\nexport default a;',
+      "build/serverless/functionIndex.js":
+        'export { default as getAuthGroup } from "./functions/getAuthGroup";',
+      "build/index.js": 'export * from "./serverless/functionIndex"',
+      "build/serverless/template.json": JSON.stringify({
+        Resources: {
+          GetAuthGroupFunction: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              FunctionName: {
+                "SLP::ResourceName": "GetAuthGroup"
+              },
+              CodeUri: {
+                "SLP::Function": {
+                  name: "getAuthGroup",
+                  exclude: ["@sodaru/restapi-sdk"]
+                }
+              }
+            }
+          }
+        }
+      }),
+      "package.json": JSON.stringify({
+        name: "@sodaru/auth-slp",
+        version: "1.0.0",
+        slp: true
+      })
+    });
+
+    await expect(generateSAMTemplate(dir, ["slp"])).resolves.toEqual({
+      Parameters: {},
+      Resources: {
+        r64967c02baseLayer: {
+          Metadata: {
+            BuildArchitecture: "arm64",
+            BuildMethod: "nodejs14.x"
+          },
+          Properties: {
+            CompatibleArchitectures: ["arm64"],
+            CompatibleRuntimes: ["nodejs14.x"],
+            RetentionPolicy: "Delete",
+            ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer",
+            Description:
+              "Set of npm libraries to be requiired in all Lambda funtions",
+            LayerName: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "64967c02",
+                  slpResourceName: "baseLayer",
+                  stackId
+                }
+              ]
+            }
+          },
+          Type: "AWS::Serverless::LayerVersion"
+        },
+        r624eb34aGetAuthGroupFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            FunctionName: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "624eb34a",
+                  slpResourceName: "GetAuthGroup",
+                  stackId
+                }
+              ]
+            },
+            CodeUri: ".slp/lambdas/@sodaru/auth-slp/getAuthGroup",
+            Layers: [
+              {
+                Ref: "r64967c02baseLayer"
+              }
+            ]
+          }
+        }
+      }
+    });
+  });
+
+  test("for simple template with custom resource function but without @solib/cfn-lambda installed", async () => {
+    createFiles(dir, {
+      "build/serverless/functions/createAuthGroup.js":
+        'import aws from "aws-sdk";\nimport cfnLambda from "@solib/cfn-lambda";\nconst a = cfnLambda();\nexport default a;',
+      "build/serverless/functionIndex.js":
+        'export { default as getAuthGroup } from "./functions/getAuthGroup";',
+      "build/index.js": 'export * from "./serverless/functionIndex"',
+      "build/serverless/template.json": JSON.stringify({
+        Resources: {
+          CreateAuthGroupFunction: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              FunctionName: {
+                "SLP::ResourceName": "CreateAuthGroup"
+              },
+              CodeUri: {
+                "SLP::Function": {
+                  name: "createAuthGroup",
+                  customResourceHandler: true
+                }
+              }
+            }
+          }
+        }
+      }),
+      "package.json": JSON.stringify({
+        name: "@sodaru/auth-slp",
+        version: "1.0.0",
+        slp: true
+      })
+    });
+
+    await expect(generateSAMTemplate(dir, ["slp"])).resolves.toEqual({
+      Parameters: {},
+      Resources: {
+        r64967c02baseLayer: {
+          Metadata: { BuildArchitecture: "arm64", BuildMethod: "nodejs14.x" },
+          Properties: {
+            CompatibleArchitectures: ["arm64"],
+            CompatibleRuntimes: ["nodejs14.x"],
+            ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer",
+            Description:
+              "Set of npm libraries to be requiired in all Lambda funtions",
+            LayerName: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "64967c02",
+                  slpResourceName: "baseLayer",
+                  stackId
+                }
+              ]
+            },
+            RetentionPolicy: "Delete"
+          },
+          Type: "AWS::Serverless::LayerVersion"
+        },
+        r624eb34aCreateAuthGroupFunction: {
+          Properties: {
+            CodeUri: ".slp/lambdas/@sodaru/auth-slp/createAuthGroup",
+            FunctionName: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "624eb34a",
+                  slpResourceName: "CreateAuthGroup",
+                  stackId
+                }
+              ]
+            },
+            Layers: [
+              { Ref: "r64967c02baseLayer" },
+              { Ref: "r64967c02customResourceLayer" } // 'sam build' will fail in this case since referenced layer 'r64967c02customResourceLayer' does not exist because @solib/cfn-lambda is not installed
+            ]
+          },
+          Type: "AWS::Serverless::Function"
+        }
+      }
+    });
+  });
+
   test("for all valid input", async () => {
-    await copyCommonLib(dir, "common");
-    await copyCommonLib(dir, "slp");
+    await createCfnLambdaDependency(dir);
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
@@ -108,6 +305,20 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                     }
                   }
                 ]
+              }
+            }
+          },
+          CreateAuthGroupFunction: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              FunctionName: {
+                "SLP::ResourceName": "CreateAuthGroup"
+              },
+              CodeUri: {
+                "SLP::Function": {
+                  name: "createAuthGroup",
+                  customResourceHandler: true
+                }
               }
             }
           },
@@ -231,22 +442,35 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 {
                   moduleHash: "64967c02",
                   slpResourceName: "baseLayer",
-                  stackId: {
-                    "Fn::Select": [
-                      2,
-                      {
-                        "Fn::Split": [
-                          "/",
-                          {
-                            Ref: "AWS::StackId"
-                          }
-                        ]
-                      }
-                    ]
-                  }
+                  stackId
                 }
               ]
             }
+          },
+          Type: "AWS::Serverless::LayerVersion"
+        },
+        r64967c02customResourceLayer: {
+          Metadata: {
+            BuildArchitecture: "arm64",
+            BuildMethod: "nodejs14.x"
+          },
+          Properties: {
+            CompatibleArchitectures: ["arm64"],
+            CompatibleRuntimes: ["nodejs14.x"],
+            ContentUri: ".slp/lambda-layers/@somod/slp/customResourceLayer",
+            Description:
+              "Wrapper libraries to create CloudFormation Custom Resource",
+            LayerName: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "64967c02",
+                  slpResourceName: "customResourceLayer",
+                  stackId
+                }
+              ]
+            },
+            RetentionPolicy: "Delete"
           },
           Type: "AWS::Serverless::LayerVersion"
         },
@@ -259,19 +483,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 {
                   moduleHash: "a046855c",
                   slpResourceName: "rootRestApi",
-                  stackId: {
-                    "Fn::Select": [
-                      2,
-                      {
-                        "Fn::Split": [
-                          "/",
-                          {
-                            Ref: "AWS::StackId"
-                          }
-                        ]
-                      }
-                    ]
-                  }
+                  stackId
                 }
               ]
             },
@@ -285,19 +497,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                       {
                         moduleHash: "a046855c",
                         slpResourceName: "rootRestApi",
-                        stackId: {
-                          "Fn::Select": [
-                            2,
-                            {
-                              "Fn::Split": [
-                                "/",
-                                {
-                                  Ref: "AWS::StackId"
-                                }
-                              ]
-                            }
-                          ]
-                        }
+                        stackId
                       }
                     ]
                   }
@@ -334,6 +534,26 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Layers: [{ Ref: "r64967c02baseLayer" }]
           }
         },
+        r624eb34aCreateAuthGroupFunction: {
+          Properties: {
+            CodeUri: ".slp/lambdas/@sodaru/auth-slp/createAuthGroup",
+            FunctionName: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "624eb34a",
+                  slpResourceName: "CreateAuthGroup",
+                  stackId
+                }
+              ]
+            },
+            Layers: [
+              { Ref: "r64967c02baseLayer" },
+              { Ref: "r64967c02customResourceLayer" }
+            ]
+          },
+          Type: "AWS::Serverless::Function"
+        },
         r624eb34aAuthLayer: {
           Type: "AWS::Serverless::LayerVersion",
           Metadata: { BuildArchitecture: "arm64", BuildMethod: "nodejs14.x" },
@@ -344,19 +564,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 {
                   moduleHash: "624eb34a",
                   slpResourceName: "SodaruAuthLayer",
-                  stackId: {
-                    "Fn::Select": [
-                      2,
-                      {
-                        "Fn::Split": [
-                          "/",
-                          {
-                            Ref: "AWS::StackId"
-                          }
-                        ]
-                      }
-                    ]
-                  }
+                  stackId
                 }
               ]
             },
@@ -375,19 +583,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 {
                   moduleHash: "624eb34a",
                   slpResourceName: "GetAuthGroup",
-                  stackId: {
-                    "Fn::Select": [
-                      2,
-                      {
-                        "Fn::Split": [
-                          "/",
-                          {
-                            Ref: "AWS::StackId"
-                          }
-                        ]
-                      }
-                    ]
-                  }
+                  stackId
                 }
               ]
             },
@@ -402,19 +598,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                       {
                         moduleHash: "624eb34a",
                         slpResourceName: "SodaruAuthLayer",
-                        stackId: {
-                          "Fn::Select": [
-                            2,
-                            {
-                              "Fn::Split": [
-                                "/",
-                                {
-                                  Ref: "AWS::StackId"
-                                }
-                              ]
-                            }
-                          ]
-                        }
+                        stackId
                       }
                     ]
                   }
@@ -513,7 +697,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       JSON.stringify({
         "@somod/slp": {},
         "@sodaru/baseapi": { anotherFunction: [] },
-        "@sodaru/auth-slp": { getAuthGroup: ["@sodaru/restapi-sdk"] }
+        "@sodaru/auth-slp": {
+          createAuthGroup: ["@solib/cfn-lambda"],
+          getAuthGroup: ["@sodaru/restapi-sdk"]
+        }
       })
     );
 

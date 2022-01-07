@@ -1,9 +1,5 @@
-import {
-  checkForRepeatedModules,
-  getModuleGraph,
-  toChildFirstList,
-  toList
-} from "../module";
+import { getModuleGraph, toChildFirstList } from "../module";
+import { cleanUpBaseModule } from "./baseModule";
 import { apply as applyDependsOn } from "./keywords/dependsOn";
 import { apply as applyExtend } from "./keywords/extend";
 import {
@@ -35,9 +31,6 @@ export const buildTemplateJson = async (
   moduleIndicators: string[]
 ): Promise<void> => {
   const rootModuleNode = await getModuleGraph(dir, moduleIndicators);
-
-  const allModuleNodes = toList(rootModuleNode); // to be improved in module code
-  checkForRepeatedModules(allModuleNodes); // to be improved in module code
 
   const allChildModules = toChildFirstList(rootModuleNode);
   allChildModules.pop(); // remove the root module
@@ -87,6 +80,8 @@ export const generateSAMTemplate = async (
   applyDependsOn(serverlessTemplate);
   applyOutput(serverlessTemplate);
   applyExtend(serverlessTemplate);
+
+  cleanUpBaseModule(serverlessTemplate);
 
   await Promise.all([
     prepareFunction(dir, serverlessTemplate),

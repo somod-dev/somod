@@ -35,7 +35,8 @@
   "peerDependencies": {
     "@somod/common-lib": "^1.2.5",
     "@types/aws-lambda": "^8.10.85",
-    "aws-sdk": "2.952.0"
+    "aws-sdk": "2.952.0",
+    "@solib/cfn-lambda": "^0.0.4"
   },
   "devDependencies": {
     "@sodev/jest-config": "^1.1.1",

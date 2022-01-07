@@ -1,3 +1,4 @@
+import { isEqual } from "lodash";
 import {
   KeywordSLPExtend,
   KeywordSLPOutput,
@@ -89,4 +90,25 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
       replaceSLPKeyword(slpTemplate, refPath, refValue);
     });
   });
+};
+
+export const findReferences = (
+  serverlessTemplate: ServerlessTemplate,
+  slpRef: SLPRef["SLP::Ref"]
+): Record<string, string[][]> => {
+  const references: Record<string, string[][]> = {};
+
+  Object.values(serverlessTemplate).forEach(slpTemplate => {
+    slpTemplate.keywordPaths[KeywordSLPRef].forEach(refPath => {
+      const ref = getSLPKeyword<SLPRef>(slpTemplate, refPath)[KeywordSLPRef];
+      if (isEqual(ref, slpRef)) {
+        if (!references[slpTemplate.module]) {
+          references[slpTemplate.module] = [];
+        }
+        references[slpTemplate.module].push(refPath);
+      }
+    });
+  });
+
+  return references;
 };

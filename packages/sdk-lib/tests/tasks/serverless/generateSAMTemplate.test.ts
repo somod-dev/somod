@@ -1,3 +1,4 @@
+import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
@@ -32,60 +33,7 @@ describe("Test Task generateSAMTemplate", () => {
       })
     });
     await expect(generateSAMTemplate(dir, ["slp"])).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "template.yaml"), { encoding: "utf8" })
-    ).resolves.toEqual(
-      dump({
-        AWSTemplateFormatVersion: "2010-09-09",
-        Transform: "AWS::Serverless-2016-10-31",
-        Globals: {
-          Function: {
-            Runtime: "nodejs14.x",
-            Handler: "index.default"
-          }
-        },
-        Parameters: {},
-        Resources: {
-          r64967c02baseLayer: {
-            Type: "AWS::Serverless::LayerVersion",
-            Metadata: {
-              BuildMethod: "nodejs14.x",
-              BuildArchitecture: "arm64"
-            },
-            Properties: {
-              LayerName: {
-                "Fn::Sub": [
-                  "slp${stackId}${moduleHash}${slpResourceName}",
-                  {
-                    stackId: {
-                      "Fn::Select": [
-                        2,
-                        {
-                          "Fn::Split": [
-                            "/",
-                            {
-                              Ref: "AWS::StackId"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    moduleHash: "64967c02",
-                    slpResourceName: "baseLayer"
-                  }
-                ]
-              },
-              Description:
-                "Set of npm libraries to be requiired in all Lambda funtions",
-              CompatibleArchitectures: ["arm64"],
-              CompatibleRuntimes: ["nodejs14.x"],
-              RetentionPolicy: "Delete",
-              ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer"
-            }
-          }
-        }
-      })
-    );
+    expect(existsSync(join(dir, "template.yaml"))).toBeFalsy();
   });
 
   test("for all valid input", async () => {

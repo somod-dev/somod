@@ -1,7 +1,6 @@
 import { unixStylePath } from "@sodaru/cli-base";
 import { existsSync } from "fs";
 import { mkdir, writeFile } from "fs/promises";
-import { cloneDeep } from "lodash";
 import { dirname, join, relative } from "path";
 import {
   file_lambdaBundleExclude,
@@ -11,13 +10,15 @@ import {
   path_serverless,
   path_slpWorkingDir
 } from "../../constants";
-import { baseLayerName, baseModuleName } from "../slpTemplate";
+import { apply as applyBaseLayer } from "../baseModule/layers/baseLayer";
+import {
+  apply as applyCustomResourceLayer,
+  cfnCustomResourceLibraryName
+} from "../baseModule/layers/customResourceLayer";
 import {
   KeywordSLPFunction,
-  KeywordSLPRef,
   ServerlessTemplate,
   SLPFunction,
-  SLPRef,
   SLPTemplate
 } from "../types";
 import {
@@ -68,40 +69,29 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
   return errors;
 };
 
-const applyBaseLayer = (slpTemplate: SLPTemplate, resourceId: string) => {
-  const layers = (slpTemplate.Resources[resourceId].Properties.Layers ||
-    []) as SLPRef[];
-  layers.unshift({
-    [KeywordSLPRef]: { module: baseModuleName, resource: baseLayerName }
-  });
-  slpTemplate.Resources[resourceId].Properties.Layers = layers;
-  slpTemplate.original.Resources[resourceId].Properties.Layers = layers;
-};
-
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
     slpTemplate.keywordPaths[KeywordSLPFunction].forEach(
       functionKeywordPath => {
-        const _functionName = getSLPKeyword<SLPFunction>(
+        const _function = getSLPKeyword<SLPFunction>(
           slpTemplate,
           functionKeywordPath
         )[KeywordSLPFunction];
         replaceSLPKeyword(
           slpTemplate,
           functionKeywordPath,
-          `${path_slpWorkingDir}/${path_lambdas}/${slpTemplate.module}/${_functionName.name}`
+          `${path_slpWorkingDir}/${path_lambdas}/${slpTemplate.module}/${_function.name}`
         );
 
         const resourceId = functionKeywordPath[0];
+        if (_function.customResourceHandler) {
+          applyCustomResourceLayer(slpTemplate, resourceId);
+        }
         applyBaseLayer(slpTemplate, resourceId);
       }
     );
     if (slpTemplate.keywordPaths[KeywordSLPFunction].length > 0) {
-      const functionKeywordPaths = cloneDeep(
-        slpTemplate.keywordPaths[KeywordSLPFunction]
-      );
       updateKeywordPathsInSLPTemplate(slpTemplate);
-      slpTemplate.keywordPaths[KeywordSLPFunction] = functionKeywordPaths;
     }
   });
 };
@@ -162,6 +152,11 @@ const saveExcludes = async (
         )[KeywordSLPFunction];
 
         excludes[slpTemplate.module][_function.name] = _function.exclude || [];
+        if (_function.customResourceHandler) {
+          excludes[slpTemplate.module][_function.name].push(
+            cfnCustomResourceLibraryName
+          );
+        }
       }
     );
   });
