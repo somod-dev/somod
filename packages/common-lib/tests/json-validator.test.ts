@@ -1,5 +1,7 @@
 import { getAjv, getValidator, validate } from "../src/json-validator";
 import Ajv from "ajv";
+import { JSONSchema7 } from "json-schema";
+import { DataValidationError } from "../src/errors";
 
 describe("Test JSON Validator", () => {
   test("getAjv", () => {
@@ -40,6 +42,55 @@ describe("Test JSON Validator", () => {
 
   test("validate", () => {
     expect(validate({ type: "string" }, "this is awesome")).toBeUndefined();
+  });
+
+  test("validate for error", () => {
+    const schema: JSONSchema7 = {
+      type: "object",
+      properties: {
+        a: {
+          oneOf: [
+            {
+              type: "object",
+              properties: {
+                type: { const: "type1" },
+                name: { type: "string" }
+              }
+            },
+            {
+              type: "object",
+              properties: {
+                type: { const: "type2" },
+                label: { type: "string" }
+              }
+            },
+            {
+              type: "string"
+            }
+          ]
+        }
+      }
+    };
+
+    const data = { a: { type: "mykey" } };
+    let error = null;
+    try {
+      validate(schema, data, null, "my-module");
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeInstanceOf(DataValidationError);
+    expect(error.message).toEqual(
+      "SomodError<my-module>: 'type' property must be equal to the allowed value"
+    );
+    expect(error.error).toEqual({
+      context: {
+        allowedValue: "type1",
+        errorType: "const"
+      },
+      message: "'type' property must be equal to the allowed value",
+      path: "{base}.a.type"
+    });
   });
 
   test("validate with chain", () => {

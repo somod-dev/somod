@@ -1,22 +1,7 @@
-import Ajv, { ValidateFunction, ErrorObject } from "ajv";
+import Ajv, { ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
 import { JSONSchema7 } from "json-schema";
-
-export class JSONValidationError extends Error {
-  private _errors: ErrorObject[] = [];
-  constructor(errors: ErrorObject[]) {
-    super(errors.map(e => e.message).join("\n"));
-
-    this._errors = errors;
-
-    // Set the prototype explicitly.
-    Object.setPrototypeOf(this, new.target.prototype);
-  }
-
-  get errors(): ErrorObject[] {
-    return [...this._errors];
-  }
-}
+import { DataValidationError } from "./errors";
 
 export const getAjv = (): Ajv => {
   const ajv = new Ajv();
@@ -40,10 +25,11 @@ export const getValidator = <T = unknown>(
 export const validate = <T = unknown>(
   schema: JSONSchema7,
   data: T,
-  validate?: ValidateFunction<T>
+  validate?: ValidateFunction<T>,
+  module?: string
 ): void => {
   const _validate = validate || getValidator(schema);
   if (!_validate(data)) {
-    throw new JSONValidationError(_validate.errors);
+    throw new DataValidationError(schema, data, _validate.errors, module);
   }
 };
