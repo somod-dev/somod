@@ -15,6 +15,7 @@ const identifierToString = (identifier: Identifier): string => {
 };
 
 export type SomodErrorObject = {
+  code: string;
   message: string;
   module?: string;
 } & Record<string, unknown>;
@@ -22,6 +23,7 @@ export type SomodErrorObject = {
 export abstract class SomodError extends Error {
   private _module: string;
   private _code: string;
+
   constructor(code: string, message?: string, module?: string) {
     const __module = module || "";
     super(`${code}<${__module}>: ${message}`);
@@ -195,5 +197,17 @@ export class AccessDeniedError extends SomodError {
 
   get idendifier() {
     return cloneDeep(this._identifier);
+  }
+}
+
+export class InternalServerError extends SomodError {
+  private _error: Error;
+  constructor(error: Error, module?: string) {
+    super("InternalServerError", "internal server error", module);
+    this._error = error;
+  }
+
+  getOriginalError() {
+    return this._error;
   }
 }

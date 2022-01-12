@@ -3,6 +3,7 @@ import {
   AccessDeniedError,
   DataValidationError,
   DuplicateResourceError,
+  InternalServerError,
   ResourceNotFoundError,
   SomodError
 } from "../src/errors";
@@ -34,7 +35,7 @@ describe("Test errors types", () => {
       "something failed",
       "my-module"
     );
-    expect(somodError).toBeInstanceOf(SomodError);
+    expect(somodErrorWithModule).toBeInstanceOf(SomodError);
     expect(somodErrorWithModule.message).toEqual(
       "ChildSomodError<my-module>: something failed"
     );
@@ -325,6 +326,37 @@ describe("Test errors types", () => {
       resourceType: "my-resource",
       action: "my-action",
       idendifier: null
+    });
+  });
+
+  test("test internal server error", () => {
+    // simple
+    const internalServerError = new InternalServerError(
+      new Error("something failed")
+    );
+    expect(internalServerError).toBeInstanceOf(SomodError);
+    expect(internalServerError).toBeInstanceOf(InternalServerError);
+    expect(internalServerError.message).toEqual(
+      "InternalServerError<>: internal server error"
+    );
+    expect(internalServerError.module).toEqual("");
+
+    // with module
+    const internalServerErrorWithModule = new InternalServerError(
+      new Error("something failed"),
+      "my-module"
+    );
+    expect(internalServerErrorWithModule).toBeInstanceOf(SomodError);
+    expect(internalServerErrorWithModule).toBeInstanceOf(InternalServerError);
+    expect(internalServerErrorWithModule.message).toEqual(
+      "InternalServerError<my-module>: internal server error"
+    );
+    expect(internalServerErrorWithModule.module).toEqual("my-module");
+
+    expect(internalServerErrorWithModule.toObject()).toEqual({
+      code: "InternalServerError",
+      message: "internal server error",
+      module: "my-module"
     });
   });
 });

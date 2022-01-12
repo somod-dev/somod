@@ -81,16 +81,13 @@ describe("Test JSON Validator", () => {
     }
     expect(error).toBeInstanceOf(DataValidationError);
     expect(error.message).toEqual(
-      "SomodError<my-module>: 'type' property must be equal to the allowed value"
+      "DataValidationError<my-module>: 'type' property must be equal to the allowed value"
     );
-    expect(error.error).toEqual({
-      context: {
-        allowedValue: "type1",
-        errorType: "const"
-      },
-      message: "'type' property must be equal to the allowed value",
-      path: "{base}.a.type"
+    expect(error.context).toEqual({
+      allowedValue: "type1",
+      errorType: "const"
     });
+    expect(error.path).toEqual("{base}.a.type");
   });
 
   test("validate with chain", () => {
@@ -100,6 +97,8 @@ describe("Test JSON Validator", () => {
         "this is awesome",
         getValidator({ type: "string", maxLength: 5 }, getAjv())
       )
-    ).toThrow("must NOT have more than 5 characters");
+    ).toThrow(
+      "DataValidationError<>: {base} must not have more than 5 characters"
+    );
   });
 });
