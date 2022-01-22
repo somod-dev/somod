@@ -724,14 +724,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       version: "1.0.0",
       description: "Lambda function layer - baseLayer",
       dependencies: {
-        ajv: "^8.8.2",
-        "ajv-formats": "^2.1.1",
+        "@solib/json-validator": "^0.0.2",
         lodash: "^4.17.21",
         tslib: "^2.3.1",
         uuid: "^8.3.2",
-        "aws-sdk": "2.952.0",
-        "@somod/common-lib": expect.stringContaining(""),
-        "@somod/slp-lib": expect.stringContaining("")
+        "aws-sdk": "2.952.0"
       }
     });
   });

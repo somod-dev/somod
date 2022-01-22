@@ -48,6 +48,5 @@ export const getToBeBundledLibraries = async (
   Object.keys(libs.libraries).forEach(lib => {
     libraries[lib] = libs.libraries[lib];
   });
-  libraries[libs.name] = libs.version;
   return libraries;
 };

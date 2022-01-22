@@ -1,4 +1,4 @@
-import { isArray, mergeWith } from "lodash";
+import { merge } from "lodash";
 import {
   KeywordSLPExtend,
   ServerlessTemplate,
@@ -49,14 +49,9 @@ export const apply = (serverlessTemplate: ServerlessTemplate): void => {
           ];
       }
 
-      serverlessTemplate[extend.module].Resources[extend.resource] = mergeWith(
+      serverlessTemplate[extend.module].Resources[extend.resource] = merge(
         serverlessTemplate[extend.module].Resources[extend.resource],
-        extendedResource,
-        (objValue, srcValue) => {
-          if (isArray(objValue)) {
-            return objValue.concat(srcValue);
-          }
-        }
+        extendedResource
       );
     });
   });

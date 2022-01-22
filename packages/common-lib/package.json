@@ -9,11 +9,7 @@
     "somod",
     "sodaru"
   ],
-  "main": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": [],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/common-lib#readme",
   "license": "UNLICENSED",
@@ -22,47 +18,21 @@
     "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
   },
   "scripts": {
-    "clean": "npx rimraf dist",
-    "typescript": "tsc",
-    "build": "npm run clean && npm run typescript",
-    "pretest": "$CI || npm run build",
-    "test": "npx jest",
+    "test": "echo 'No Tests here'",
     "prepack": "npm run test"
   },
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
   "toBeBundled": [
-    "ajv",
-    "ajv-formats",
-    "@apideck/better-ajv-errors",
+    "@solib/json-validator",
     "lodash",
     "tslib",
     "uuid"
   ],
   "peerDependencies": {
-    "@apideck/better-ajv-errors": "^0.3.2",
-    "@types/json-schema": "^7.0.9",
-    "@types/lodash": "^4.14.178",
-    "@types/uuid": "^8.3.3",
-    "ajv": "^8.8.2",
-    "ajv-formats": "^2.1.1",
+    "@solib/json-validator": "^0.0.2",
     "lodash": "^4.17.21",
-    "rimraf": "^3.0.2",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.4",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "@apideck/better-ajv-errors": "^0.3.2",
-    "@sodev/jest-config": "^1.1.1",
-    "@types/json-schema": "^7.0.9",
-    "@types/lodash": "^4.14.178",
-    "@types/uuid": "^8.3.3",
-    "ajv": "^8.8.2",
-    "ajv-formats": "^2.1.1",
-    "lodash": "^4.17.21",
-    "rimraf": "^3.0.2",
     "tslib": "^2.3.1",
     "typescript": "^4.5.4",
     "uuid": "^8.3.2"

@@ -10,4 +10,4 @@ Peer dependencies in this packages include the external dependencies to be neede
 
 ## `toBeBundled`
 
-this library introduces a new key (`toBeBundled`) in `package.json` to list the dependencies needed to run the software
+this library introduces a new key (`includeInBaseLayer`) in `package.json` to list the dependencies needed to run the software
