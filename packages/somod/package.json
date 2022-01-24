@@ -35,9 +35,9 @@
   },
   "peerDependencies": {
     "@sodev/sodev": "^1.1.0",
-    "@somod/njp-lib": "^1.2.5",
-    "@somod/serverless-schema": "^1.2.5",
-    "@somod/slp-lib": "^1.2.5",
+    "@somod/njp-lib": "^1.3.2",
+    "@somod/serverless-schema": "^1.3.2",
+    "@somod/slp-lib": "^1.3.2",
     "esbuild": "^0.12.28"
   },
   "devDependencies": {
