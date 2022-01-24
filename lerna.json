@@ -11,5 +11,16 @@
     "publish": {
       "registry": "https://gitlab.com/api/v4/projects/XXXXXX/packages/npm/"
     }
+  },
+  "peer":{
+    "@somod/njp": ["@somod/njp-lib"],
+    "@somod/njp-lib": ["@somod/common-lib"],
+    "@somod/slp": ["@somod/serverless-schema", "@somod/slp-lib"],
+    "@somod/slp-lib": ["@somod/common-lib"],
+    "@somod/somod": [
+      "@somod/njp-lib",
+      "@somod/serverless-schema",
+      "@somod/slp-lib"
+    ]
   }
 }

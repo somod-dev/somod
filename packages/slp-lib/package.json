@@ -28,8 +28,7 @@
     "aws-sdk"
   ],
   "peerDependencies": {
-    "@solib/cfn-lambda": "^0.0.6",
-    "@somod/common-lib": "^1.3.2",
+    "@solib/cfn-lambda": "^1.0.0",
     "aws-sdk": "2.952.0"
   },
   "peerDependenciesMeta": {

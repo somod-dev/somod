@@ -724,9 +724,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       version: "1.0.0",
       description: "Lambda function layer - baseLayer",
       dependencies: {
-        "@solib/json-validator": "^0.0.2",
-        "@solib/common-types-schemas": "^0.0.3",
-        "@solib/errors": "^0.0.2",
+        "@solib/json-validator": "^1.0.0",
+        "@solib/common-types-schemas": "^1.0.0",
+        "@solib/errors": "^1.0.0",
         lodash: "^4.17.21",
         tslib: "^2.3.1",
         uuid: "^8.3.2",
