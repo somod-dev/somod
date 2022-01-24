@@ -1,6 +1,6 @@
 {
   "name": "@somod/common-lib",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Common Dependencies for Sodaru Modules",
   "keywords": [
     "lib",
