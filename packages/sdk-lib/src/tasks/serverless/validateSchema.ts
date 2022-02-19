@@ -1,7 +1,6 @@
 import { ErrorSet } from "@sodaru/cli-base";
 import { compile } from "@somod/serverless-schema";
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
+import { getAjv } from "@solib/json-validator";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { load } from "js-yaml";
@@ -11,8 +10,8 @@ import { file_templateYaml, path_serverless } from "../../utils/constants";
 export const validateSchema = async (dir: string): Promise<void> => {
   const templateYamlPath = join(dir, path_serverless, file_templateYaml);
   if (existsSync(templateYamlPath)) {
-    const ajv = new Ajv({ strictTuples: false });
-    addFormats(ajv);
+    const ajv = getAjv();
+    ajv.opts.strictTuples = false;
     const validate = await compile(dir, ajv);
 
     const templateYamlContent = await readFile(templateYamlPath, {
