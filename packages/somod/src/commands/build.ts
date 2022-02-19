@@ -6,7 +6,7 @@ import {
   compileTypeScript,
   deleteBuildDir,
   deleteSlpWorkingDir,
-  doesSomodIsTrueInPackageJson,
+  doesSomodIsSetInPackageJson,
   doesFilesHasBuildInPackageJson,
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
@@ -71,8 +71,8 @@ export const BuildAction = async ({
 
   const validations: Promise<unknown>[] = [
     taskRunner(
-      `Check if ${key_somod} is true in ${file_packageJson}`,
-      doesSomodIsTrueInPackageJson,
+      `Check if ${key_somod} is set in ${file_packageJson}`,
+      doesSomodIsSetInPackageJson,
       verbose,
       dir
     ),

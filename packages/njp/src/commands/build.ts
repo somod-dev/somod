@@ -5,7 +5,7 @@ import {
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
   doesTypingsIsBuildIndexInPackageJson,
-  doesNjpIsTrueInPackageJson,
+  doesNjpIsSetInPackageJson,
   doesSideEffectsIsFalseInPackageJson,
   doesTypeIsNotSetInPackageJson,
   file_index_js,
@@ -39,8 +39,8 @@ export const BuildAction = async ({
 
   await Promise.all([
     taskRunner(
-      `Check if ${key_njp} is true in ${file_packageJson}`,
-      doesNjpIsTrueInPackageJson,
+      `Check if ${key_njp} is set in ${file_packageJson}`,
+      doesNjpIsSetInPackageJson,
       verbose,
       dir
     ),

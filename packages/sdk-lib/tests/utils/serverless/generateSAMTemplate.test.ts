@@ -79,7 +79,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       "package.json": JSON.stringify({
         name: "@sodaru/auth-slp",
         version: "1.0.0",
-        slp: true
+        slp: "1.3.2"
       })
     });
 
@@ -164,7 +164,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       "package.json": JSON.stringify({
         name: "@sodaru/auth-slp",
         version: "1.0.0",
-        slp: true
+        slp: "1.3.2"
       })
     });
 
@@ -270,7 +270,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
         name: "@sodaru/baseapi",
         version: "1.0.1",
-        slp: true,
+        slp: "1.3.2",
         dependencies: {}
       }),
       "build/serverless/functions/getAuthGroup.js":
@@ -414,7 +414,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       "package.json": JSON.stringify({
         name: "@sodaru/auth-slp",
         version: "1.0.0",
-        slp: true,
+        slp: "1.3.2",
         dependencies: {
           "@sodaru/baseapi": "^1.0.0"
         }

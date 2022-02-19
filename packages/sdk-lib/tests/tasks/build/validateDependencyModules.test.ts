@@ -54,7 +54,7 @@ describe("Test task validateDependencyModules", () => {
       "package.json": JSON.stringify({
         name: "m1",
         version: "1.0.0",
-        njp: true
+        njp: "1.3.2"
       })
     });
     await expect(
@@ -67,7 +67,7 @@ describe("Test task validateDependencyModules", () => {
       "package.json": JSON.stringify({
         name: "m1",
         version: "1.0.0",
-        njp: true,
+        njp: "1.3.2",
         dependencies: {
           m2: "^1.0.1",
           m3: "^2.1.0"
@@ -76,12 +76,12 @@ describe("Test task validateDependencyModules", () => {
       "node_modules/m2/package.json": JSON.stringify({
         name: "m2",
         version: "1.0.10",
-        njp: true
+        njp: "1.3.2"
       }),
       "node_modules/m3/package.json": JSON.stringify({
         name: "m3",
         version: "2.2.0",
-        njp: true
+        njp: "1.3.2"
       })
     });
     await expect(
@@ -94,7 +94,7 @@ describe("Test task validateDependencyModules", () => {
       "package.json": JSON.stringify({
         name: "m1",
         version: "1.0.0",
-        njp: true,
+        njp: "1.3.2",
         dependencies: {
           m2: "^1.0.1",
           m3: "^2.1.0",
@@ -109,22 +109,22 @@ describe("Test task validateDependencyModules", () => {
           m5: "^4.6.0",
           m6: "^7.1.0"
         },
-        njp: true
+        njp: "1.3.2"
       }),
       "node_modules/m2/node_modules/m5/package.json": JSON.stringify({
         name: "m5",
         version: "4.6.0",
-        njp: true
+        njp: "1.3.2"
       }),
       "node_modules/m3/package.json": JSON.stringify({
         name: "m3",
         version: "2.2.0",
-        njp: true
+        njp: "1.3.2"
       }),
       "node_modules/m4/package.json": JSON.stringify({
         name: "m4",
         version: "3.6.0",
-        njp: true
+        njp: "1.3.2"
       }),
       "node_modules/m6/package.json": JSON.stringify({
         name: "m6",
@@ -141,7 +141,7 @@ describe("Test task validateDependencyModules", () => {
       "package.json": JSON.stringify({
         name: "m1",
         version: "1.0.0",
-        njp: true,
+        njp: "1.3.2",
         dependencies: {
           m2: "^1.0.1",
           m4: "^3.4.1",
@@ -154,17 +154,17 @@ describe("Test task validateDependencyModules", () => {
         dependencies: {
           m4: "^4.5.2"
         },
-        njp: true
+        njp: "1.3.2"
       }),
       "node_modules/m2/node_modules/m4/package.json": JSON.stringify({
         name: "m4",
         version: "4.6.0",
-        njp: true
+        njp: "1.3.2"
       }),
       "node_modules/m4/package.json": JSON.stringify({
         name: "m4",
         version: "3.5.1",
-        njp: true
+        njp: "1.3.2"
       }),
       "node_modules/m6/package.json": JSON.stringify({
         name: "m6",

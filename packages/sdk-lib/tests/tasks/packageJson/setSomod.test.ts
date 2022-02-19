@@ -13,27 +13,23 @@ describe("Test Task setSomodInPackageJson", () => {
     deleteDir(dir);
   });
 
+  const somodVersionRegex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+
   test("for no prior somod set", async () => {
     createFiles(dir, { "package.json": JSON.stringify({}) });
     await expect(setSomodInPackageJson(dir)).resolves.toBeUndefined();
-    await expect(read(dir)).resolves.toEqual({ somod: true });
+    await expect(read(dir)).resolves.toEqual({
+      somod: expect.stringMatching(somodVersionRegex)
+    });
   });
 
-  test("for somod = true", async () => {
-    createFiles(dir, { "package.json": JSON.stringify({ somod: true }) });
+  test("for prior somod = '0.0.0'", async () => {
+    createFiles(dir, { "package.json": JSON.stringify({ somod: "0.0.0" }) });
     await expect(setSomodInPackageJson(dir)).resolves.toBeUndefined();
-    await expect(read(dir)).resolves.toEqual({ somod: true });
-  });
-
-  test("for somod = false", async () => {
-    createFiles(dir, { "package.json": JSON.stringify({ somod: false }) });
-    await expect(setSomodInPackageJson(dir)).resolves.toBeUndefined();
-    await expect(read(dir)).resolves.toEqual({ somod: true });
-  });
-
-  test('for somod = "true"', async () => {
-    createFiles(dir, { "package.json": JSON.stringify({ somod: "true" }) });
-    await expect(setSomodInPackageJson(dir)).resolves.toBeUndefined();
-    await expect(read(dir)).resolves.toEqual({ somod: true });
+    const result = await read(dir);
+    expect(result).toEqual({
+      somod: expect.stringMatching(somodVersionRegex)
+    });
+    expect(result.somod).not.toEqual("0.0.0");
   });
 });

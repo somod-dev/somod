@@ -88,7 +88,7 @@ describe("Test Task buildServerlessTemplate", () => {
         name: "sample",
         version: "1.0.0",
         dependencies: {},
-        slp: true
+        slp: "1.3.2"
       })
     });
     await expect(

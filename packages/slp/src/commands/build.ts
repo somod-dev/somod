@@ -10,7 +10,7 @@ import {
   doesModuleIsBuildIndexInPackageJson,
   doesServerlessFunctionsHaveDefaultExport,
   doesSideEffectsIsFalseInPackageJson,
-  doesSlpIsTrueInPackageJson,
+  doesSlpIsSetInPackageJson,
   doesTypeIsNotSetInPackageJson,
   doesTypingsIsBuildIndexInPackageJson,
   file_functionIndex_js,
@@ -51,8 +51,8 @@ export const BuildAction = async ({
 
   await Promise.all([
     taskRunner(
-      `Check if ${key_slp} is true in ${file_packageJson}`,
-      doesSlpIsTrueInPackageJson,
+      `Check if ${key_slp} is set in ${file_packageJson}`,
+      doesSlpIsSetInPackageJson,
       verbose,
       dir
     ),

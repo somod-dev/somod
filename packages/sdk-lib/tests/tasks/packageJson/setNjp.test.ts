@@ -13,27 +13,23 @@ describe("Test Task setNjpInPackageJson", () => {
     deleteDir(dir);
   });
 
+  const njpVersionRegex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+
   test("for no prior njp set", async () => {
     createFiles(dir, { "package.json": JSON.stringify({}) });
     await expect(setNjpInPackageJson(dir)).resolves.toBeUndefined();
-    await expect(read(dir)).resolves.toEqual({ njp: true });
+    await expect(read(dir)).resolves.toEqual({
+      njp: expect.stringMatching(njpVersionRegex)
+    });
   });
 
-  test("for njp = true", async () => {
-    createFiles(dir, { "package.json": JSON.stringify({ njp: true }) });
+  test("for prior njp = '0.0.0'", async () => {
+    createFiles(dir, { "package.json": JSON.stringify({ njp: "0.0.0" }) });
     await expect(setNjpInPackageJson(dir)).resolves.toBeUndefined();
-    await expect(read(dir)).resolves.toEqual({ njp: true });
-  });
-
-  test("for njp = false", async () => {
-    createFiles(dir, { "package.json": JSON.stringify({ njp: false }) });
-    await expect(setNjpInPackageJson(dir)).resolves.toBeUndefined();
-    await expect(read(dir)).resolves.toEqual({ njp: true });
-  });
-
-  test('for njp = "true"', async () => {
-    createFiles(dir, { "package.json": JSON.stringify({ njp: "true" }) });
-    await expect(setNjpInPackageJson(dir)).resolves.toBeUndefined();
-    await expect(read(dir)).resolves.toEqual({ njp: true });
+    const result = await read(dir);
+    expect(result).toEqual({
+      njp: expect.stringMatching(njpVersionRegex)
+    });
+    expect(result.njp).not.toEqual("0.0.0");
   });
 });

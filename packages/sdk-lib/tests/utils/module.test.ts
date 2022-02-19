@@ -58,8 +58,11 @@ describe("Test util getModuleGraph with invalid input", () => {
   test("uninstalled module", async () => {
     createFiles(dir, {
       "node_modules/a/package.json": '{"name":"a"}',
-      "package.json":
-        '{"name":"m1", "njp": true, "dependencies":{"m1":"0.0.2"}}'
+      "package.json": JSON.stringify({
+        name: "m1",
+        njp: "1.3.0",
+        dependencies: { m1: "0.0.2" }
+      })
     });
     await expect(getModuleGraph(dir, ["njp"])).rejects.toEqual(
       new Error(`Could not found module m1 from ${dir}`)
@@ -104,7 +107,7 @@ const stringify = (json: Record<string, unknown>): string => {
 template(
   "Test util getModuleGraph with no dependencies",
   {
-    "package.json": stringify({ name: "m1", version: "0.0.1", njp: true })
+    "package.json": stringify({ name: "m1", version: "0.0.1", njp: "1.3.0" })
   },
   ["njp"],
   {
@@ -125,7 +128,7 @@ template(
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: true,
+      njp: "1.3.0",
       dependencies: {
         m2: "0.0.2"
       }
@@ -153,12 +156,12 @@ template(
     "node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: true
+      njp: "1.3.0"
     }),
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: true,
+      njp: "1.2.9",
       dependencies: {
         m2: "0.0.2"
       }
@@ -179,7 +182,7 @@ template(
     "node_modules/m2/package.json": stringify({
       name: "m2",
       version: "0.0.2",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         m3: "0.0.3"
       }
@@ -187,12 +190,12 @@ template(
     "node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: true
+      njp: "1.3.2"
     }),
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         m2: "0.0.2"
       }
@@ -227,7 +230,7 @@ template(
     "node_modules/m2/package.json": stringify({
       name: "m2",
       version: "0.0.2",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         m3: "0.0.3"
       }
@@ -235,7 +238,7 @@ template(
     "node_modules/m2/node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         m4: "0.0.4"
       }
@@ -243,12 +246,12 @@ template(
     "node_modules/m4/package.json": stringify({
       name: "m4",
       version: "1.0.4",
-      njp: true
+      njp: "1.3.2"
     }),
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         m2: "0.0.2",
         m4: "1.0.4"
@@ -297,7 +300,7 @@ template(
     "node_modules/m2/package.json": stringify({
       name: "m2",
       version: "0.0.2",
-      slp: true,
+      slp: "1.3.0",
       dependencies: {
         m3: "0.0.3"
       }
@@ -305,7 +308,7 @@ template(
     "node_modules/m2/node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         m4: "0.0.4"
       }
@@ -313,19 +316,19 @@ template(
     "node_modules/m4/package.json": stringify({
       name: "m4",
       version: "1.0.4",
-      emp: true
+      somod: "1.3.1"
     }),
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         m2: "0.0.2",
         m4: "1.0.4"
       }
     })
   },
-  ["njp", "slp", "emp"],
+  ["njp", "slp", "somod"],
   {
     name: "m1",
     version: "0.0.1",
@@ -367,7 +370,7 @@ template(
     "node_modules/@s/m2/package.json": stringify({
       name: "@s/m2",
       version: "0.0.2",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         m3: "0.0.3"
       }
@@ -375,12 +378,12 @@ template(
     "node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: true
+      njp: "1.3.2"
     }),
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: true,
+      njp: "1.3.2",
       dependencies: {
         "@s/m2": "0.0.2"
       }

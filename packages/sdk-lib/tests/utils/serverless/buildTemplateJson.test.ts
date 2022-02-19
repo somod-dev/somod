@@ -26,7 +26,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       name: "sample",
       version: "1.0.0",
       dependencies: {},
-      slp: true
+      slp: "1.3.2"
     })
   };
 
@@ -35,13 +35,13 @@ describe("Test Util serverless.buildTemplateJson", () => {
       name: "sample",
       version: "1.0.0",
       dependencies: { sample2: "^1.0.0" },
-      slp: true
+      slp: "1.3.2"
     }),
     "node_modules/sample2/package.json": JSON.stringify({
       name: "sample2",
       version: "1.0.0",
       dependencies: {},
-      slp: true
+      slp: "1.3.2"
     })
   };
 
@@ -124,13 +124,13 @@ describe("Test Util serverless.buildTemplateJson", () => {
         name: "sample",
         version: "1.0.0",
         dependencies: { sample2: "^1.0.0", sample3: "^1.0.0" },
-        slp: true
+        slp: "1.3.2"
       }),
       "node_modules/sample2/package.json": JSON.stringify({
         name: "sample2",
         version: "1.0.0",
         dependencies: { sample4: "^1.0.0" },
-        slp: true
+        slp: "1.3.2"
       }),
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
@@ -150,7 +150,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         name: "sample3",
         version: "1.0.0",
         dependencies: { sample4: "^1.0.0", sample5: "^1.0.0" },
-        slp: true
+        slp: "1.3.2"
       }),
       "node_modules/sample3/build/serverless/template.json": JSON.stringify({
         Resources: {
@@ -170,7 +170,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         name: "sample4",
         version: "1.0.0",
         dependencies: {},
-        slp: true
+        slp: "1.3.2"
       }),
       "node_modules/sample4/build/serverless/template.json": JSON.stringify({
         Resources: {
@@ -184,7 +184,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         name: "sample5",
         version: "1.0.0",
         dependencies: {},
-        slp: true
+        slp: "1.3.2"
       }),
       "node_modules/sample5/build/serverless/template.json": JSON.stringify({
         Resources: {

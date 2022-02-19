@@ -28,7 +28,7 @@ describe("Test Task generateSAMTemplate", () => {
       "package.json": JSON.stringify({
         name: "sample",
         version: "1.0.0",
-        slp: true,
+        slp: "1.3.2",
         dependencies: {}
       })
     });
@@ -81,7 +81,7 @@ describe("Test Task generateSAMTemplate", () => {
       "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
         name: "@sodaru/baseapi",
         version: "1.0.1",
-        slp: true,
+        slp: "1.3.2",
         dependencies: {}
       }),
       "build/serverless/template.json": JSON.stringify({
@@ -141,7 +141,7 @@ describe("Test Task generateSAMTemplate", () => {
       "package.json": JSON.stringify({
         name: "@sodaru/auth-slp",
         version: "1.0.0",
-        slp: true,
+        slp: "1.3.2",
         dependencies: {
           "@sodaru/baseapi": "^1.0.0"
         }

@@ -57,10 +57,10 @@ describe("Test Task savePackageJson", () => {
     const packageJsonPath = join(dir, "package.json");
     await setNjpInPackageJson(dir);
     await expect(savePackageJson(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(packageJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(
-      JSON.stringify({ name: "some-package", njp: true }, null, 2) + "\n"
-    );
+    const result = await readFile(packageJsonPath, { encoding: "utf8" });
+    expect(JSON.parse(result)).toEqual({
+      name: "some-package",
+      njp: expect.stringMatching(/^[0-9]+\.[0-9]+\.[0-9]+$/)
+    });
   });
 });

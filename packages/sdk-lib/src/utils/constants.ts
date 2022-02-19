@@ -60,3 +60,5 @@ export const path_lambdas = "lambdas";
 export const path_lambda_layers = "lambda-layers";
 export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
+
+export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
