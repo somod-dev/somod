@@ -27,10 +27,10 @@
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
   "dependencies": {
-    "@typescript-eslint/typescript-estree": "^4.28.5",
-    "@solib/json-validator": "^1.0.0",
     "@sodaru/cli-base": "^1.1.0",
     "@sodev/sodev": "^1.1.0",
+    "@solib/json-validator": "^1.0.0",
+    "@typescript-eslint/typescript-estree": "^4.28.5",
     "esbuild": "^0.12.28",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@sodev/jest-config": "^1.1.1",
-    "@sodev/test-utils": "^0.0.1",
+    "@sodev/test-utils": "^1.0.0",
     "@types/js-yaml": "^4.0.3",
     "@types/lodash": "^4.14.171",
     "@types/node": "^16.4.6",

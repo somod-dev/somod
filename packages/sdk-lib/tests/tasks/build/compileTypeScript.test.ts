@@ -1,26 +1,16 @@
-import { childProcess } from "@sodaru/cli-base";
-import { existsSync } from "fs";
-import { readFile } from "fs/promises";
-import { EOL } from "os";
-import { join } from "path";
+import { childProcess, ChildProcessError } from "@sodaru/cli-base";
+import { mockedFunction } from "@sodev/test-utils";
 import { compileTypeScript } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
-const validTsConfig = {
-  compilerOptions: {
-    allowUmdGlobalAccess: false,
-    outDir: "build",
-    declaration: true,
-    target: "ES5",
-    module: "ES6",
-    rootDir: "./",
-    lib: ["ESNext"],
-    moduleResolution: "Node",
-    esModuleInterop: true,
-    importHelpers: true
-  },
-  include: ["lib", "ui", "serverless"]
-};
+jest.mock("@sodaru/cli-base", () => {
+  const originalModule = jest.requireActual("@sodaru/cli-base");
+  return {
+    __esModule: true,
+    ...originalModule,
+    childProcess: jest.fn()
+  };
+});
 
 describe("Test Task compileTypeScript", () => {
   let dir: string = null;
@@ -30,55 +20,77 @@ describe("Test Task compileTypeScript", () => {
     createFiles(dir, {
       "package.json": JSON.stringify({ name: "sample", version: "1.0.0" })
     });
-    childProcess(dir, process.platform === "win32" ? "npm.cmd" : "npm", [
-      "install",
-      "typescript",
-      "--save-dev"
-    ]);
   });
 
   afterEach(() => {
     deleteDir(dir);
+    mockedFunction(childProcess).mockReset();
   });
 
-  test("for no tsconfig file", async () => {
-    await expect(compileTypeScript(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        "error TS5058: The specified path does not exist: 'tsconfig.build.json'"
-      )
-    });
-    expect(existsSync(join(dir, "build"))).toBeFalsy();
-  }, 10000);
-
-  test("for tsconfig.json file", async () => {
-    createFiles(dir, {
-      "tsconfig.json": JSON.stringify({ compilerOptions: { target: "ES5" } })
-    });
-    await expect(compileTypeScript(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        "error TS5058: The specified path does not exist: 'tsconfig.build.json'"
-      )
-    });
-    expect(existsSync(join(dir, "build"))).toBeFalsy();
-  }, 10000);
-
-  test("for tsconfig.build.json without any files", async () => {
-    createFiles(dir, { "tsconfig.build.json": JSON.stringify(validTsConfig) });
+  const npxCommand = process.platform == "win32" ? "npx.cmd" : "npx";
+  test("for successfull compilation", async () => {
     await expect(compileTypeScript(dir)).resolves.toBeUndefined();
-    expect(existsSync(join(dir, "build"))).toBeFalsy();
-  }, 10000);
+    expect(childProcess).toHaveBeenCalledTimes(1);
+    expect(childProcess).toHaveBeenCalledWith(
+      dir,
+      npxCommand,
+      ["tsc", "--project", "tsconfig.build.json"],
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
+    );
+  });
 
-  test("for tsconfig.build.json with files", async () => {
-    createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(validTsConfig),
-      "lib/a.ts": "export const a = 10;"
-    });
+  test("for no files to compile", async () => {
+    mockedFunction(childProcess).mockRejectedValue(
+      new ChildProcessError({
+        stdout:
+          "error TS18003: No inputs were found in config file **** junk ******"
+      })
+    );
     await expect(compileTypeScript(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "build/lib/a.js"), { encoding: "utf8" })
-    ).resolves.toEqual("export var a = 10;" + EOL);
-    await expect(
-      readFile(join(dir, "build/lib/a.d.ts"), { encoding: "utf8" })
-    ).resolves.toEqual("export declare const a = 10;" + EOL);
-  }, 10000);
+
+    expect(childProcess).toHaveBeenCalledTimes(1);
+    expect(childProcess).toHaveBeenCalledWith(
+      dir,
+      npxCommand,
+      ["tsc", "--project", "tsconfig.build.json"],
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
+    );
+  });
+
+  test("for compile errors", async () => {
+    mockedFunction(childProcess).mockRejectedValue(
+      new ChildProcessError({
+        stdout: "Could not compile"
+      })
+    );
+    await expect(compileTypeScript(dir)).rejects.toEqual(
+      new ChildProcessError({
+        stdout: "Could not compile"
+      })
+    );
+
+    expect(childProcess).toHaveBeenCalledTimes(1);
+    expect(childProcess).toHaveBeenCalledWith(
+      dir,
+      npxCommand,
+      ["tsc", "--project", "tsconfig.build.json"],
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
+    );
+  });
+
+  test("noEmit enabled", async () => {
+    await expect(compileTypeScript(dir, true)).resolves.toBeUndefined();
+
+    expect(childProcess).toHaveBeenCalledTimes(1);
+    expect(childProcess).toHaveBeenCalledWith(
+      dir,
+      npxCommand,
+      ["tsc", "--project", "tsconfig.build.json", "--noEmit"],
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
+    );
+  });
 });
