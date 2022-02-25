@@ -11,22 +11,19 @@ cache:
 
 before_script:
   - npm i
-  - lerna bootstrap
-  - lerna run build --stream
 
 test:
   stage: test
   script:
-    - npm run check-sanity
-    - lerna run test --stream
+    - npm test
   only:
-    - "develop"
+    - develop
 
 publish:
   stage: publish
   cache: []
   script:
     - npm run check-sanity
-    - git describe --exact-match | grep ^v && lerna publish from-git --yes
+    - git describe --exact-match | grep ^v && npx mono-repo publish -v
   only:
     - tags

@@ -1,12 +1,16 @@
 {
   "name": "@somod/sdk",
-  "version": "0.0.0",
+  "version": "1.3.4",
   "description": "Sodaru Module (somod) - SDK",
   "scripts": {
     "eslint": "npx eslint ./",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
     "check-sanity": "npm run prettier && npm run eslint",
-    "prepack": "npx lerna-utilities appendPeer"
+    "postinstall": "npx mono-repo install -v && npx mono-repo run build -v",
+    "pretest": "npm run check-sanity",
+    "test": "npx mono-repo run test -v",
+    "version": "npx mono-repo version -v && git add -A",
+    "postversion": "git push --follow-tags"
   },
   "eslintConfig": {
     "extends": [
@@ -39,8 +43,7 @@
   "private": true,
   "devDependencies": {
     "@sodev/eslint-config": "^1.1.0",
-    "@sodev/lerna-utilities": "^1.1.0",
-    "@sodev/prettier-config": "^1.1.0",
-    "lerna": "^4.0.0"
+    "@sodev/mono-repo": "^1.0.0",
+    "@sodev/prettier-config": "^1.1.0"
   }
 }

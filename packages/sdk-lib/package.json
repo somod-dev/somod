@@ -41,12 +41,12 @@
   "devDependencies": {
     "@sodev/jest-config": "^1.1.1",
     "@sodev/test-utils": "^0.0.1",
-    "@somod/serverless-schema": "^1.3.4",
     "@types/js-yaml": "^4.0.3",
     "@types/lodash": "^4.14.171",
     "@types/node": "^16.4.6",
     "@types/rimraf": "^3.0.1",
     "@types/semver": "^7.3.9",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "@somod/serverless-schema": "^1.3.4"
   }
 }
