@@ -5,7 +5,7 @@
   "scripts": {
     "eslint": "npx eslint ./",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
-    "check-sanity": "npm run prettier && npm run eslint",
+    "check-sanity": "npm run prettier && npm run eslint && npx mono-repo validate --version-match",
     "postinstall": "npx mono-repo install -v && npx mono-repo run build -v",
     "pretest": "npm run check-sanity",
     "test": "npx mono-repo run test -v",
@@ -43,7 +43,7 @@
   "private": true,
   "devDependencies": {
     "@sodev/eslint-config": "^1.1.0",
-    "@sodev/mono-repo": "^1.0.0",
+    "@sodev/mono-repo": "^1.1.0",
     "@sodev/prettier-config": "^1.1.0"
   }
 }

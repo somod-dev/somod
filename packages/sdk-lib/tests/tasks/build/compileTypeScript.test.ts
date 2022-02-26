@@ -42,7 +42,7 @@ describe("Test Task compileTypeScript", () => {
 
   test("for no files to compile", async () => {
     mockedFunction(childProcess).mockRejectedValue(
-      new ChildProcessError({
+      new ChildProcessError("npx tsc --project tsconfig.build.json", {
         stdout:
           "error TS18003: No inputs were found in config file **** junk ******"
       })
@@ -61,12 +61,12 @@ describe("Test Task compileTypeScript", () => {
 
   test("for compile errors", async () => {
     mockedFunction(childProcess).mockRejectedValue(
-      new ChildProcessError({
+      new ChildProcessError("npx tsc --project tsconfig.build.json", {
         stdout: "Could not compile"
       })
     );
     await expect(compileTypeScript(dir)).rejects.toEqual(
-      new ChildProcessError({
+      new ChildProcessError("npx tsc --project tsconfig.build.json", {
         stdout: "Could not compile"
       })
     );

@@ -1,9 +1,4 @@
-import {
-  copyCommonLib,
-  createFiles,
-  createTempDir,
-  deleteDir
-} from "../../utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import {
   bundle,
   packageLambda
@@ -27,8 +22,6 @@ describe("Test util packageLambda.bundle", () => {
 
   beforeEach(async () => {
     dir = createTempDir();
-    await copyCommonLib(dir, "common");
-    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {
@@ -406,8 +399,6 @@ describe("Test util packageLambda.packageLambda", () => {
 
   beforeEach(async () => {
     dir = createTempDir();
-    await copyCommonLib(dir, "common");
-    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {

@@ -3,12 +3,7 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { buildTemplateJson } from "../../../src/utils/serverless";
-import {
-  copyCommonLib,
-  createFiles,
-  createTempDir,
-  deleteDir
-} from "../../utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { NoSLPTemplateError } from "../../../src/utils/serverless/slpTemplate";
 import {
   file_lambdaBundleExclude,
@@ -52,8 +47,6 @@ describe("Test Util serverless.buildTemplateJson", () => {
   beforeEach(async () => {
     dir = createTempDir();
     buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
-    await copyCommonLib(dir, "common");
-    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {

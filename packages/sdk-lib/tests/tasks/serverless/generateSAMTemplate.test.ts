@@ -3,20 +3,13 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { generateSAMTemplate } from "../../../src";
-import {
-  copyCommonLib,
-  createFiles,
-  createTempDir,
-  deleteDir
-} from "../../utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 describe("Test Task generateSAMTemplate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
     dir = createTempDir();
-    await copyCommonLib(dir, "common");
-    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {

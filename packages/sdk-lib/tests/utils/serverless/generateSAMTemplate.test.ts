@@ -1,12 +1,7 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { generateSAMTemplate } from "../../../src/utils/serverless";
-import {
-  copyCommonLib,
-  createFiles,
-  createTempDir,
-  deleteDir
-} from "../../utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 const createCfnLambdaDependency = async (dir: string) => {
   const cfnLambdaPackageJsonFile = join(
@@ -41,8 +36,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
 
   beforeEach(async () => {
     dir = createTempDir();
-    await copyCommonLib(dir, "common");
-    await copyCommonLib(dir, "slp");
   });
 
   afterEach(() => {
