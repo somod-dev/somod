@@ -5,7 +5,8 @@
     "declaration": true,
     "target": "ES5",
     "module": "CommonJS",
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    "esModuleInterop": true
   },
   "include": ["src"]
 }
