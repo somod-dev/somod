@@ -8,23 +8,19 @@ import {
 
 export const baseModuleName = "@somod/slp";
 
-export const getBaseModuleOriginalSLPTemplate = async (
-  dir: string
-): Promise<OriginalSLPTemplate> => {
-  const baseLayer = await getBaseLayerSLPResource(dir);
-  const customResourceLayer = await getCustomResourceLayerSLPResource(dir);
+export const getBaseModuleOriginalSLPTemplate =
+  async (): Promise<OriginalSLPTemplate> => {
+    const baseLayer = await getBaseLayerSLPResource();
+    const customResourceLayer = await getCustomResourceLayerSLPResource();
 
-  const baseModule = {
-    Resources: {
-      [baseLayerName]: baseLayer
-    }
+    const baseModule = {
+      Resources: {
+        [baseLayerName]: baseLayer,
+        [customResourceLayerName]: customResourceLayer
+      }
+    };
+    return baseModule;
   };
-  if (customResourceLayer) {
-    baseModule.Resources[customResourceLayerName] = customResourceLayer;
-  }
-
-  return baseModule;
-};
 
 export const cleanUpBaseModule = (serverlessTemplate: ServerlessTemplate) => {
   // clean baseLayer

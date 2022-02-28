@@ -3,7 +3,7 @@
   "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/resources/function-layer.json",
   "title": "JSON Schema for Layer Version Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
-  "required": ["Type", "Properties", "Metadata"],
+  "required": ["Type", "Properties"],
   "additionalProperties": false,
   "properties": {
     "Type": { "const": "AWS::Serverless::LayerVersion" },
@@ -27,15 +27,6 @@
           "items": { "type": "string" },
           "maxItems": 0
         }
-      }
-    },
-    "Metadata": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["BuildMethod", "BuildArchitecture"],
-      "properties": {
-        "BuildMethod": { "const": "nodejs14.x" },
-        "BuildArchitecture": { "const": "arm64" }
       }
     },
     "Properties": {
@@ -66,17 +57,14 @@
         },
         "RetentionPolicy": { "const": "Delete" },
         "SLP::FunctionLayerLibraries": {
-          "type": "object",
+          "type": "array",
           "description": "All dependent libraries to be installed in the layer",
-          "additionalProperties": false,
-          "minProperties": 1,
-          "maxProperties": 32,
-          "patternProperties": {
-            "^(@[a-z0-9\\-]+\\/){0,1}[a-z0-9\\-]+$": {
-              "type": "string",
-              "description": "semver expression"
-            }
-          }
+          "items": {
+            "type": "string",
+            "pattern": "^(@[a-z0-9\\-]+\\/){0,1}[a-z0-9\\-]+$"
+          },
+          "minItems": 1,
+          "maxItems": 32
         },
         "Description": { "type": "string", "maxLength": 256 }
       }

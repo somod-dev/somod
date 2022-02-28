@@ -1,3 +1,5 @@
+import { unixStylePath } from "@sodaru/cli-base";
+import { getLocation } from "@somod/common-layers";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
@@ -158,10 +160,6 @@ describe("Test Task generateSAMTemplate", () => {
         Resources: {
           r64967c02baseLayer: {
             Type: "AWS::Serverless::LayerVersion",
-            Metadata: {
-              BuildMethod: "nodejs14.x",
-              BuildArchitecture: "arm64"
-            },
             Properties: {
               LayerName: {
                 "Fn::Sub": [
@@ -186,11 +184,13 @@ describe("Test Task generateSAMTemplate", () => {
                 ]
               },
               Description:
-                "Set of npm libraries to be requiired in all Lambda funtions",
+                "Set of npm libraries to be required in all Lambda funtions",
               CompatibleArchitectures: ["arm64"],
               CompatibleRuntimes: ["nodejs14.x"],
               RetentionPolicy: "Delete",
-              ContentUri: ".slp/lambda-layers/@somod/slp/baseLayer"
+              ContentUri: unixStylePath(
+                join(await getLocation(), "layers/base")
+              )
             }
           },
           ra046855cBaseRestApi: {
@@ -244,7 +244,9 @@ describe("Test Task generateSAMTemplate", () => {
                   }
                 ]
               },
-              CodeUri: ".slp/lambdas/@sodaru/auth-slp/getAuthGroup",
+              CodeUri: unixStylePath(
+                join(dir, "build/serverless/functions/getAuthGroup")
+              ),
               Events: {
                 ApiEvent: {
                   Type: "Api",

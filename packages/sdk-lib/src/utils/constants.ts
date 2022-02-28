@@ -48,16 +48,10 @@ export const path_nextBuild = ".next";
 
 export const path_serverless = "serverless";
 export const path_functions = "functions";
-export const file_functionIndex_js = "functionIndex.js";
-export const file_functionIndex_dts = "functionIndex.d.ts";
+export const path_functionLayers = "functionLayers";
 export const file_templateYaml = "template.yaml";
 export const file_templateJson = "template.json";
 
-export const file_lambdaBundleExclude = "lambdaBundleExclude.json";
-
-export const path_slpWorkingDir = ".slp";
-export const path_lambdas = "lambdas";
-export const path_lambda_layers = "lambda-layers";
 export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
 

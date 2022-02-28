@@ -5,7 +5,8 @@
     "emitDeclarationOnly": true,
     "rootDir": "./src",
     "lib": ["ESNext"],
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "esModuleInterop": true
   },
   "include": ["src"],
   "exclude": ["src/commands", "src/cli.ts"]

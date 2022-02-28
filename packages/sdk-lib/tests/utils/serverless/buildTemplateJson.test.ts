@@ -6,10 +6,11 @@ import { buildTemplateJson } from "../../../src/utils/serverless";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { NoSLPTemplateError } from "../../../src/utils/serverless/slpTemplate";
 import {
-  file_lambdaBundleExclude,
+  path_build,
   path_functions,
-  path_slpWorkingDir
-} from "../../../src";
+  path_serverless,
+  path_functionLayers
+} from "../../../src/utils/constants";
 
 describe("Test Util serverless.buildTemplateJson", () => {
   let dir: string = null;
@@ -198,7 +199,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with SLP::Function", async () => {
+  test("with SLP::Function only", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -213,7 +214,8 @@ describe("Test Util serverless.buildTemplateJson", () => {
     };
     createFiles(dir, {
       "serverless/template.yaml": dump(template),
-      "serverless/functions/Resource1.ts": "",
+      "serverless/functions/Resource1.ts":
+        'import { difference } from "lodash"; export const r = () => {return difference([1,2,3], [3, 4])}',
       ...singlePackageJson
     });
     await expect(
@@ -224,17 +226,21 @@ describe("Test Util serverless.buildTemplateJson", () => {
     ).resolves.toEqual(StringifyTemplate(template));
     await expect(
       readFile(
-        join(dir, path_slpWorkingDir, path_functions, "sample", "Resource1.js"),
-        { encoding: "utf8" }
+        join(
+          dir,
+          path_build,
+          path_serverless,
+          path_functions,
+          "Resource1",
+          "index.js"
+        ),
+        {
+          encoding: "utf8"
+        }
       )
     ).resolves.toEqual(
-      'export { Resource1 as default } from "../../../build";'
+      'var d=Object.create;var f=Object.defineProperty;var i=Object.getOwnPropertyDescriptor;var m=Object.getOwnPropertyNames;var p=Object.getPrototypeOf,s=Object.prototype.hasOwnProperty;var n=r=>f(r,"__esModule",{value:!0});var x=typeof require!="undefined"?require:r=>{throw new Error(\'Dynamic require of "\'+r+\'" is not supported\')};var a=(r,e)=>{n(r);for(var o in e)f(r,o,{get:e[o],enumerable:!0})},h=(r,e,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let t of m(e))!s.call(r,t)&&t!=="default"&&f(r,t,{get:()=>e[t],enumerable:!(o=i(e,t))||o.enumerable});return r},l=r=>h(n(f(r!=null?d(p(r)):{},"default",r&&r.__esModule&&"default"in r?{get:()=>r.default,enumerable:!0}:{value:r,enumerable:!0})),r);a(exports,{r:()=>u});var c=l(require("lodash")),u=()=>(0,c.difference)([1,2,3],[3,4]);0&&(module.exports={r});\n'
     );
-    await expect(
-      readFile(join(dir, path_slpWorkingDir, file_lambdaBundleExclude), {
-        encoding: "utf8"
-      })
-    ).resolves.toEqual('{"sample":{"Resource1":[]}}');
   });
 
   test("with SLP::Function with wrong function name", async () => {
@@ -273,7 +279,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
               "SLP::ResourceName": "my-layer"
             },
             "SLP::FunctionLayerLibraries": {
-              lodash: "^8.3.1"
+              lodash: "^4.17.15"
             }
           }
         }
@@ -281,7 +287,6 @@ describe("Test Util serverless.buildTemplateJson", () => {
     };
     createFiles(dir, {
       "serverless/template.yaml": dump(template),
-      "serverless/function-layers/Resource1.json": "",
       ...singlePackageJson
     });
     await expect(
@@ -290,6 +295,20 @@ describe("Test Util serverless.buildTemplateJson", () => {
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
+    expect(
+      existsSync(
+        join(
+          dir,
+          path_build,
+          path_serverless,
+          path_functionLayers,
+          "my-layer",
+          "nodejs",
+          "node_modules",
+          "lodash"
+        )
+      )
+    ).toBeTruthy();
   });
 
   test("with SLP::ResourceName", async () => {

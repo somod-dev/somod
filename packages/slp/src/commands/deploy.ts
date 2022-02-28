@@ -1,12 +1,8 @@
 import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
-  bundleServerlessFunctions,
-  deleteSlpWorkingDir,
   file_templateYaml,
   generateSAMTemplate,
   key_slp,
-  path_lambdas,
-  path_slpWorkingDir,
   samCommand
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
@@ -25,14 +21,7 @@ export const DeployAction = async ({
   const dir = process.cwd();
 
   if (stage == "all" || stage == "prepare") {
-    await BuildAction({ verbose, invokedFromDeploy: true });
-
-    await taskRunner(
-      `Deleting ${path_slpWorkingDir} directory`,
-      deleteSlpWorkingDir,
-      verbose,
-      dir
-    );
+    await BuildAction({ verbose });
 
     await taskRunner(
       `Generating ${file_templateYaml}`,
@@ -40,13 +29,6 @@ export const DeployAction = async ({
       verbose,
       dir,
       [key_slp]
-    );
-
-    await taskRunner(
-      `Bundling Lambda functions at ${path_slpWorkingDir}/${path_lambdas}`,
-      bundleServerlessFunctions,
-      verbose,
-      dir
     );
 
     await taskRunner(

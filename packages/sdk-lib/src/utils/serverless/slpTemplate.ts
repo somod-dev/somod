@@ -111,11 +111,9 @@ export const loadSLPTemplate = async (
   return slpTemplate;
 };
 
-export const loadBaseSlpTemplate = async (
-  dir: string
-): Promise<SLPTemplate> => {
+export const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
   const originalSlpTemplate: OriginalSLPTemplate =
-    await getBaseModuleOriginalSLPTemplate(dir);
+    await getBaseModuleOriginalSLPTemplate();
 
   const baseSlpTemplate = {
     ...originalSlpTemplate,

@@ -4,11 +4,11 @@ import { apply as applyDependsOn } from "./keywords/dependsOn";
 import { apply as applyExtend } from "./keywords/extend";
 import {
   apply as applyFunction,
-  prepare as prepareFunction
+  build as buildFunction
 } from "./keywords/function";
 import {
   apply as applyFunctionLayerLibraries,
-  prepare as prepareFunctionLayerLibraries
+  build as buildFunctionLayerLibraries
 } from "./keywords/functionLayerLibraries";
 import { apply as applyOutput } from "./keywords/output";
 import { apply as applyRef } from "./keywords/ref";
@@ -39,7 +39,7 @@ export const buildTemplateJson = async (
 
   const rootSlpTemplate = await loadSLPTemplate(rootModuleNode, "source"); // root slp template.yaml must exist
 
-  const baseSlpTemplate = await loadBaseSlpTemplate(dir);
+  const baseSlpTemplate = await loadBaseSlpTemplate();
   allChildSlpTemplates.unshift(baseSlpTemplate);
 
   const serverlessTemplate = mergeSLPTemplates(allChildSlpTemplates);
@@ -48,7 +48,8 @@ export const buildTemplateJson = async (
 
   await buildRootSLPTemplate(rootModuleNode);
 
-  await prepareFunction(dir, { [rootSlpTemplate.module]: rootSlpTemplate });
+  await buildFunction(rootSlpTemplate);
+  await buildFunctionLayerLibraries(rootSlpTemplate);
 };
 
 export const generateSAMTemplate = async (
@@ -66,7 +67,7 @@ export const generateSAMTemplate = async (
   }
   const allSlpTemplates = await loadSLPTemplates(allModules, templateTypes);
 
-  const baseSlpTemplate = await loadBaseSlpTemplate(dir);
+  const baseSlpTemplate = await loadBaseSlpTemplate();
   allSlpTemplates.unshift(baseSlpTemplate);
 
   const serverlessTemplate = mergeSLPTemplates(allSlpTemplates);
@@ -82,11 +83,6 @@ export const generateSAMTemplate = async (
   applyExtend(serverlessTemplate);
 
   cleanUpBaseModule(serverlessTemplate);
-
-  await Promise.all([
-    prepareFunction(dir, serverlessTemplate),
-    prepareFunctionLayerLibraries(dir, serverlessTemplate)
-  ]);
 
   const samTemplate: SAMTemplate = { Parameters: {}, Resources: {} };
 

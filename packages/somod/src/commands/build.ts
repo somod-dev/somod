@@ -2,10 +2,8 @@ import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
   buildServerlessTemplate,
   buildUiPublic,
-  bundleServerlessFunctions,
   compileTypeScript,
   deleteBuildDir,
-  deleteSlpWorkingDir,
   doesSomodIsSetInPackageJson,
   doesFilesHasBuildInPackageJson,
   doesJsnextMainNotSetInPackageJson,
@@ -14,7 +12,6 @@ import {
   doesSideEffectsIsFalseInPackageJson,
   doesTypeIsNotSetInPackageJson,
   doesTypingsIsBuildIndexInPackageJson,
-  file_functionIndex_js,
   file_index_dts,
   file_index_js,
   file_packageJson,
@@ -22,7 +19,6 @@ import {
   file_templateJson,
   file_templateYaml,
   file_tsConfigBuildJson,
-  generateFunctionIndex,
   generateIndex,
   generatePageIndex,
   isValidTsConfigBuildJson,
@@ -41,20 +37,17 @@ import {
   path_serverless,
   path_ui,
   validateDependencyModules,
-  validateServerlessTemplateWithSchema,
-  path_slpWorkingDir
+  validateServerlessTemplateWithSchema
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 
 type BuildActions = CommonOptions & {
   type: "all" | "njp" | "slp";
-  invokedFromDeploy?: boolean;
 };
 
 export const BuildAction = async ({
   verbose,
-  type,
-  invokedFromDeploy
+  type
 }: BuildActions): Promise<void> => {
   const dir = process.cwd();
 
@@ -172,23 +165,11 @@ export const BuildAction = async ({
       dir
     );
     await taskRunner(
-      `Deleting ${path_slpWorkingDir} directory`,
-      deleteSlpWorkingDir,
-      verbose,
-      dir
-    );
-    await taskRunner(
       `Generate ${path_build}/${path_serverless}/${file_templateJson}`,
       buildServerlessTemplate,
       verbose,
       dir,
       moduleIndicators
-    );
-    await taskRunner(
-      `Generate ${path_build}/${path_serverless}/${file_functionIndex_js}`,
-      generateFunctionIndex,
-      verbose,
-      dir
     );
   };
 
@@ -212,22 +193,9 @@ export const BuildAction = async ({
       `${path_ui}/${file_pageIndex_js.substring(
         0,
         file_pageIndex_js.lastIndexOf(".js")
-      )}`,
-      `${path_serverless}/${file_functionIndex_js.substring(
-        0,
-        file_functionIndex_js.lastIndexOf(".js")
       )}`
     ]
   );
-
-  if (!invokedFromDeploy && (type == "all" || type == "slp")) {
-    await taskRunner(
-      `bundle serverless functions in root module`,
-      bundleServerlessFunctions,
-      verbose,
-      dir
-    );
-  }
 };
 
 const buildCommand = new Command("build");

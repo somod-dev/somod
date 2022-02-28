@@ -1,20 +1,15 @@
 import { unixStylePath } from "@sodaru/cli-base";
+import { build as esbuild } from "esbuild";
 import { existsSync } from "fs";
-import { mkdir, writeFile } from "fs/promises";
-import { dirname, join, relative } from "path";
+import { join } from "path";
 import {
-  file_lambdaBundleExclude,
+  file_index_js,
   path_build,
   path_functions,
-  path_lambdas,
-  path_serverless,
-  path_slpWorkingDir
+  path_serverless
 } from "../../constants";
 import { apply as applyBaseLayer } from "../baseModule/layers/baseLayer";
-import {
-  apply as applyCustomResourceLayer,
-  cfnCustomResourceLibraryName
-} from "../baseModule/layers/customResourceLayer";
+import { apply as applyCustomResourceLayer } from "../baseModule/layers/customResourceLayer";
 import {
   KeywordSLPFunction,
   ServerlessTemplate,
@@ -26,6 +21,7 @@ import {
   replaceSLPKeyword,
   updateKeywordPathsInSLPTemplate
 } from "../utils";
+import { layerLibraries } from "@somod/common-layers";
 
 export const validate = (slpTemplate: SLPTemplate): Error[] => {
   const errors: Error[] = [];
@@ -38,7 +34,7 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
 
     /**
      * for root module look in serverless/functions/<functionName>.ts
-     * for child module look in build/serverless/functions/<functionName>.js
+     * for child module look in build/serverless/functions/<functionName>/index.js
      */
     let functionFilePath = slpTemplate.packageLocation;
     if (!slpTemplate.root) {
@@ -48,7 +44,7 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
       functionFilePath,
       path_serverless,
       path_functions,
-      _function.name + (slpTemplate.root ? ".ts" : ".js")
+      _function.name + (slpTemplate.root ? ".ts" : "/index.js")
     );
 
     if (!existsSync(functionFilePath)) {
@@ -80,7 +76,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         replaceSLPKeyword(
           slpTemplate,
           functionKeywordPath,
-          `${path_slpWorkingDir}/${path_lambdas}/${slpTemplate.module}/${_function.name}`
+          `${slpTemplate.packageLocation}/${path_build}/${path_serverless}/${path_functions}/${_function.name}`
         );
 
         const resourceId = functionKeywordPath[0];
@@ -91,80 +87,51 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
       }
     );
     if (slpTemplate.keywordPaths[KeywordSLPFunction].length > 0) {
+      // refresh keyword paths after applying layers
       updateKeywordPathsInSLPTemplate(slpTemplate);
     }
   });
 };
 
-export const prepare = async (
-  dir: string,
-  serverlessTemplate: ServerlessTemplate
-): Promise<void> => {
+export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
   await Promise.all(
-    Object.values(serverlessTemplate).map(async slpTemplate => {
-      await Promise.all(
-        slpTemplate.keywordPaths[KeywordSLPFunction].map(
-          async functionKeywordPath => {
-            const { name: functionName } = getSLPKeyword<SLPFunction>(
-              slpTemplate,
-              functionKeywordPath
-            )[KeywordSLPFunction];
-
-            const functionPath = join(
-              dir,
-              path_slpWorkingDir,
-              path_functions,
-              slpTemplate.module,
-              functionName + ".js"
-            );
-            const functionDir = dirname(functionPath);
-            const exportFrom = slpTemplate.root
-              ? relative(functionDir, join(dir, path_build))
-                  .split("\\")
-                  .join("/")
-              : slpTemplate.module;
-
-            const functionCode = `export { ${functionName} as default } from "${exportFrom}";`;
-            await mkdir(functionDir, { recursive: true });
-            await writeFile(functionPath, functionCode);
-          }
-        )
-      );
-    })
-  );
-
-  await saveExcludes(dir, serverlessTemplate);
-};
-
-const saveExcludes = async (
-  dir: string,
-  serverlessTemplate: ServerlessTemplate
-): Promise<void> => {
-  const excludes: Record<string, Record<string, string[]>> = {};
-
-  Object.values(serverlessTemplate).forEach(slpTemplate => {
-    excludes[slpTemplate.module] = {};
-    slpTemplate.keywordPaths[KeywordSLPFunction].forEach(
-      functionKeywordPath => {
+    rootSLPTemplate.keywordPaths[KeywordSLPFunction].map(
+      async functionPaths => {
         const _function = getSLPKeyword<SLPFunction>(
-          slpTemplate,
-          functionKeywordPath
+          rootSLPTemplate,
+          functionPaths
         )[KeywordSLPFunction];
-
-        excludes[slpTemplate.module][_function.name] = _function.exclude || [];
+        const external = _function.exclude || [];
+        external.push(...layerLibraries.base);
         if (_function.customResourceHandler) {
-          excludes[slpTemplate.module][_function.name].push(
-            cfnCustomResourceLibraryName
-          );
+          external.push(...layerLibraries.customResource);
         }
+
+        await esbuild({
+          entryPoints: [
+            join(
+              rootSLPTemplate.packageLocation,
+              path_serverless,
+              path_functions,
+              _function.name + ".ts"
+            )
+          ],
+          bundle: true,
+          outfile: join(
+            rootSLPTemplate.packageLocation,
+            path_build,
+            path_serverless,
+            path_functions,
+            _function.name,
+            file_index_js
+          ),
+          sourcemap: false,
+          platform: "node",
+          external: external,
+          minify: true,
+          target: ["node14"]
+        });
       }
-    );
-  });
-
-  await mkdir(join(dir, path_slpWorkingDir), { recursive: true });
-
-  await writeFile(
-    join(dir, path_slpWorkingDir, file_lambdaBundleExclude),
-    JSON.stringify(excludes)
+    )
   );
 };

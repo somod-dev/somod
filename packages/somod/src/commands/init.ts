@@ -28,7 +28,6 @@ import {
   path_public,
   path_samBuild,
   path_serverless,
-  path_slpWorkingDir,
   path_ui,
   saveEslintIgnore,
   saveGitIgnore,
@@ -101,7 +100,6 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     `/${path_public}`,
     file_nextEnvDTs,
     `/${file_templateYaml}`,
-    `/${path_slpWorkingDir}`,
     path_samBuild,
     file_samConfig
   ];

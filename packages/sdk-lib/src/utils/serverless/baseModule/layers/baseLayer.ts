@@ -1,8 +1,9 @@
+import { unixStylePath } from "@sodaru/cli-base";
+import { getLocation } from "@somod/common-layers";
 import { cloneDeep } from "lodash";
+import { join } from "path";
 import { baseModuleName } from "..";
-import { getToBeBundledLibraries } from "../../../library";
 import {
-  KeywordSLPFunctionLayerLibraries,
   KeywordSLPOutput,
   KeywordSLPRef,
   KeywordSLPResourceName,
@@ -13,26 +14,17 @@ import {
 
 export const baseLayerName = "baseLayer";
 
-export const getBaseLayerSLPResource = async (
-  dir: string
-): Promise<SLPResource> => {
-  const toBeBundledLibraries = await getToBeBundledLibraries(dir, "slp");
-
+export const getBaseLayerSLPResource = async (): Promise<SLPResource> => {
   return {
     Type: "AWS::Serverless::LayerVersion",
-    Metadata: {
-      BuildMethod: "nodejs14.x",
-      BuildArchitecture: "arm64"
-    },
     [KeywordSLPOutput]: { default: true, attributes: [] },
     Properties: {
       LayerName: { [KeywordSLPResourceName]: baseLayerName },
-      Description:
-        "Set of npm libraries to be requiired in all Lambda funtions",
+      Description: "Set of npm libraries to be required in all Lambda funtions",
       CompatibleArchitectures: ["arm64"],
       CompatibleRuntimes: ["nodejs14.x"],
       RetentionPolicy: "Delete",
-      [KeywordSLPFunctionLayerLibraries]: toBeBundledLibraries
+      ContentUri: unixStylePath(join(await getLocation(), "layers", "base"))
     }
   } as SLPResource;
 };
