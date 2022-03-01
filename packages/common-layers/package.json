@@ -40,7 +40,7 @@
     "serverless"
   ],
   "peerDependencies": {
-    "@solib/cfn-lambda": "^1.0.1",
+    "@solib/cfn-lambda": "^1.1.0",
     "@solib/common-types-schemas": "^1.0.0",
     "@solib/errors": "^1.1.1",
     "@solib/json-validator": "^1.0.0",
