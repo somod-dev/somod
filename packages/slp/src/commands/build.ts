@@ -8,7 +8,6 @@ import {
   doesModuleIsBuildIndexInPackageJson,
   doesServerlessFunctionsHaveDefaultExport,
   doesSideEffectsIsFalseInPackageJson,
-  doesSlpIsSetInPackageJson,
   doesTypeIsNotSetInPackageJson,
   doesTypingsIsBuildIndexInPackageJson,
   file_index_dts,
@@ -29,6 +28,8 @@ import {
   path_build,
   path_functions,
   path_serverless,
+  savePackageJson,
+  setSlpInPackageJson,
   validateDependencyModules,
   validateServerlessTemplateWithSchema
 } from "@somod/sdk-lib";
@@ -40,12 +41,6 @@ export const BuildAction = async ({
   const dir = process.cwd();
 
   await Promise.all([
-    taskRunner(
-      `Check if ${key_slp} is set in ${file_packageJson}`,
-      doesSlpIsSetInPackageJson,
-      verbose,
-      dir
-    ),
     taskRunner(
       `Check if ${key_module} is '${path_build}/${file_index_js}' in ${file_packageJson}`,
       doesModuleIsBuildIndexInPackageJson,
@@ -134,6 +129,13 @@ export const BuildAction = async ({
     dir,
     [key_slp]
   );
+  await taskRunner(
+    `Set ${key_slp} in ${file_packageJson}`,
+    setSlpInPackageJson,
+    verbose,
+    dir
+  );
+  await taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir);
 };
 
 const buildCommand = new Command("build");

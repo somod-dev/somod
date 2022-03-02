@@ -37,7 +37,9 @@ import {
   path_serverless,
   path_ui,
   validateDependencyModules,
-  validateServerlessTemplateWithSchema
+  validateServerlessTemplateWithSchema,
+  savePackageJson,
+  setSomodInPackageJson
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 
@@ -196,6 +198,14 @@ export const BuildAction = async ({
       )}`
     ]
   );
+
+  await taskRunner(
+    `Set ${key_somod} in ${file_packageJson}`,
+    setSomodInPackageJson,
+    verbose,
+    dir
+  );
+  await taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir);
 };
 
 const buildCommand = new Command("build");

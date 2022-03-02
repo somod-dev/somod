@@ -5,7 +5,6 @@ import {
   doesJsnextMainNotSetInPackageJson,
   doesModuleIsBuildIndexInPackageJson,
   doesTypingsIsBuildIndexInPackageJson,
-  doesNjpIsSetInPackageJson,
   doesSideEffectsIsFalseInPackageJson,
   doesTypeIsNotSetInPackageJson,
   file_index_js,
@@ -27,7 +26,9 @@ import {
   file_index_dts,
   doesFilesHasBuildInPackageJson,
   key_files,
-  validateDependencyModules
+  validateDependencyModules,
+  setNjpInPackageJson,
+  savePackageJson
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import { CommonOptions, taskRunner } from "@sodaru/cli-base";
@@ -38,12 +39,6 @@ export const BuildAction = async ({
   const dir = process.cwd();
 
   await Promise.all([
-    taskRunner(
-      `Check if ${key_njp} is set in ${file_packageJson}`,
-      doesNjpIsSetInPackageJson,
-      verbose,
-      dir
-    ),
     taskRunner(
       `Check if ${key_module} is '${path_build}/${file_index_js}' in ${file_packageJson}`,
       doesModuleIsBuildIndexInPackageJson,
@@ -128,6 +123,13 @@ export const BuildAction = async ({
       )}`
     ]
   );
+  await taskRunner(
+    `Set ${key_njp} in ${file_packageJson}`,
+    setNjpInPackageJson,
+    verbose,
+    dir
+  );
+  await taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir);
 };
 
 const buildCommand = new Command("build");
