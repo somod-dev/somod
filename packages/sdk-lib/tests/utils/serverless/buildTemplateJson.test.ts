@@ -279,7 +279,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
               "SLP::ResourceName": "my-layer"
             },
             "SLP::FunctionLayerLibraries": {
-              lodash: "^4.17.15"
+              smallest: "^1.0.1"
             }
           }
         }
@@ -305,7 +305,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
           "my-layer",
           "nodejs",
           "node_modules",
-          "lodash"
+          "smallest"
         )
       )
     ).toBeTruthy();
