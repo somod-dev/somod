@@ -19,6 +19,7 @@ import { baseModuleName, getBaseModuleOriginalSLPTemplate } from "./baseModule";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
 import { validate as validateExtend } from "./keywords/extend";
 import { validate as validateFunction } from "./keywords/function";
+import { validate as validateFunctionLayers } from "./keywords/functionLayerLibraries";
 import { validate as validateRef } from "./keywords/ref";
 import { validate as validateRefParameter } from "./keywords/refParameter";
 import { validate as validateRefResourceName } from "./keywords/refResourceName";
@@ -179,7 +180,7 @@ export const buildRootSLPTemplate = async (
   await saveJsonFileStore(templateJsonPath);
 };
 
-export const validate = (
+export const validate = async (
   slpTemplate: SLPTemplate,
   serverlessTemplate: ServerlessTemplate
 ) => {
@@ -190,6 +191,7 @@ export const validate = (
   errors.push(...validateRefParameter(slpTemplate, serverlessTemplate));
   errors.push(...validateRefResourceName(slpTemplate, serverlessTemplate));
   errors.push(...validateFunction(slpTemplate));
+  errors.push(...(await validateFunctionLayers(slpTemplate)));
 
   if (errors.length > 0) {
     throw new ErrorSet(errors);

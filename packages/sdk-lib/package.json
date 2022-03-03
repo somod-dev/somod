@@ -29,9 +29,9 @@
   "dependencies": {
     "@sodaru/cli-base": "^1.2.0",
     "@sodev/sodev": "^1.1.0",
-    "@solib/json-validator": "^1.0.0",
+    "@solib/json-validator": "^1.0.1",
     "@typescript-eslint/typescript-estree": "^4.28.5",
-    "esbuild": "^0.12.28",
+    "esbuild": "^0.14.24",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2",

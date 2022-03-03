@@ -83,7 +83,7 @@ export const BuildAction = async ({
       verbose,
       dir,
       {},
-      [path_serverless]
+      []
     ),
     taskRunner(
       `Validate module dependency`,

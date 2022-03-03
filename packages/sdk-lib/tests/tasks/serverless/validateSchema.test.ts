@@ -5,7 +5,6 @@ import { validateServerlessTemplateWithSchema } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 const installSchemaInTempDir = async (dir: string) => {
-  // Stage Setup -- START
   const schemaPackage = join(__dirname, "../../../../serverless-schema");
   const schemaPackageInTempDir = join(
     dir,
@@ -54,7 +53,7 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
     });
     await installSchemaInTempDir(dir);
     await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
-      new Error('"" must be object')
+      new Error("DataValidationError<>: '' property type must be object")
     );
   });
 
@@ -65,7 +64,9 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
     });
     await installSchemaInTempDir(dir);
     await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
-      new Error('"/Resources" must be object')
+      new Error(
+        "DataValidationError<>: 'Resources' property type must be object"
+      )
     );
   });
 
@@ -78,7 +79,7 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               Architectures: ["arm64"],
-              CodeUri: { "SLP::Function": "resource1" }
+              CodeUri: { "SLP::Function": { name: "resource1" } }
             }
           }
         }

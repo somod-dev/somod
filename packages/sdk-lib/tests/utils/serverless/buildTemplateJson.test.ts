@@ -11,6 +11,29 @@ import {
   path_serverless,
   path_functionLayers
 } from "../../../src/utils/constants";
+import { validateSchema } from "../../../src/tasks/serverless/validateSchema";
+import { copyDirectory } from "@sodev/test-utils";
+
+const installSchemaInTempDir = async (dir: string) => {
+  const schemaPackage = join(__dirname, "../../../../serverless-schema");
+  const schemaPackageInTempDir = join(
+    dir,
+    "node_modules/@somod/serverless-schema"
+  );
+  await copyDirectory(
+    join(schemaPackage, "meta-schemas"),
+    join(schemaPackageInTempDir, "meta-schemas")
+  );
+  await copyDirectory(
+    join(schemaPackage, "schemas"),
+    join(schemaPackageInTempDir, "schemas")
+  );
+};
+
+const functionDefaults = {
+  Architectures: ["arm64"],
+  InlineCode: ""
+};
 
 describe("Test Util serverless.buildTemplateJson", () => {
   let dir: string = null;
@@ -48,6 +71,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
   beforeEach(async () => {
     dir = createTempDir();
     buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
+    await installSchemaInTempDir(dir);
   });
 
   afterEach(() => {
@@ -67,7 +91,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          Properties: {}
+          Properties: { ...functionDefaults }
         }
       }
     };
@@ -76,6 +100,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       ...singlePackageJson
     });
 
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -108,7 +133,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
               resource: "AnotherFunction"
             }
           ],
-          Properties: {}
+          Properties: { ...functionDefaults }
         }
       }
     };
@@ -136,7 +161,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
                 resource: "OriginalFunction"
               }
             ],
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       }),
@@ -156,7 +181,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
                 resource: "OriginalFunction"
               }
             ],
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       }),
@@ -170,7 +195,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resources: {
           OriginalFunction: {
             Type: "AWS::Serverless::Function",
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       }),
@@ -184,12 +209,13 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resources: {
           AnotherFunction: {
             Type: "AWS::Serverless::Function",
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       })
     });
 
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -205,6 +231,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            Architectures: functionDefaults.Architectures,
             CodeUri: {
               "SLP::Function": { name: "Resource1" }
             }
@@ -218,6 +245,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         'import { difference } from "lodash"; export const r = () => {return difference([1,2,3], [3, 4])}',
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -239,7 +267,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       )
     ).resolves.toEqual(
-      'var d=Object.create;var f=Object.defineProperty;var i=Object.getOwnPropertyDescriptor;var m=Object.getOwnPropertyNames;var p=Object.getPrototypeOf,s=Object.prototype.hasOwnProperty;var n=r=>f(r,"__esModule",{value:!0});var x=typeof require!="undefined"?require:r=>{throw new Error(\'Dynamic require of "\'+r+\'" is not supported\')};var a=(r,e)=>{n(r);for(var o in e)f(r,o,{get:e[o],enumerable:!0})},h=(r,e,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let t of m(e))!s.call(r,t)&&t!=="default"&&f(r,t,{get:()=>e[t],enumerable:!(o=i(e,t))||o.enumerable});return r},l=r=>h(n(f(r!=null?d(p(r)):{},"default",r&&r.__esModule&&"default"in r?{get:()=>r.default,enumerable:!0}:{value:r,enumerable:!0})),r);a(exports,{r:()=>u});var c=l(require("lodash")),u=()=>(0,c.difference)([1,2,3],[3,4]);0&&(module.exports={r});\n'
+      'var f=Object.defineProperty;var i=Object.getOwnPropertyDescriptor;var m=Object.getOwnPropertyNames;var p=Object.prototype.hasOwnProperty;var d=e=>f(e,"__esModule",{value:!0});var s=(e,r)=>{for(var o in r)f(e,o,{get:r[o],enumerable:!0})},u=(e,r,o,n)=>{if(r&&typeof r=="object"||typeof r=="function")for(let t of m(r))!p.call(e,t)&&(o||t!=="default")&&f(e,t,{get:()=>r[t],enumerable:!(n=i(r,t))||n.enumerable});return e};var x=(e=>(r,o)=>e&&e.get(r)||(o=u(d({}),r,1),e&&e.set(r,o),o))(typeof WeakMap!="undefined"?new WeakMap:0);var b={};s(b,{r:()=>a});var c=require("lodash"),a=()=>(0,c.difference)([1,2,3],[3,4]);module.exports=x(b);0&&(module.exports={r});\n'
     );
   });
 
@@ -249,6 +277,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            Architectures: functionDefaults.Architectures,
             CodeUri: {
               "SLP::Function": { name: "Resource1" }
             }
@@ -260,6 +289,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -275,20 +305,29 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::LayerVersion",
           Properties: {
+            CompatibleArchitectures: ["arm64"],
+            CompatibleRuntimes: ["nodejs14.x"],
             LayerName: {
-              "SLP::ResourceName": "my-layer"
+              "SLP::ResourceName": "mylayer"
             },
-            "SLP::FunctionLayerLibraries": {
-              smallest: "^1.0.1"
-            }
+            "SLP::FunctionLayerLibraries": ["smallest"],
+            RetentionPolicy: "Delete"
           }
         }
       }
     };
     createFiles(dir, {
       "serverless/template.yaml": dump(template),
-      ...singlePackageJson
+      "package.json": JSON.stringify({
+        name: "sample",
+        version: "1.0.0",
+        devDependencies: {
+          smallest: "^1.0.1"
+        },
+        slp: "1.3.2"
+      })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -302,7 +341,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
           path_build,
           path_serverless,
           path_functionLayers,
-          "my-layer",
+          "mylayer",
           "nodejs",
           "node_modules",
           "smallest"
@@ -315,9 +354,9 @@ describe("Test Util serverless.buildTemplateJson", () => {
     const template = {
       Resources: {
         Resource1: {
-          Type: "AWS::Serverless::Function",
+          Type: "AWS::DynamoDB::Table",
           Properties: {
-            FunctionName: {
+            TableName: {
               "SLP::ResourceName": "Resource1"
             }
           }
@@ -328,6 +367,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -340,10 +380,10 @@ describe("Test Util serverless.buildTemplateJson", () => {
     const template = {
       Resources: {
         Resource1: {
-          Type: "AWS::Serverless::Function",
+          Type: "AWS::DynamoDB::Table",
           "SLP::Extend": { module: "sample2", resource: "Resource2" },
           Properties: {
-            FunctionName: {
+            TableName: {
               "SLP::ResourceName": "Resource1"
             }
           }
@@ -355,13 +395,14 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "node_modules/sample2/build/serverless/template.json": JSON.stringify({
         Resources: {
           Resource2: {
-            Type: "AWS::Serverless::Function",
+            Type: "AWS::DynamoDB::Table",
             Properties: {}
           }
         }
       }),
       ...doublePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -372,7 +413,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          Properties: {},
+          Properties: { ...functionDefaults },
           "SLP::Output": {
             default: true,
             attributes: []
@@ -384,6 +425,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -397,7 +439,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          Properties: {},
+          Properties: { ...functionDefaults },
           "SLP::Extend": {
             module: "sample2",
             resource: "Resource2"
@@ -409,6 +451,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -424,7 +467,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          Properties: {},
+          Properties: { ...functionDefaults },
           "SLP::Extend": {
             module: "sample2",
             resource: "Resource2"
@@ -439,11 +482,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resources: {
           Resource3: {
             Type: "AWS::Serverless::Function",
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -459,6 +503,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            Architectures: functionDefaults.Architectures,
             CodeUri: {
               "SLP::Function": { name: "resource1" }
             }
@@ -471,9 +516,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource2: {
           Type: "AWS::Serverless::Function",
           Properties: {
-            CodeUri: {
-              "SLP::Function": { name: "resource2" }
-            }
+            ...functionDefaults
           }
         }
       }
@@ -488,14 +531,13 @@ describe("Test Util serverless.buildTemplateJson", () => {
           Resource2: {
             Type: "AWS::Serverless::Function",
             Properties: {
-              FunctionName: {
-                "SLP::ResourceName": "Resource2Function"
-              }
+              ...functionDefaults
             }
           }
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -509,7 +551,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          Properties: {},
+          Properties: { ...functionDefaults },
           "SLP::DependsOn": [
             {
               module: "sample2",
@@ -523,6 +565,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -537,7 +580,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          Properties: {},
+          Properties: { ...functionDefaults },
           "SLP::DependsOn": [
             {
               module: "sample2",
@@ -554,11 +597,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resources: {
           Resource3: {
             Type: "AWS::Serverless::Function",
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -574,9 +618,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
-            CodeUri: {
-              "SLP::Function": { name: "resource1" }
-            }
+            ...functionDefaults
           },
           "SLP::DependsOn": [
             {
@@ -604,6 +646,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -618,6 +661,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Timeout: {
               "SLP::RefParameter": {
                 parameter: "timeout",
@@ -632,6 +676,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -647,6 +692,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Timeout: {
               "SLP::RefParameter": {
                 parameter: "timeout",
@@ -664,11 +710,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resources: {
           Resource3: {
             Type: "AWS::Serverless::Function",
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -684,6 +731,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Timeout: {
               "SLP::RefParameter": {
                 parameter: "timeout",
@@ -702,11 +750,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resources: {
           Resource3: {
             Type: "AWS::Serverless::Function",
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -722,6 +771,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Timeout: {
               "SLP::RefParameter": {
                 parameter: "timeout",
@@ -748,12 +798,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resources: {
           Resource3: {
             Type: "AWS::Serverless::Function",
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       })
     });
-
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -777,6 +827,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Timeout: {
               "SLP::RefParameter": {
                 parameter: "timeout"
@@ -790,6 +841,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -804,16 +856,19 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
-                  RestApiId: {
+                  ApiId: {
                     "SLP::Ref": {
                       module: "sample2",
                       resource: "Resource2"
                     }
-                  }
+                  },
+                  Method: "GET",
+                  Path: "/m/r"
                 }
               }
             }
@@ -825,11 +880,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {sample2, Resource2} not found. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
+        'Referenced module resource {sample2, Resource2} not found. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
@@ -840,16 +896,19 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
-                  RestApiId: {
+                  ApiId: {
                     "SLP::Ref": {
                       module: "sample2",
                       resource: "Resource2"
                     }
-                  }
+                  },
+                  Method: "GET",
+                  Path: "/m/r"
                 }
               }
             }
@@ -864,16 +923,17 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resources: {
           Resource3: {
             Type: "AWS::Serverless::Function",
-            Properties: {}
+            Properties: { ...functionDefaults }
           }
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {sample2, Resource2} not found. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
+        'Referenced module resource {sample2, Resource2} not found. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
@@ -884,15 +944,18 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
-                  RestApiId: {
+                  ApiId: {
                     "SLP::Ref": {
                       resource: "Resource2"
                     }
-                  }
+                  },
+                  Method: "GET",
+                  Path: "/m/r"
                 }
               }
             }
@@ -920,11 +983,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {sample, Resource2} must not have SLP::Extend. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
+        'Referenced module resource {sample, Resource2} must not have SLP::Extend. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
@@ -935,16 +999,19 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
-                  RestApiId: {
+                  ApiId: {
                     "SLP::Ref": {
                       module: "sample2",
                       resource: "Resource2"
                     }
-                  }
+                  },
+                  Method: "GET",
+                  Path: "/m/r"
                 }
               }
             }
@@ -964,11 +1031,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {sample2, Resource2} does not have SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
+        'Referenced module resource {sample2, Resource2} does not have SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
@@ -979,16 +1047,19 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
-                  RestApiId: {
+                  ApiId: {
                     "SLP::Ref": {
                       module: "sample2",
                       resource: "Resource2"
                     }
-                  }
+                  },
+                  Method: "GET",
+                  Path: "/m/r"
                 }
               }
             }
@@ -1011,11 +1082,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {sample2, Resource2} does not have default set to true in SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
+        'Referenced module resource {sample2, Resource2} does not have default set to true in SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
@@ -1026,17 +1098,20 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
-                  RestApiId: {
+                  ApiId: {
                     "SLP::Ref": {
                       module: "sample2",
                       resource: "Resource2",
                       attribute: "Id"
                     }
-                  }
+                  },
+                  Method: "GET",
+                  Path: "/m/r"
                 }
               }
             }
@@ -1060,11 +1135,12 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       })
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {sample2, Resource2} does not have attribute Id in SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/RestApiId"'
+        'Referenced module resource {sample2, Resource2} does not have attribute Id in SLP::Output. Referenced in "sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
@@ -1075,6 +1151,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Description: {
               "Fn::Sub": [
                 "Invoked from ${restApiName}",
@@ -1091,14 +1168,16 @@ describe("Test Util serverless.buildTemplateJson", () => {
             },
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
-                  RestApiId: {
+                  ApiId: {
                     "SLP::Ref": {
                       module: "sample2",
                       resource: "Resource2"
                     }
-                  }
+                  },
+                  Method: "GET",
+                  Path: "/m/r"
                 }
               }
             }
@@ -1123,6 +1202,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       })
     });
 
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -1137,6 +1217,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Description: {
               "Fn::Sub": [
                 "Invoked from ${restApiName}",
@@ -1152,13 +1233,15 @@ describe("Test Util serverless.buildTemplateJson", () => {
             },
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
-                  RestApiId: {
+                  ApiId: {
                     "SLP::Ref": {
                       resource: "Resource2"
                     }
-                  }
+                  },
+                  Method: "GET",
+                  Path: "/m/r"
                 }
               }
             }
@@ -1178,6 +1261,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -1192,6 +1276,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Description: {
               "Fn::Sub": [
                 "Invoked from ${restApiName}",
@@ -1214,6 +1299,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -1229,6 +1315,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Description: {
               "Fn::Sub": [
                 "Invoked from ${restApiName}",
@@ -1250,6 +1337,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -1265,6 +1353,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Description: {
               "Fn::Sub": [
                 "Invoked from ${restApiName}",
@@ -1294,6 +1383,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -1309,6 +1399,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Description: {
               "Fn::Sub": [
                 "Invoked from ${restApiName}",
@@ -1338,6 +1429,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).rejects.toMatchObject({
@@ -1353,6 +1445,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Description: {
               "Fn::Sub": [
                 "Invoked from ${restApiName}",
@@ -1382,6 +1475,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       "serverless/template.yaml": dump(template),
       ...singlePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();
@@ -1396,6 +1490,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: {
+            ...functionDefaults,
             Description: {
               "Fn::Sub": [
                 "Invoked from ${restApiName}",
@@ -1430,6 +1525,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
       }),
       ...doublePackageJson
     });
+    await validateSchema(dir); // make sure schema is right
     await expect(
       buildTemplateJson(dir, moduleIndicators)
     ).resolves.toBeUndefined();

@@ -60,7 +60,8 @@ export const BuildAction = async ({
     moduleIndicators.push(key_njp);
   }
   if (type == "all" || type == "slp") {
-    typescriptIncludePaths.push(path_serverless);
+    // /serverless/functions use esbuild to bundle
+    //typescriptIncludePaths.push(path_serverless);
     moduleIndicators.push(key_slp);
   }
 

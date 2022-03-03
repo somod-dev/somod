@@ -1,13 +1,8 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "./src",
     "lib": ["ESNext"],
     "moduleResolution": "node",
     "esModuleInterop": true
   },
-  "include": ["src"],
-  "exclude": ["src/commands", "src/cli.ts"]
+  "include": ["src"]
 }

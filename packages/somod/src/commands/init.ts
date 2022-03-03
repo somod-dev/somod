@@ -137,7 +137,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       verbose,
       dir,
       { jsx: "react" },
-      [path_ui, path_serverless]
+      [path_ui]
     ),
 
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),

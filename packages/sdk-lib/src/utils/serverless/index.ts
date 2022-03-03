@@ -44,7 +44,7 @@ export const buildTemplateJson = async (
 
   const serverlessTemplate = mergeSLPTemplates(allChildSlpTemplates);
 
-  validate(rootSlpTemplate, serverlessTemplate);
+  await validate(rootSlpTemplate, serverlessTemplate);
 
   await buildRootSLPTemplate(rootModuleNode);
 

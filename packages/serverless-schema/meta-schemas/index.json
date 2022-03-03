@@ -55,31 +55,7 @@
               "required": ["^[a-zA-Z0-9]{1,64}$"],
               "properties": {
                 "^[a-zA-Z0-9]{1,64}$": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": ["oneOf"],
-                  "properties": {
-                    "oneOf": {
-                      "type": "array",
-                      "minItems": 1,
-                      "items": {
-                        "oneOf": [
-                          {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": ["$ref"],
-                            "properties": {
-                              "$ref": {
-                                "type": "string",
-                                "format": "uri-reference"
-                              }
-                            }
-                          },
-                          { "$ref": "./resource.json" }
-                        ]
-                      }
-                    }
-                  }
+                  "$ref": "http://json-schema.org/draft-07/schema"
                 }
               }
             }

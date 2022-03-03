@@ -35,7 +35,7 @@
     "@sodev/sodev": "^1.1.0",
     "@solib/common-types-schemas": "^1.0.0",
     "@solib/errors": "^1.1.1",
-    "@solib/json-validator": "^1.0.0",
+    "@solib/json-validator": "^1.0.1",
     "lodash": "^4.17.21",
     "next": "^12.0.7",
     "react": "^17.0.2",

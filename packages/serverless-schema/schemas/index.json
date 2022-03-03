@@ -15,7 +15,23 @@
       "additionalProperties": false,
       "patternProperties": {
         "^[a-zA-Z0-9]{1,64}$": {
-          "oneOf": [{ "$ref": "./resource.json" }]
+          "if": {
+            "type": "object",
+            "properties": {
+              "Type": { "const": "AWS::Serverless::Function" }
+            }
+          },
+          "then": { "$ref": "./resources/function.json" },
+          "else": {
+            "if": {
+              "type": "object",
+              "properties": {
+                "Type": { "const": "AWS::Serverless::LayerVersion" }
+              }
+            },
+            "then": { "$ref": "./resources/function-layer.json" },
+            "else": { "$ref": "./resource.json" }
+          }
         }
       }
     }

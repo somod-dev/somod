@@ -125,7 +125,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       verbose,
       dir,
       {},
-      [path_serverless]
+      []
     ),
 
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),

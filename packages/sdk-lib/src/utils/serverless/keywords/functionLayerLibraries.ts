@@ -1,4 +1,4 @@
-import { childProcess } from "@sodaru/cli-base";
+import { childProcess, readJsonFileStore } from "@sodaru/cli-base";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import {
@@ -15,6 +15,41 @@ import {
   SLPTemplate
 } from "../types";
 import { getSLPKeyword, replaceSLPKeyword } from "../utils";
+
+export const validate = async (slpTemplate: SLPTemplate): Promise<Error[]> => {
+  const errors: Error[] = [];
+
+  const modulePackageJsonPath = join(
+    slpTemplate.packageLocation,
+    file_packageJson
+  );
+  const modulePackageJson = await readJsonFileStore(modulePackageJsonPath);
+  const moduleDevDependencies = modulePackageJson.devDependencies || {};
+
+  await Promise.all(
+    slpTemplate.keywordPaths[KeywordSLPFunctionLayerLibraries].map(
+      async layerPaths => {
+        const layer = getSLPKeyword<SLPFunctionLayerLibraries>(
+          slpTemplate,
+          layerPaths
+        );
+
+        const layerName = layer.LayerName[KeywordSLPResourceName];
+
+        layer[KeywordSLPFunctionLayerLibraries].forEach(dependency => {
+          if (!moduleDevDependencies[dependency]) {
+            errors.push(
+              new Error(
+                `${dependency} required in layer ${layerName} does not exist in ${modulePackageJsonPath} as dev dependency`
+              )
+            );
+          }
+        });
+      }
+    )
+  );
+  return errors;
+};
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
@@ -44,6 +79,13 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
 };
 
 export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
+  const modulePackageJsonPath = join(
+    rootSLPTemplate.packageLocation,
+    file_packageJson
+  );
+  const modulePackageJson = await readJsonFileStore(modulePackageJsonPath);
+  const moduleDevDependencies = modulePackageJson.devDependencies || {};
+
   await Promise.all(
     rootSLPTemplate.keywordPaths[KeywordSLPFunctionLayerLibraries].map(
       async layerPaths => {
@@ -53,7 +95,11 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
         );
 
         const layerName = layer.LayerName[KeywordSLPResourceName];
-        const dependencies = layer[KeywordSLPFunctionLayerLibraries];
+        const dependencies = {};
+
+        layer[KeywordSLPFunctionLayerLibraries].forEach(dependency => {
+          dependencies[dependency] = moduleDevDependencies[dependency];
+        });
 
         const layerPackageJson = {
           name: rootSLPTemplate.module + "-" + layerName.toLowerCase(),

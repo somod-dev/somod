@@ -27,10 +27,8 @@
       "maximum": 10240
     },
     "Timeout": {
-      "type": "integer",
       "description": "The maximum time in seconds that the function can run before it is stopped",
-      "minimum": 1,
-      "maximum": 900
+      "$ref": "../components/expression.json#/definitions/numberLike"
     },
     "EventInvokeDestinationConfiguration": {
       "type": "object",
@@ -476,7 +474,9 @@
             }
           }
         },
-        "Description": { "type": "string", "maxLength": 256 },
+        "Description": {
+          "$ref": "../components/expression.json#/definitions/stringLike"
+        },
         "Environment": {
           "$ref": "#/definitions/Environment"
         },

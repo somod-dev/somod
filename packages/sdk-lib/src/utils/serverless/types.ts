@@ -82,7 +82,7 @@ export type SLPFunction = {
 
 export type SLPFunctionLayerLibraries = {
   LayerName: SLPResourceName;
-  [KeywordSLPFunctionLayerLibraries]: Record<string, string>;
+  [KeywordSLPFunctionLayerLibraries]: string[];
 };
 
 export type SLPKeyword =
