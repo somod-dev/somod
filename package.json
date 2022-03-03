@@ -1,6 +1,6 @@
 {
   "name": "@somod/sdk",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Sodaru Module (somod) - SDK",
   "scripts": {
     "eslint": "npx eslint ./",
