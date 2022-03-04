@@ -1,6 +1,6 @@
 {
   "name": "@somod/somod",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Sodaru Module (somod) SDK",
   "keywords": [
     "sodaru",
@@ -41,14 +41,14 @@
     "next": "^12.0.7",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "@somod/serverless-schema": "^1.4.1",
-    "@somod/common-layers": "^1.4.1"
+    "@somod/serverless-schema": "^1.4.2",
+    "@somod/common-layers": "^1.4.2"
   },
   "devDependencies": {
     "@sodaru/cli-base": "^1.2.0",
     "@types/node": "^17.0.21",
     "typescript": "^4.5.5",
-    "@somod/sdk-lib": "^1.4.1",
-    "@somod/serverless-schema": "^1.4.1"
+    "@somod/sdk-lib": "^1.4.2",
+    "@somod/serverless-schema": "^1.4.2"
   }
 }
