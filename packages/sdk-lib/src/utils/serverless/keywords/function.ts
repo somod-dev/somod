@@ -1,7 +1,7 @@
-import { unixStylePath } from "@sodaru/cli-base";
+import { readJsonFileStore, unixStylePath } from "@sodaru/cli-base";
 import { build as esbuild } from "esbuild";
 import { existsSync } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
 import {
   file_index_js,
   path_build,
@@ -22,6 +22,7 @@ import {
   updateKeywordPathsInSLPTemplate
 } from "../utils";
 import { layerLibraries } from "@somod/common-layers";
+import { readdir, writeFile, mkdir } from "fs/promises";
 
 export const validate = (slpTemplate: SLPTemplate): Error[] => {
   const errors: Error[] = [];
@@ -93,7 +94,15 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
   });
 };
 
+const file_excludeJson = "exclude.json";
+
 export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
+  const buildFunctionsPath = join(
+    rootSLPTemplate.packageLocation,
+    path_build,
+    path_serverless,
+    path_functions
+  );
   await Promise.all(
     rootSLPTemplate.keywordPaths[KeywordSLPFunction].map(
       async functionPaths => {
@@ -101,37 +110,56 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
           rootSLPTemplate,
           functionPaths
         )[KeywordSLPFunction];
-        const external = _function.exclude || [];
+        const external = ["aws-sdk", ...(_function.exclude || [])];
         external.push(...layerLibraries.base);
         if (_function.customResourceHandler) {
           external.push(...layerLibraries.customResource);
         }
-
-        await esbuild({
-          entryPoints: [
-            join(
-              rootSLPTemplate.packageLocation,
-              path_serverless,
-              path_functions,
-              _function.name + ".ts"
-            )
-          ],
-          bundle: true,
-          outfile: join(
-            rootSLPTemplate.packageLocation,
-            path_build,
-            path_serverless,
-            path_functions,
-            _function.name,
-            file_index_js
-          ),
-          sourcemap: false,
-          platform: "node",
-          external: external,
-          minify: true,
-          target: ["node14"]
-        });
+        const excludeFilePath = join(
+          buildFunctionsPath,
+          _function.name,
+          file_excludeJson
+        );
+        const excludeFileDir = dirname(excludeFilePath);
+        await mkdir(excludeFileDir, { recursive: true });
+        await writeFile(excludeFilePath, JSON.stringify({ external }));
       }
     )
   );
+};
+
+export const bundle = async (dir: string): Promise<void> => {
+  const srcFunctionsPath = join(dir, path_serverless, path_functions);
+  const buildFunctionsPath = join(
+    dir,
+    path_build,
+    path_serverless,
+    path_functions
+  );
+  if (existsSync(srcFunctionsPath)) {
+    const functions = await readdir(srcFunctionsPath);
+    await Promise.all(
+      functions.map(async functionFileName => {
+        const functionName = functionFileName.substring(
+          0,
+          functionFileName.length - 3
+        );
+
+        const exclude = await readJsonFileStore(
+          join(buildFunctionsPath, functionName, file_excludeJson)
+        );
+
+        await esbuild({
+          entryPoints: [join(srcFunctionsPath, functionFileName)],
+          bundle: true,
+          outfile: join(buildFunctionsPath, functionName, file_index_js),
+          sourcemap: false,
+          platform: "node",
+          external: exclude.external as string[],
+          minify: true,
+          target: ["node14"]
+        });
+      })
+    );
+  }
 };

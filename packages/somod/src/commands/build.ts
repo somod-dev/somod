@@ -39,7 +39,9 @@ import {
   validateDependencyModules,
   validateServerlessTemplateWithSchema,
   savePackageJson,
-  setSomodInPackageJson
+  setSomodInPackageJson,
+  bundleFunctions,
+  installLayerDependencies
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 
@@ -173,6 +175,21 @@ export const BuildAction = async ({
       verbose,
       dir,
       moduleIndicators
+    );
+
+    await taskRunner(
+      `Bundle Serverless Functions`,
+      bundleFunctions,
+      verbose,
+      dir
+    );
+
+    await taskRunner(
+      `Install libraries of Serverless FunctionLayers`,
+      installLayerDependencies,
+      verbose,
+      dir,
+      verbose
     );
   };
 

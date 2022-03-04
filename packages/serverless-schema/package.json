@@ -32,8 +32,7 @@
     "build:cli": "npx esbuild src/cli.ts --bundle --outdir=dist --platform=node --minify --external:ajv  --external:@solib/json-validator --external:lodash",
     "build": "npm run clean && npm run typescript && npm run build:cli",
     "pretest": "$CI || npm run build",
-    "test": "npx jest",
-    "prepack": "npm run test"
+    "test": "npx jest"
   },
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"

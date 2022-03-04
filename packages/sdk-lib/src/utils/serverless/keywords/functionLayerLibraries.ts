@@ -1,5 +1,10 @@
-import { childProcess, readJsonFileStore } from "@sodaru/cli-base";
-import { mkdir, writeFile } from "fs/promises";
+import {
+  childProcess,
+  ChildProcessStreamConfig,
+  readJsonFileStore
+} from "@sodaru/cli-base";
+import { existsSync } from "fs";
+import { mkdir, readdir, writeFile } from "fs/promises";
 import { join } from "path";
 import {
   file_packageJson,
@@ -78,6 +83,8 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
   });
 };
 
+const path_layerNodeJs = "nodejs";
+
 export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
   const modulePackageJsonPath = join(
     rootSLPTemplate.packageLocation,
@@ -85,6 +92,13 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
   );
   const modulePackageJson = await readJsonFileStore(modulePackageJsonPath);
   const moduleDevDependencies = modulePackageJson.devDependencies || {};
+
+  const buildFunctionLayerPath = join(
+    rootSLPTemplate.packageLocation,
+    path_build,
+    path_serverless,
+    path_functionLayers
+  );
 
   await Promise.all(
     rootSLPTemplate.keywordPaths[KeywordSLPFunctionLayerLibraries].map(
@@ -109,12 +123,9 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
         };
 
         const layerPath = join(
-          rootSLPTemplate.packageLocation,
-          path_build,
-          path_serverless,
-          path_functionLayers,
+          buildFunctionLayerPath,
           layerName,
-          "nodejs"
+          path_layerNodeJs
         );
 
         await mkdir(layerPath, { recursive: true });
@@ -122,13 +133,42 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
           join(layerPath, file_packageJson),
           JSON.stringify(layerPackageJson, null, 2)
         );
-
-        await childProcess(
-          layerPath,
-          process.platform == "win32" ? "npm.cmd" : "npm",
-          ["install"]
-        );
       }
     )
+  );
+};
+
+export const installDependencies = async (
+  dir: string,
+  verbose = false
+): Promise<void> => {
+  const functionLayersPath = join(
+    dir,
+    path_build,
+    path_serverless,
+    path_functionLayers
+  );
+
+  if (!existsSync(functionLayersPath)) {
+    return;
+  }
+
+  const npmCommand = process.platform == "win32" ? "npm.cmd" : "npm";
+  const streamConfig: ChildProcessStreamConfig = {
+    show: verbose ? "on" : "error",
+    return: "off"
+  };
+  const layers = await readdir(functionLayersPath);
+  await Promise.all(
+    layers.map(async layer => {
+      const layerPath = join(functionLayersPath, layer, path_layerNodeJs);
+      await childProcess(
+        layerPath,
+        npmCommand,
+        ["install"],
+        streamConfig,
+        streamConfig
+      );
+    })
   );
 };

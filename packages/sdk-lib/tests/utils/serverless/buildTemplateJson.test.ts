@@ -225,7 +225,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with SLP::Function only", async () => {
+  test("with SLP::Function name only", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -241,8 +241,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
     };
     createFiles(dir, {
       "serverless/template.yaml": dump(template),
-      "serverless/functions/Resource1.ts":
-        'import { difference } from "lodash"; export const r = () => {return difference([1,2,3], [3, 4])}',
+      "serverless/functions/Resource1.ts": "",
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
@@ -260,14 +259,14 @@ describe("Test Util serverless.buildTemplateJson", () => {
           path_serverless,
           path_functions,
           "Resource1",
-          "index.js"
+          "exclude.json"
         ),
         {
           encoding: "utf8"
         }
       )
     ).resolves.toEqual(
-      'var f=Object.defineProperty;var i=Object.getOwnPropertyDescriptor;var m=Object.getOwnPropertyNames;var p=Object.prototype.hasOwnProperty;var d=e=>f(e,"__esModule",{value:!0});var s=(e,r)=>{for(var o in r)f(e,o,{get:r[o],enumerable:!0})},u=(e,r,o,n)=>{if(r&&typeof r=="object"||typeof r=="function")for(let t of m(r))!p.call(e,t)&&(o||t!=="default")&&f(e,t,{get:()=>r[t],enumerable:!(n=i(r,t))||n.enumerable});return e};var x=(e=>(r,o)=>e&&e.get(r)||(o=u(d({}),r,1),e&&e.set(r,o),o))(typeof WeakMap!="undefined"?new WeakMap:0);var b={};s(b,{r:()=>a});var c=require("lodash"),a=()=>(0,c.difference)([1,2,3],[3,4]);module.exports=x(b);0&&(module.exports={r});\n'
+      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid"]}'
     );
   });
 
@@ -297,6 +296,99 @@ describe("Test Util serverless.buildTemplateJson", () => {
         `Referenced module function {sample, Resource1} not found. Looked for file "${dir}/serverless/functions/Resource1.ts". Referenced in "sample" at "Resources/Resource1/Properties/CodeUri"`
       )
     });
+  });
+
+  test("with SLP::Function with extra excludes", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Architectures: functionDefaults.Architectures,
+            CodeUri: {
+              "SLP::Function": { name: "Resource1", exclude: ["smallest"] }
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/Resource1.ts": "",
+      ...singlePackageJson
+    });
+    await validateSchema(dir); // make sure schema is right
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
+    await expect(
+      readFile(
+        join(
+          dir,
+          path_build,
+          path_serverless,
+          path_functions,
+          "Resource1",
+          "exclude.json"
+        ),
+        {
+          encoding: "utf8"
+        }
+      )
+    ).resolves.toEqual(
+      '{"external":["aws-sdk","smallest","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid"]}'
+    );
+  });
+
+  test("with SLP::Function with customResourceHandler = true", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Architectures: functionDefaults.Architectures,
+            CodeUri: {
+              "SLP::Function": {
+                name: "Resource1",
+                customResourceHandler: true
+              }
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/Resource1.ts": "",
+      ...singlePackageJson
+    });
+    await validateSchema(dir); // make sure schema is right
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
+    await expect(
+      readFile(
+        join(
+          dir,
+          path_build,
+          path_serverless,
+          path_functions,
+          "Resource1",
+          "exclude.json"
+        ),
+        {
+          encoding: "utf8"
+        }
+      )
+    ).resolves.toEqual(
+      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/cfn-lambda"]}'
+    );
   });
 
   test("with SLP::FunctionLayerLibraries", async () => {
@@ -334,8 +426,8 @@ describe("Test Util serverless.buildTemplateJson", () => {
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
-    expect(
-      existsSync(
+    await expect(
+      readFile(
         join(
           dir,
           path_build,
@@ -343,11 +435,24 @@ describe("Test Util serverless.buildTemplateJson", () => {
           path_functionLayers,
           "mylayer",
           "nodejs",
-          "node_modules",
-          "smallest"
-        )
+          "package.json"
+        ),
+        { encoding: "utf8" }
       )
-    ).toBeTruthy();
+    ).resolves.toEqual(
+      JSON.stringify(
+        {
+          name: "sample-mylayer",
+          version: "1.0.0",
+          description: "Lambda function layer - mylayer",
+          dependencies: {
+            smallest: "^1.0.1"
+          }
+        },
+        null,
+        2
+      )
+    );
   });
 
   test("with SLP::ResourceName", async () => {

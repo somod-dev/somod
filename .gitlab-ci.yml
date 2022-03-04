@@ -23,7 +23,7 @@ publish:
   stage: publish
   cache: []
   script:
-    - npm run check-sanity
+    - npm test
     - git describe --exact-match | grep ^v && npx mono-repo publish -v
   only:
     - tags

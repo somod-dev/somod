@@ -10,6 +10,7 @@
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "private": true,
   "repository": {
     "type": "git",
@@ -20,8 +21,7 @@
     "typescript": "tsc",
     "build": "npm run clean && npm run typescript",
     "pretest": "$CI || npm run build",
-    "test": "npx jest",
-    "prepack": "npm run test"
+    "test": "npx jest"
   },
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
@@ -30,7 +30,7 @@
     "@sodaru/cli-base": "^1.2.0",
     "@sodev/sodev": "^1.1.0",
     "@solib/json-validator": "^1.0.1",
-    "@typescript-eslint/typescript-estree": "^4.28.5",
+    "@typescript-eslint/typescript-estree": "^4.33.0",
     "esbuild": "^0.14.24",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",

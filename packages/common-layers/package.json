@@ -30,8 +30,7 @@
     "cleanLayers": "npm run cleanCustomResourceLayer",
     "build": "npm run clean && npm run tsc && npm run generateLayers && npm run installLayers && npm run cleanLayers",
     "pretest": "$CI || npm run build",
-    "test": "echo \"no test specified\"",
-    "prepack": "npm run test"
+    "test": "echo \"no test specified\""
   },
   "keywords": [
     "slp",
@@ -40,7 +39,7 @@
     "serverless"
   ],
   "peerDependencies": {
-    "@solib/cfn-lambda": "^1.1.0",
+    "@solib/cfn-lambda": "^1.1.1",
     "@solib/common-types-schemas": "^1.0.0",
     "@solib/errors": "^1.1.1",
     "@solib/json-validator": "^1.0.1",

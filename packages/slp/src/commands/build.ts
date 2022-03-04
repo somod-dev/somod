@@ -1,6 +1,7 @@
 import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
   buildServerlessTemplate,
+  bundleFunctions,
   compileTypeScript,
   deleteBuildDir,
   doesFilesHasBuildInPackageJson,
@@ -17,6 +18,7 @@ import {
   file_templateYaml,
   file_tsConfigBuildJson,
   generateIndex,
+  installLayerDependencies,
   isValidTsConfigBuildJson,
   key_files,
   key_jsnextMain,
@@ -109,13 +111,6 @@ export const BuildAction = async ({
   await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
 
   await taskRunner(
-    `Generate ${path_build}/${file_index_js}`,
-    generateIndex,
-    verbose,
-    dir,
-    []
-  );
-  await taskRunner(
     `validate ${path_serverless}/${file_templateYaml}`,
     validateServerlessTemplateWithSchema,
     verbose,
@@ -129,6 +124,30 @@ export const BuildAction = async ({
     dir,
     [key_slp]
   );
+
+  await taskRunner(
+    `Bundle Serverless Functions`,
+    bundleFunctions,
+    verbose,
+    dir
+  );
+
+  await taskRunner(
+    `Install libraries of Serverless FunctionLayers`,
+    installLayerDependencies,
+    verbose,
+    dir,
+    verbose
+  );
+
+  await taskRunner(
+    `Generate ${path_build}/${file_index_js}`,
+    generateIndex,
+    verbose,
+    dir,
+    []
+  );
+
   await taskRunner(
     `Set ${key_slp} in ${file_packageJson}`,
     setSlpInPackageJson,

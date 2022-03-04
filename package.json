@@ -3,10 +3,10 @@
   "version": "1.4.1",
   "description": "Sodaru Module (somod) - SDK",
   "scripts": {
+    "postinstall": "npx mono-repo install -v && npx mono-repo run build -v",
     "eslint": "npx eslint ./",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
     "check-sanity": "npm run prettier && npm run eslint && npx mono-repo validate --version-match",
-    "postinstall": "npx mono-repo install -v && npx mono-repo run build -v",
     "pretest": "npm run check-sanity",
     "test": "npx mono-repo run test -v",
     "version": "npx mono-repo version -v && git add -A",
