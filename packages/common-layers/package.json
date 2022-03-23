@@ -25,9 +25,11 @@
     "generateLayers": "node ./generateLayers.js",
     "installBaseLayer": "cd ./layers/base/nodejs && npm install",
     "installCustomResourceLayer": "cd ./layers/customResource/nodejs && npm install",
-    "installLayers": "npm run installBaseLayer && npm run installCustomResourceLayer",
+    "installHttpWrapperLayer": "cd ./layers/httpWrapper/nodejs && npm install",
+    "installLayers": "npm run installBaseLayer && npm run installCustomResourceLayer && npm run installHttpWrapperLayer",
     "cleanCustomResourceLayer": "node ./cleanLayer.js customResource",
-    "cleanLayers": "npm run cleanCustomResourceLayer",
+    "cleanHttpWrapperLayer": "node ./cleanLayer.js httpWrapper",
+    "cleanLayers": "npm run cleanCustomResourceLayer && npm run cleanHttpWrapperLayer",
     "build": "npm run clean && npm run tsc && npm run generateLayers && npm run installLayers && npm run cleanLayers",
     "pretest": "$CI || npm run build",
     "test": "echo \"no test specified\""
@@ -45,7 +47,8 @@
     "@solib/json-validator": "^1.0.1",
     "lodash": "^4.17.21",
     "tslib": "^2.3.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "@solib/http-lambda": "^1.0.6"
   },
   "peerDependenciesMeta": {
     "@solib/cfn-lambda": {

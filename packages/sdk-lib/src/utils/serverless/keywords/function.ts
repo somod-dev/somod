@@ -10,6 +10,7 @@ import {
 } from "../../constants";
 import { apply as applyBaseLayer } from "../baseModule/layers/baseLayer";
 import { apply as applyCustomResourceLayer } from "../baseModule/layers/customResourceLayer";
+import { apply as applyHttpWrapperLayer } from "../baseModule/layers/httpWrapperLayer";
 import {
   KeywordSLPFunction,
   ServerlessTemplate,
@@ -34,8 +35,8 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
     )[KeywordSLPFunction];
 
     /**
-     * for root module look in serverless/functions/<functionName>.ts
-     * for child module look in build/serverless/functions/<functionName>/index.js
+     * for root module look in <$packageLocation>/serverless/functions/<functionName>.ts
+     * for child module look in <$packageLocation>/build/serverless/functions/<functionName>/index.js
      */
     let functionFilePath = slpTemplate.packageLocation;
     if (!slpTemplate.root) {
@@ -84,6 +85,11 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         if (_function.customResourceHandler) {
           applyCustomResourceLayer(slpTemplate, resourceId);
         }
+
+        if (_function.httpHandler) {
+          applyHttpWrapperLayer(slpTemplate, resourceId);
+        }
+
         applyBaseLayer(slpTemplate, resourceId);
       }
     );
@@ -114,6 +120,9 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
         external.push(...layerLibraries.base);
         if (_function.customResourceHandler) {
           external.push(...layerLibraries.customResource);
+        }
+        if (_function.httpHandler) {
+          external.push(...layerLibraries.httpWrapper);
         }
         const excludeFilePath = join(
           buildFunctionsPath,

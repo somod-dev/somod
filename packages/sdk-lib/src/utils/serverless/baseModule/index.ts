@@ -5,6 +5,10 @@ import {
   customResourceLayerName,
   getCustomResourceLayerSLPResource
 } from "./layers/customResourceLayer";
+import {
+  httpWrapperLayerName,
+  gethttpWrapperLayer
+} from "./layers/httpWrapperLayer";
 
 export const baseModuleName = "@somod/slp";
 
@@ -12,11 +16,13 @@ export const getBaseModuleOriginalSLPTemplate =
   async (): Promise<OriginalSLPTemplate> => {
     const baseLayer = await getBaseLayerSLPResource();
     const customResourceLayer = await getCustomResourceLayerSLPResource();
+    const httpWrapperLayer = await gethttpWrapperLayer();
 
     const baseModule = {
       Resources: {
         [baseLayerName]: baseLayer,
-        [customResourceLayerName]: customResourceLayer
+        [customResourceLayerName]: customResourceLayer,
+        [httpWrapperLayerName]: httpWrapperLayer
       }
     };
     return baseModule;
@@ -41,5 +47,14 @@ export const cleanUpBaseModule = (serverlessTemplate: ServerlessTemplate) => {
     delete serverlessTemplate[baseModuleName].Resources[
       customResourceLayerName
     ];
+  }
+
+  // clean httpWrapperLayer
+  const httpWrapperLayerReferences = findReferences(serverlessTemplate, {
+    module: baseModuleName,
+    resource: httpWrapperLayerName
+  });
+  if (Object.keys(httpWrapperLayerReferences).length == 0) {
+    delete serverlessTemplate[baseModuleName].Resources[httpWrapperLayerName];
   }
 };

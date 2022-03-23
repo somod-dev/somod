@@ -77,6 +77,7 @@ export type SLPFunction = {
     name: string;
     exclude?: string[];
     customResourceHandler?: boolean;
+    httpHandler?: boolean;
   };
 };
 

@@ -445,6 +445,9 @@
                 },
                 "customResourceHandler": {
                   "type": "boolean"
+                },
+                "httpHandler": {
+                  "type": "boolean"
                 }
               }
             }

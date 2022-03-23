@@ -12,6 +12,7 @@ export namespace layerLibraries {
     "uuid"
   ];
   export const customResource: string[] = ["@solib/cfn-lambda"];
+  export const httpWrapper: string[] = ["@solib/http-lambda"];
 }
 
 export const getLocation = async (): Promise<string> => {
