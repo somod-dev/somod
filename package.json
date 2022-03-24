@@ -43,7 +43,7 @@
   "private": true,
   "devDependencies": {
     "@sodev/eslint-config": "^1.1.0",
-    "@sodev/mono-repo": "^1.1.0",
+    "@sodev/mono-repo": "^1.2.0",
     "@sodev/prettier-config": "^1.1.0"
   }
 }
