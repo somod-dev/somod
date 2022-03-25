@@ -387,7 +387,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/cfn-lambda"]}'
+      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/cfn-custom-resource"]}'
     );
   });
 

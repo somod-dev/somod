@@ -11,7 +11,7 @@ export namespace layerLibraries {
     "tslib",
     "uuid"
   ];
-  export const customResource: string[] = ["@solib/cfn-lambda"];
+  export const customResource: string[] = ["@solib/cfn-custom-resource"];
   export const httpWrapper: string[] = ["@solib/http-lambda"];
 }
 

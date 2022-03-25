@@ -41,14 +41,14 @@
     "serverless"
   ],
   "peerDependencies": {
-    "@solib/cfn-lambda": "^1.1.1",
+    "@solib/cfn-custom-resource": "^1.2.0",
     "@solib/common-types-schemas": "^1.0.0",
     "@solib/errors": "^1.1.1",
+    "@solib/http-lambda": "^1.1.1",
     "@solib/json-validator": "^1.0.1",
     "lodash": "^4.17.21",
     "tslib": "^2.3.1",
-    "uuid": "^8.3.2",
-    "@solib/http-lambda": "^1.1.1"
+    "uuid": "^8.3.2"
   },
   "peerDependenciesMeta": {
     "@solib/cfn-lambda": {
