@@ -92,6 +92,11 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
   });
 };
 
+/**
+ * returns Keyword paths matching the passed SLPRef type from all the template.yml's
+ * @param serverlessTemplate : Group of template.yaml, main template.yml and dependent template.yaml's
+ * @param slpRef
+ */
 export const findReferences = (
   serverlessTemplate: ServerlessTemplate,
   slpRef: SLPRef["SLP::Ref"]

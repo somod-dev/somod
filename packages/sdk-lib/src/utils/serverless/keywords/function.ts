@@ -1,16 +1,17 @@
 import { readJsonFileStore, unixStylePath } from "@sodaru/cli-base";
+import { CommonLayers, layerLibraries } from "@somod/common-layers";
 import { build as esbuild } from "esbuild";
 import { existsSync } from "fs";
+import { mkdir, readdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import {
   file_index_js,
   path_build,
   path_functions,
-  path_serverless
+  path_serverless,
+  somod_slp_module
 } from "../../constants";
-import { apply as applyBaseLayer } from "../baseModule/layers/baseLayer";
-import { apply as applyCustomResourceLayer } from "../baseModule/layers/customResourceLayer";
-import { apply as applyHttpWrapperLayer } from "../baseModule/layers/httpWrapperLayer";
+import { apply as applyLayer } from "../baseModule/layers/baseLayer";
 import {
   KeywordSLPFunction,
   ServerlessTemplate,
@@ -22,8 +23,6 @@ import {
   replaceSLPKeyword,
   updateKeywordPathsInSLPTemplate
 } from "../utils";
-import { layerLibraries } from "@somod/common-layers";
-import { readdir, writeFile, mkdir } from "fs/promises";
 
 export const validate = (slpTemplate: SLPTemplate): Error[] => {
   const errors: Error[] = [];
@@ -82,15 +81,32 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         );
 
         const resourceId = functionKeywordPath[0];
-        if (_function.customResourceHandler) {
-          applyCustomResourceLayer(slpTemplate, resourceId);
+        if (_function.layers.includes(CommonLayers.customResource)) {
+          applyLayer(
+            slpTemplate,
+            resourceId,
+            layerLibraries[CommonLayers.customResource]["moduleName"] ??
+              somod_slp_module,
+            layerLibraries[CommonLayers.customResource]["name"]
+          );
         }
 
-        if (_function.httpHandler) {
-          applyHttpWrapperLayer(slpTemplate, resourceId);
+        if (_function.layers.includes(CommonLayers.httpWrapper)) {
+          applyLayer(
+            slpTemplate,
+            resourceId,
+            layerLibraries[CommonLayers.httpWrapper]["moduleName"] ??
+              somod_slp_module,
+            layerLibraries[CommonLayers.httpWrapper]["name"]
+          );
         }
 
-        applyBaseLayer(slpTemplate, resourceId);
+        applyLayer(
+          slpTemplate,
+          resourceId,
+          layerLibraries[CommonLayers.base]["moduleName"] ?? somod_slp_module,
+          layerLibraries[CommonLayers.base]["name"]
+        );
       }
     );
     if (slpTemplate.keywordPaths[KeywordSLPFunction].length > 0) {
@@ -117,12 +133,16 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
           functionPaths
         )[KeywordSLPFunction];
         const external = ["aws-sdk", ...(_function.exclude || [])];
-        external.push(...layerLibraries.base);
-        if (_function.customResourceHandler) {
-          external.push(...layerLibraries.customResource);
+        external.push(...layerLibraries[CommonLayers.base]["libraries"]);
+        if (_function.layers.includes(CommonLayers.customResource)) {
+          external.push(
+            ...layerLibraries[CommonLayers.customResource]["libraries"]
+          );
         }
-        if (_function.httpHandler) {
-          external.push(...layerLibraries.httpWrapper);
+        if (_function.layers.includes(CommonLayers.httpWrapper)) {
+          external.push(
+            ...layerLibraries[CommonLayers.httpWrapper]["libraries"]
+          );
         }
         const excludeFilePath = join(
           buildFunctionsPath,

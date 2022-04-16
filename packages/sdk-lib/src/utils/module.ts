@@ -83,6 +83,12 @@ export class ModuleGraph {
   }
 }
 
+/**
+ * returns modules and its dependencies with location
+ * @param dir root directory of the module
+ * @param moduleIndicators indicates module type for ex: njp
+ * @returns
+ */
 const _getModuleGraph = async (
   dir: string,
   moduleIndicators: string[]

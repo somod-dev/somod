@@ -56,3 +56,5 @@ export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
 
 export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+
+export const somod_slp_module = "@somod/slp";

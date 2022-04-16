@@ -44,6 +44,13 @@ export const updateKeywordPathsInSLPTemplate = (
   slpTemplate.keywordPaths = slpKeywords;
 };
 
+/**
+ * returns the value present in the path (usually Keywords path), and it always looks in original
+ * @param slpTemplate : single slp tamplate
+ * @param path : json path in array format (usually Keywords path)
+ * @returns value found inside the json path
+ *          for example : { "SLP::Ref": { module:"@sodaru/slp", "resource": "BaseRestApi" } }
+ */
 export const getSLPKeyword = <T extends SLPKeyword>(
   slpTemplate: SLPTemplate,
   path: string[]

@@ -1,3 +1,4 @@
+import { CommonLayers } from "@somod/common-layers";
 import { JSONSchema7 } from "json-schema";
 
 export const KeywordSLPExtend = "SLP::Extend";
@@ -76,8 +77,7 @@ export type SLPFunction = {
   [KeywordSLPFunction]: {
     name: string;
     exclude?: string[];
-    customResourceHandler?: boolean;
-    httpHandler?: boolean;
+    layers: CommonLayers[];
   };
 };
 

@@ -68,6 +68,7 @@ export const generateSAMTemplate = async (
   const allSlpTemplates = await loadSLPTemplates(allModules, templateTypes);
 
   const baseSlpTemplate = await loadBaseSlpTemplate();
+
   allSlpTemplates.unshift(baseSlpTemplate);
 
   const serverlessTemplate = mergeSLPTemplates(allSlpTemplates);

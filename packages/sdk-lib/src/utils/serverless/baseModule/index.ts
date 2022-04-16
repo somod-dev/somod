@@ -1,60 +1,40 @@
 import { findReferences } from "../keywords/ref";
 import { OriginalSLPTemplate, ServerlessTemplate } from "../types";
-import { baseLayerName, getBaseLayerSLPResource } from "./layers/baseLayer";
-import {
-  customResourceLayerName,
-  getCustomResourceLayerSLPResource
-} from "./layers/customResourceLayer";
-import {
-  httpWrapperLayerName,
-  gethttpWrapperLayer
-} from "./layers/httpWrapperLayer";
+import { getAllLayersSLPResource } from "./layers/baseLayer";
+import {} from "./layers/customResourceLayer";
+import {} from "./layers/httpWrapperLayer";
+import { layerLibraries } from "@somod/common-layers";
 
 export const baseModuleName = "@somod/slp";
 
 export const getBaseModuleOriginalSLPTemplate =
   async (): Promise<OriginalSLPTemplate> => {
-    const baseLayer = await getBaseLayerSLPResource();
-    const customResourceLayer = await getCustomResourceLayerSLPResource();
-    const httpWrapperLayer = await gethttpWrapperLayer();
-
     const baseModule = {
-      Resources: {
-        [baseLayerName]: baseLayer,
-        [customResourceLayerName]: customResourceLayer,
-        [httpWrapperLayerName]: httpWrapperLayer
-      }
+      Resources: await getAllLayersSLPResource()
     };
     return baseModule;
   };
 
+export const cleanUnusedLayer = (
+  moduleName: string,
+  layerName: string,
+  serverlessTemplate: ServerlessTemplate
+) => {
+  const layerReferences = findReferences(serverlessTemplate, {
+    module: moduleName,
+    resource: layerName
+  });
+  if (Object.keys(layerReferences).length == 0) {
+    delete serverlessTemplate[moduleName].Resources[layerName];
+  }
+};
+
+/**
+ * delete the layer object which is not refernced by any resources in template.yaml's
+ * @param serverlessTemplate : Group of template.yaml, main template.yml and dependent template.yaml's
+ */
 export const cleanUpBaseModule = (serverlessTemplate: ServerlessTemplate) => {
-  // clean baseLayer
-  const baseLayerReferences = findReferences(serverlessTemplate, {
-    module: baseModuleName,
-    resource: baseLayerName
+  Object.keys(layerLibraries).forEach(async layer => {
+    cleanUnusedLayer(baseModuleName, layer["name"], serverlessTemplate);
   });
-  if (Object.keys(baseLayerReferences).length == 0) {
-    delete serverlessTemplate[baseModuleName].Resources[baseLayerName];
-  }
-
-  // clean customResourceLayer
-  const customResourceLayerReferences = findReferences(serverlessTemplate, {
-    module: baseModuleName,
-    resource: customResourceLayerName
-  });
-  if (Object.keys(customResourceLayerReferences).length == 0) {
-    delete serverlessTemplate[baseModuleName].Resources[
-      customResourceLayerName
-    ];
-  }
-
-  // clean httpWrapperLayer
-  const httpWrapperLayerReferences = findReferences(serverlessTemplate, {
-    module: baseModuleName,
-    resource: httpWrapperLayerName
-  });
-  if (Object.keys(httpWrapperLayerReferences).length == 0) {
-    delete serverlessTemplate[baseModuleName].Resources[httpWrapperLayerName];
-  }
 };

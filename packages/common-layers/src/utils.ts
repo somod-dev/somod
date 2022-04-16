@@ -28,7 +28,7 @@ export const generate = async () => {
 
   for (const layer in layerLibraries) {
     const dependencies = {};
-    layerLibraries[layer].forEach((dependency: string) => {
+    layerLibraries[layer]["libraries"].forEach((dependency: string) => {
       const dependencyVersion = rootPackageJson.peerDependencies[dependency];
       if (!dependencyVersion) {
         throw new Error(
