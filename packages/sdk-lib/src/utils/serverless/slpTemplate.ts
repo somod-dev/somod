@@ -12,10 +12,11 @@ import {
   file_templateJson,
   file_templateYaml,
   path_build,
-  path_serverless
+  path_serverless,
+  somod_slp_module
 } from "../constants";
 import { ModuleNode } from "../module";
-import { baseModuleName, getBaseModuleOriginalSLPTemplate } from "./baseModule";
+import { getBaseModuleOriginalSLPTemplate } from "./baseModule";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
 import { validate as validateExtend } from "./keywords/extend";
 import { validate as validateFunction } from "./keywords/function";
@@ -119,7 +120,7 @@ export const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
   const baseSlpTemplate = {
     ...originalSlpTemplate,
     root: false,
-    module: baseModuleName,
+    module: somod_slp_module,
     packageLocation: "",
     keywordPaths: null,
     original: cloneDeep(originalSlpTemplate)
