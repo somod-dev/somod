@@ -84,10 +84,11 @@ export class ModuleGraph {
 }
 
 /**
- * returns modules and its dependencies with location
+ * returns module properties along with dependent modules.
+ * dependent modules will be searched in appropriate paths and
+ * the path will be updated to module properties
  * @param dir root directory of the module
  * @param moduleIndicators indicates module type for ex: njp
- * @returns
  */
 const _getModuleGraph = async (
   dir: string,

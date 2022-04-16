@@ -1,12 +1,8 @@
 import { findReferences } from "../keywords/ref";
 import { OriginalSLPTemplate, ServerlessTemplate } from "../types";
 import { getAllLayersSLPResource } from "./layers/baseLayer";
-import {} from "./layers/customResourceLayer";
-import {} from "./layers/httpWrapperLayer";
 import { layerLibraries } from "@somod/common-layers";
-
-export const baseModuleName = "@somod/slp";
-
+import { somod_slp_module } from "../../../utils/constants";
 export const getBaseModuleOriginalSLPTemplate =
   async (): Promise<OriginalSLPTemplate> => {
     const baseModule = {
@@ -35,6 +31,6 @@ export const cleanUnusedLayer = (
  */
 export const cleanUpBaseModule = (serverlessTemplate: ServerlessTemplate) => {
   Object.keys(layerLibraries).forEach(async layer => {
-    cleanUnusedLayer(baseModuleName, layer["name"], serverlessTemplate);
+    cleanUnusedLayer(somod_slp_module, layer["name"], serverlessTemplate);
   });
 };

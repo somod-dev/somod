@@ -16,23 +16,6 @@ import {
   SLPTemplate
 } from "../../types";
 
-export const baseLayerName = "baseLayer";
-
-// export const getBaseLayerSLPResource = async (): Promise<SLPResource> => {
-//   return {
-//     Type: "AWS::Serverless::LayerVersion",
-//     [KeywordSLPOutput]: { default: true, attributes: [] },
-//     Properties: {
-//       LayerName: { [KeywordSLPResourceName]: baseLayerName },
-//       Description: "Set of npm libraries to be required in all Lambda funtions",
-//       CompatibleArchitectures: ["arm64"],
-//       CompatibleRuntimes: ["nodejs14.x"],
-//       RetentionPolicy: "Delete",
-//       ContentUri: unixStylePath(join(await getLocation(), "layers", "base"))
-//     }
-//   } as SLPResource;
-// };
-
 export const apply = (
   slpTemplate: SLPTemplate,
   resourceId: string,
