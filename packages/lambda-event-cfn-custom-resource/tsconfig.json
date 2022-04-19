@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "target": "ES5",
+    "module": "ES6",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}

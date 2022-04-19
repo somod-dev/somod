@@ -1,0 +1,73 @@
+{
+  "name": "@solib/cfn-lambda",
+  "version": "1.0.1",
+  "description": "Lambda for CloudFormation Custom Resource",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "prettier": "npx prettier --check --ignore-unknown ./**/*",
+    "eslint": "npx eslint ./ --no-error-on-unmatched-pattern",
+    "tsc": "npx tsc",
+    "tsc-cjs": "npx tsc --project tsconfig.cjs.json",
+    "build": "npm run prettier && npm run eslint && npm run clean && npm run tsc && npm run tsc-cjs",
+    "pretest": "npm run build",
+    "test": "npx jest",
+    "prepack": "npm run test",
+    "postversion": "git push --follow-tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/solib/cfn-lambda.git"
+  },
+  "keywords": [
+    "cfn",
+    "custom-resource",
+    "cfn-lambda",
+    "sodaru",
+    "lib",
+    "solib"
+  ],
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/solib/cfn-lambda/issues"
+  },
+  "homepage": "https://gitlab.com/sodaru/solib/cfn-lambda#readme",
+  "devDependencies": {
+    "@sodev/eslint-config": "^1.1.0",
+    "@sodev/jest-config": "^1.1.1",
+    "@sodev/mock-http-server": "^0.0.1",
+    "@sodev/prettier-config": "^1.1.0",
+    "@solib/json-validator": "^1.0.0",
+    "@types/aws-lambda": "^8.10.88",
+    "@types/json-schema": "^7.0.9",
+    "@types/lodash": "^4.14.178",
+    "lodash": "^4.17.21",
+    "rimraf": "^3.0.2",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4"
+  },
+  "prettier": "@sodev/prettier-config",
+  "eslintConfig": {
+    "extends": [
+      "@sodev/eslint-config"
+    ]
+  },
+  "peerDependencies": {
+    "@solib/json-validator": "^1.0.0",
+    "tslib": "^2.3.1"
+  },
+  "peerDependenciesMeta": {
+    "@solib/json-validator": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "cfn-lambda": "^5.1.0"
+  }
+}
