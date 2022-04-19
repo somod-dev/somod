@@ -25,12 +25,10 @@
   "scripts": {
     "clean": "npx rimraf dist",
     "tsc": "npx tsc",
-    "build": "npm run prettier && npm run eslint && npm run clean && npm run tsc",
+    "build": "npm run clean && npm run tsc",
     "pretest": "npm run build",
     "test": "npx jest",
     "prepack": "npm run test",
-    "postversion": "git push --follow-tags",
-    "eslint": "npx eslint ./ --no-error-on-unmatched-pattern",
-    "prettier": "npx prettier --check --ignore-unknown ./**/*"
+    "postversion": "git push --follow-tags"
   }
 }

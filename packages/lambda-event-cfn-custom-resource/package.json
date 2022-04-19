@@ -10,11 +10,9 @@
   ],
   "scripts": {
     "clean": "npx rimraf dist",
-    "prettier": "npx prettier --check --ignore-unknown ./**/*",
-    "eslint": "npx eslint ./ --no-error-on-unmatched-pattern",
     "tsc": "npx tsc",
     "tsc-cjs": "npx tsc --project tsconfig.cjs.json",
-    "build": "npm run prettier && npm run eslint && npm run clean && npm run tsc && npm run tsc-cjs",
+    "build": "npm run clean && npm run tsc && npm run tsc-cjs",
     "pretest": "npm run build",
     "test": "npx jest",
     "prepack": "npm run test",
