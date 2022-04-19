@@ -8,9 +8,7 @@
     "dist"
   ],
   "devDependencies": {
-    "@sodev/eslint-config": "^1.1.0",
     "@sodev/jest-config": "^1.1.2",
-    "@sodev/prettier-config": "^1.1.0",
     "@solib/errors": "^1.1.1",
     "@solib/json-validator": "^1.0.0",
     "@types/json-schema": "^7.0.9",
@@ -24,11 +22,6 @@
     "@solib/json-validator": "^1.0.0",
     "tslib": "^2.3.1"
   },
-  "eslintConfig": {
-    "extends": [
-      "@sodev/eslint-config"
-    ]
-  },
   "scripts": {
     "clean": "npx rimraf dist",
     "tsc": "npx tsc",
@@ -39,6 +32,5 @@
     "postversion": "git push --follow-tags",
     "eslint": "npx eslint ./ --no-error-on-unmatched-pattern",
     "prettier": "npx prettier --check --ignore-unknown ./**/*"
-  },
-  "prettier": "@sodev/prettier-config"
+  }
 }
