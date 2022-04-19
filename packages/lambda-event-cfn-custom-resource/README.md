@@ -1,27 +1,30 @@
-# Cfn Lambda
+# CFN Custom Resource
 
-Improved [cfn-lambda](https://github.com/andrew-templeton/cfn-lambda)
-
-## Overview
-
-improves cfn-lambda and adds typings to cfn lambda
+Wrapper to Handle Cloud Formation [`Custom Resources`](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html) in Lambda Function's code
 
 ## Install
 
 ```
-npm i @solib/cfn-lambda
+npm i @solib/cfn-custom-resource
 ```
 
 ## Usage
 
-```TS
-import cfnLambda, { CfnLambdaInput } from "@solib/cfn-lambda";
+```typescript
+import CustomResource from "@solib/cfn-custom-resource";
 
-const params : CfnLambdaInput = {
-  // fill here
-}
-const customResource = cfnLambda(params);
+const customResource = new CustomResource();
 
-export default customResource;
+// register as many options for as many resource types
+customResource.register("Custom::MyResource", {
+  schema: {}, // JSONSchema7;
+  create: createHandler, // CreateHandler<T, A>;
+  update: updateHandler, // UpdateHandler<T, A>;
+  delete: deleteHandler, // DeleteHandler<T, A>;
+  triggersReplacement: [], // TriggersReplacement<T>;
+  noEcho: true, // boolean;
+  timeout: 100 // number;
+});
 
+export default customResource.getHandler();
 ```

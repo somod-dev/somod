@@ -1,7 +1,7 @@
 {
-"name": "@somod/lambda-event-cfn-custom-resource",
+  "name": "@somod/lambda-event-cfn-custom-resource",
   "version": "1.4.4",
-  "description": "Lambda for CloudFormation Custom Resource",
+  "description": "Wrapper for CloudFormation Custom Resource Lambda function",
   "main": "./dist/cjs/index.js",
   "module": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -22,12 +22,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/solib/cfn-lambda.git"
+    "url": "git+ssh://git@gitlab.com/sodaru/solib/cfn-custom-resource.git"
   },
   "keywords": [
     "cfn",
     "custom-resource",
-    "cfn-lambda",
+    "cfn-custom-resource",
     "sodaru",
     "lib",
     "solib"
@@ -35,13 +35,12 @@
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://gitlab.com/sodaru/solib/cfn-lambda/issues"
+    "url": "https://gitlab.com/sodaru/solib/cfn-custom-resource/issues"
   },
-  "homepage": "https://gitlab.com/sodaru/solib/cfn-lambda#readme",
+  "homepage": "https://gitlab.com/sodaru/solib/cfn-custom-resource#readme",
   "devDependencies": {
     "@sodev/eslint-config": "^1.1.0",
     "@sodev/jest-config": "^1.1.1",
-    "@sodev/mock-http-server": "^0.0.1",
     "@sodev/prettier-config": "^1.1.0",
     "@solib/json-validator": "^1.0.0",
     "@types/aws-lambda": "^8.10.88",
@@ -60,14 +59,12 @@
   },
   "peerDependencies": {
     "@solib/json-validator": "^1.0.0",
+    "lodash": "^4.17.21",
     "tslib": "^2.3.1"
   },
   "peerDependenciesMeta": {
     "@solib/json-validator": {
       "optional": true
     }
-  },
-  "dependencies": {
-    "cfn-lambda": "^5.1.0"
   }
 }
