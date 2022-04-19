@@ -1,6 +1,6 @@
 {
-  "name": "@solib/cfn-lambda",
-  "version": "1.0.1",
+"name": "@somod/lambda-event-cfn-custom-resource",
+  "version": "1.4.4",
   "description": "Lambda for CloudFormation Custom Resource",
   "main": "./dist/cjs/index.js",
   "module": "./dist/index.js",
