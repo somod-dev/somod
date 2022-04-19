@@ -19,6 +19,7 @@ test:
     - npm test
   only:
     - develop
+    - WrapperLayer
 
 publish:
   stage: publish
