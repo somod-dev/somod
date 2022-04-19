@@ -37,18 +37,18 @@
   },
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/lambda-event-cfn-custom-resource#readme",
   "devDependencies": {
-    "@sodev/jest-config": "^1.1.1",
-    "@solib/json-validator": "^1.0.0",
-    "@types/aws-lambda": "^8.10.88",
+    "@sodev/jest-config": "^1.1.2",
+    "@solib/json-validator": "^1.0.1",
+    "@types/aws-lambda": "^8.10.92",
     "@types/json-schema": "^7.0.9",
-    "@types/lodash": "^4.14.178",
+    "@types/lodash": "^4.14.179",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.4"
+    "typescript": "^4.5.5"
   },
   "peerDependencies": {
-    "@solib/json-validator": "^1.0.0",
+    "@solib/json-validator": "^1.0.1",
     "lodash": "^4.17.21",
     "tslib": "^2.3.1"
   },

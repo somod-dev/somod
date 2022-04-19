@@ -25,17 +25,15 @@ export const parseHeaders: ParseHeadersType<DefaultHeaderType> = (
   );
 };
 
-export const parsePathParams: ParsePathParamsType<
-  DefaultPathParamsType
-> = pathParams => {
-  return pathParams;
-};
+export const parsePathParams: ParsePathParamsType<DefaultPathParamsType> =
+  pathParams => {
+    return pathParams;
+  };
 
-export const parseQueryStrings: ParseQueryStringParamsType<
-  DefaultQueryStringsType
-> = queryStrings => {
-  return queryStrings;
-};
+export const parseQueryStrings: ParseQueryStringParamsType<DefaultQueryStringsType> =
+  queryStrings => {
+    return queryStrings;
+  };
 
 export const parseBody: ParseBodyType<DefaultBodyType> = (
   body,

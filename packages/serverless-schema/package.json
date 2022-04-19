@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@sodaru/cli-base": "^1.2.0",
-    "@sodev/jest-config": "^1.1.1",
+    "@sodev/jest-config": "^1.1.2",
     "@sodev/test-utils": "^1.0.0",
     "@solib/json-validator": "^1.0.1",
     "@types/lodash": "^4.14.179",

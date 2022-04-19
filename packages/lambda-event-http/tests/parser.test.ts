@@ -331,15 +331,12 @@ describe("parse body", () => {
       isBase64Encoded: false
     };
 
-    const lambdaFn: LambdaCallbackType<
-      string,
-      DefaultPathParamsType,
-      string
-    > = (request, additionalParams) => {
-      return new Promise<string>(resolve => {
-        return resolve(JSON.stringify(additionalParams));
-      });
-    };
+    const lambdaFn: LambdaCallbackType<string, DefaultPathParamsType, string> =
+      (request, additionalParams) => {
+        return new Promise<string>(resolve => {
+          return resolve(JSON.stringify(additionalParams));
+        });
+      };
     const exptRespose: HttpResponse = {
       body: JSON.stringify({
         apiIdAdditional: "execute-api",
@@ -426,15 +423,12 @@ describe("parse body", () => {
       isBase64Encoded: false
     };
 
-    const lambdaFn: LambdaCallbackType<
-      string,
-      DefaultPathParamsType,
-      string
-    > = (request, additionalParams) => {
-      return new Promise<string>(resolve => {
-        return resolve(JSON.stringify(additionalParams));
-      });
-    };
+    const lambdaFn: LambdaCallbackType<string, DefaultPathParamsType, string> =
+      (request, additionalParams) => {
+        return new Promise<string>(resolve => {
+          return resolve(JSON.stringify(additionalParams));
+        });
+      };
     const exptRespose: HttpResponse = {
       body: JSON.stringify({
         apiIdAdditional: "execute-api",

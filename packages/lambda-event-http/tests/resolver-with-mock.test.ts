@@ -54,22 +54,19 @@ test("test with mocking flow - http Request Handler ", async () => {
     isBase64Encoded: false
   };
 
-  const lambdaFn: LambdaCallbackType<
-    string,
-    DefaultPathParamsType,
-    string
-  > = request => {
-    return new Promise<string>(resolve => {
-      if (
-        request.headers === "I am mocked - Headers" &&
-        request.queryStringParameters === "I am mocked - QueryStrings"
-      ) {
-        return resolve("Mock is working");
-      } else {
-        return resolve("Mock is not working");
-      }
-    });
-  };
+  const lambdaFn: LambdaCallbackType<string, DefaultPathParamsType, string> =
+    request => {
+      return new Promise<string>(resolve => {
+        if (
+          request.headers === "I am mocked - Headers" &&
+          request.queryStringParameters === "I am mocked - QueryStrings"
+        ) {
+          return resolve("Mock is working");
+        } else {
+          return resolve("Mock is not working");
+        }
+      });
+    };
 
   const exptRespose: HttpResponse = {
     body: "Mock is working",
@@ -137,22 +134,19 @@ test("test with mocking flow - http Request Handler ", async () => {
     isBase64Encoded: false
   };
 
-  const lambdaFn: LambdaCallbackType<
-    string,
-    DefaultPathParamsType,
-    string
-  > = request => {
-    return new Promise<string>(resolve => {
-      if (
-        request.headers === "I am mocked - Headers" &&
-        request.queryStringParameters === "I am mocked - QueryStrings"
-      ) {
-        return resolve("Mock is working");
-      } else {
-        return resolve("Mock is not working");
-      }
-    });
-  };
+  const lambdaFn: LambdaCallbackType<string, DefaultPathParamsType, string> =
+    request => {
+      return new Promise<string>(resolve => {
+        if (
+          request.headers === "I am mocked - Headers" &&
+          request.queryStringParameters === "I am mocked - QueryStrings"
+        ) {
+          return resolve("Mock is working");
+        } else {
+          return resolve("Mock is not working");
+        }
+      });
+    };
 
   const options: Options<string, DefaultPathParamsType, string> = {
     headers: {
