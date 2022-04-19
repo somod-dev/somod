@@ -1,0 +1,28 @@
+image: registry.gitlab.com/sodaru/container/sodaru/ci-nodejs
+
+stages:
+  - test
+  - publish
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - node_modules
+
+before_script:
+  - npm i
+
+test:
+  stage: test
+  script:
+    - npm test
+  only:
+    - develop
+
+publish:
+  stage: publish
+  cache: []
+  script:
+    - git describe --exact-match | grep ^v && npm publish
+  only:
+    - tags
