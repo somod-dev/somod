@@ -2,7 +2,7 @@ import { existsSync } from "fs";
 import { mkdir, readdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { chdir } from "process";
-import { layerLibraries } from "./index";
+import { CommonLayers, layerLibraries } from "./index";
 import rimraf from "rimraf";
 
 const deleteDir = (dir: string): Promise<void> => {
@@ -51,11 +51,15 @@ export const generate = async () => {
   }
 };
 
+/**
+ * compares and removes duplicate libraries from passed layer w.r.t base layer
+ * @param layerName layer name for comparing duplicate libraries
+ */
 export const removeBaseLayerLibraries = async (
   layerName: string
 ): Promise<void> => {
   chdir(join(__dirname, ".."));
-  const baseLayerNodeModulesPath = `./layers/base/nodejs/node_modules`;
+  const baseLayerNodeModulesPath = `./layers/${CommonLayers.baseLayer}/nodejs/node_modules`;
   const layerNodeModulesPath = `./layers/${layerName}/nodejs/node_modules`;
   const dirs = await readdir(layerNodeModulesPath);
   const scopes: string[] = [];
