@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/solib/cfn-custom-resource.git"
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
   },
   "keywords": [
     "cfn",
@@ -35,9 +35,9 @@
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://gitlab.com/sodaru/solib/cfn-custom-resource/issues"
+    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
-  "homepage": "https://gitlab.com/sodaru/solib/cfn-custom-resource#readme",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/lambda-event-cfn-custom-resource#readme",
   "devDependencies": {
     "@sodev/eslint-config": "^1.1.0",
     "@sodev/jest-config": "^1.1.1",
