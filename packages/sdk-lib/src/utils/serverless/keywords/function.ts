@@ -81,7 +81,9 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         );
 
         const resourceId = functionKeywordPath[0];
-        if (_function.layers.includes(CommonLayers.customResourceLayer)) {
+        if (
+          _function.eventHandlers?.includes(CommonLayers.customResourceLayer)
+        ) {
           applyLayer(
             slpTemplate,
             resourceId,
@@ -90,7 +92,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
           );
         }
 
-        if (_function.layers.includes(CommonLayers.httpWrapperLayer)) {
+        if (_function.eventHandlers?.includes(CommonLayers.httpWrapperLayer)) {
           applyLayer(
             slpTemplate,
             resourceId,
@@ -132,12 +134,14 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
         )[KeywordSLPFunction];
         const external = ["aws-sdk", ...(_function.exclude || [])];
         external.push(...layerLibraries[CommonLayers.baseLayer]["libraries"]);
-        if (_function.layers.includes(CommonLayers.customResourceLayer)) {
+        if (
+          _function.eventHandlers?.includes(CommonLayers.customResourceLayer)
+        ) {
           external.push(
             ...layerLibraries[CommonLayers.customResourceLayer]["libraries"]
           );
         }
-        if (_function.layers.includes(CommonLayers.httpWrapperLayer)) {
+        if (_function.eventHandlers?.includes(CommonLayers.httpWrapperLayer)) {
           external.push(
             ...layerLibraries[CommonLayers.httpWrapperLayer]["libraries"]
           );

@@ -73,11 +73,14 @@ export type SLPRefResourceName = {
   };
 };
 
+/**
+ * These values should match with serverless-schema of "SLP::Function" inside "AWS::Serverless::Function"
+ */
 export type SLPFunction = {
   [KeywordSLPFunction]: {
     name: string;
     exclude?: string[];
-    layers: CommonLayers[];
+    eventHandlers?: CommonLayers[];
   };
 };
 
