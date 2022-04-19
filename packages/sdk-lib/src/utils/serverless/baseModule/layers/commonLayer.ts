@@ -44,18 +44,23 @@ export const getLayerSLPResource = async (
       CompatibleArchitectures: attributes.compatibleArchitectures ?? ["arm64"],
       CompatibleRuntimes: attributes.compatibleRuntimes ?? ["nodejs14.x"],
       RetentionPolicy: attributes.retentionPolicy,
-      ContentUri: unixStylePath(join(await getLocation(), "layers", "base"))
+      ContentUri: unixStylePath(
+        join(await getLocation(), "layers", attributes.name)
+      )
     }
   } as SLPResource;
 };
 
 export const getAllLayersSLPResource = async () => {
   const slpResources: Record<string, SLPResource> = {};
-  Object.keys(layerLibraries).forEach(async layer => {
-    slpResources[layer["name"]] = await getLayerSLPResource(
-      layerLibraries[layer]
-    );
-  });
+
+  await Promise.all(
+    Object.keys(layerLibraries).map(async layer => {
+      slpResources[layer["name"]] = await getLayerSLPResource(
+        layerLibraries[layer]
+      );
+    })
+  );
 
   return slpResources;
 };

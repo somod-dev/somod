@@ -23,7 +23,7 @@ export type ResourceAttributesType = {
  *  present in Serverless schema module
  */
 export enum CommonLayers {
-  base = "baseLayer",
-  customResource = "customResourceLayer",
-  httpWrapper = "httpWrapperLayer"
+  baseLayer = "baseLayer",
+  customResourceLayer = "customResourceLayer",
+  httpWrapperLayer = "httpWrapperLayer"
 }

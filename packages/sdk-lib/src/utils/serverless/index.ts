@@ -1,5 +1,5 @@
 import { getModuleGraph, toChildFirstList } from "../module";
-import { cleanUpBaseModule } from "./baseModule";
+import { cleanUpBaseModule } from "./baseModule/layers/cleanLayer";
 import { apply as applyDependsOn } from "./keywords/dependsOn";
 import { apply as applyExtend } from "./keywords/extend";
 import {

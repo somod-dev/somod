@@ -16,7 +16,7 @@ import {
   somod_slp_module
 } from "../constants";
 import { ModuleNode } from "../module";
-import { getBaseModuleOriginalSLPTemplate } from "./baseModule";
+import { getBaseModuleOriginalSLPTemplate } from "./baseModule/layers/cleanLayer";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
 import { validate as validateExtend } from "./keywords/extend";
 import { validate as validateFunction } from "./keywords/function";

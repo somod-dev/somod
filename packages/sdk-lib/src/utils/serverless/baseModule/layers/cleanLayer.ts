@@ -1,8 +1,8 @@
-import { findReferences } from "../keywords/ref";
-import { OriginalSLPTemplate, ServerlessTemplate } from "../types";
-import { getAllLayersSLPResource } from "./layers/baseLayer";
+import { findReferences } from "../../keywords/ref";
+import { OriginalSLPTemplate, ServerlessTemplate } from "../../types";
+import { getAllLayersSLPResource } from "./commonLayer";
 import { layerLibraries } from "@somod/common-layers";
-import { somod_slp_module } from "../../../utils/constants";
+import { somod_slp_module } from "../../../constants";
 export const getBaseModuleOriginalSLPTemplate =
   async (): Promise<OriginalSLPTemplate> => {
     const baseModule = {

@@ -11,7 +11,7 @@ import {
   path_serverless,
   somod_slp_module
 } from "../../constants";
-import { apply as applyLayer } from "../baseModule/layers/baseLayer";
+import { apply as applyLayer } from "../baseModule/layers/commonLayer";
 import {
   KeywordSLPFunction,
   ServerlessTemplate,
@@ -81,31 +81,29 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         );
 
         const resourceId = functionKeywordPath[0];
-        if (_function.layers.includes(CommonLayers.customResource)) {
+        if (_function.layers.includes(CommonLayers.customResourceLayer)) {
           applyLayer(
             slpTemplate,
             resourceId,
-            layerLibraries[CommonLayers.customResource]["moduleName"] ??
-              somod_slp_module,
-            layerLibraries[CommonLayers.customResource]["name"]
+            somod_slp_module,
+            layerLibraries[CommonLayers.customResourceLayer]["name"]
           );
         }
 
-        if (_function.layers.includes(CommonLayers.httpWrapper)) {
+        if (_function.layers.includes(CommonLayers.httpWrapperLayer)) {
           applyLayer(
             slpTemplate,
             resourceId,
-            layerLibraries[CommonLayers.httpWrapper]["moduleName"] ??
-              somod_slp_module,
-            layerLibraries[CommonLayers.httpWrapper]["name"]
+            somod_slp_module,
+            layerLibraries[CommonLayers.httpWrapperLayer]["name"]
           );
         }
 
         applyLayer(
           slpTemplate,
           resourceId,
-          layerLibraries[CommonLayers.base]["moduleName"] ?? somod_slp_module,
-          layerLibraries[CommonLayers.base]["name"]
+          somod_slp_module,
+          layerLibraries[CommonLayers.baseLayer]["name"]
         );
       }
     );
@@ -133,15 +131,15 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
           functionPaths
         )[KeywordSLPFunction];
         const external = ["aws-sdk", ...(_function.exclude || [])];
-        external.push(...layerLibraries[CommonLayers.base]["libraries"]);
-        if (_function.layers.includes(CommonLayers.customResource)) {
+        external.push(...layerLibraries[CommonLayers.baseLayer]["libraries"]);
+        if (_function.layers.includes(CommonLayers.customResourceLayer)) {
           external.push(
-            ...layerLibraries[CommonLayers.customResource]["libraries"]
+            ...layerLibraries[CommonLayers.customResourceLayer]["libraries"]
           );
         }
-        if (_function.layers.includes(CommonLayers.httpWrapper)) {
+        if (_function.layers.includes(CommonLayers.httpWrapperLayer)) {
           external.push(
-            ...layerLibraries[CommonLayers.httpWrapper]["libraries"]
+            ...layerLibraries[CommonLayers.httpWrapperLayer]["libraries"]
           );
         }
         const excludeFilePath = join(

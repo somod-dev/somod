@@ -8,9 +8,9 @@ import {
 
 export * from "./types";
 
-export const layerLibraries: Record<string, ResourceAttributesType> = {
-  base: {
-    name: CommonLayers.base,
+export const layerLibraries: Record<CommonLayers, ResourceAttributesType> = {
+  baseLayer: {
+    name: CommonLayers.baseLayer,
     description: "Set of npm libraries to be required in all Lambda funtions",
     retentionPolicy: AWSSAMRetentionPolicy.Delete,
     libraries: [
@@ -22,14 +22,14 @@ export const layerLibraries: Record<string, ResourceAttributesType> = {
       "uuid"
     ]
   },
-  customResource: {
-    name: CommonLayers.customResource,
+  customResourceLayer: {
+    name: CommonLayers.customResourceLayer,
     description: "Wrapper libraries to create CloudFormation Custom Resource",
     retentionPolicy: AWSSAMRetentionPolicy.Delete,
     libraries: ["@solib/cfn-custom-resource"]
   },
-  http: {
-    name: CommonLayers.httpWrapper,
+  httpWrapperLayer: {
+    name: CommonLayers.httpWrapperLayer,
     description: "http wrapper Layer for lambda functions",
     retentionPolicy: AWSSAMRetentionPolicy.Delete,
     libraries: ["@solib/http-lambda"]
