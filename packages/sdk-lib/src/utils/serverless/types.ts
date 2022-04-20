@@ -80,7 +80,7 @@ export type SLPFunction = {
   [KeywordSLPFunction]: {
     name: string;
     exclude?: string[];
-    eventType?: "customResource" | "http";
+    eventType?: "cfnCustomResource" | "http";
   };
 };
 

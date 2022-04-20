@@ -210,7 +210,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               CodeUri: {
                 "SLP::Function": {
                   name: "createAuthGroup",
-                  eventType: "customResourceLayer"
+                  eventType: "cfnCustomResource"
                 }
               }
             }

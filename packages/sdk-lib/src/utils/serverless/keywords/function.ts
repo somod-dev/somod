@@ -69,7 +69,8 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
 /**
  * Replaces SLP::Function with function file path
  * path will be usually like {base folder}/build/serverless/functions/{file name }
- * additionally replaces "eventType" with SLP::Ref and adds SLP::Ref for base layer also.
+ * additionally removes "eventType" and appends SLP::Ref to layers property of function
+ * and excludes mentioned evenType from bundle.
  * @param serverlessTemplate
  */
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
@@ -87,7 +88,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         );
 
         const resourceId = functionKeywordPath[0];
-        if (_function.eventType == "customResource") {
+        if (_function.eventType == "cfnCustomResource") {
           applyLayer(
             slpTemplate,
             resourceId,
@@ -138,7 +139,7 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
         )[KeywordSLPFunction];
         const external = ["aws-sdk", ...(_function.exclude || [])];
         external.push(...layerLibraries[CommonLayers.baseLayer]["libraries"]);
-        if (_function.eventType == "customResource") {
+        if (_function.eventType == "cfnCustomResource") {
           external.push(
             ...layerLibraries[CommonLayers.customResourceLayer]["libraries"]
           );

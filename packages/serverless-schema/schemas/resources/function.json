@@ -445,7 +445,7 @@
                 },
 
                 "eventType": {
-                  "enum": ["custom", "http"]
+                  "enum": ["cfnCustomResource", "http"]
                 }
               }
             }

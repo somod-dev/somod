@@ -4,9 +4,8 @@
     "rootDir": "./src",
     "declaration": true,
     "target": "ES5",
-    "module": "CommonJS",
+    "module": "ES6",
     "moduleResolution": "node",
-    "lib": ["ESNext"],
     "importHelpers": true,
     "esModuleInterop": true
   },
