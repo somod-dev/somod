@@ -17,6 +17,10 @@ const deleteDir = (dir: string): Promise<void> => {
   });
 };
 
+/**
+ * Generates layer structure and package.json(including dependencies) for all configured layers
+ * layer structure will be like {base folder}/layers/{layer name}/nodejs/package.json
+ */
 export const generate = async () => {
   chdir(join(__dirname, ".."));
   await mkdir("./layers", { recursive: true });

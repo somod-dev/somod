@@ -444,12 +444,8 @@
                   "maxItems": 100
                 },
 
-                "eventHandlers": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "enum": ["customResourceLayer", "httpWrapperLayer"]
-                  }
+                "eventType": {
+                  "enum": ["custom", "http"]
                 }
               }
             }

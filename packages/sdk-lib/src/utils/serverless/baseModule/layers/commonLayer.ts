@@ -16,6 +16,13 @@ import {
   SLPTemplate
 } from "../../types";
 
+/**
+ * appends SLP::Ref tag with passed moduleName and layerName to layers property of passed resourceID
+ * @param slpTemplate
+ * @param resourceId
+ * @param moduleName
+ * @param layerName
+ */
 export const apply = (
   slpTemplate: SLPTemplate,
   resourceId: string,

@@ -66,6 +66,12 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
   return errors;
 };
 
+/**
+ * Replaces SLP::Function with function file path
+ * path will be usually like {base folder}/build/serverless/functions/{file name }
+ * additionally replaces "eventType" with SLP::Ref and adds SLP::Ref for base layer also.
+ * @param serverlessTemplate
+ */
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
     slpTemplate.keywordPaths[KeywordSLPFunction].forEach(
@@ -81,9 +87,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         );
 
         const resourceId = functionKeywordPath[0];
-        if (
-          _function.eventHandlers?.includes(CommonLayers.customResourceLayer)
-        ) {
+        if (_function.eventType == "customResource") {
           applyLayer(
             slpTemplate,
             resourceId,
@@ -92,7 +96,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
           );
         }
 
-        if (_function.eventHandlers?.includes(CommonLayers.httpWrapperLayer)) {
+        if (_function.eventType == "http") {
           applyLayer(
             slpTemplate,
             resourceId,
@@ -134,14 +138,12 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
         )[KeywordSLPFunction];
         const external = ["aws-sdk", ...(_function.exclude || [])];
         external.push(...layerLibraries[CommonLayers.baseLayer]["libraries"]);
-        if (
-          _function.eventHandlers?.includes(CommonLayers.customResourceLayer)
-        ) {
+        if (_function.eventType == "customResource") {
           external.push(
             ...layerLibraries[CommonLayers.customResourceLayer]["libraries"]
           );
         }
-        if (_function.eventHandlers?.includes(CommonLayers.httpWrapperLayer)) {
+        if (_function.eventType == "http") {
           external.push(
             ...layerLibraries[CommonLayers.httpWrapperLayer]["libraries"]
           );

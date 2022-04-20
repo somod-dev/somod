@@ -76,6 +76,11 @@ export const validate = (
   return errors;
 };
 
+/**
+ * calculates SAMResourceLogicalId or attribute value and replaces SLP::Ref
+ * attribute value is in accordance with aws resouce Fn::GetAtt values
+ * @param serverlessTemplate
+ */
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
     slpTemplate.keywordPaths[KeywordSLPRef].forEach(refPath => {

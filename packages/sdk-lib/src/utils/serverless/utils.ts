@@ -89,6 +89,11 @@ export const getSAMParameterName = (
   return "p" + hashModuleName(moduleName) + slpParameterName;
 };
 
+/**
+ * returns ==> "r" + hashModuleName(moduleName) + slpResourceId
+ * @param moduleName
+ * @param slpResourceId
+ */
 export const getSAMResourceLogicalId = (
   moduleName: string,
   slpResourceId: string

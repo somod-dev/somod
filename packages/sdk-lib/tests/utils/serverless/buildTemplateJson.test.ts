@@ -353,7 +353,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
             CodeUri: {
               "SLP::Function": {
                 name: "Resource1",
-                eventHandlers: ["customResourceLayer"]
+                eventType: "customResourceLayer"
               }
             }
           }

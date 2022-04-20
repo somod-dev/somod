@@ -1,4 +1,3 @@
-import { CommonLayers } from "@somod/common-layers";
 import { JSONSchema7 } from "json-schema";
 
 export const KeywordSLPExtend = "SLP::Extend";
@@ -74,13 +73,14 @@ export type SLPRefResourceName = {
 };
 
 /**
- * These values should match with serverless-schema of "SLP::Function" inside "AWS::Serverless::Function"
+ * These values should match with property "SLP::Function" inside
+ * "AWS::Serverless::Function" of module serverless-schema
  */
 export type SLPFunction = {
   [KeywordSLPFunction]: {
     name: string;
     exclude?: string[];
-    eventHandlers?: CommonLayers[];
+    eventType?: "customResource" | "http";
   };
 };
 

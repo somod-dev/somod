@@ -19,8 +19,6 @@ export type ResourceAttributesType = {
 
 /**
  * layer names to be created
- *  these names should be matched with "layers" property(nested) of AWS::Serverless::Function
- *  present in Serverless schema module
  */
 export enum CommonLayers {
   baseLayer = "baseLayer",
