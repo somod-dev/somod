@@ -31,6 +31,10 @@ export const cleanUnusedLayer = (
  */
 export const cleanUpBaseModule = (serverlessTemplate: ServerlessTemplate) => {
   Object.keys(layerLibraries).forEach(async layer => {
-    cleanUnusedLayer(somod_slp_module, layer["name"], serverlessTemplate);
+    cleanUnusedLayer(
+      somod_slp_module,
+      layerLibraries[layer]["name"],
+      serverlessTemplate
+    );
   });
 };

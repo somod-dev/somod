@@ -1,4 +1,5 @@
 import { unixStylePath } from "@sodaru/cli-base";
+import { CommonLayers } from "@somod/common-layers";
 import { existsSync } from "fs";
 import { join } from "path";
 import { generateSAMTemplate } from "../../../src/utils/serverless";
@@ -203,7 +204,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               CodeUri: {
                 "SLP::Function": {
                   name: "createAuthGroup",
-                  customResourceHandler: true
+                  eventHandlers: [CommonLayers.customResourceLayer]
                 }
               }
             }
@@ -321,7 +322,13 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             CompatibleRuntimes: ["nodejs14.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
-              join(__dirname, "../../../../", "common-layers", "layers", "base")
+              join(
+                __dirname,
+                "../../../../",
+                "common-layers",
+                "layers",
+                CommonLayers.baseLayer
+              )
             ),
             Description:
               "Set of npm libraries to be required in all Lambda funtions",
@@ -348,7 +355,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 "../../../../",
                 "common-layers",
                 "layers",
-                "customResource"
+                CommonLayers.customResourceLayer
               )
             ),
             Description:

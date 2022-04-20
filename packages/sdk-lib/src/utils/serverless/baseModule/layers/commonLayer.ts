@@ -56,7 +56,7 @@ export const getAllLayersSLPResource = async () => {
 
   await Promise.all(
     Object.keys(layerLibraries).map(async layer => {
-      slpResources[layer["name"]] = await getLayerSLPResource(
+      slpResources[layerLibraries[layer]["name"]] = await getLayerSLPResource(
         layerLibraries[layer]
       );
     })

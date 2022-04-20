@@ -343,7 +343,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
     );
   });
 
-  test("with SLP::Function with customResourceHandler = true", async () => {
+  test("with SLP::Function with customResourceLayer = true", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -353,7 +353,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
             CodeUri: {
               "SLP::Function": {
                 name: "Resource1",
-                customResourceHandler: true
+                eventHandlers: ["customResourceLayer"]
               }
             }
           }
