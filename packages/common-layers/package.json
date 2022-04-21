@@ -22,15 +22,9 @@
   "scripts": {
     "clean": "npx rimraf dist && npx rimraf layers",
     "tsc": "npx tsc",
-    "generateLayers": "node ./generateLayers.js",
+    "generateBaseLayer": "node ./generateLayers.js",
     "installBaseLayer": "cd ./layers/base/nodejs && npm install",
-    "installCustomResourceLayer": "cd ./layers/customResource/nodejs && npm install",
-    "installHttpWrapperLayer": "cd ./layers/httpWrapper/nodejs && npm install",
-    "installLayers": "npm run installBaseLayer && npm run installCustomResourceLayer && npm run installHttpWrapperLayer",
-    "cleanCustomResourceLayer": "node ./cleanLayer.js customResource",
-    "cleanHttpWrapperLayer": "node ./cleanLayer.js httpWrapper",
-    "cleanLayers": "npm run cleanCustomResourceLayer && npm run cleanHttpWrapperLayer",
-    "build": "npm run clean && npm run tsc && npm run generateLayers && npm run installLayers && npm run cleanLayers",
+    "build": "npm run clean && npm run tsc && npm run generateBaseLayer && npm run installBaseLayer",
     "pretest": "$CI || npm run build",
     "test": "echo \"no test specified\""
   },
@@ -41,10 +35,10 @@
     "serverless"
   ],
   "peerDependencies": {
-    "@solib/cfn-custom-resource": "^1.2.0",
+    "@solib/lambda-event-cfn-custom-resource": "^1.2.1",
     "@solib/common-types-schemas": "^1.0.0",
     "@solib/errors": "^1.1.1",
-    "@solib/http-lambda": "^1.1.1",
+    "@solib/lambda-event-http": "^1.1.2",
     "@solib/json-validator": "^1.0.1",
     "lodash": "^4.17.21",
     "tslib": "^2.3.1",
