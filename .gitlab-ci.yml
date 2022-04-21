@@ -19,7 +19,6 @@ test:
     - npm test
   only:
     - develop
-    - CommonLayerImprove
 
 publish:
   stage: publish
