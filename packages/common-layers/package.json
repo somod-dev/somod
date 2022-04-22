@@ -1,6 +1,6 @@
 {
   "name": "@somod/common-layers",
-  "version": "1.4.4",
+  "version": "1.5.0",
   "description": "Common Layers for Serverless Functions",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
