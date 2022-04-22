@@ -442,12 +442,6 @@
                     "pattern": "^(@[a-zA-Z0-9\\-_]+\\/)?[a-zA-Z0-9\\-_]+$"
                   },
                   "maxItems": 100
-                },
-                "customResourceHandler": {
-                  "type": "boolean"
-                },
-                "httpHandler": {
-                  "type": "boolean"
                 }
               }
             }

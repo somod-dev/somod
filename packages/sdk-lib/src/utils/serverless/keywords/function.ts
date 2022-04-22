@@ -1,6 +1,8 @@
 import { readJsonFileStore, unixStylePath } from "@sodaru/cli-base";
+import { layerLibraries } from "@somod/common-layers";
 import { build as esbuild } from "esbuild";
 import { existsSync } from "fs";
+import { mkdir, readdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import {
   file_index_js,
@@ -9,8 +11,6 @@ import {
   path_serverless
 } from "../../constants";
 import { apply as applyBaseLayer } from "../baseModule/layers/baseLayer";
-import { apply as applyCustomResourceLayer } from "../baseModule/layers/customResourceLayer";
-import { apply as applyHttpWrapperLayer } from "../baseModule/layers/httpWrapperLayer";
 import {
   KeywordSLPFunction,
   ServerlessTemplate,
@@ -22,8 +22,6 @@ import {
   replaceSLPKeyword,
   updateKeywordPathsInSLPTemplate
 } from "../utils";
-import { layerLibraries } from "@somod/common-layers";
-import { readdir, writeFile, mkdir } from "fs/promises";
 
 export const validate = (slpTemplate: SLPTemplate): Error[] => {
   const errors: Error[] = [];
@@ -82,13 +80,6 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         );
 
         const resourceId = functionKeywordPath[0];
-        if (_function.customResourceHandler) {
-          applyCustomResourceLayer(slpTemplate, resourceId);
-        }
-
-        if (_function.httpHandler) {
-          applyHttpWrapperLayer(slpTemplate, resourceId);
-        }
 
         applyBaseLayer(slpTemplate, resourceId);
       }
@@ -118,12 +109,7 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
         )[KeywordSLPFunction];
         const external = ["aws-sdk", ...(_function.exclude || [])];
         external.push(...layerLibraries.base);
-        if (_function.customResourceHandler) {
-          external.push(...layerLibraries.customResource);
-        }
-        if (_function.httpHandler) {
-          external.push(...layerLibraries.httpWrapper);
-        }
+
         const excludeFilePath = join(
           buildFunctionsPath,
           _function.name,

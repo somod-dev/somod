@@ -202,8 +202,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               },
               CodeUri: {
                 "SLP::Function": {
-                  name: "createAuthGroup",
-                  customResourceHandler: true
+                  name: "createAuthGroup"
                 }
               }
             }
@@ -338,35 +337,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           },
           Type: "AWS::Serverless::LayerVersion"
         },
-        r64967c02customResourceLayer: {
-          Properties: {
-            CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs14.x"],
-            ContentUri: unixStylePath(
-              join(
-                __dirname,
-                "../../../../",
-                "common-layers",
-                "layers",
-                "customResource"
-              )
-            ),
-            Description:
-              "Wrapper libraries to create CloudFormation Custom Resource",
-            LayerName: {
-              "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
-                {
-                  moduleHash: "64967c02",
-                  slpResourceName: "customResourceLayer",
-                  stackId
-                }
-              ]
-            },
-            RetentionPolicy: "Delete"
-          },
-          Type: "AWS::Serverless::LayerVersion"
-        },
         ra046855cBaseRestApi: {
           Type: "AWS::Serverless::Api",
           Properties: {
@@ -447,10 +417,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 }
               ]
             },
-            Layers: [
-              { Ref: "r64967c02baseLayer" },
-              { Ref: "r64967c02customResourceLayer" }
-            ]
+            Layers: [{ Ref: "r64967c02baseLayer" }]
           },
           Type: "AWS::Serverless::Function"
         },
