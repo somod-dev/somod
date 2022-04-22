@@ -16,7 +16,7 @@ import {
 } from "@sodaru/cli-base";
 
 const defaultCompilerOptions = {
-  allowUmdGlobalAccess: false,
+  allowUmdGlobalAccess: true,
   outDir: path_build,
   declaration: true,
   target: "ES5",
@@ -25,7 +25,8 @@ const defaultCompilerOptions = {
   lib: ["ESNext"],
   moduleResolution: "Node",
   esModuleInterop: true,
-  importHelpers: true
+  importHelpers: true,
+  skipLibCheck: true
 };
 
 const defaultInclude = [path_lib];

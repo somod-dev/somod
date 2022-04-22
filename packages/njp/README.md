@@ -9,6 +9,7 @@ Next Js Packages allows to build and share pages and public assets across multip
 ```SH
  > njp init
  > njp build
- > njp dev
+ > njp serve
+ > njp deploy
 
 ```

@@ -76,8 +76,6 @@ export type SLPFunction = {
   [KeywordSLPFunction]: {
     name: string;
     exclude?: string[];
-    customResourceHandler?: boolean;
-    httpHandler?: boolean;
   };
 };
 

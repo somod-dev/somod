@@ -34,7 +34,7 @@ describe("Test task isValidTsConfigBuildJson", () => {
 
   const validTsConfig: Record<string, unknown> = {
     compilerOptions: {
-      allowUmdGlobalAccess: false,
+      allowUmdGlobalAccess: true,
       outDir: "build",
       declaration: true,
       target: "ES5",
@@ -43,7 +43,8 @@ describe("Test task isValidTsConfigBuildJson", () => {
       lib: ["ESNext"],
       moduleResolution: "Node",
       esModuleInterop: true,
-      importHelpers: true
+      importHelpers: true,
+      skipLibCheck: true
     },
     include: ["lib"]
   };

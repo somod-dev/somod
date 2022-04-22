@@ -14,22 +14,15 @@ type DeployOptions = CommonOptions & {
   guided: boolean;
 };
 
-export const DeployAction = async ({
+export const DeployServerlessAction = async ({
   verbose,
   stage,
   guided
 }: DeployOptions): Promise<void> => {
   const dir = process.cwd();
 
-  /**
-   * This is a Internal Feature to Skip Build of root module during Production deployment
-   */
-  const isEntranseDeployment = process.env.ENTRANSE_DEPLOYMENT;
-
   if (stage == "all" || stage == "prepare") {
-    if (!isEntranseDeployment) {
-      await BuildAction({ verbose, type: "slp" });
-    }
+    await BuildAction({ verbose, type: "slp" });
 
     await taskRunner(
       `Generating ${file_templateYaml}`,
@@ -68,21 +61,21 @@ export const DeployAction = async ({
   }
 };
 
-const deployCommand = new Command("deploy");
+const deployServerlessCommand = new Command("deploy-serverless");
 
-deployCommand.action(DeployAction);
+deployServerlessCommand.action(DeployServerlessAction);
 
-deployCommand.addOption(
+deployServerlessCommand.addOption(
   new Option("-s, --stage [stage]", "Deployment stages to execute")
     .choices(["all", "prepare", "apply"])
     .default("all")
 );
 
-deployCommand.addOption(
+deployServerlessCommand.addOption(
   new Option(
     "-g, --guided",
     "guided will assist in configuring backend parameters in apply state"
   )
 );
 
-export default deployCommand;
+export default deployServerlessCommand;

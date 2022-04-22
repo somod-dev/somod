@@ -24,10 +24,12 @@ import {
   path_build,
   path_lib,
   path_nextBuild,
+  path_njp_working_dir,
   path_pages,
   path_public,
   path_samBuild,
   path_serverless,
+  path_slp_working_dir,
   path_ui,
   saveEslintIgnore,
   saveGitIgnore,
@@ -99,9 +101,11 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     `/${path_pages}`,
     `/${path_public}`,
     file_nextEnvDTs,
+    path_njp_working_dir,
     `/${file_templateYaml}`,
     path_samBuild,
-    file_samConfig
+    file_samConfig,
+    path_slp_working_dir
   ];
 
   await Promise.all([

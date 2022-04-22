@@ -9,6 +9,7 @@ This is a combination of [njp](../njp) and [slp](../slp)
 ```SH
  > somod init
  > somod build
- > somod deploy
+ > somod deploy-serverless
+ > somod deploy-nextjs
  > somod serve
 ```

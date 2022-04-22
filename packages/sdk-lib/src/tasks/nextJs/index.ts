@@ -3,4 +3,7 @@ export { createRootModulePublicAssets } from "./createRootModulePublicAssets";
 export { watchRootModulePages } from "./watchRootModulePages";
 export { watchRootModulePublicAssets } from "./watchRootModulePublicAssets";
 export { startNextDev } from "./startNextDev";
-export { deleteBuildDir } from "./deleteBuildDir";
+export { buildNextJs } from "./buildNextJs";
+export { deleteNjpWorkingDir } from "./deleteNjpWorkingDir";
+export { createNextJsDeployment } from "./createNextJsDeployment";
+export { vercelCommand } from "./vercelCommand";

@@ -9,10 +9,10 @@ export namespace layerLibraries {
     "@solib/errors",
     "lodash",
     "tslib",
-    "uuid"
+    "uuid",
+    "@solib/lambda-event-cfn-custom-resource",
+    "@solib/lambda-event-http"
   ];
-  export const customResource: string[] = ["@solib/cfn-custom-resource"];
-  export const httpWrapper: string[] = ["@solib/http-lambda"];
 }
 
 export const getLocation = async (): Promise<string> => {

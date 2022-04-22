@@ -1,6 +1,7 @@
 import { rootCommand } from "@sodaru/cli-base";
 import buildCommand from "./commands/build";
-import deployCommand from "./commands/deploy";
+import deployNextJsCommand from "./commands/deployNextJs";
+import deployServerlessCommand from "./commands/deployServerless";
 import initCommand from "./commands/init";
 import serveCommand from "./commands/serve";
 
@@ -8,7 +9,8 @@ const program = rootCommand("emp", [
   initCommand,
   buildCommand,
   serveCommand,
-  deployCommand
+  deployServerlessCommand,
+  deployNextJsCommand
 ]);
 
 export default program;

@@ -266,7 +266,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid"]}'
+      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http"]}'
     );
   });
 
@@ -339,55 +339,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","smallest","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid"]}'
-    );
-  });
-
-  test("with SLP::Function with customResourceHandler = true", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            Architectures: functionDefaults.Architectures,
-            CodeUri: {
-              "SLP::Function": {
-                name: "Resource1",
-                customResourceHandler: true
-              }
-            }
-          }
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      "serverless/functions/Resource1.ts": "",
-      ...singlePackageJson
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateJson(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
-    await expect(
-      readFile(buildTemplateJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(StringifyTemplate(template));
-    await expect(
-      readFile(
-        join(
-          dir,
-          path_build,
-          path_serverless,
-          path_functions,
-          "Resource1",
-          "exclude.json"
-        ),
-        {
-          encoding: "utf8"
-        }
-      )
-    ).resolves.toEqual(
-      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/cfn-custom-resource"]}'
+      '{"external":["aws-sdk","smallest","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http"]}'
     );
   });
 
