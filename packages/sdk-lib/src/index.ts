@@ -10,7 +10,7 @@ export * from "./tasks/build";
 
 export * from "./tasks/link";
 
-export * from "./tasks/dev";
+export * from "./tasks/nextJs";
 
 export * from "./tasks/serverless";
 

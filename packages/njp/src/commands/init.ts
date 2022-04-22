@@ -39,7 +39,8 @@ import {
   updateEslintIgnore,
   savePrettierIgnore,
   saveEslintIgnore,
-  initSodev
+  initSodev,
+  path_njp_working_dir
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -93,7 +94,8 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     file_tsConfigJson,
     `/${path_pages}`,
     `/${path_public}`,
-    file_nextEnvDTs
+    file_nextEnvDTs,
+    path_njp_working_dir
   ];
 
   await Promise.all([
