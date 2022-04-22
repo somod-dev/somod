@@ -1,4 +1,5 @@
 export const file_packageJson = "package.json";
+export const file_packageLockJson = "package-lock.json";
 
 export const file_gitIgnore = ".gitignore";
 export const file_eslintIgnore = ".eslintignore";
@@ -32,6 +33,9 @@ export const path_build = "build";
 export const path_ui = "ui";
 export const path_lib = "lib";
 
+export const path_slp_working_dir = ".slp";
+export const path_njp_working_dir = ".njp";
+
 export const path_pages = "pages";
 export const path_public = "public";
 
@@ -45,6 +49,10 @@ export const file_pagesJson = "pages.json";
 
 export const path_git = ".git";
 export const path_nextBuild = ".next";
+
+export const path_njp_deployment = "deployment";
+
+export const path_njp_deployment_build = "build";
 
 export const path_serverless = "serverless";
 export const path_functions = "functions";
