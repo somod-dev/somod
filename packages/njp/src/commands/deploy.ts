@@ -9,7 +9,7 @@ import {
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 import { join } from "path";
-import { BuildAction } from "./build";
+import { ServeAction } from "./serve";
 
 type DeployOptions = CommonOptions & {
   stage: "all" | "prepare" | "apply";
@@ -22,7 +22,7 @@ export const DeployAction = async (
   const dir = process.cwd();
 
   if (stage == "all" || stage == "prepare") {
-    await BuildAction({ verbose });
+    await ServeAction({ verbose, stage: "prepare" });
 
     await taskRunner(`Run next build`, buildNextJs, verbose, dir);
 

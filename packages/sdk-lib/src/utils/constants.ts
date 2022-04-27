@@ -9,6 +9,7 @@ export const file_tsConfigJson = "tsconfig.json";
 export const file_tsConfigBuildJson = "tsconfig.build.json";
 
 export const file_nextEnvDTs = "next-env.d.ts";
+export const file_nextConfigJs = "next.config.js";
 
 export const key_njp = "njp";
 export const key_slp = "slp";

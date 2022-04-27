@@ -1,13 +1,16 @@
 import { copyDirectory, readJsonFileStore } from "@sodaru/cli-base";
+import { existsSync } from "fs";
 import { copyFile, mkdir, readdir, stat, writeFile } from "fs/promises";
 import { join } from "path";
 import {
+  file_nextConfigJs,
   file_packageJson,
   file_packageLockJson,
   path_nextBuild,
   path_njp_deployment,
   path_njp_deployment_build,
-  path_njp_working_dir
+  path_njp_working_dir,
+  path_public
 } from "../constants";
 
 const getNjpDeploymentDir = (dir: string): string => {
@@ -70,4 +73,16 @@ export const copyNextDeployment = async (dir: string) => {
       }
     })
   );
+  if (existsSync(join(dir, file_nextConfigJs))) {
+    await copyFile(
+      join(dir, file_nextConfigJs),
+      join(njpDeploymentDir, file_nextConfigJs)
+    );
+  }
+  if (existsSync(join(dir, path_public))) {
+    await copyDirectory(
+      join(dir, path_public),
+      join(njpDeploymentDir, path_public)
+    );
+  }
 };
