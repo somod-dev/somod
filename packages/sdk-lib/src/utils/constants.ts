@@ -20,10 +20,9 @@ export const key_type = "type";
 export const key_module = "module";
 export const key_typings = "typings";
 
-export const key_commonjs = "commonjs";
-
 export const key_sideEffects = "sideEffects";
 
+export const key_main = "main";
 export const key_jsnextMain = "jsnext:main";
 export const key_files = "files";
 
@@ -65,3 +64,5 @@ export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
 
 export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+
+export type ModuleType = "njp" | "slp" | "somod";

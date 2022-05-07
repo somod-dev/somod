@@ -36,7 +36,7 @@
     "Properties": {
       "type": "object",
       "additionalProperties": true,
-      "required": [""],
+      "required": [],
       "properties": {}
     }
   },

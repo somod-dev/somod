@@ -1,0 +1,163 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Task updatePackageJson with empty 1`] = `
+"{
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with njp and somod 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with no sodaru module key 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with normal 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with not-allowed keys 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with only njp 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with only somod set for njp module 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with wrong files 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with wrong module 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with wrong sideEffects 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;
+
+exports[`Test Task updatePackageJson with wrong typings 1`] = `
+"{
+  \\"name\\": \\"@my-scope/my-module\\",
+  \\"version\\": \\"1.0.1\\",
+  \\"description\\": \\"\\",
+  \\"module\\": \\"build/index.js\\",
+  \\"typings\\": \\"build/index.d.ts\\",
+  \\"files\\": [
+    \\"build\\"
+  ],
+  \\"sideEffects\\": false,
+  \\"njp\\": \\"1.2.0\\"
+}"
+`;

@@ -14,14 +14,7 @@ import {
   initSodev,
   initTemplateYaml,
   initWelcomePage,
-  key_files,
-  key_jsnextMain,
-  key_module,
-  key_sideEffects,
   key_somod,
-  key_type,
-  key_typings,
-  path_build,
   path_lib,
   path_nextBuild,
   path_njp_working_dir,
@@ -36,15 +29,9 @@ import {
   savePackageJson,
   savePrettierIgnore,
   saveTsConfigBuildJson,
-  setBuildInFilesInPackageJson,
-  setModuleInPackageJson,
-  setSideEffectsInPackageJson,
-  setSomodInPackageJson,
-  setTypingsInPackageJson,
-  unsetJsnextMainInPackageJson,
-  unsetTypeInPackageJson,
   updateEslintIgnore,
   updateGitIgnore,
+  updatePackageJson,
   updatePrettierIgnore,
   updateTsConfigBuildJson
 } from "@somod/sdk-lib";
@@ -53,46 +40,11 @@ import { Command } from "commander";
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
   await taskRunner(
-    `Set ${key_somod} in ${file_packageJson}`,
-    setSomodInPackageJson,
+    `Update ${file_packageJson}`,
+    updatePackageJson,
     verbose,
-    dir
-  );
-  await taskRunner(
-    `Set ${key_module} in ${file_packageJson}`,
-    setModuleInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Set ${key_typings} in ${file_packageJson}`,
-    setTypingsInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Unset ${key_type} in ${file_packageJson}`,
-    unsetTypeInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Set ${key_sideEffects} in ${file_packageJson}`,
-    setSideEffectsInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Unset ${key_jsnextMain} in ${file_packageJson}`,
-    unsetJsnextMainInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Include ${path_build} to ${key_files} in ${file_packageJson}`,
-    setBuildInFilesInPackageJson,
-    verbose,
-    dir
+    dir,
+    key_somod
   );
 
   const somodIgnorePaths = [
