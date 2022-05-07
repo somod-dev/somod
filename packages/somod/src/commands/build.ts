@@ -2,17 +2,10 @@ import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
   buildServerlessTemplate,
   buildUiPublic,
+  bundleFunctions,
   compileTypeScript,
   deleteBuildDir,
-  doesSomodIsSetInPackageJson,
-  doesFilesHasBuildInPackageJson,
-  doesJsnextMainNotSetInPackageJson,
-  doesModuleIsBuildIndexInPackageJson,
   doesServerlessFunctionsHaveDefaultExport,
-  doesSideEffectsIsFalseInPackageJson,
-  doesTypeIsNotSetInPackageJson,
-  doesTypingsIsBuildIndexInPackageJson,
-  file_index_dts,
   file_index_js,
   file_packageJson,
   file_pageIndex_js,
@@ -21,27 +14,21 @@ import {
   file_tsConfigBuildJson,
   generateIndex,
   generatePageIndex,
+  installLayerDependencies,
   isValidTsConfigBuildJson,
-  key_somod,
-  key_files,
-  key_jsnextMain,
-  key_module,
   key_njp,
-  key_sideEffects,
   key_slp,
-  key_type,
-  key_typings,
+  key_somod,
   path_build,
   path_functions,
   path_public,
   path_serverless,
   path_ui,
-  validateDependencyModules,
-  validateServerlessTemplateWithSchema,
   savePackageJson,
-  setSomodInPackageJson,
-  bundleFunctions,
-  installLayerDependencies
+  updateSodaruModuleKeyInPackageJson,
+  validateDependencyModules,
+  validatePackageJson,
+  validateServerlessTemplateWithSchema
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 
@@ -69,46 +56,11 @@ export const BuildAction = async ({
 
   const validations: Promise<unknown>[] = [
     taskRunner(
-      `Check if ${key_somod} is set in ${file_packageJson}`,
-      doesSomodIsSetInPackageJson,
+      `Validate ${file_packageJson}`,
+      validatePackageJson,
       verbose,
-      dir
-    ),
-    taskRunner(
-      `Check if ${key_module} is '${path_build}/${file_index_js}' in ${file_packageJson}`,
-      doesModuleIsBuildIndexInPackageJson,
-      verbose,
-      dir
-    ),
-    taskRunner(
-      `Check if ${key_typings} is '${path_build}/${file_index_dts}' in ${file_packageJson}`,
-      doesTypingsIsBuildIndexInPackageJson,
-      verbose,
-      dir
-    ),
-    taskRunner(
-      `Check if ${key_sideEffects} is false in ${file_packageJson}`,
-      doesSideEffectsIsFalseInPackageJson,
-      verbose,
-      dir
-    ),
-    taskRunner(
-      `Check if ${key_type} is not set in ${file_packageJson}`,
-      doesTypeIsNotSetInPackageJson,
-      verbose,
-      dir
-    ),
-    taskRunner(
-      `Check if ${key_jsnextMain} is not set in ${file_packageJson}`,
-      doesJsnextMainNotSetInPackageJson,
-      verbose,
-      dir
-    ),
-    taskRunner(
-      `Check if ${key_files} include ${path_build} in ${file_packageJson}`,
-      doesFilesHasBuildInPackageJson,
-      verbose,
-      dir
+      dir,
+      key_somod
     ),
     taskRunner(
       `Check if ${file_tsConfigBuildJson} is valid`,
@@ -219,9 +171,10 @@ export const BuildAction = async ({
 
   await taskRunner(
     `Set ${key_somod} in ${file_packageJson}`,
-    setSomodInPackageJson,
+    updateSodaruModuleKeyInPackageJson,
     verbose,
-    dir
+    dir,
+    key_somod
   );
   await taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir);
 };

@@ -1,92 +1,44 @@
 import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
+  file_eslintIgnore,
+  file_gitIgnore,
+  file_nextEnvDTs,
+  file_packageJson,
+  file_prettierIgnore,
+  file_tsConfigBuildJson,
+  file_tsConfigJson,
   initGit,
   initLib,
+  initSodev,
   initWelcomePage,
-  saveGitIgnore,
-  savePackageJson,
-  saveTsConfigBuildJson,
-  setModuleInPackageJson,
-  setTypingsInPackageJson,
-  setNjpInPackageJson,
-  setSideEffectsInPackageJson,
-  unsetTypeInPackageJson,
-  unsetJsnextMainInPackageJson,
-  updateGitIgnore,
-  updateTsConfigBuildJson,
-  file_packageJson,
   key_njp,
-  key_module,
-  key_type,
-  key_sideEffects,
-  key_jsnextMain,
-  file_gitIgnore,
-  file_tsConfigJson,
+  path_lib,
   path_nextBuild,
+  path_njp_working_dir,
   path_pages,
   path_public,
-  file_nextEnvDTs,
   path_ui,
-  file_tsConfigBuildJson,
-  path_lib,
-  key_typings,
-  path_build,
-  key_files,
-  setBuildInFilesInPackageJson,
-  file_prettierIgnore,
-  updatePrettierIgnore,
-  file_eslintIgnore,
-  updateEslintIgnore,
-  savePrettierIgnore,
   saveEslintIgnore,
-  initSodev,
-  path_njp_working_dir
+  saveGitIgnore,
+  savePackageJson,
+  savePrettierIgnore,
+  saveTsConfigBuildJson,
+  updateEslintIgnore,
+  updateGitIgnore,
+  updatePackageJson,
+  updatePrettierIgnore,
+  updateTsConfigBuildJson
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
   await taskRunner(
-    `Set ${key_njp} in ${file_packageJson}`,
-    setNjpInPackageJson,
+    `update ${file_packageJson}`,
+    updatePackageJson,
     verbose,
-    dir
-  );
-  await taskRunner(
-    `Set ${key_module} in ${file_packageJson}`,
-    setModuleInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Set ${key_typings} in ${file_packageJson}`,
-    setTypingsInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Unset ${key_type} in ${file_packageJson}`,
-    unsetTypeInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Set ${key_sideEffects} in ${file_packageJson}`,
-    setSideEffectsInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Unset ${key_jsnextMain} in ${file_packageJson}`,
-    unsetJsnextMainInPackageJson,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Include ${path_build} to ${key_files} in ${file_packageJson}`,
-    setBuildInFilesInPackageJson,
-    verbose,
-    dir
+    dir,
+    key_njp
   );
 
   const njpIgnorePaths = [
@@ -138,9 +90,6 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir)
   ]);
 
-  await taskRunner(`run sodev prettier`, initSodev, verbose, dir, "prettier");
-  await taskRunner(`run sodev eslint`, initSodev, verbose, dir, "eslint");
-
   await Promise.all([
     taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),
     taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir),
@@ -153,6 +102,9 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       dir
     )
   ]);
+
+  await taskRunner(`run sodev prettier`, initSodev, verbose, dir, "prettier");
+  await taskRunner(`run sodev eslint`, initSodev, verbose, dir, "eslint");
 };
 
 const initCommand = new Command("init");

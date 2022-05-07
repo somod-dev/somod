@@ -5,6 +5,7 @@ import { readFile } from "fs/promises";
 import { load } from "js-yaml";
 import { join } from "path";
 import { file_templateYaml, path_serverless } from "../../utils/constants";
+import { DataValidationError } from "@solib/errors";
 
 export const validateSchema = async (dir: string): Promise<void> => {
   const templateYamlPath = join(dir, path_serverless, file_templateYaml);
@@ -16,6 +17,18 @@ export const validateSchema = async (dir: string): Promise<void> => {
       encoding: "utf8"
     });
     const templateYamlContentAsJson = load(templateYamlContent);
-    jsonValidator(null, templateYamlContentAsJson, validate);
+    try {
+      jsonValidator(null, templateYamlContentAsJson, validate);
+    } catch (e) {
+      if (e instanceof DataValidationError) {
+        throw new Error(
+          `${templateYamlPath} has following errors\n${e.violations
+            .map(v => " " + (v.path + " " + v.message).trim())
+            .join("\n")}`
+        );
+      } else {
+        throw e;
+      }
+    }
   }
 };

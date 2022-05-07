@@ -53,7 +53,10 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
     });
     await installSchemaInTempDir(dir);
     await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
-      new Error("DataValidationError<>: '' property type must be object")
+      new Error(
+        join(dir, "serverless/template.yaml") +
+          " has following errors\n must be object"
+      )
     );
   });
 
@@ -65,7 +68,8 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
     await installSchemaInTempDir(dir);
     await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
       new Error(
-        "DataValidationError<>: 'Resources' property type must be object"
+        join(dir, "serverless/template.yaml") +
+          " has following errors\n Resources must be object"
       )
     );
   });
