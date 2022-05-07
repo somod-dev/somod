@@ -1,6 +1,6 @@
 {
   "name": "@somod/sdk-lib",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Sodaru Module SDK library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/sdk-lib#readme",
@@ -47,7 +47,7 @@
     "@types/rimraf": "^3.0.2",
     "@types/semver": "^7.3.9",
     "typescript": "^4.5.5",
-    "@somod/serverless-schema": "^1.5.1",
-    "@somod/common-layers": "^1.5.1"
+    "@somod/serverless-schema": "^1.5.2",
+    "@somod/common-layers": "^1.5.2"
   }
 }
