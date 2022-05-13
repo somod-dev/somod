@@ -1,5 +1,6 @@
 import { CommonOptions, taskRunner } from "@sodaru/cli-base";
 import {
+  file_dotenv,
   file_eslintIgnore,
   file_gitIgnore,
   file_nextEnvDTs,
@@ -7,6 +8,7 @@ import {
   file_prettierIgnore,
   file_tsConfigBuildJson,
   file_tsConfigJson,
+  file_vercelIgnore,
   initGit,
   initLib,
   initSodev,
@@ -27,7 +29,11 @@ import {
   updateGitIgnore,
   updatePackageJson,
   updatePrettierIgnore,
-  updateTsConfigBuildJson
+  updateVercelIgnore,
+  updateTsConfigBuildJson,
+  saveVercelIgnore,
+  file_npmrc,
+  file_nextConfigJs
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -78,6 +84,26 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     ),
 
     taskRunner(
+      `Initialize ${file_vercelIgnore}`,
+      updateVercelIgnore,
+      verbose,
+      dir,
+      [
+        "/*",
+        `!${path_lib}`,
+        `!${path_ui}`,
+        `!${path_pages}`,
+        `!${path_public}`,
+        `!${file_dotenv}`,
+        `!${file_npmrc}`,
+        `!${file_prettierIgnore}`,
+        `!${file_eslintIgnore}`,
+        `!${file_nextConfigJs}`,
+        `!${file_packageJson}`
+      ]
+    ),
+
+    taskRunner(
       `Intitalize ${file_tsConfigBuildJson}`,
       updateTsConfigBuildJson,
       verbose,
@@ -95,6 +121,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir),
     taskRunner(`Save ${file_prettierIgnore}`, savePrettierIgnore, verbose, dir),
     taskRunner(`Save ${file_eslintIgnore}`, saveEslintIgnore, verbose, dir),
+    taskRunner(`Save ${file_vercelIgnore}`, saveVercelIgnore, verbose, dir),
     taskRunner(
       `Save ${file_tsConfigBuildJson}`,
       saveTsConfigBuildJson,

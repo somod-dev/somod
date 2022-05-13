@@ -4,6 +4,10 @@ export const file_packageLockJson = "package-lock.json";
 export const file_gitIgnore = ".gitignore";
 export const file_eslintIgnore = ".eslintignore";
 export const file_prettierIgnore = ".prettierignore";
+export const file_vercelIgnore = ".vercelignore";
+
+export const file_dotenv = ".env";
+export const file_npmrc = ".npmrc";
 
 export const file_tsConfigJson = "tsconfig.json";
 export const file_tsConfigBuildJson = "tsconfig.build.json";
