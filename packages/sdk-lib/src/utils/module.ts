@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join, normalize, sep } from "path";
 import { file_packageJson, path_nodeModules } from "./constants";
-import { ErrorSet, readJsonFileStore, unixStylePath } from "@sodaru/cli-base";
+import { ErrorSet, readJsonFileStore, unixStylePath } from "@solib/cli-base";
 import { uniqBy } from "lodash";
 import { createHash } from "crypto";
 

@@ -1,6 +1,6 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { updateEslintIgnore } from "../../../src";
-import { readIgnoreFileStore } from "@sodaru/cli-base";
+import { readIgnoreFileStore } from "@solib/cli-base";
 import { join } from "path";
 
 describe("Test Util ignoreFile.update", () => {

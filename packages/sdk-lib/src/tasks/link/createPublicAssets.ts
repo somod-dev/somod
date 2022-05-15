@@ -6,7 +6,7 @@ import {
   path_public,
   path_ui
 } from "../../utils/constants";
-import { readJsonFileStore, ErrorSet } from "@sodaru/cli-base";
+import { readJsonFileStore, ErrorSet } from "@solib/cli-base";
 import { resolve } from "../../utils/module";
 import { getModuleInfo } from "../../utils/moduleInfo";
 import { getPublicAssetToModulesMap } from "../../utils/publicAssets";

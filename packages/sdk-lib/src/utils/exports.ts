@@ -1,4 +1,4 @@
-import { ErrorSet } from "@sodaru/cli-base";
+import { ErrorSet } from "@solib/cli-base";
 import {
   parse,
   AST_NODE_TYPES,

@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { path_public, path_ui } from "../../utils/constants";
-import { copyDirectory } from "@sodaru/cli-base";
+import { copyDirectory } from "@solib/cli-base";
 import { exportRootModulePublicAsset } from "../../utils/publicAssets";
 import watch from "../../utils/watch";
 import { sync as rimrafSync } from "rimraf";

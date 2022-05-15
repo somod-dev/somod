@@ -27,7 +27,7 @@
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
   "dependencies": {
-    "@sodaru/cli-base": "^1.2.0",
+    "@solib/cli-base": "^1.4.0",
     "@sodev/sodev": "^1.1.0",
     "@solib/json-validator": "^1.1.1",
     "@typescript-eslint/typescript-estree": ">=5.22.0",

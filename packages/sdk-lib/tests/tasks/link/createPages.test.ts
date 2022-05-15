@@ -3,7 +3,7 @@ import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 import { createPages } from "../../../src";
 import { join } from "path";
 import { existsSync } from "fs";
-import { ErrorSet } from "@sodaru/cli-base";
+import { ErrorSet } from "@solib/cli-base";
 
 describe("Test Task createPages", () => {
   let dir: string = null;

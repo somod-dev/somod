@@ -1,4 +1,4 @@
-import { copyDirectory, readJsonFileStore } from "@sodaru/cli-base";
+import { copyDirectory, readJsonFileStore } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { copyFile, mkdir, readdir, stat, writeFile } from "fs/promises";
 import { join } from "path";

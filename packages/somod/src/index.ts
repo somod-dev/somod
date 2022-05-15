@@ -1,4 +1,4 @@
-import { rootCommand } from "@sodaru/cli-base";
+import { rootCommand } from "@solib/cli-base";
 import buildCommand from "./commands/build";
 import deployNextJsCommand from "./commands/deployNextJs";
 import deployServerlessCommand from "./commands/deployServerless";

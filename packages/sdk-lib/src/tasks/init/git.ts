@@ -1,4 +1,4 @@
-import { childProcess } from "@sodaru/cli-base";
+import { childProcess } from "@solib/cli-base";
 
 export const isGitDirectory = async (dir: string): Promise<void> => {
   await childProcess(dir, process.platform === "win32" ? "git.exe" : "git", [

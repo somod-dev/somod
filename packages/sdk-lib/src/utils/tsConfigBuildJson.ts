@@ -13,7 +13,7 @@ import {
   updateJsonFileStore,
   ErrorSet,
   unixStylePath
-} from "@sodaru/cli-base";
+} from "@solib/cli-base";
 
 const defaultCompilerOptions = {
   allowUmdGlobalAccess: true,

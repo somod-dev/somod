@@ -2,7 +2,7 @@ import {
   childProcess,
   ChildProcessStreamConfig,
   readJsonFileStore
-} from "@sodaru/cli-base";
+} from "@solib/cli-base";
 import { existsSync } from "fs";
 import { mkdir, readdir, writeFile } from "fs/promises";
 import { join } from "path";

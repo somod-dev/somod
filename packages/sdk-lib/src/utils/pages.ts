@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import { join, relative, dirname } from "path";
 import { file_pagesJson, path_build, path_pages, path_ui } from "./constants";
 import { get as getExports, Exports } from "./exports";
-import { readJsonFileStore, unixStylePath } from "@sodaru/cli-base";
+import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
 import { ModuleInfo } from "./moduleInfo";
 
 export type Pages = Record<string, { prefix: string; exports: Exports }>;

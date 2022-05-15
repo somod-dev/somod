@@ -4,7 +4,7 @@ import {
   readJsonFileStore,
   updateJsonFileStore,
   unixStylePath
-} from "@sodaru/cli-base";
+} from "@solib/cli-base";
 
 export const read = async (dir: string): Promise<Record<string, unknown>> => {
   const packageJsonPath = join(dir, file_packageJson);

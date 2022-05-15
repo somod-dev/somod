@@ -1,4 +1,4 @@
-import { ErrorSet } from "@sodaru/cli-base";
+import { ErrorSet } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { readdir, stat } from "fs/promises";
 import { join } from "path";

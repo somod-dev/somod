@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@sodaru/cli-base";
+import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
   buildNextJs,
   createNextJsDeployment,

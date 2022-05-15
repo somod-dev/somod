@@ -1,4 +1,4 @@
-import { childProcess } from "@sodaru/cli-base";
+import { childProcess } from "@solib/cli-base";
 
 export const sodev = async (
   dir: string,

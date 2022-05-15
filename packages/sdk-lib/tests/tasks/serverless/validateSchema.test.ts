@@ -1,4 +1,4 @@
-import { copyDirectory } from "@sodaru/cli-base";
+import { copyDirectory } from "@solib/cli-base";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateServerlessTemplateWithSchema } from "../../../src";

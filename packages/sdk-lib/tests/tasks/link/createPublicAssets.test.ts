@@ -2,7 +2,7 @@ import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 import { createPublicAssets } from "../../../src";
 import { join } from "path";
 import { existsSync } from "fs";
-import { ErrorSet } from "@sodaru/cli-base";
+import { ErrorSet } from "@solib/cli-base";
 
 describe("Test Task createPublicAssets", () => {
   let dir: string = null;

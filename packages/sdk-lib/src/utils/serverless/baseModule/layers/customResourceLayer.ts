@@ -1,4 +1,4 @@
-import { unixStylePath } from "@sodaru/cli-base";
+import { unixStylePath } from "@solib/cli-base";
 import { getLocation } from "@somod/common-layers";
 import { cloneDeep } from "lodash";
 import { join } from "path";

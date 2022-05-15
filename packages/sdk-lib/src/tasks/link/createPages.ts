@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { file_packageJson, path_pages } from "../../utils/constants";
 import { Exports } from "../../utils/exports";
-import { readJsonFileStore, ErrorSet } from "@sodaru/cli-base";
+import { readJsonFileStore, ErrorSet } from "@solib/cli-base";
 import { resolve } from "../../utils/module";
 import { getModuleInfo } from "../../utils/moduleInfo";
 import { getPageToModulesMap } from "../../utils/pages";

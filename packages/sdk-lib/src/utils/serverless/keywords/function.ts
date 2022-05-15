@@ -1,4 +1,4 @@
-import { readJsonFileStore, unixStylePath } from "@sodaru/cli-base";
+import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
 import { layerLibraries } from "@somod/common-layers";
 import { build as esbuild } from "esbuild";
 import { existsSync } from "fs";

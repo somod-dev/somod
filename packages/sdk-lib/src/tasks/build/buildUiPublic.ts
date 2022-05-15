@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { path_build, path_public, path_ui } from "../../utils/constants";
-import { copyDirectory } from "@sodaru/cli-base";
+import { copyDirectory } from "@solib/cli-base";
 
 export const buildUiPublic = async (dir: string): Promise<void> => {
   const source = join(dir, path_ui, path_public);

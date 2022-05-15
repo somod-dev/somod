@@ -1,4 +1,4 @@
-import { getCommandVersion } from "@sodaru/cli-base";
+import { getCommandVersion } from "@solib/cli-base";
 import {
   file_index_dts,
   file_index_js,

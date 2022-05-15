@@ -2,7 +2,7 @@ import { cloneDeep } from "lodash";
 import { join } from "path";
 import { isValidTsConfigBuildJson } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { ErrorSet } from "@sodaru/cli-base";
+import { ErrorSet } from "@solib/cli-base";
 
 describe("Test task isValidTsConfigBuildJson", () => {
   let dir: string = null;
