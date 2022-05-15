@@ -30,6 +30,8 @@ export const key_main = "main";
 export const key_jsnextMain = "jsnext:main";
 export const key_files = "files";
 
+export const key_serverlessSchema = "serverlessSchema";
+
 export const path_nodeModules = "node_modules";
 
 export const path_build = "build";

@@ -1,7 +1,7 @@
 import { join } from "path";
 import { validateDependencyModules } from "../../../src/tasks/build/validateDependencyModules";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { ErrorSet } from "@sodaru/cli-base";
+import { ErrorSet } from "@solib/cli-base";
 
 describe("Test task validateDependencyModules", () => {
   let dir: string = null;

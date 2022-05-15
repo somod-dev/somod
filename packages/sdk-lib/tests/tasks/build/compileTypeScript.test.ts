@@ -1,10 +1,10 @@
-import { childProcess, ChildProcessError } from "@sodaru/cli-base";
+import { childProcess, ChildProcessError } from "@solib/cli-base";
 import { mockedFunction } from "@sodev/test-utils";
 import { compileTypeScript } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
-jest.mock("@sodaru/cli-base", () => {
-  const originalModule = jest.requireActual("@sodaru/cli-base");
+jest.mock("@solib/cli-base", () => {
+  const originalModule = jest.requireActual("@solib/cli-base");
   return {
     __esModule: true,
     ...originalModule,

@@ -111,6 +111,8 @@ describe("Test Task updatePackageJson", () => {
 
     await updatePackageJson(dir, "njp");
     const result = await readPackageJson(dir);
-    expect(JSON.stringify(result, null, 2)).toMatchSnapshot();
+    expect(result).toMatchSnapshot({
+      njp: expect.any(String)
+    });
   });
 });
