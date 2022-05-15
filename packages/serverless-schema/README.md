@@ -22,28 +22,7 @@ More on design [here](https://docs.google.com/presentation/d/1mxlUuocYzJfEmOmBrd
 
 #### Creating Schemas for Specific package
 
-To create a schema specific to a usecase , follow these steps
-
-- create a new npm package and add this package (`@somod/serverless-schema`) as _dev_ and _peer_ dependency
-- auther the JSON schemas in the root directory of the created package
-  - the mata schemas are available at [./meta-schemas](./meta-schemas)
-  - **`$id`** of the schema must be of the format  
-    `https://json-schema.sodaru.com/`**`[package-name]`**`/`**`[path-to-schema-json]`**  
-    _Example:_ a schema file at `/schemas/my-scope.json` in a package named `@private-scope/my-schemas` will have  
-    `https://json-schema.sodaru.com/`**`@private-scope/my-schemas`**`/`**`schemas/my-scope.json`**
-
-#### Building Schemas for Specific Package
-
-The schemas files in package specific schemas project will be referring to other schemas in `node_modules`.  
-But when these schemas are installed , the schema files are already under `node_modules`, references to other schemas changes. so building the schemas before `pack` is must to correct these references
-
-```JSON
-{
-  "scripts":{
-    "prepack": "npx serverless-schema build <dirs...>"
-  }
-}
-```
+create and build cub schemas using `@solib/schema-manager` utility
 
 #### Using package specific schema
 
@@ -55,31 +34,3 @@ But when these schemas are installed , the schema files are already under `node_
     "serverlessSchema":"<id of the schema>"
   }
   ```
-
-## Usage
-
-### To compile a schema in ajv
-
-```TS
-import { compile } from "@somod/serverless-schema";
-
-/**
- * @param dir - is the root directory of the slp or emp package where is schema is used to validate
- * @param ajv - is an Ajv instance
- */
-const validate = await compile(dir, ajv);
-
-```
-
-### To use in VS-Code,
-
-add a comment in `template.yaml`
-
-```YAML
-# yaml-language-server: $schema=./node_modules/@somod/serverless-schema/schemas/index.json
-
-Description:
-
-Resources:
-
-```
