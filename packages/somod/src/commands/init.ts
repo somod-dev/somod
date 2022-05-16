@@ -1,10 +1,13 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  createNextConfigJs,
+  createNjpConfigJson,
   file_dotenv,
   file_eslintIgnore,
   file_gitIgnore,
   file_nextConfigJs,
   file_nextEnvDTs,
+  file_njpConfigJson,
   file_npmrc,
   file_packageJson,
   file_prettierIgnore,
@@ -108,6 +111,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
         `!${file_npmrc}`,
         `!${file_prettierIgnore}`,
         `!${file_eslintIgnore}`,
+        `!${file_njpConfigJson}`,
         `!${file_nextConfigJs}`,
         `!${file_packageJson}`
       ]
@@ -141,6 +145,13 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     taskRunner(
       `Save ${file_tsConfigBuildJson}`,
       saveTsConfigBuildJson,
+      verbose,
+      dir
+    ),
+    taskRunner(`Create ${file_nextConfigJs}`, createNextConfigJs, verbose, dir),
+    taskRunner(
+      `Create ${file_njpConfigJson}`,
+      createNjpConfigJson,
       verbose,
       dir
     )

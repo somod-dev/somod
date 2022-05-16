@@ -15,7 +15,7 @@ export const buildUiConfigYaml = async (dir: string): Promise<void> => {
     const yamlContent = await readFile(configYamlPath, {
       encoding: "utf8"
     });
-    const yamlContentAsJson = load(yamlContent);
+    const yamlContentAsJson = load(yamlContent) || {};
 
     await mkdir(join(dir, path_build, path_ui), { recursive: true });
     await writeFile(

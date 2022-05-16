@@ -105,6 +105,36 @@ Object {
 }
 `;
 
+exports[`Test Task updatePackageJson with type = slp 1`] = `
+Object {
+  "description": undefined,
+  "files": Array [
+    "build",
+  ],
+  "module": "build/index.js",
+  "name": undefined,
+  "sideEffects": false,
+  "slp": Any<String>,
+  "typings": "build/index.d.ts",
+  "version": undefined,
+}
+`;
+
+exports[`Test Task updatePackageJson with type = somod 1`] = `
+Object {
+  "description": undefined,
+  "files": Array [
+    "build",
+  ],
+  "module": "build/index.js",
+  "name": undefined,
+  "sideEffects": false,
+  "somod": Any<String>,
+  "typings": "build/index.d.ts",
+  "version": undefined,
+}
+`;
+
 exports[`Test Task updatePackageJson with wrong files 1`] = `
 Object {
   "description": "",

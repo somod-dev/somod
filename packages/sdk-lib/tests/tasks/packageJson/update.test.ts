@@ -115,4 +115,24 @@ describe("Test Task updatePackageJson", () => {
       njp: expect.any(String)
     });
   });
+
+  test("with type = slp", async () => {
+    createFiles(dir, { "package.json": "{}" });
+
+    await updatePackageJson(dir, "slp");
+    const result = await readPackageJson(dir);
+    expect(result).toMatchSnapshot({
+      slp: expect.any(String)
+    });
+  });
+
+  test("with type = somod", async () => {
+    createFiles(dir, { "package.json": "{}" });
+
+    await updatePackageJson(dir, "somod");
+    const result = await readPackageJson(dir);
+    expect(result).toMatchSnapshot({
+      somod: expect.any(String)
+    });
+  });
 });

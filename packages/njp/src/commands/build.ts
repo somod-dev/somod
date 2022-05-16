@@ -1,8 +1,10 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  buildUiConfigYaml,
   buildUiPublic,
   compileTypeScript,
   deleteBuildDir,
+  file_configYaml,
   file_index_js,
   file_packageJson,
   file_pageIndex_js,
@@ -15,9 +17,11 @@ import {
   path_public,
   path_ui,
   savePackageJson,
+  updateNjpConfig,
   updateSodaruModuleKeyInPackageJson,
   validateDependencyModules,
-  validatePackageJson
+  validatePackageJson,
+  validateUiConfigYaml
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -50,6 +54,29 @@ export const BuildAction = async ({
       [key_njp]
     )
   ]);
+
+  await taskRunner(
+    `validate ${path_ui}/${file_configYaml}`,
+    validateUiConfigYaml,
+    verbose,
+    dir
+  );
+
+  await taskRunner(
+    `build ${path_ui}/${file_configYaml}`,
+    buildUiConfigYaml,
+    verbose,
+    dir
+  );
+
+  await taskRunner(
+    `validate Whole UI config`,
+    updateNjpConfig,
+    verbose,
+    dir,
+    [key_njp],
+    true
+  );
 
   await taskRunner(
     `Delete ${path_build} directory`,

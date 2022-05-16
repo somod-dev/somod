@@ -4,11 +4,14 @@ import {
   createPublicAssets,
   createRootModulePages,
   createRootModulePublicAssets,
+  file_dotenv,
+  file_njpConfigJson,
   key_njp,
   path_pages,
   path_public,
   path_ui,
   startNextDev,
+  updateNjpConfig,
   watchRootModulePages,
   watchRootModulePublicAssets
 } from "@somod/sdk-lib";
@@ -32,7 +35,15 @@ export const ServeAction = async ({
       taskRunner(`Create ${path_pages}`, createPages, verbose, dir, [key_njp]),
       taskRunner(`Create ${path_public}`, createPublicAssets, verbose, dir, [
         key_njp
-      ])
+      ]),
+      taskRunner(
+        `update ${file_njpConfigJson} & ${file_dotenv}`,
+        updateNjpConfig,
+        verbose,
+        dir,
+        [key_njp],
+        true
+      )
     ]);
 
     await Promise.all([

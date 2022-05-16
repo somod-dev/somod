@@ -33,7 +33,10 @@ import {
   updateTsConfigBuildJson,
   saveVercelIgnore,
   file_npmrc,
-  file_nextConfigJs
+  file_nextConfigJs,
+  file_njpConfigJson,
+  createNextConfigJs,
+  createNjpConfigJson
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -98,6 +101,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
         `!${file_npmrc}`,
         `!${file_prettierIgnore}`,
         `!${file_eslintIgnore}`,
+        `!${file_njpConfigJson}`,
         `!${file_nextConfigJs}`,
         `!${file_packageJson}`
       ]
@@ -125,6 +129,13 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     taskRunner(
       `Save ${file_tsConfigBuildJson}`,
       saveTsConfigBuildJson,
+      verbose,
+      dir
+    ),
+    taskRunner(`Create ${file_nextConfigJs}`, createNextConfigJs, verbose, dir),
+    taskRunner(
+      `Create ${file_njpConfigJson}`,
+      createNjpConfigJson,
       verbose,
       dir
     )

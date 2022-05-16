@@ -8,6 +8,6 @@ export { createPages } from "./createPages";
 export { createPublicAssets } from "./createPublicAssets";
 export { createNextConfigJs } from "./createNextConfigJs";
 export { createNjpConfigJson } from "./createNjpConfigJson";
-export { validateConfigSchema } from "./validateConfigSchema";
+export { validateUiConfigYaml } from "./validateUiConfigYaml";
 export { buildUiConfigYaml } from "./buildUiConfigYaml";
 export { updateNjpConfig } from "./updateNjpConfig";

@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import { childProcess } from "@solib/cli-base";
 
 export const startNextDev = async (dir: string): Promise<void> => {

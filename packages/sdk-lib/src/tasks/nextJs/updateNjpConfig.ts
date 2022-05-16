@@ -75,7 +75,7 @@ export const updateNjpConfig = async (
 
   const combinedConfig: Config = {
     env: {},
-    imageDomains: [],
+    imageDomains: configToModulesMap.imageDomains,
     runtimeConfig: {},
     serverRuntimeConfig: {}
   };
@@ -90,7 +90,7 @@ export const updateNjpConfig = async (
     Object.keys(configToModulesMap[configKey]).forEach(configName => {
       let config = null;
       if (configToModulesMap[configKey][configName].length == 1) {
-        config = configToModulesMap[configKey][configName][0];
+        config = configToModulesMap[configKey][configName][0].config;
       } else {
         const moduleNamesToResolve = configToModulesMap[configKey][
           configName
@@ -99,7 +99,7 @@ export const updateNjpConfig = async (
           const moduleName = resolve(moduleNamesToResolve, dependencyMap);
           config = configToModulesMap[configKey][configName].filter(
             m => m.moduleName == moduleName
-          )[0];
+          )[0].config;
         } catch (e) {
           errors.push(
             new Error(
