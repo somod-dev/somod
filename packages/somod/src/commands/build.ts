@@ -1,11 +1,13 @@
-import { CommonOptions, taskRunner } from "@sodaru/cli-base";
+import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
   buildServerlessTemplate,
+  buildUiConfigYaml,
   buildUiPublic,
   bundleFunctions,
   compileTypeScript,
   deleteBuildDir,
   doesServerlessFunctionsHaveDefaultExport,
+  file_configYaml,
   file_index_js,
   file_packageJson,
   file_pageIndex_js,
@@ -25,10 +27,12 @@ import {
   path_serverless,
   path_ui,
   savePackageJson,
+  updateNjpConfig,
   updateSodaruModuleKeyInPackageJson,
   validateDependencyModules,
   validatePackageJson,
-  validateServerlessTemplateWithSchema
+  validateServerlessTemplateWithSchema,
+  validateUiConfigYaml
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 
@@ -91,6 +95,31 @@ export const BuildAction = async ({
   }
 
   await Promise.all(validations);
+
+  if (type == "all" || type == "njp") {
+    await taskRunner(
+      `validate ${path_ui}/${file_configYaml}`,
+      validateUiConfigYaml,
+      verbose,
+      dir
+    );
+
+    await taskRunner(
+      `build ${path_ui}/${file_configYaml}`,
+      buildUiConfigYaml,
+      verbose,
+      dir
+    );
+
+    await taskRunner(
+      `validate Whole UI config`,
+      updateNjpConfig,
+      verbose,
+      dir,
+      [key_somod, key_njp],
+      true
+    );
+  }
 
   await taskRunner(
     `Delete ${path_build} directory`,

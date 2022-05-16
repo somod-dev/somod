@@ -1,6 +1,6 @@
 {
   "name": "@somod/serverless-schema",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Serverless Schema to validate the slp and somod packages",
   "keywords": [
     "schema",
@@ -12,13 +12,7 @@
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/serverless-schema#readme",
   "license": "UNLICENSED",
-  "bin": {
-    "serverless-schema": "./bin/serverless-schema.js"
-  },
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
   "files": [
-    "dist",
     "meta-schemas",
     "schemas"
   ],
@@ -26,36 +20,7 @@
     "type": "git",
     "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
   },
-  "scripts": {
-    "clean": "npx rimraf dist",
-    "typescript": "tsc --project tsconfig.build.json",
-    "build:cli": "npx esbuild src/cli.ts --bundle --outdir=dist --platform=node --minify --external:ajv  --external:@solib/json-validator --external:lodash",
-    "build": "npm run clean && npm run typescript && npm run build:cli",
-    "pretest": "$CI || npm run build",
-    "test": "npx jest"
-  },
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
-  },
-  "peerDependencies": {
-    "@solib/json-validator": "^1.1.1",
-    "lodash": "^4.17.21",
-    "tslib": "^2.3.1"
-  },
-  "devDependencies": {
-    "@sodaru/cli-base": "^1.2.0",
-    "@sodev/jest-config": "^1.1.1",
-    "@sodev/test-utils": "^1.0.0",
-    "@solib/json-validator": "^1.1.1",
-    "@types/lodash": "^4.14.179",
-    "@types/node": "^17.0.21",
-    "@types/rimraf": "^3.0.2",
-    "esbuild": "^0.14.24",
-    "lodash": "^4.17.21",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.5.5"
-  },
-  "dependencies": {
-    "@solib/graph": "^1.1.0"
   }
 }

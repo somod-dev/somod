@@ -1,6 +1,6 @@
 {
   "name": "@somod/sdk-lib",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Sodaru Module SDK library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/sdk-lib#readme",
@@ -27,9 +27,10 @@
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
   "dependencies": {
-    "@sodaru/cli-base": "^1.2.0",
     "@sodev/sodev": "^1.1.0",
+    "@solib/cli-base": "^1.4.0",
     "@solib/json-validator": "^1.1.1",
+    "@solib/schema-manager": "^1.0.0",
     "@typescript-eslint/typescript-estree": ">=5.22.0",
     "esbuild": "^0.14.24",
     "js-yaml": "^4.1.0",
@@ -47,7 +48,7 @@
     "@types/rimraf": "^3.0.2",
     "@types/semver": "^7.3.9",
     "typescript": "^4.5.5",
-    "@somod/serverless-schema": "^1.5.1",
-    "@somod/common-layers": "^1.5.1"
+    "@somod/serverless-schema": "^1.5.2",
+    "@somod/common-layers": "^1.5.2"
   }
 }

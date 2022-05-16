@@ -4,6 +4,10 @@ export const file_packageLockJson = "package-lock.json";
 export const file_gitIgnore = ".gitignore";
 export const file_eslintIgnore = ".eslintignore";
 export const file_prettierIgnore = ".prettierignore";
+export const file_vercelIgnore = ".vercelignore";
+
+export const file_dotenv = ".env";
+export const file_npmrc = ".npmrc";
 
 export const file_tsConfigJson = "tsconfig.json";
 export const file_tsConfigBuildJson = "tsconfig.build.json";
@@ -25,6 +29,8 @@ export const key_sideEffects = "sideEffects";
 export const key_main = "main";
 export const key_jsnextMain = "jsnext:main";
 export const key_files = "files";
+
+export const key_serverlessSchema = "serverlessSchema";
 
 export const path_nodeModules = "node_modules";
 
@@ -50,9 +56,9 @@ export const file_pagesJson = "pages.json";
 export const path_git = ".git";
 export const path_nextBuild = ".next";
 
-export const path_njp_deployment = "deployment";
-
-export const path_njp_deployment_build = "build";
+export const file_configYaml = "config.yaml";
+export const file_configJson = "config.json";
+export const file_njpConfigJson = "njp.config.json";
 
 export const path_serverless = "serverless";
 export const path_functions = "functions";
@@ -64,5 +70,11 @@ export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
 
 export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+
+export const defaultServerlessTemplateSchema =
+  "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/index.json";
+
+export const defaultNjpConfigSchema =
+  "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json";
 
 export type ModuleType = "njp" | "slp" | "somod";

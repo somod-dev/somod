@@ -1,4 +1,4 @@
-import { unixStylePath } from "@sodaru/cli-base";
+import { unixStylePath } from "@solib/cli-base";
 import { getLocation } from "@somod/common-layers";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";

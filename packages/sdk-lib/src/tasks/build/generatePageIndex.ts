@@ -5,7 +5,7 @@ import {
   get as getExports,
   generateExportStatement
 } from "../../utils/exports";
-import { listFiles } from "@sodaru/cli-base";
+import { listFiles } from "@solib/cli-base";
 import {
   file_pagesJson,
   file_pageIndex_dts,
@@ -14,7 +14,7 @@ import {
   path_pages,
   path_ui
 } from "../../utils/constants";
-import { Pages } from "../../utils/pages";
+import { Pages } from "../../utils/nextJs/pages";
 
 const generateStatements = async (
   dir: string

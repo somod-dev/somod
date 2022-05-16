@@ -1,7 +1,7 @@
 import { createFiles, createTempDir, deleteDir } from "../utils";
 import { update, validate } from "../../src/utils/ignoreFile";
 import { join } from "path";
-import { readIgnoreFileStore } from "@sodaru/cli-base";
+import { readIgnoreFileStore } from "@solib/cli-base";
 
 describe("Test Util ignoreFile.validate", () => {
   let dir: string = null;

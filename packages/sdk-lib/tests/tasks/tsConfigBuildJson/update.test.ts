@@ -2,7 +2,7 @@ import { cloneDeep } from "lodash";
 import { join } from "path";
 import { updateTsConfigBuildJson } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { readJsonFileStore } from "@sodaru/cli-base";
+import { readJsonFileStore } from "@solib/cli-base";
 
 describe("Test task updateTsConfigBuildJson", () => {
   let dir: string = null;

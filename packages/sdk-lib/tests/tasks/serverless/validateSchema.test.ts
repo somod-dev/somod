@@ -1,4 +1,4 @@
-import { copyDirectory } from "@sodaru/cli-base";
+import { copyDirectory } from "@solib/cli-base";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateServerlessTemplateWithSchema } from "../../../src";
@@ -32,6 +32,9 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
   });
 
   test("For no serverless directory", async () => {
+    createFiles(dir, {
+      "package.json": JSON.stringify({ name: "sample" })
+    });
     await expect(
       validateServerlessTemplateWithSchema(dir)
     ).resolves.toBeUndefined();
@@ -39,6 +42,7 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
 
   test("For no template", async () => {
     createFiles(dir, {
+      "package.json": JSON.stringify({ name: "sample" }),
       "serverless/": ""
     });
     await expect(

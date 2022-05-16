@@ -122,4 +122,28 @@ describe("Test Task validatePackageJson", () => {
       )
     ).toMatchSnapshot();
   });
+
+  test("with type = slp", async () => {
+    createFiles(dir, {
+      "package.json": JSON.stringify(
+        { ...allRightPackageJson, slp: "1.2.3" },
+        null,
+        2
+      )
+    });
+
+    await expect(validatePackageJson(dir, "slp")).resolves.toBeUndefined();
+  });
+
+  test("with type = somod", async () => {
+    createFiles(dir, {
+      "package.json": JSON.stringify(
+        { ...allRightPackageJson, somod: "1.2.3" },
+        null,
+        2
+      )
+    });
+
+    await expect(validatePackageJson(dir, "somod")).resolves.toBeUndefined();
+  });
 });

@@ -3,7 +3,7 @@ import {
   readJsonFileStore,
   saveJsonFileStore,
   updateJsonFileStore
-} from "@sodaru/cli-base";
+} from "@solib/cli-base";
 import { mkdir, readFile } from "fs/promises";
 import { load } from "js-yaml";
 import { cloneDeep } from "lodash";
