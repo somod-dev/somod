@@ -1,8 +1,12 @@
-import { CommonOptions, taskRunner } from "@sodaru/cli-base";
+import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  buildUiConfigYaml,
   buildUiPublic,
   compileTypeScript,
+  createPages,
+  createPublicAssets,
   deleteBuildDir,
+  file_configYaml,
   file_index_js,
   file_packageJson,
   file_pageIndex_js,
@@ -12,12 +16,15 @@ import {
   isValidTsConfigBuildJson,
   key_njp,
   path_build,
+  path_pages,
   path_public,
   path_ui,
   savePackageJson,
+  updateNjpConfig,
   updateSodaruModuleKeyInPackageJson,
   validateDependencyModules,
-  validatePackageJson
+  validatePackageJson,
+  validateUiConfigYaml
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -48,6 +55,12 @@ export const BuildAction = async ({
       verbose,
       dir,
       [key_njp]
+    ),
+    taskRunner(
+      `validate ${path_ui}/${file_configYaml}`,
+      validateUiConfigYaml,
+      verbose,
+      dir
     )
   ]);
 
@@ -69,6 +82,36 @@ export const BuildAction = async ({
     generatePageIndex,
     verbose,
     dir
+  );
+  await taskRunner(
+    `Validate ${path_public} dependencies`,
+    createPublicAssets,
+    verbose,
+    dir,
+    [key_njp],
+    true
+  );
+  await taskRunner(
+    `Validate ${path_pages} dependencies`,
+    createPages,
+    verbose,
+    dir,
+    [key_njp],
+    true
+  );
+  await taskRunner(
+    `build ${path_ui}/${file_configYaml}`,
+    buildUiConfigYaml,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `validate config dependencies`,
+    updateNjpConfig,
+    verbose,
+    dir,
+    [key_njp],
+    true
   );
   await taskRunner(
     `Generate ${path_build}/${file_index_js}`,

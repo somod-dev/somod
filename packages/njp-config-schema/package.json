@@ -1,0 +1,22 @@
+{
+  "name": "@somod/njp-config-schema",
+  "version": "1.5.2",
+  "description": "JSON Schema for NJP Configuration",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/njp-config-schema#readme",
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+  },
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+  },
+  "keywords": [
+    "NJP",
+    "Schema",
+    "Config",
+    "Environment",
+    "somod"
+  ]
+}

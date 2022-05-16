@@ -1,8 +1,8 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { path_public, path_ui } from "../../utils/constants";
-import { listFiles } from "@sodaru/cli-base";
-import { exportRootModulePublicAsset } from "../../utils/publicAssets";
+import { listFiles } from "@solib/cli-base";
+import { exportRootModulePublicAsset } from "../../utils/nextJs/publicAssets";
 
 export const createRootModulePublicAssets = async (
   dir: string

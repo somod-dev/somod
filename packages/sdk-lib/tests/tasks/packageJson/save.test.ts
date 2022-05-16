@@ -5,7 +5,7 @@ import {
 } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
-import { readJsonFileStore, updateJsonFileStore } from "@sodaru/cli-base";
+import { readJsonFileStore, updateJsonFileStore } from "@solib/cli-base";
 import { readFile } from "fs/promises";
 
 describe("Test Task savePackageJson", () => {

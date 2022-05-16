@@ -1,8 +1,8 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { path_pages, path_ui } from "../../utils/constants";
-import { listFiles } from "@sodaru/cli-base";
-import { exportRootModulePage } from "../../utils/pages";
+import { listFiles } from "@solib/cli-base";
+import { exportRootModulePage } from "../../utils/nextJs/pages";
 
 export const createRootModulePages = async (dir: string): Promise<void> => {
   const uiPagesDir = join(dir, path_ui, path_pages);

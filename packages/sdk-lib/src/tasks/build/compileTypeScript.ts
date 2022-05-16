@@ -1,4 +1,4 @@
-import { childProcess, ChildProcessError } from "@sodaru/cli-base";
+import { childProcess, ChildProcessError } from "@solib/cli-base";
 import { file_tsConfigBuildJson } from "../../utils/constants";
 
 export const compileTypeScript = async (

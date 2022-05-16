@@ -2,7 +2,7 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { saveGitIgnore } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
-import { readIgnoreFileStore, updateIgnoreFileStore } from "@sodaru/cli-base";
+import { readIgnoreFileStore, updateIgnoreFileStore } from "@solib/cli-base";
 import { readFile } from "fs/promises";
 
 describe("Test Task saveGitIgnore", () => {

@@ -1,6 +1,6 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { generatePageIndex } from "../../../src";
-import { copyDirectory } from "@sodaru/cli-base";
+import { copyDirectory } from "@solib/cli-base";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { join } from "path";
 

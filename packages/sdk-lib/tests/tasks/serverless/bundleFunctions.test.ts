@@ -1,4 +1,4 @@
-import { childProcess } from "@sodaru/cli-base";
+import { childProcess } from "@solib/cli-base";
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
 import { readFile } from "fs/promises";
 import { join } from "path";

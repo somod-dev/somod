@@ -1,4 +1,6 @@
-import { childProcess } from "@sodaru/cli-base";
+/* istanbul ignore file */
+
+import { childProcess } from "@solib/cli-base";
 
 export const vercelCommand = async (
   dir: string,

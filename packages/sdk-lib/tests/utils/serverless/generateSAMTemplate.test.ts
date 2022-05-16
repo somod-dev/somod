@@ -1,4 +1,4 @@
-import { unixStylePath } from "@sodaru/cli-base";
+import { unixStylePath } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { join } from "path";
 import { generateSAMTemplate } from "../../../src/utils/serverless";

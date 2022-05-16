@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Task updateNjpConfig with content in root build dir 1`] = `
+"{
+  \\"images\\": {
+    \\"domains\\": [
+      \\"sodaru.com\\",
+      \\"cloud.sodaru.com\\"
+    ]
+  },
+  \\"publicRuntimeConfig\\": {
+    \\"theme\\": {
+      \\"palette\\": {
+        \\"primary\\": {
+          \\"main\\": \\"#004b89\\"
+        }
+      }
+    }
+  },
+  \\"serverRuntimeConfig\\": {}
+}"
+`;
+
+exports[`Test Task updateNjpConfig with content in root build dir 2`] = `"DB_HOST=localhost"`;
+
+exports[`Test Task updateNjpConfig with empty dir 1`] = `
+"{
+  \\"images\\": {
+    \\"domains\\": []
+  },
+  \\"publicRuntimeConfig\\": {},
+  \\"serverRuntimeConfig\\": {}
+}"
+`;
+
+exports[`Test Task updateNjpConfig with empty dir 2`] = `""`;
+
+exports[`Test Task updateNjpConfig with resolved conflicting content 1`] = `
+"{
+  \\"images\\": {
+    \\"domains\\": []
+  },
+  \\"publicRuntimeConfig\\": {
+    \\"theme\\": {
+      \\"palette\\": {
+        \\"primary\\": {
+          \\"main\\": \\"#000000\\"
+        }
+      }
+    }
+  },
+  \\"serverRuntimeConfig\\": {
+    \\"recaptchaApiKey\\": \\"\\"
+  }
+}"
+`;
+
+exports[`Test Task updateNjpConfig with resolved conflicting content 2`] = `
+"DB_HOST=localhost
+DB_PORT=8080"
+`;

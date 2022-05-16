@@ -1,4 +1,4 @@
-import { logWarning } from "@sodaru/cli-base";
+import { logWarning } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { writeFile } from "fs/promises";
 import { uniq } from "lodash";

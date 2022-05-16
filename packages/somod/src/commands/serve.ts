@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@sodaru/cli-base";
+import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
   createPages,
   createPublicAssets,
@@ -11,7 +11,10 @@ import {
   path_ui,
   startNextDev,
   watchRootModulePages,
-  watchRootModulePublicAssets
+  watchRootModulePublicAssets,
+  file_njpConfigJson,
+  file_dotenv,
+  updateNjpConfig
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 import { BuildAction } from "./build";
@@ -37,7 +40,15 @@ export const ServeAction = async ({
       taskRunner(`Create ${path_public}`, createPublicAssets, verbose, dir, [
         key_somod,
         key_njp
-      ])
+      ]),
+      taskRunner(
+        `update ${file_njpConfigJson} & ${file_dotenv}`,
+        updateNjpConfig,
+        verbose,
+        dir,
+        [key_somod, key_njp],
+        true
+      )
     ]);
 
     await Promise.all([

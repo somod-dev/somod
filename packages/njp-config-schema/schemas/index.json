@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json",
+  "definitions": {
+    "envSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema"],
+      "properties": {
+        "default": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "schema": { "$ref": "http://json-schema.org/draft-07/schema" }
+      }
+    },
+    "runtimeConfigSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema"],
+      "properties": {
+        "default": true,
+        "label": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "schema": { "$ref": "http://json-schema.org/draft-07/schema" }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "env": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[A-Z][A-Z0-9_]{0,63}$": {
+          "$ref": "#/definitions/envSchema"
+        }
+      }
+    },
+    "imageDomains": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "hostname"
+      }
+    },
+    "runtimeConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]{0,63}$": {
+          "$ref": "#/definitions/runtimeConfigSchema"
+        }
+      }
+    },
+    "serverRuntimeConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]{0,63}$": {
+          "$ref": "#/definitions/runtimeConfigSchema"
+        }
+      }
+    }
+  }
+}

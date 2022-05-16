@@ -6,7 +6,7 @@ import {
   updateIgnoreFileStore,
   saveIgnoreFileStore,
   unixStylePath
-} from "@sodaru/cli-base";
+} from "@solib/cli-base";
 import { existsSync } from "fs";
 
 // read from ignore file in current dir to any parent dir

@@ -111,6 +111,28 @@ describe("Test Task updatePackageJson", () => {
 
     await updatePackageJson(dir, "njp");
     const result = await readPackageJson(dir);
-    expect(JSON.stringify(result, null, 2)).toMatchSnapshot();
+    expect(result).toMatchSnapshot({
+      njp: expect.any(String)
+    });
+  });
+
+  test("with type = slp", async () => {
+    createFiles(dir, { "package.json": "{}" });
+
+    await updatePackageJson(dir, "slp");
+    const result = await readPackageJson(dir);
+    expect(result).toMatchSnapshot({
+      slp: expect.any(String)
+    });
+  });
+
+  test("with type = somod", async () => {
+    createFiles(dir, { "package.json": "{}" });
+
+    await updatePackageJson(dir, "somod");
+    const result = await readPackageJson(dir);
+    expect(result).toMatchSnapshot({
+      somod: expect.any(String)
+    });
   });
 });
