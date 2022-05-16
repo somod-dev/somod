@@ -3,6 +3,8 @@ import {
   buildUiConfigYaml,
   buildUiPublic,
   compileTypeScript,
+  createPages,
+  createPublicAssets,
   deleteBuildDir,
   file_configYaml,
   file_index_js,
@@ -14,6 +16,7 @@ import {
   isValidTsConfigBuildJson,
   key_njp,
   path_build,
+  path_pages,
   path_public,
   path_ui,
   savePackageJson,
@@ -52,31 +55,14 @@ export const BuildAction = async ({
       verbose,
       dir,
       [key_njp]
+    ),
+    taskRunner(
+      `validate ${path_ui}/${file_configYaml}`,
+      validateUiConfigYaml,
+      verbose,
+      dir
     )
   ]);
-
-  await taskRunner(
-    `validate ${path_ui}/${file_configYaml}`,
-    validateUiConfigYaml,
-    verbose,
-    dir
-  );
-
-  await taskRunner(
-    `build ${path_ui}/${file_configYaml}`,
-    buildUiConfigYaml,
-    verbose,
-    dir
-  );
-
-  await taskRunner(
-    `validate Whole UI config`,
-    updateNjpConfig,
-    verbose,
-    dir,
-    [key_njp],
-    true
-  );
 
   await taskRunner(
     `Delete ${path_build} directory`,
@@ -96,6 +82,36 @@ export const BuildAction = async ({
     generatePageIndex,
     verbose,
     dir
+  );
+  await taskRunner(
+    `Validate ${path_public} dependencies`,
+    createPublicAssets,
+    verbose,
+    dir,
+    [key_njp],
+    true
+  );
+  await taskRunner(
+    `Validate ${path_pages} dependencies`,
+    createPages,
+    verbose,
+    dir,
+    [key_njp],
+    true
+  );
+  await taskRunner(
+    `build ${path_ui}/${file_configYaml}`,
+    buildUiConfigYaml,
+    verbose,
+    dir
+  );
+  await taskRunner(
+    `validate config dependencies`,
+    updateNjpConfig,
+    verbose,
+    dir,
+    [key_njp],
+    true
   );
   await taskRunner(
     `Generate ${path_build}/${file_index_js}`,
