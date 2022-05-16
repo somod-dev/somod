@@ -1,9 +1,8 @@
-import { createFiles, createTempDir, deleteDir } from "../utils";
-
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import {
   getPublicAssetToModulesMap,
   exportRootModulePublicAsset
-} from "../../src/utils/publicAssets";
+} from "../../../src/utils/nextJs/publicAssets";
 import { readFile } from "fs/promises";
 import { join } from "path";
 

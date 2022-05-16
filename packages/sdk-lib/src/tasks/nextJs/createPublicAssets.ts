@@ -9,7 +9,7 @@ import {
 import { readJsonFileStore, ErrorSet } from "@solib/cli-base";
 import { resolve } from "../../utils/module";
 import { getModuleInfo } from "../../utils/moduleInfo";
-import { getPublicAssetToModulesMap } from "../../utils/publicAssets";
+import { getPublicAssetToModulesMap } from "../../utils/nextJs/publicAssets";
 
 export const createPublicAssets = async (
   dir: string,

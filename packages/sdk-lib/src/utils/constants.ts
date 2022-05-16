@@ -56,9 +56,9 @@ export const file_pagesJson = "pages.json";
 export const path_git = ".git";
 export const path_nextBuild = ".next";
 
-export const path_njp_deployment = "deployment";
-
-export const path_njp_deployment_build = "build";
+export const file_configYaml = "config.yaml";
+export const file_configJson = "config.json";
+export const file_njpConfigJson = "njp.config.json";
 
 export const path_serverless = "serverless";
 export const path_functions = "functions";
@@ -70,5 +70,11 @@ export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
 
 export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+
+export const defaultServerlessTemplateSchema =
+  "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/index.json";
+
+export const defaultNjpConfigSchema =
+  "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json";
 
 export type ModuleType = "njp" | "slp" | "somod";

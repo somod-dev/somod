@@ -32,6 +32,9 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
   });
 
   test("For no serverless directory", async () => {
+    createFiles(dir, {
+      "package.json": JSON.stringify({ name: "sample" })
+    });
     await expect(
       validateServerlessTemplateWithSchema(dir)
     ).resolves.toBeUndefined();
@@ -39,6 +42,7 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
 
   test("For no template", async () => {
     createFiles(dir, {
+      "package.json": JSON.stringify({ name: "sample" }),
       "serverless/": ""
     });
     await expect(

@@ -3,7 +3,7 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { path_pages, path_ui } from "../../utils/constants";
 import { copyDirectory } from "@solib/cli-base";
-import { exportRootModulePage } from "../../utils/pages";
+import { exportRootModulePage } from "../../utils/nextJs/pages";
 import watch from "../../utils/watch";
 import { sync as rimrafSync } from "rimraf";
 

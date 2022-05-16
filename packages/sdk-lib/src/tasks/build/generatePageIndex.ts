@@ -14,7 +14,7 @@ import {
   path_pages,
   path_ui
 } from "../../utils/constants";
-import { Pages } from "../../utils/pages";
+import { Pages } from "../../utils/nextJs/pages";
 
 const generateStatements = async (
   dir: string

@@ -5,7 +5,7 @@ import { Exports } from "../../utils/exports";
 import { readJsonFileStore, ErrorSet } from "@solib/cli-base";
 import { resolve } from "../../utils/module";
 import { getModuleInfo } from "../../utils/moduleInfo";
-import { getPageToModulesMap } from "../../utils/pages";
+import { getPageToModulesMap } from "../../utils/nextJs/pages";
 
 const generatePageStatement = (
   moduleName: string,

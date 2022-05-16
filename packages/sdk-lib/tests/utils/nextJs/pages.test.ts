@@ -1,9 +1,9 @@
-import { createFiles, createTempDir, deleteDir } from "../utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 import {
   exportRootModulePage,
   getPageToModulesMap
-} from "../../src/utils/pages";
+} from "../../../src/utils/nextJs/pages";
 import { readFile } from "fs/promises";
 import { join } from "path";
 
