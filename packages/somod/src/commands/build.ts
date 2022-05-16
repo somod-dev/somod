@@ -5,6 +5,8 @@ import {
   buildUiPublic,
   bundleFunctions,
   compileTypeScript,
+  createPages,
+  createPublicAssets,
   deleteBuildDir,
   doesServerlessFunctionsHaveDefaultExport,
   file_configYaml,
@@ -23,6 +25,7 @@ import {
   key_somod,
   path_build,
   path_functions,
+  path_pages,
   path_public,
   path_serverless,
   path_ui,
@@ -94,32 +97,18 @@ export const BuildAction = async ({
     );
   }
 
-  await Promise.all(validations);
-
   if (type == "all" || type == "njp") {
-    await taskRunner(
-      `validate ${path_ui}/${file_configYaml}`,
-      validateUiConfigYaml,
-      verbose,
-      dir
-    );
-
-    await taskRunner(
-      `build ${path_ui}/${file_configYaml}`,
-      buildUiConfigYaml,
-      verbose,
-      dir
-    );
-
-    await taskRunner(
-      `validate Whole UI config`,
-      updateNjpConfig,
-      verbose,
-      dir,
-      [key_somod, key_njp],
-      true
+    validations.push(
+      taskRunner(
+        `validate ${path_ui}/${file_configYaml}`,
+        validateUiConfigYaml,
+        verbose,
+        dir
+      )
     );
   }
+
+  await Promise.all(validations);
 
   await taskRunner(
     `Delete ${path_build} directory`,
@@ -141,6 +130,38 @@ export const BuildAction = async ({
       generatePageIndex,
       verbose,
       dir
+    );
+    await taskRunner(
+      `Validate ${path_public} dependencies`,
+      createPublicAssets,
+      verbose,
+      dir,
+      [key_somod, key_njp],
+      true
+    );
+    await taskRunner(
+      `Validate ${path_pages} dependencies`,
+      createPages,
+      verbose,
+      dir,
+      [key_somod, key_njp],
+      true
+    );
+
+    await taskRunner(
+      `build ${path_ui}/${file_configYaml}`,
+      buildUiConfigYaml,
+      verbose,
+      dir
+    );
+
+    await taskRunner(
+      `validate config dependencies`,
+      updateNjpConfig,
+      verbose,
+      dir,
+      [key_somod, key_njp],
+      true
     );
   };
   const slpBuildTasks = async () => {
