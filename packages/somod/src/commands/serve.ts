@@ -46,8 +46,7 @@ export const ServeAction = async ({
         updateNjpConfig,
         verbose,
         dir,
-        [key_somod, key_njp],
-        true
+        [key_somod, key_njp]
       )
     ]);
 
