@@ -48,6 +48,7 @@
     "@typescript-eslint/typescript-estree": ">=5.22.0",
     "aws-sdk": "2.952.0",
     "esbuild": "^0.14.24",
+    "@somod/njp-config-schema": "^1.6.0",
     "@somod/serverless-schema": "^1.6.0",
     "@somod/common-layers": "^1.6.0"
   },

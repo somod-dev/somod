@@ -2,6 +2,9 @@
   "name": "@somod/njp-config-schema",
   "version": "1.6.0",
   "description": "JSON Schema for NJP Configuration",
+  "files": [
+    "schemas"
+  ],
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/njp-config-schema#readme",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "bugs": {
