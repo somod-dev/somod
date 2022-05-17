@@ -7,16 +7,16 @@ export const createNextConfigJs = async (dir: string): Promise<void> => {
     join(dir, file_nextConfigJs),
     `/* eslint-disable */
 
-  const fs = require("fs");
-  const path = require("path");
-  
-  const njpConfigStr = fs.readFileSync(path.join(__dirname, "${file_njpConfigJson}"), {
-    encoding: "utf8"
-  });
-  
-  const njpConfig = JSON.parse(njpConfigStr);
-  
-  module.exports = njpConfig;
-  `
+const fs = require("fs");
+const path = require("path");
+
+const njpConfigStr = fs.readFileSync(path.join(__dirname, "${file_njpConfigJson}"), {
+  encoding: "utf8"
+});
+
+const njpConfig = JSON.parse(njpConfigStr);
+
+module.exports = njpConfig;
+`
   );
 };

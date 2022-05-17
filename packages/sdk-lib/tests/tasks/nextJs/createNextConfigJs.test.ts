@@ -20,19 +20,7 @@ describe("Test Task createNextConfigJs", () => {
       encoding: "utf8"
     });
 
-    expect(resultContent).toEqual(`/* eslint-disable */
-
-  const fs = require("fs");
-  const path = require("path");
-  
-  const njpConfigStr = fs.readFileSync(path.join(__dirname, "njp.config.json"), {
-    encoding: "utf8"
-  });
-  
-  const njpConfig = JSON.parse(njpConfigStr);
-  
-  module.exports = njpConfig;
-  `);
+    expect(resultContent).toMatchSnapshot();
   });
 
   test("with prior file", async () => {
@@ -42,18 +30,6 @@ describe("Test Task createNextConfigJs", () => {
       encoding: "utf8"
     });
 
-    expect(resultContent).toEqual(`/* eslint-disable */
-
-  const fs = require("fs");
-  const path = require("path");
-  
-  const njpConfigStr = fs.readFileSync(path.join(__dirname, "njp.config.json"), {
-    encoding: "utf8"
-  });
-  
-  const njpConfig = JSON.parse(njpConfigStr);
-  
-  module.exports = njpConfig;
-  `);
+    expect(resultContent).toMatchSnapshot();
   });
 });

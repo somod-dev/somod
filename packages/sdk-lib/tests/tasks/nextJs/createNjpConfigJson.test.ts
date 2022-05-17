@@ -20,7 +20,7 @@ describe("Test Task createNjpConfigJson", () => {
       encoding: "utf8"
     });
 
-    expect(resultContent).toEqual("{}");
+    expect(resultContent).toEqual("{}\n");
   });
 
   test("with prior file", async () => {
@@ -30,6 +30,6 @@ describe("Test Task createNjpConfigJson", () => {
       encoding: "utf8"
     });
 
-    expect(resultContent).toEqual(`{}`);
+    expect(resultContent).toEqual(`{}\n`);
   });
 });

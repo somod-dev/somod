@@ -51,7 +51,7 @@ export const readConfigJson = async (
     file_configJson
   );
   if (existsSync(configPath)) {
-    return await readJsonFileStore(configPath);
+    return await readJsonFileStore(configPath, true);
   } else {
     return {};
   }
