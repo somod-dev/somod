@@ -1,6 +1,6 @@
 {
   "name": "@somod/njp-config-schema",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "JSON Schema for NJP Configuration",
   "files": [
     "schemas"
