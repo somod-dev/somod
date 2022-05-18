@@ -16,7 +16,6 @@ import {
   key_njp,
   path_lib,
   path_nextBuild,
-  path_njp_working_dir,
   path_pages,
   path_public,
   path_ui,
@@ -36,7 +35,9 @@ import {
   file_nextConfigJs,
   file_njpConfigJson,
   createNextConfigJs,
-  createNjpConfigJson
+  createNjpConfigJson,
+  file_packageLockJson,
+  path_vercel
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -56,7 +57,8 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     `/${path_pages}`,
     `/${path_public}`,
     file_nextEnvDTs,
-    path_njp_working_dir
+    path_vercel,
+    file_njpConfigJson
   ];
 
   await Promise.all([
@@ -103,6 +105,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
         `!${file_eslintIgnore}`,
         `!${file_njpConfigJson}`,
         `!${file_nextConfigJs}`,
+        `!${file_packageLockJson}`,
         `!${file_packageJson}`
       ]
     ),

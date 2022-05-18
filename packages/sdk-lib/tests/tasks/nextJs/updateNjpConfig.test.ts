@@ -28,6 +28,9 @@ describe("Test Task updateNjpConfig", () => {
     await expect(
       readFile(join(dir, ".env"), { encoding: "utf8" })
     ).resolves.toMatchSnapshot();
+    await expect(
+      readFile(join(dir, "pages/_app.ts"), { encoding: "utf8" })
+    ).resolves.toMatchSnapshot();
   });
 
   test("with content in root build dir", async () => {
@@ -35,6 +38,10 @@ describe("Test Task updateNjpConfig", () => {
       "package.json": JSON.stringify({ name: "sample", njp: "1.2.3" }),
       "build/ui/config.json": JSON.stringify(
         {
+          globalCss: [
+            "@fontsource/roboto/300.css",
+            "@fontsource/roboto/400.css"
+          ],
           env: {
             DB_HOST: { default: "localhost", schema: { type: "string" } }
           },
@@ -62,6 +69,9 @@ describe("Test Task updateNjpConfig", () => {
     ).resolves.toMatchSnapshot();
     await expect(
       readFile(join(dir, ".env"), { encoding: "utf8" })
+    ).resolves.toMatchSnapshot();
+    await expect(
+      readFile(join(dir, "pages/_app.ts"), { encoding: "utf8" })
     ).resolves.toMatchSnapshot();
   });
 
@@ -94,6 +104,7 @@ describe("Test Task updateNjpConfig", () => {
     await expect(updateNjpConfig(dir, ["njp"], true)).resolves.toBeUndefined();
     expect(existsSync(join(dir, "njp.config.json"))).not.toBeTruthy();
     expect(existsSync(join(dir, ".env"))).not.toBeTruthy();
+    expect(existsSync(join(dir, "pages/_app.ts"))).not.toBeTruthy();
   });
 
   test("with conflicting content", async () => {
@@ -167,6 +178,7 @@ describe("Test Task updateNjpConfig", () => {
 
   test("with resolved conflicting content", async () => {
     createFiles(dir, {
+      "pages/_app.ts": 'export { default } from "../ui/pages/_app";',
       "package.json": JSON.stringify({
         name: "sample",
         njp: "1.2.3",
@@ -174,6 +186,12 @@ describe("Test Task updateNjpConfig", () => {
       }),
       "build/ui/config.json": JSON.stringify(
         {
+          globalCss: [
+            "@fontsource/roboto/300.css",
+            "@fontsource/roboto/400.css",
+            "@fontsource/roboto/500.css",
+            "@fontsource/roboto/700.css"
+          ],
           env: {
             DB_HOST: { schema: { type: "string" }, default: "localhost" },
             DB_PORT: { schema: { type: "string" }, default: "8080" }
@@ -244,6 +262,9 @@ describe("Test Task updateNjpConfig", () => {
     ).resolves.toMatchSnapshot();
     await expect(
       readFile(join(dir, ".env"), { encoding: "utf8" })
+    ).resolves.toMatchSnapshot();
+    await expect(
+      readFile(join(dir, "pages/_app.ts"), { encoding: "utf8" })
     ).resolves.toMatchSnapshot();
   });
 });
