@@ -3,6 +3,7 @@ import { layerLibraries } from "@somod/common-layers";
 import { build as esbuild } from "esbuild";
 import { existsSync } from "fs";
 import { mkdir, readdir, writeFile } from "fs/promises";
+import { cloneDeep } from "lodash";
 import { dirname, join } from "path";
 import {
   file_index_js,
@@ -13,8 +14,10 @@ import {
 import { apply as applyBaseLayer } from "../baseModule/layers/baseLayer";
 import {
   KeywordSLPFunction,
+  KeywordSLPRef,
   ServerlessTemplate,
   SLPFunction,
+  SLPRef,
   SLPTemplate
 } from "../types";
 import {
@@ -22,6 +25,8 @@ import {
   replaceSLPKeyword,
   updateKeywordPathsInSLPTemplate
 } from "../utils";
+import { validate as jsonValidator } from "@solib/json-validator";
+import { DataValidationError } from "@solib/errors";
 
 export const validate = (slpTemplate: SLPTemplate): Error[] => {
   const errors: Error[] = [];
@@ -62,6 +67,88 @@ export const validate = (slpTemplate: SLPTemplate): Error[] => {
     }
   });
 
+  return errors;
+};
+
+export const validateCustomResourceSchema = (
+  slpTemplate: SLPTemplate,
+  serverlessTemplate: ServerlessTemplate
+): Error[] => {
+  const errors: Error[] = [];
+  Object.keys(slpTemplate.Resources).forEach(logicalResourceId => {
+    if (
+      /^Custom::[A-Z][a-zA-Z0-9]{0,63}$/.test(
+        slpTemplate.Resources[logicalResourceId].Type
+      )
+    ) {
+      const customResource = cloneDeep(
+        slpTemplate.original.Resources[logicalResourceId]
+      );
+      const customResourceType = customResource.Type.substring(
+        "Custom::".length
+      );
+      const serviceToken = (customResource.Properties.ServiceToken as SLPRef)[
+        KeywordSLPRef
+      ];
+      if (!serviceToken.module) {
+        serviceToken.module = slpTemplate.module;
+      }
+      const customResourceFunctionSlpTemplate =
+        serviceToken.module == slpTemplate.module
+          ? slpTemplate
+          : serverlessTemplate[serviceToken.module];
+
+      if (customResourceFunctionSlpTemplate) {
+        // else part is taken care by SLPRef validation
+        const customResourceFunctionResource =
+          customResourceFunctionSlpTemplate.original.Resources[
+            serviceToken.resource
+          ];
+        if (customResourceFunctionResource) {
+          // else part is taken care by SLPRef validation
+          const schemaNotFoundError = new Error(
+            `Schema not found for CustomResource ${logicalResourceId}. Looked at 'Properties.CodeUri.${KeywordSLPFunction}.customResources.${customResourceType}' in {${serviceToken.module}, ${serviceToken.resource}}`
+          );
+          const customResourceCodeUri = customResourceFunctionResource
+            .Properties?.CodeUri as SLPFunction;
+          if (customResourceCodeUri) {
+            const customResourceSlpFunction =
+              customResourceCodeUri[KeywordSLPFunction];
+            if (customResourceSlpFunction) {
+              const customResourceSchema =
+                (customResourceSlpFunction.customResources || {})[
+                  customResourceType
+                ];
+              if (customResourceSchema) {
+                try {
+                  delete customResource.Properties.ServiceToken;
+                  jsonValidator(customResourceSchema, customResource);
+                } catch (e) {
+                  if (e instanceof DataValidationError) {
+                    errors.push(
+                      new Error(
+                        `Custom Resource ${logicalResourceId} has following errors\n${e.violations
+                          .map(v => " " + (v.path + " " + v.message).trim())
+                          .join("\n")}`
+                      )
+                    );
+                  } else {
+                    throw e;
+                  }
+                }
+              } else {
+                errors.push(schemaNotFoundError);
+              }
+            } else {
+              errors.push(schemaNotFoundError);
+            }
+          } else {
+            errors.push(schemaNotFoundError);
+          }
+        }
+      }
+    }
+  });
   return errors;
 };
 

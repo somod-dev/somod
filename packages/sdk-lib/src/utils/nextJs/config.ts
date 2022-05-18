@@ -20,6 +20,7 @@ export type RuntimeConfig = {
 
 // this must match the @somod/njp-config-schema/schemas/index.json
 export type Config = {
+  globalCss?: string[];
   env?: Record<string, EnvConfig>;
   imageDomains?: string[];
   runtimeConfig?: Record<string, RuntimeConfig>;
@@ -58,6 +59,7 @@ export const readConfigJson = async (
 };
 
 export type ConfigToModuleMap = {
+  globalCss: string[];
   env: EnvToModuleMap;
   imageDomains: string[];
   runtimeConfig: RuntimeConfigToModuleMap;
@@ -77,6 +79,7 @@ export const getConfigToModulesMap = async (
   );
 
   const configMap: ConfigToModuleMap = {
+    globalCss: [],
     env: {},
     runtimeConfig: {},
     serverRuntimeConfig: {},
@@ -105,9 +108,13 @@ export const getConfigToModulesMap = async (
 
     // image domains
     configMap.imageDomains.push(...(moduleConfig.config.imageDomains || []));
+
+    // global css
+    configMap.globalCss.push(...(moduleConfig.config.globalCss || []));
   });
 
   configMap.imageDomains = uniq(configMap.imageDomains);
+  configMap.globalCss = uniq(configMap.globalCss);
 
   return configMap;
 };

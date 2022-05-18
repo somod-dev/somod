@@ -40,14 +40,7 @@ export const ServeAction = async ({
       taskRunner(`Create ${path_public}`, createPublicAssets, verbose, dir, [
         key_somod,
         key_njp
-      ]),
-      taskRunner(
-        `update ${file_njpConfigJson} & ${file_dotenv}`,
-        updateNjpConfig,
-        verbose,
-        dir,
-        [key_somod, key_njp]
-      )
+      ])
     ]);
 
     await Promise.all([
@@ -64,6 +57,14 @@ export const ServeAction = async ({
         dir
       )
     ]);
+
+    taskRunner(
+      `update ${file_njpConfigJson} & ${file_dotenv}`,
+      updateNjpConfig,
+      verbose,
+      dir,
+      [key_somod, key_njp]
+    );
   }
 
   if (stage == "all" || stage == "start-dev") {

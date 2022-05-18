@@ -35,6 +35,14 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "globalCss": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 256
+      },
+      "maxItems": 10
+    },
     "env": {
       "type": "object",
       "additionalProperties": false,

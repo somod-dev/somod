@@ -76,6 +76,7 @@ export type SLPFunction = {
   [KeywordSLPFunction]: {
     name: string;
     exclude?: string[];
+    customResources?: Record<string, JSONSchema7>;
   };
 };
 

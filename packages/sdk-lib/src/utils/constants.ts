@@ -39,9 +39,6 @@ export const path_build = "build";
 export const path_ui = "ui";
 export const path_lib = "lib";
 
-export const path_slp_working_dir = ".slp";
-export const path_njp_working_dir = ".njp";
-
 export const path_pages = "pages";
 export const path_public = "public";
 
@@ -56,6 +53,8 @@ export const file_pagesJson = "pages.json";
 export const path_git = ".git";
 export const path_nextBuild = ".next";
 
+export const file_appPage = "_app.ts";
+
 export const file_configYaml = "config.yaml";
 export const file_configJson = "config.json";
 export const file_njpConfigJson = "njp.config.json";
@@ -68,6 +67,8 @@ export const file_templateJson = "template.json";
 
 export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
+
+export const path_vercel = ".vercel";
 
 export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
 

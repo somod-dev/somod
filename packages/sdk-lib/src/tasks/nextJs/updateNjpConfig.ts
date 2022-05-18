@@ -6,9 +6,48 @@ import {
   getConfigToModulesMap
 } from "../../utils/nextJs/config";
 import { ErrorSet } from "@solib/cli-base";
-import { writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
-import { file_dotenv, file_njpConfigJson } from "../../utils/constants";
+import {
+  file_appPage,
+  file_dotenv,
+  file_njpConfigJson,
+  path_pages
+} from "../../utils/constants";
+
+const updateAppPage = async (dir: string, config: Config): Promise<void> => {
+  let appPageContent = "";
+  try {
+    appPageContent = await readFile(join(dir, path_pages, file_appPage), {
+      encoding: "utf8"
+    });
+  } catch (e) {
+    // ignore file read error
+  }
+
+  const divider = "/* NJP_GLOBAL_CSS */";
+
+  const appPageLines = appPageContent.split("\n");
+  const originalAppPageLines: string[] = [];
+  for (const line of appPageLines) {
+    if (line.trim() == divider) {
+      break;
+    } else {
+      originalAppPageLines.push(line);
+    }
+  }
+
+  originalAppPageLines.push(divider);
+
+  (config.globalCss || []).forEach(globalCssName => {
+    originalAppPageLines.push(`import "${globalCssName}";`);
+  });
+  await mkdir(join(dir, path_pages), { recursive: true });
+  await writeFile(
+    join(dir, path_pages, file_appPage),
+    originalAppPageLines.join("\n")
+  );
+};
 
 const generateDotEnvFile = async (
   dir: string,
@@ -74,6 +113,7 @@ export const updateNjpConfig = async (
   const errors: Error[] = [];
 
   const combinedConfig: Config = {
+    globalCss: configToModulesMap.globalCss,
     env: {},
     imageDomains: configToModulesMap.imageDomains,
     runtimeConfig: {},
@@ -123,5 +163,6 @@ export const updateNjpConfig = async (
   if (!validateOnly) {
     await generateDotEnvFile(dir, combinedConfig);
     await generateNjpConfigFile(dir, combinedConfig);
+    await updateAppPage(dir, combinedConfig);
   }
 };

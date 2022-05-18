@@ -15,7 +15,6 @@ import {
   path_lib,
   path_samBuild,
   path_serverless,
-  path_slp_working_dir,
   saveEslintIgnore,
   saveGitIgnore,
   savePackageJson,
@@ -42,8 +41,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const slpIgnorePaths = [
     `/${file_templateYaml}`,
     path_samBuild,
-    file_samConfig,
-    path_slp_working_dir
+    file_samConfig
   ];
 
   await Promise.all([

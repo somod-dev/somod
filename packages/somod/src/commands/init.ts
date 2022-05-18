@@ -10,6 +10,7 @@ import {
   file_njpConfigJson,
   file_npmrc,
   file_packageJson,
+  file_packageLockJson,
   file_prettierIgnore,
   file_samConfig,
   file_templateYaml,
@@ -24,13 +25,12 @@ import {
   key_somod,
   path_lib,
   path_nextBuild,
-  path_njp_working_dir,
   path_pages,
   path_public,
   path_samBuild,
   path_serverless,
-  path_slp_working_dir,
   path_ui,
+  path_vercel,
   saveEslintIgnore,
   saveGitIgnore,
   savePackageJson,
@@ -62,11 +62,11 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     `/${path_pages}`,
     `/${path_public}`,
     file_nextEnvDTs,
-    path_njp_working_dir,
+    path_vercel,
+    file_njpConfigJson,
     `/${file_templateYaml}`,
     path_samBuild,
-    file_samConfig,
-    path_slp_working_dir
+    file_samConfig
   ];
 
   await Promise.all([
@@ -113,6 +113,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
         `!${file_eslintIgnore}`,
         `!${file_njpConfigJson}`,
         `!${file_nextConfigJs}`,
+        `!${file_packageLockJson}`,
         `!${file_packageJson}`
       ]
     ),
