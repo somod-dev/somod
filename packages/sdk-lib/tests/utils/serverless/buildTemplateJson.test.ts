@@ -13,6 +13,7 @@ import {
 } from "../../../src/utils/constants";
 import { validateSchema } from "../../../src/tasks/serverless/validateSchema";
 import { copyDirectory } from "@sodev/test-utils";
+import { ErrorSet } from "@solib/cli-base";
 
 const installSchemaInTempDir = async (dir: string) => {
   const schemaPackage = join(__dirname, "../../../../serverless-schema");
@@ -341,6 +342,252 @@ describe("Test Util serverless.buildTemplateJson", () => {
     ).resolves.toEqual(
       '{"external":["aws-sdk","smallest","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http"]}'
     );
+  });
+
+  test("with customResource SLP::Function and no customResources", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            Architectures: functionDefaults.Architectures,
+            CodeUri: {
+              "SLP::Function": {
+                name: "Resource1",
+                exclude: ["smallest"],
+                customResources: {
+                  MyCustomResource: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      Type: { const: "Custom::MyCustomResource" },
+                      Properties: {
+                        attr1: { type: "string", maxLength: 20 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/Resource1.ts": "",
+      ...singlePackageJson
+    });
+    await validateSchema(dir); // make sure schema is right
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
+  });
+
+  test("with customResource SLP::Function and one bad customResource", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          "SLP::Output": {
+            default: true,
+            attributes: ["Arn"]
+          },
+          Properties: {
+            Architectures: functionDefaults.Architectures,
+            CodeUri: {
+              "SLP::Function": {
+                name: "Resource1",
+                exclude: ["smallest"],
+                customResources: {
+                  MyCustomResource: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      Type: { const: "Custom::MyCustomResource" },
+                      Properties: {
+                        type: "object",
+                        additionalProperties: false,
+                        required: ["attr1"],
+                        properties: {
+                          attr1: { type: "string", maxLength: 20 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        Resource2: {
+          Type: "Custom::MyCustomResource",
+          Properties: {
+            ServiceToken: {
+              "SLP::Ref": {
+                resource: "Resource1",
+                attribute: "Arn"
+              }
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/Resource1.ts": "",
+      ...singlePackageJson
+    });
+    await validateSchema(dir); // make sure schema is right
+    await expect(buildTemplateJson(dir, moduleIndicators)).rejects.toEqual(
+      new ErrorSet([
+        new Error(
+          `Custom Resource Resource2 has following errors\n Properties must have required property 'attr1'`
+        )
+      ])
+    );
+    expect(existsSync(buildTemplateJsonPath)).not.toBeTruthy();
+  });
+
+  test("with customResource SLP::Function and one customResource refereing to non existing schema", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          "SLP::Output": {
+            default: true,
+            attributes: ["Arn"]
+          },
+          Properties: {
+            Architectures: functionDefaults.Architectures,
+            CodeUri: {
+              "SLP::Function": {
+                name: "Resource1",
+                exclude: ["smallest"],
+                customResources: {
+                  MyCustomResource: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      Type: { const: "Custom::MyCustomResource" },
+                      Properties: {
+                        type: "object",
+                        additionalProperties: false,
+                        required: ["attr1"],
+                        properties: {
+                          attr1: { type: "string", maxLength: 20 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        Resource2: {
+          Type: "Custom::MyCustomResource1",
+          Properties: {
+            ServiceToken: {
+              "SLP::Ref": {
+                resource: "Resource1",
+                attribute: "Arn"
+              }
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/Resource1.ts": "",
+      ...singlePackageJson
+    });
+    await validateSchema(dir); // make sure schema is right
+    await expect(buildTemplateJson(dir, moduleIndicators)).rejects.toEqual(
+      new ErrorSet([
+        new Error(
+          `Schema not found for CustomResource Resource2. Looked at 'Properties.CodeUri.SLP::Function.customResources.MyCustomResource1' in {sample, Resource1}`
+        )
+      ])
+    );
+    expect(existsSync(buildTemplateJsonPath)).not.toBeTruthy();
+  });
+
+  test("with customResource SLP::Function in dependency module and one good customResource in root module", async () => {
+    const template = {
+      Resources: {
+        Resource2: {
+          Type: "Custom::MyCustomResource",
+          Properties: {
+            ServiceToken: {
+              "SLP::Ref": {
+                module: "sample2",
+                resource: "Resource1",
+                attribute: "Arn"
+              }
+            },
+            attr1: "my-attr1-value"
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "serverless/functions/Resource1.ts": "",
+      "node_modules/sample2/build/serverless/template.json": JSON.stringify(
+        {
+          Resources: {
+            Resource1: {
+              Type: "AWS::Serverless::Function",
+              "SLP::Output": {
+                default: true,
+                attributes: ["Arn"]
+              },
+              Properties: {
+                Architectures: functionDefaults.Architectures,
+                CodeUri: {
+                  "SLP::Function": {
+                    name: "Resource1",
+                    exclude: ["smallest"],
+                    customResources: {
+                      MyCustomResource: {
+                        type: "object",
+                        additionalProperties: false,
+                        properties: {
+                          Type: { const: "Custom::MyCustomResource" },
+                          Properties: {
+                            type: "object",
+                            additionalProperties: false,
+                            required: ["attr1"],
+                            properties: {
+                              attr1: { type: "string", maxLength: 20 }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        null,
+        2
+      ),
+      ...doublePackageJson
+    });
+    await validateSchema(dir); // make sure schema is right
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
+    await expect(
+      readFile(buildTemplateJsonPath, { encoding: "utf8" })
+    ).resolves.toEqual(StringifyTemplate(template));
   });
 
   test("with SLP::FunctionLayerLibraries", async () => {

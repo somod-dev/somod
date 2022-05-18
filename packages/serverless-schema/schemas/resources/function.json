@@ -442,6 +442,17 @@
                     "pattern": "^(@[a-zA-Z0-9\\-_]+\\/)?[a-zA-Z0-9\\-_]+$"
                   },
                   "maxItems": 100
+                },
+                "customResources": {
+                  "type": "object",
+                  "description": "Define the Schema for the custom resources handled by this function. Schema is indexed by Custom Resource Type with `Custom::` removed. Schema no need to define `ServiceToken` Property",
+                  "additionalProperties": false,
+                  "maxProperties": 25,
+                  "patternProperties": {
+                    "^[A-Z][a-zA-Z0-9]{0,63}$": {
+                      "$ref": "http://json-schema.org/draft-07/schema"
+                    }
+                  }
                 }
               }
             }

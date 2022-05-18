@@ -18,7 +18,10 @@ import { ModuleNode } from "../module";
 import { baseModuleName, getBaseModuleOriginalSLPTemplate } from "./baseModule";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
 import { validate as validateExtend } from "./keywords/extend";
-import { validate as validateFunction } from "./keywords/function";
+import {
+  validate as validateFunction,
+  validateCustomResourceSchema
+} from "./keywords/function";
 import { validate as validateFunctionLayers } from "./keywords/functionLayerLibraries";
 import { validate as validateRef } from "./keywords/ref";
 import { validate as validateRefParameter } from "./keywords/refParameter";
@@ -192,6 +195,7 @@ export const validate = async (
   errors.push(...validateRefResourceName(slpTemplate, serverlessTemplate));
   errors.push(...validateFunction(slpTemplate));
   errors.push(...(await validateFunctionLayers(slpTemplate)));
+  errors.push(...validateCustomResourceSchema(slpTemplate, serverlessTemplate));
 
   if (errors.length > 0) {
     throw new ErrorSet(errors);
