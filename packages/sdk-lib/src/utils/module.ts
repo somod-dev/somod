@@ -54,7 +54,7 @@ const findPackageLocation = (
 
   if (!location) {
     throw new Error(
-      `Could not found module ${name} from ${unixStylePath(currentDir)}`
+      `Could not find module ${name} from ${unixStylePath(currentDir)}`
     );
   } else {
     return location;

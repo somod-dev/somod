@@ -12,6 +12,7 @@ import {
   getSLPKeyword,
   replaceSLPKeyword
 } from "../utils";
+import { checkAccess } from "./access";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -42,33 +43,46 @@ export const validate = (
 
     if (!referencedSLPTemplate?.Resources[ref.resource]) {
       errors.push(getError("not found"));
-    } else if (
-      referencedSLPTemplate.Resources[ref.resource][KeywordSLPExtend]
-    ) {
-      errors.push(getError(`must not have ${KeywordSLPExtend}`));
-    } else if (
-      !referencedSLPTemplate.Resources[ref.resource][KeywordSLPOutput]
-    ) {
-      errors.push(getError(`does not have ${KeywordSLPOutput}`));
-    } else if (ref.attribute) {
-      if (
-        !referencedSLPTemplate.Resources[ref.resource][
-          KeywordSLPOutput
-        ].attributes.includes(ref.attribute)
-      ) {
-        errors.push(
-          getError(
-            `does not have attribute ${ref.attribute} in ${KeywordSLPOutput}`
-          )
-        );
-      }
     } else {
-      if (
-        !referencedSLPTemplate.Resources[ref.resource][KeywordSLPOutput].default
-      ) {
-        errors.push(
-          getError(`does not have default set to true in ${KeywordSLPOutput}`)
-        );
+      const accessErrors = checkAccess(
+        slpTemplate.module,
+        refKeywordPath,
+        ref.resource,
+        referencedSLPTemplate
+      );
+      if (accessErrors.length > 0) {
+        errors.push(...accessErrors);
+      } else {
+        if (referencedSLPTemplate.Resources[ref.resource][KeywordSLPExtend]) {
+          errors.push(getError(`must not have ${KeywordSLPExtend}`));
+        } else if (
+          !referencedSLPTemplate.Resources[ref.resource][KeywordSLPOutput]
+        ) {
+          errors.push(getError(`does not have ${KeywordSLPOutput}`));
+        } else if (ref.attribute) {
+          if (
+            !referencedSLPTemplate.Resources[ref.resource][
+              KeywordSLPOutput
+            ].attributes.includes(ref.attribute)
+          ) {
+            errors.push(
+              getError(
+                `does not have attribute ${ref.attribute} in ${KeywordSLPOutput}`
+              )
+            );
+          }
+        } else {
+          if (
+            !referencedSLPTemplate.Resources[ref.resource][KeywordSLPOutput]
+              .default
+          ) {
+            errors.push(
+              getError(
+                `does not have default set to true in ${KeywordSLPOutput}`
+              )
+            );
+          }
+        }
       }
     }
   });

@@ -6,6 +6,7 @@ import {
   SLPTemplate
 } from "../types";
 import { getSAMResourceLogicalId, getSLPKeyword } from "../utils";
+import { checkAccess } from "./access";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -23,14 +24,23 @@ export const validate = (
         if (!_dependsOn.module) {
           _dependsOn.module = slpTemplate.module;
         }
-        const dependedModule =
+        const dependedSlpTemplate =
           _dependsOn.module == slpTemplate.module
             ? slpTemplate
             : serverlessTemplate[_dependsOn.module];
-        if (!dependedModule?.Resources[_dependsOn.resource]) {
+        if (!dependedSlpTemplate?.Resources[_dependsOn.resource]) {
           errors.push(
             new Error(
               `Dependent module resource {${_dependsOn.module}, ${_dependsOn.resource}} not found. Depended from {${slpTemplate.module}, ${resourceId}}`
+            )
+          );
+        } else {
+          errors.push(
+            ...checkAccess(
+              slpTemplate.module,
+              dependsOnKeywordPath,
+              _dependsOn.resource,
+              dependedSlpTemplate
             )
           );
         }

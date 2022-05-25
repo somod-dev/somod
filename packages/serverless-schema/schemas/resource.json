@@ -6,6 +6,9 @@
   "required": ["Type", "Properties"],
   "properties": {
     "Type": { "type": "string" },
+    "SLP::Access": {
+      "$ref": "./components/resource-properties.json#/definitions/SLP::Access"
+    },
     "SLP::Extend": {
       "$ref": "./components/resource-properties.json#/definitions/SLP::Extend"
     },

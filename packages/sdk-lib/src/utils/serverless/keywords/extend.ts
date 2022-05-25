@@ -6,6 +6,7 @@ import {
   SLPTemplate
 } from "../types";
 import { getSLPKeyword } from "../utils";
+import { checkAccess } from "./access";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -21,6 +22,15 @@ export const validate = (
       errors.push(
         new Error(
           `Extended module resource {${extend.module}, ${extend.resource}} not found. Extended in {${slpTemplate.module}, ${resourceId}}`
+        )
+      );
+    } else {
+      errors.push(
+        ...checkAccess(
+          slpTemplate.module,
+          extendKeywordPath,
+          extend.resource,
+          serverlessTemplate[extend.module]
         )
       );
     }

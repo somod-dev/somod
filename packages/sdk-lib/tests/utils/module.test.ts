@@ -65,7 +65,7 @@ describe("Test util getModuleGraph with invalid input", () => {
       })
     });
     await expect(getModuleGraph(dir, ["njp"])).rejects.toEqual(
-      new Error(`Could not found module m1 from ${dir}`)
+      new Error(`Could not find module m1 from ${dir}`)
     );
     deleteDir(dir);
   });

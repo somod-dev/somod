@@ -3,6 +3,9 @@
   "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/components/resource-properties.json",
   "title": "JSON Schema for Resource in Serverless Template by Sodaru Technologies",
   "definitions": {
+    "SLP::Access": {
+      "enum": ["module", "scope", "public"]
+    },
     "SLP::Extend": {
       "type": "object",
       "additionalProperties": false,

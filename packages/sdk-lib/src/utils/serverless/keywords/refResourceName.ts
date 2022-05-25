@@ -6,6 +6,7 @@ import {
   SLPTemplate
 } from "../types";
 import { getSLPKeyword, replaceSLPKeyword } from "../utils";
+import { checkAccess } from "./access";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -48,22 +49,33 @@ export const validate = (
             }" at "Resources/${refResourceNameKeywordPath.join("/")}"`
           )
         );
-      } else if (
-        !referencedSLPTemplate.Resources[refResourceName.resource].Properties[
-          refResourceName.property
-        ][KeywordSLPResourceName]
-      ) {
-        errors.push(
-          new Error(
-            `Referenced module resource name property {${
-              refResourceName.module
-            }, ${refResourceName.resource}, ${
-              refResourceName.property
-            }} is not a valid ${KeywordSLPResourceName}. Referenced in "${
-              slpTemplate.module
-            }" at "Resources/${refResourceNameKeywordPath.join("/")}"`
-          )
+      } else {
+        const accessErrors = checkAccess(
+          slpTemplate.module,
+          refResourceNameKeywordPath,
+          refResourceName.resource,
+          referencedSLPTemplate
         );
+
+        if (accessErrors.length > 0) {
+          errors.push(...accessErrors);
+        } else if (
+          !referencedSLPTemplate.Resources[refResourceName.resource].Properties[
+            refResourceName.property
+          ][KeywordSLPResourceName]
+        ) {
+          errors.push(
+            new Error(
+              `Referenced module resource name property {${
+                refResourceName.module
+              }, ${refResourceName.resource}, ${
+                refResourceName.property
+              }} is not a valid ${KeywordSLPResourceName}. Referenced in "${
+                slpTemplate.module
+              }" at "Resources/${refResourceNameKeywordPath.join("/")}"`
+            )
+          );
+        }
       }
     }
   );

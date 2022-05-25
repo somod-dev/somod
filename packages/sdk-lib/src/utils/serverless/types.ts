@@ -1,5 +1,6 @@
 import { JSONSchema7 } from "json-schema";
 
+export const KeywordSLPAccess = "SLP::Access";
 export const KeywordSLPExtend = "SLP::Extend";
 export const KeywordSLPDependsOn = "SLP::DependsOn";
 export const KeywordSLPOutput = "SLP::Output";
@@ -13,6 +14,7 @@ export const KeywordSLPModuleName = "SLP::ModuleName";
 export const KeywordFnSub = "Fn::Sub";
 
 export type KeywordAny =
+  | typeof KeywordSLPAccess
   | typeof KeywordSLPExtend
   | typeof KeywordSLPDependsOn
   | typeof KeywordSLPOutput
@@ -26,6 +28,7 @@ export type KeywordAny =
   | typeof KeywordFnSub;
 
 export const KeywordAll: KeywordAny[] = [
+  KeywordSLPAccess,
   KeywordSLPExtend,
   KeywordSLPDependsOn,
   KeywordSLPOutput,
@@ -38,6 +41,10 @@ export const KeywordAll: KeywordAny[] = [
   KeywordSLPModuleName,
   KeywordFnSub
 ];
+
+export type SLPAccess = {
+  [KeywordSLPAccess]: "module" | "scope" | "public";
+};
 
 export type SLPExtend = {
   [KeywordSLPExtend]: { module: string; resource: string };
@@ -115,7 +122,7 @@ export type SLPKeyword =
 export type SLPResource = {
   Type: string;
   Properties: Record<string, unknown>;
-} & Partial<SLPExtend & SLPDependsOn & SLPOutput>;
+} & Partial<SLPAccess & SLPExtend & SLPDependsOn & SLPOutput>;
 
 export type OriginalSLPTemplate = {
   Parameters?: Record<string, { SAMType: string; schema: JSONSchema7 }>;
