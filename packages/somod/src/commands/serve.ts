@@ -14,7 +14,16 @@ import {
   watchRootModulePublicAssets,
   file_njpConfigJson,
   file_dotenv,
-  updateNjpConfig
+  updateNjpConfig,
+  file_vercelIgnore,
+  updateVercelIgnore,
+  path_lib,
+  file_npmrc,
+  file_prettierIgnore,
+  file_eslintIgnore,
+  file_nextConfigJs,
+  file_packageLockJson,
+  file_packageJson
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 import { BuildAction } from "./build";
@@ -64,6 +73,30 @@ export const ServeAction = async ({
       verbose,
       dir,
       [key_somod, key_njp]
+    );
+  }
+
+  if (stage == "prepare") {
+    await taskRunner(
+      `Initialize ${file_vercelIgnore}`,
+      updateVercelIgnore,
+      verbose,
+      dir,
+      [
+        "/*",
+        `!${path_lib}`,
+        `!${path_ui}`,
+        `!${path_pages}`,
+        `!${path_public}`,
+        `!${file_dotenv}`,
+        `!${file_npmrc}`,
+        `!${file_prettierIgnore}`,
+        `!${file_eslintIgnore}`,
+        `!${file_njpConfigJson}`,
+        `!${file_nextConfigJs}`,
+        `!${file_packageLockJson}`,
+        `!${file_packageJson}`
+      ]
     );
   }
 

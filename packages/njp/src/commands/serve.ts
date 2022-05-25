@@ -5,13 +5,22 @@ import {
   createRootModulePages,
   createRootModulePublicAssets,
   file_dotenv,
+  file_eslintIgnore,
+  file_nextConfigJs,
   file_njpConfigJson,
+  file_npmrc,
+  file_packageJson,
+  file_packageLockJson,
+  file_prettierIgnore,
+  file_vercelIgnore,
   key_njp,
+  path_lib,
   path_pages,
   path_public,
   path_ui,
   startNextDev,
   updateNjpConfig,
+  updateVercelIgnore,
   watchRootModulePages,
   watchRootModulePublicAssets
 } from "@somod/sdk-lib";
@@ -59,6 +68,30 @@ export const ServeAction = async ({
       verbose,
       dir,
       [key_njp]
+    );
+  }
+
+  if (stage == "prepare") {
+    await taskRunner(
+      `Initialize ${file_vercelIgnore}`,
+      updateVercelIgnore,
+      verbose,
+      dir,
+      [
+        "/*",
+        `!${path_lib}`,
+        `!${path_ui}`,
+        `!${path_pages}`,
+        `!${path_public}`,
+        `!${file_dotenv}`,
+        `!${file_npmrc}`,
+        `!${file_prettierIgnore}`,
+        `!${file_eslintIgnore}`,
+        `!${file_njpConfigJson}`,
+        `!${file_nextConfigJs}`,
+        `!${file_packageLockJson}`,
+        `!${file_packageJson}`
+      ]
     );
   }
 

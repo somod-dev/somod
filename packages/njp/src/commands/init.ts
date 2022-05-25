@@ -1,9 +1,12 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
-  file_dotenv,
+  createNextConfigJs,
+  createNjpConfigJson,
   file_eslintIgnore,
   file_gitIgnore,
+  file_nextConfigJs,
   file_nextEnvDTs,
+  file_njpConfigJson,
   file_packageJson,
   file_prettierIgnore,
   file_tsConfigBuildJson,
@@ -19,25 +22,18 @@ import {
   path_pages,
   path_public,
   path_ui,
+  path_vercel,
   saveEslintIgnore,
   saveGitIgnore,
   savePackageJson,
   savePrettierIgnore,
   saveTsConfigBuildJson,
+  saveVercelIgnore,
   updateEslintIgnore,
   updateGitIgnore,
   updatePackageJson,
   updatePrettierIgnore,
-  updateVercelIgnore,
-  updateTsConfigBuildJson,
-  saveVercelIgnore,
-  file_npmrc,
-  file_nextConfigJs,
-  file_njpConfigJson,
-  createNextConfigJs,
-  createNjpConfigJson,
-  file_packageLockJson,
-  path_vercel
+  updateTsConfigBuildJson
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -58,7 +54,9 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     `/${path_public}`,
     file_nextEnvDTs,
     path_vercel,
-    file_njpConfigJson
+    file_njpConfigJson,
+    file_nextConfigJs,
+    file_vercelIgnore
   ];
 
   await Promise.all([
@@ -86,28 +84,6 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       verbose,
       dir,
       njpIgnorePaths
-    ),
-
-    taskRunner(
-      `Initialize ${file_vercelIgnore}`,
-      updateVercelIgnore,
-      verbose,
-      dir,
-      [
-        "/*",
-        `!${path_lib}`,
-        `!${path_ui}`,
-        `!${path_pages}`,
-        `!${path_public}`,
-        `!${file_dotenv}`,
-        `!${file_npmrc}`,
-        `!${file_prettierIgnore}`,
-        `!${file_eslintIgnore}`,
-        `!${file_njpConfigJson}`,
-        `!${file_nextConfigJs}`,
-        `!${file_packageLockJson}`,
-        `!${file_packageJson}`
-      ]
     ),
 
     taskRunner(
