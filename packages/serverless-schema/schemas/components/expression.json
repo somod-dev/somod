@@ -84,6 +84,16 @@
         }
       }
     },
+    "slpModuleName": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["SLP::ModuleName"],
+      "properties": {
+        "SLP::ModuleName": {
+          "type": "string"
+        }
+      }
+    },
     "stringLike": {
       "oneOf": [
         { "$ref": "#/definitions/string" },
@@ -97,7 +107,8 @@
         { "$ref": "#/definitions/ref" },
         { "$ref": "#/definitions/slpRef" },
         { "$ref": "#/definitions/slpRefParameter" },
-        { "$ref": "#/definitions/slpRefResourceName" }
+        { "$ref": "#/definitions/slpRefResourceName" },
+        { "$ref": "#/definitions/slpModuleName" }
       ]
     },
     "booleanLike": {
@@ -378,7 +389,8 @@
                 { "$ref": "#/definitions/ref" },
                 { "$ref": "#/definitions/slpRef" },
                 { "$ref": "#/definitions/slpRefParameter" },
-                { "$ref": "#/definitions/slpRefResourceName" }
+                { "$ref": "#/definitions/slpRefResourceName" },
+                { "$ref": "#/definitions/slpModuleName" }
               ]
             }
           ],

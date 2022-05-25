@@ -9,6 +9,8 @@ export const KeywordSLPRefParameter = "SLP::RefParameter";
 export const KeywordSLPRefResourceName = "SLP::RefResourceName";
 export const KeywordSLPFunction = "SLP::Function";
 export const KeywordSLPFunctionLayerLibraries = "SLP::FunctionLayerLibraries";
+export const KeywordSLPModuleName = "SLP::ModuleName";
+export const KeywordFnSub = "Fn::Sub";
 
 export type KeywordAny =
   | typeof KeywordSLPExtend
@@ -19,7 +21,9 @@ export type KeywordAny =
   | typeof KeywordSLPRefParameter
   | typeof KeywordSLPRefResourceName
   | typeof KeywordSLPFunction
-  | typeof KeywordSLPFunctionLayerLibraries;
+  | typeof KeywordSLPFunctionLayerLibraries
+  | typeof KeywordSLPModuleName
+  | typeof KeywordFnSub;
 
 export const KeywordAll: KeywordAny[] = [
   KeywordSLPExtend,
@@ -30,7 +34,9 @@ export const KeywordAll: KeywordAny[] = [
   KeywordSLPRefParameter,
   KeywordSLPRefResourceName,
   KeywordSLPFunction,
-  KeywordSLPFunctionLayerLibraries
+  KeywordSLPFunctionLayerLibraries,
+  KeywordSLPModuleName,
+  KeywordFnSub
 ];
 
 export type SLPExtend = {
@@ -85,6 +91,14 @@ export type SLPFunctionLayerLibraries = {
   [KeywordSLPFunctionLayerLibraries]: string[];
 };
 
+export type SLPModuleName = {
+  [KeywordSLPModuleName]: string;
+};
+
+export type FnSub = {
+  [KeywordFnSub]: string | [string, Record<string, unknown>];
+};
+
 export type SLPKeyword =
   | SLPExtend
   | SLPDependsOn
@@ -94,7 +108,9 @@ export type SLPKeyword =
   | SLPRefParameter
   | SLPRefResourceName
   | SLPFunction
-  | SLPFunctionLayerLibraries;
+  | SLPFunctionLayerLibraries
+  | SLPModuleName
+  | FnSub;
 
 export type SLPResource = {
   Type: string;

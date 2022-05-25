@@ -15,6 +15,8 @@ import { apply as applyRef } from "./keywords/ref";
 import { apply as applyRefParameter } from "./keywords/refParameter";
 import { apply as applyRefResourceName } from "./keywords/refResourceName";
 import { apply as applyResourceName } from "./keywords/resourceName";
+import { apply as applyModuleName } from "./keywords/moduleName";
+import { apply as applyFnSub } from "./keywords/fnSub";
 import {
   buildRootSLPTemplate,
   loadBaseSlpTemplate,
@@ -72,6 +74,8 @@ export const generateSAMTemplate = async (
 
   const serverlessTemplate = mergeSLPTemplates(allSlpTemplates);
 
+  applyModuleName(serverlessTemplate);
+  applyFnSub(serverlessTemplate);
   applyFunction(serverlessTemplate);
   applyFunctionLayerLibraries(serverlessTemplate);
   applyResourceName(serverlessTemplate);

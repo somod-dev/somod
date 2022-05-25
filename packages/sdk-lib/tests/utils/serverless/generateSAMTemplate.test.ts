@@ -143,7 +143,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                     Type: "Api",
                     Properties: {
                       Method: "GET",
-                      Path: "/",
+                      Path: {
+                        "SLP::ModuleName": "${SLP::ModuleName}/"
+                      },
                       RestApiId: { "SLP::Ref": { resource: "BaseRestApi" } }
                     }
                   }
@@ -180,7 +182,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Properties: {
               Description: {
                 "Fn::Sub": [
-                  "Extends ${baseApi}",
+                  "Extends ${baseApi} in ${SLP::ModuleName}",
                   {
                     baseApi: {
                       "SLP::RefResourceName": {
@@ -311,7 +313,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       })
     });
 
-    await expect(generateSAMTemplate(dir, ["slp"])).resolves.toEqual({
+    const result = await generateSAMTemplate(dir, ["slp"]);
+
+    expect(result).toEqual({
       Parameters: { pa046855cClient: { Type: "String" } },
       Resources: {
         r64967c02baseLayer: {
@@ -352,7 +356,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             },
             Description: {
               "Fn::Sub": [
-                "Extends ${baseApi}",
+                "Extends ${baseApi} in @sodaru/auth-slp",
                 {
                   baseApi: {
                     "Fn::Sub": [
@@ -383,7 +387,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 Type: "Api",
                 Properties: {
                   Method: "GET",
-                  Path: "/",
+                  Path: "@sodaru/baseapi/",
                   RestApiId: { Ref: "ra046855cBaseRestApi" }
                 }
               }
