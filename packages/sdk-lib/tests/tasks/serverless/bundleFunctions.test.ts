@@ -83,5 +83,5 @@ describe("Test Task bundleFunctions", () => {
         encoding: "utf8"
       })
     ).resolves.toMatchSnapshot();
-  });
+  }, 10000);
 });

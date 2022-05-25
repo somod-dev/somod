@@ -40,7 +40,7 @@ describe("Test Task installLayerDependencies", () => {
         )
       )
     ).toBeTruthy();
-  });
+  }, 10000);
 
   test("with multiple layer", async () => {
     createFiles(dir, {
@@ -74,5 +74,5 @@ describe("Test Task installLayerDependencies", () => {
         )
       )
     ).toBeTruthy();
-  }, 10000);
+  }, 20000);
 });
