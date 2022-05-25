@@ -40,7 +40,7 @@
     "watchpack": "^2.2.0"
   },
   "devDependencies": {
-    "@sodev/jest-config": "^1.1.1",
+    "@sodev/jest-config": "^1.2.0",
     "@sodev/test-utils": "^1.0.0",
     "@types/js-yaml": "^4.0.3",
     "@types/lodash": "^4.14.179",
