@@ -8,7 +8,7 @@ export const lib = async (dir: string): Promise<void> => {
   const libIndexPath = join(dir, path_lib, libIndex);
 
   const pageContent = `export const Welcome = (): string => {
-  return "This is a awesome package library, learn more at https://gitlab.com/sodaru/cli/package-managers";
+  return "This is a awesome package library, learn more at https://gitlab.com/sodaru/somod/sdk";
 };`;
 
   if (!existsSync(libIndexPath)) {

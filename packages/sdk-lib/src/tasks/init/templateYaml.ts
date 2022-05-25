@@ -6,7 +6,7 @@ import { path_serverless, file_templateYaml } from "../../utils/constants";
 export const templateYaml = async (dir: string): Promise<void> => {
   const templatePath = join(dir, path_serverless, file_templateYaml);
 
-  const templateContent = `# yaml-language-server: $schema=../node_modules/@sodaru/serverless-schema/schemas/index.json
+  const templateContent = `# yaml-language-server: $schema=../node_modules/@somod/serverless-schema/schemas/index.json
 
 Resources:
   SampleParameter:
