@@ -27,7 +27,7 @@
   },
   "scripts": {
     "clean": "npx rimraf dist",
-    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@somod/serverless-schema --external:@somod/common-layers --external:esbuild  --external:@sodev/sodev --external:@typescript-eslint/typescript-estree --external:lodash --external:tslib",
+    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@somod/serverless-schema --external:@somod/lambda-base-layer --external:esbuild  --external:@sodev/sodev --external:@typescript-eslint/typescript-estree --external:lodash --external:tslib",
     "build": "npm run clean && npm run bundle",
     "pretest": "$CI || npm run build",
     "test": "echo 'No tests defined'"
@@ -50,7 +50,7 @@
     "esbuild": "^0.14.24",
     "@somod/njp-config-schema": "^1.8.0",
     "@somod/serverless-schema": "^1.8.0",
-    "@somod/common-layers": "^1.8.0"
+    "@somod/lambda-base-layer": "^1.0.0"
   },
   "devDependencies": {
     "@solib/cli-base": "^1.4.0",

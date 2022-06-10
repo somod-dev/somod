@@ -75,7 +75,7 @@ describe("Test keyword SLP::Function", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http"]}'
+      '{"external":["aws-sdk","@solib/common-types-schemas","@solib/errors","@solib/json-validator","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http","lodash","tslib","uuid"]}'
     );
   });
 
@@ -148,7 +148,7 @@ describe("Test keyword SLP::Function", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","smallest","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http"]}'
+      '{"external":["aws-sdk","smallest","@solib/common-types-schemas","@solib/errors","@solib/json-validator","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http","lodash","tslib","uuid"]}'
     );
   });
 

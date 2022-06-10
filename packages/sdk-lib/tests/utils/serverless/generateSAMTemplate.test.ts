@@ -65,7 +65,13 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             CompatibleRuntimes: ["nodejs14.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
-              join(__dirname, "../../../../", "common-layers", "layers", "base")
+              join(
+                __dirname,
+                "../../../",
+                "node_modules",
+                "@somod/lambda-base-layer",
+                "layer"
+              )
             ),
             Description:
               "Set of npm libraries to be required in all Lambda funtions",
@@ -324,7 +330,13 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             CompatibleRuntimes: ["nodejs14.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
-              join(__dirname, "../../../../", "common-layers", "layers", "base")
+              join(
+                __dirname,
+                "../../../",
+                "node_modules",
+                "@somod/lambda-base-layer",
+                "layer"
+              )
             ),
             Description:
               "Set of npm libraries to be required in all Lambda funtions",

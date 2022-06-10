@@ -1,5 +1,5 @@
 import { unixStylePath } from "@solib/cli-base";
-import { getLocation } from "@somod/common-layers";
+import { getPackageLocation } from "@somod/lambda-base-layer";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
@@ -189,7 +189,7 @@ describe("Test Task generateSAMTemplate", () => {
               CompatibleRuntimes: ["nodejs14.x"],
               RetentionPolicy: "Delete",
               ContentUri: unixStylePath(
-                join(await getLocation(), "layers/base")
+                join(await getPackageLocation(), "layer")
               )
             }
           },
