@@ -14,7 +14,7 @@ import {
   path_build,
   path_serverless
 } from "../constants";
-import { ModuleNode } from "../module";
+import { ModuleNode } from "../moduleHandler";
 import { baseModuleName, getBaseModuleOriginalSLPTemplate } from "./baseModule";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
 import { validate as validateExtend } from "./keywords/extend";
@@ -46,7 +46,7 @@ const loadBuiltSLPTemplate = async (
   moduleNode: ModuleNode
 ): Promise<OriginalSLPTemplate> => {
   const templateLocation = join(
-    moduleNode.packageLocation,
+    moduleNode.module.packageLocation,
     path_build,
     path_serverless,
     file_templateJson
@@ -71,7 +71,7 @@ const loadSourceSLPTemplate = async (
   moduleNode: ModuleNode
 ): Promise<OriginalSLPTemplate> => {
   const templateLocation = join(
-    moduleNode.packageLocation,
+    moduleNode.module.packageLocation,
     path_serverless,
     file_templateYaml
   );
@@ -105,8 +105,8 @@ export const loadSLPTemplate = async (
   const slpTemplate: SLPTemplate = {
     ...originalSlpTemplate,
     root: type == "source" || type == "build",
-    module: moduleNode.name,
-    packageLocation: moduleNode.packageLocation,
+    module: moduleNode.module.name,
+    packageLocation: moduleNode.module.packageLocation,
     keywordPaths: null,
     original: cloneDeep(originalSlpTemplate)
   };
@@ -171,7 +171,7 @@ export const buildRootSLPTemplate = async (
   const originalSLPTemplate = await loadSourceSLPTemplate(rootModuleNode);
 
   const templateJsonPath = join(
-    rootModuleNode.packageLocation,
+    rootModuleNode.module.packageLocation,
     path_build,
     path_serverless,
     file_templateJson

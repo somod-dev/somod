@@ -1,66 +1,10 @@
+import { unixStylePath } from "@solib/cli-base";
 import { existsSync } from "fs";
-import { mkdir, writeFile } from "fs/promises";
-import { join, relative, dirname } from "path";
-import { file_pagesJson, path_build, path_pages, path_ui } from "../constants";
-import { get as getExports, Exports } from "../exports";
-import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
-import { ModuleInfo } from "../moduleInfo";
-
-export type Pages = Record<string, { prefix: string; exports: Exports }>;
-
-export type PageToModulesMap = Record<
-  string,
-  {
-    moduleName: string;
-    prefix: string;
-    exports: Exports;
-  }[]
->;
-
-const loadPagesJson = async (packageLocation: string): Promise<Pages> => {
-  const pagesJsonPath = join(
-    packageLocation,
-    path_build,
-    path_ui,
-    file_pagesJson
-  );
-
-  const pages: Pages = existsSync(pagesJsonPath)
-    ? ((await readJsonFileStore(pagesJsonPath)) as Pages)
-    : ({} as Pages);
-
-  return pages;
-};
-
-export const getPageToModulesMap = async (
-  modules: ModuleInfo[]
-): Promise<PageToModulesMap> => {
-  const allPages: { module: ModuleInfo; pages: Pages }[] = await Promise.all(
-    modules.map(async module => {
-      const pages = await loadPagesJson(module.packageLocation);
-      return { module, pages };
-    })
-  );
-
-  const pageToModulesMap: PageToModulesMap = {};
-
-  allPages.forEach(modulePages => {
-    const module = modulePages.module;
-    Object.keys(modulePages.pages).forEach(page => {
-      if (!pageToModulesMap[page]) {
-        pageToModulesMap[page] = [];
-      }
-      const thisPage = modulePages.pages[page];
-      pageToModulesMap[page].push({
-        moduleName: module.name,
-        prefix: thisPage.prefix,
-        exports: thisPage.exports
-      });
-    });
-  });
-
-  return pageToModulesMap;
-};
+import { mkdir, readdir, stat, writeFile } from "fs/promises";
+import { dirname, join, relative } from "path";
+import { namespace_page, path_build, path_pages, path_ui } from "../constants";
+import { get as getExports } from "../exports";
+import { Module } from "../moduleHandler";
 
 const getRelativePath = (dir: string, page: string): string => {
   const toPage = join(dir, path_ui, path_pages, page);
@@ -99,4 +43,41 @@ export const exportRootModulePage = async (
     targetPageTs,
     `export { ${_exports.join(", ")} } from "${module}";`
   );
+};
+
+export const loadPageNamespaces = async (module: Module) => {
+  if (!module.namespaces[namespace_page]) {
+    const baseDir = join(
+      module.packageLocation,
+      path_build,
+      path_ui,
+      path_pages
+    );
+    const pages: string[] = [];
+
+    if (existsSync(baseDir)) {
+      const queue: string[] = [""];
+
+      while (queue.length > 0) {
+        const dirToParse = queue.shift();
+        const children = await readdir(join(baseDir, dirToParse));
+        await Promise.all(
+          children.map(async child => {
+            const stats = await stat(join(baseDir, dirToParse, child));
+            if (stats.isDirectory()) {
+              queue.push(dirToParse + "/" + child);
+            } else if (child.endsWith(".js")) {
+              pages.push(
+                dirToParse + "/" + child.substring(0, child.lastIndexOf("."))
+              );
+            }
+          })
+        );
+      }
+    }
+
+    module.namespaces[namespace_page] = pages.map(page =>
+      page.startsWith("/") ? page.substring(1) : page
+    );
+  }
 };

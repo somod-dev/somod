@@ -1,10 +1,16 @@
 import { existsSync } from "fs";
 import { JSONSchema7 } from "json-schema";
 import { join } from "path";
-import { file_configJson, path_build, path_ui } from "../constants";
+import {
+  file_configJson,
+  namespace_env_config,
+  namespace_runtime_config,
+  namespace_serverruntime_config,
+  path_build,
+  path_ui
+} from "../constants";
 import { readJsonFileStore } from "@solib/cli-base";
-import { ModuleInfo } from "../moduleInfo";
-import { uniq } from "lodash";
+import { Module } from "../moduleHandler";
 
 export type EnvConfig = {
   schema: JSONSchema7;
@@ -27,21 +33,6 @@ export type Config = {
   serverRuntimeConfig?: Record<string, RuntimeConfig>;
 };
 
-export type EnvToModuleMap = Record<
-  string,
-  { moduleName: string; config: EnvConfig }[]
->;
-
-export type RuntimeConfigToModuleMap = Record<
-  string,
-  { moduleName: string; config: RuntimeConfig }[]
->;
-
-export type ServerRuntimeConfigToModuleMap = Record<
-  string,
-  { moduleName: string; config: RuntimeConfig }[]
->;
-
 export const readConfigJson = async (
   packageLocation: string
 ): Promise<Config> => {
@@ -58,63 +49,20 @@ export const readConfigJson = async (
   }
 };
 
-export type ConfigToModuleMap = {
-  globalCss: string[];
-  env: EnvToModuleMap;
-  imageDomains: string[];
-  runtimeConfig: RuntimeConfigToModuleMap;
-  serverRuntimeConfig: ServerRuntimeConfigToModuleMap;
-};
+export const loadConfigNamespaces = async (module: Module) => {
+  if (
+    !module.namespaces[namespace_env_config] ||
+    !module.namespaces[namespace_runtime_config] ||
+    !module.namespaces[namespace_serverruntime_config]
+  ) {
+    const config = await readConfigJson(module.packageLocation);
 
-export const getConfigToModulesMap = async (
-  modules: ModuleInfo[]
-): Promise<ConfigToModuleMap> => {
-  const allConfig: { moduleName: string; config: Config }[] = await Promise.all(
-    modules.map(async ({ name, packageLocation }) => {
-      return {
-        moduleName: name,
-        config: await readConfigJson(packageLocation)
-      };
-    })
-  );
-
-  const configMap: ConfigToModuleMap = {
-    globalCss: [],
-    env: {},
-    runtimeConfig: {},
-    serverRuntimeConfig: {},
-    imageDomains: []
-  };
-
-  const configKeys: (keyof Config)[] = [
-    "env",
-    "runtimeConfig",
-    "serverRuntimeConfig"
-  ];
-
-  allConfig.forEach(moduleConfig => {
-    // env, runtimeConfig, serverOnlyRuntimeConfig
-    configKeys.forEach(configKey => {
-      Object.keys(moduleConfig.config[configKey] || {}).forEach(configName => {
-        if (!configMap[configKey][configName]) {
-          configMap[configKey][configName] = [];
-        }
-        configMap[configKey][configName].push({
-          moduleName: moduleConfig.moduleName,
-          config: moduleConfig.config[configKey][configName]
-        });
-      });
-    });
-
-    // image domains
-    configMap.imageDomains.push(...(moduleConfig.config.imageDomains || []));
-
-    // global css
-    configMap.globalCss.push(...(moduleConfig.config.globalCss || []));
-  });
-
-  configMap.imageDomains = uniq(configMap.imageDomains);
-  configMap.globalCss = uniq(configMap.globalCss);
-
-  return configMap;
+    module.namespaces[namespace_env_config] = Object.keys(config.env || {});
+    module.namespaces[namespace_runtime_config] = Object.keys(
+      config.runtimeConfig || {}
+    );
+    module.namespaces[namespace_serverruntime_config] = Object.keys(
+      config.serverRuntimeConfig || {}
+    );
+  }
 };

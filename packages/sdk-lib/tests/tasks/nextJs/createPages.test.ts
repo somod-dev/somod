@@ -2,7 +2,6 @@ import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 
 import { createPages } from "../../../src";
 import { join } from "path";
-import { existsSync } from "fs";
 import { ErrorSet } from "@solib/cli-base";
 
 describe("Test Task createPages", () => {
@@ -57,57 +56,34 @@ describe("Test Task createPages", () => {
         name: "m6",
         version: "7.1.7"
       }),
-      "build/ui/pages.json": JSON.stringify({
-        home: {
-          prefix: "Page1",
-          exports: { default: true, named: [] }
-        }
-      }),
-      "node_modules/m2/build/ui/pages.json": JSON.stringify({
-        about: {
-          prefix: "Page1",
-          exports: { default: true, named: ["getInitialProps"] }
-        },
-        home: {
-          prefix: "Page2",
-          exports: { default: true, named: [] }
-        }
-      }),
-      "node_modules/m2/node_modules/m5/build/ui/pages.json": JSON.stringify({
-        contact: {
-          prefix: "Page1",
-          exports: { default: true, named: ["getInitialProps", "Contact"] }
-        },
-        survey: {
-          prefix: "Page2",
-          exports: { default: true, named: [] }
-        }
-      }),
-      "node_modules/m3/build/ui/pages.json": JSON.stringify({
-        home: {
-          prefix: "Page1",
-          exports: { default: true, named: ["getInitialProps", "Home"] }
-        },
-        "about/me": {
-          prefix: "Page2",
-          exports: { default: false, named: ["Me"] }
-        }
-      })
+      "build/ui/pages/home.js":
+        "export default function Homepage () {return 'a';}",
+      "node_modules/m2/build/ui/pages/about.js":
+        "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
+      "node_modules/m2/build/ui/pages/home.js":
+        "export default function Homepage () {return 'a';}",
+      "node_modules/m2/node_modules/m5/build/ui/pages/contact.js":
+        "export default function Contactpage () {return 'a';} export const getInitialProps = () => {}; export const Contact = 10;",
+      "node_modules/m2/node_modules/m5/build/ui/pages/survey.js":
+        "export default function Surveypage () {return 'a';}",
+      "node_modules/m3/build/ui/pages/home.js":
+        "export default function Homepage () {return 'a';} export const getInitialProps = () => {}; export const Home = 10;",
+      "node_modules/m3/build/ui/pages/about/me.js":
+        "export default function AboutMepage () {return 'a';} export const Me = () => {};"
     });
-
-    await expect(createPages(dir, ["njp"], true)).resolves.toBeUndefined();
-
-    expect(existsSync(join(dir, "pages"))).toBeFalsy();
 
     await expect(createPages(dir, ["njp"])).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "pages"))).toEqual({
+      "home.ts": 'export { default } from "../build/ui/pages/home";',
       "about.ts":
-        'export { Page1 as default, Page1getInitialProps as getInitialProps } from "m2";',
+        'export { default, getInitialProps } from "../node_modules/m2/build/ui/pages/about";',
       "contact.ts":
-        'export { Page1 as default, Page1getInitialProps as getInitialProps, Page1Contact as Contact } from "m5";',
-      "survey.ts": 'export { Page2 as default } from "m5";',
-      "about/me.ts": 'export { Page2Me as Me } from "m3";'
+        'export { default, getInitialProps, Contact } from "../node_modules/m2/node_modules/m5/build/ui/pages/contact";',
+      "survey.ts":
+        'export { default } from "../node_modules/m2/node_modules/m5/build/ui/pages/survey";',
+      "about/me.ts":
+        'export { default, Me } from "../node_modules/m3/build/ui/pages/about/me";'
     });
   });
 
@@ -132,45 +108,30 @@ describe("Test Task createPages", () => {
         version: "2.2.0",
         njp: "1.3.2"
       }),
-      "build/ui/pages.json": JSON.stringify({
-        about: {
-          prefix: "Page1",
-          exports: { default: true, named: [] }
-        }
-      }),
-      "node_modules/m2/build/ui/pages.json": JSON.stringify({
-        about: {
-          prefix: "Page1",
-          exports: { default: true, named: ["getInitialProps"] }
-        },
-        contact: {
-          prefix: "Page2",
-          exports: { default: true, named: ["getInitialProps", "Contact"] }
-        },
-        survey: {
-          prefix: "Page3",
-          exports: { default: true, named: [] }
-        }
-      }),
-      "node_modules/m3/build/ui/pages.json": JSON.stringify({
-        about: {
-          prefix: "Page1",
-          exports: { default: true, named: ["getInitialProps"] }
-        },
-        contact: {
-          prefix: "Page2",
-          exports: { default: true, named: ["getInitialProps", "Contact"] }
-        },
-        "about/me": {
-          prefix: "Page3",
-          exports: { default: true, named: [] }
-        }
-      })
+      "build/ui/pages/about.js":
+        "export default function Aboutpage () {return 'a';}",
+      "node_modules/m2/build/ui/pages/about.js":
+        "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
+      "node_modules/m2/build/ui/pages/contact.js":
+        "export default function Contactpage () {return 'a';} export const getInitialProps = () => {}; export const Contact = 10;",
+      "node_modules/m2/build/ui/pages/survey.js":
+        "export default function Surveypage () {return 'a';}",
+
+      "node_modules/m3/build/ui/pages/about.js":
+        "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
+      "node_modules/m3/build/ui/pages/contact.js":
+        "export default function Contactpage () {return 'a';} export const getInitialProps = () => {}; export const Contact = 10;",
+      "node_modules/m3/build/ui/pages/about/me.js":
+        "export default function AbountMepage () {return 'a';}"
     });
     await expect(createPages(dir, ["njp"])).rejects.toEqual(
       new ErrorSet([
         new Error(
-          "Error while resolving (m2, m3) modules for the page 'contact': Can not resolve"
+          `Following namespaces are unresolved
+Page
+ - contact
+   - m2
+   - m3`
         )
       ])
     );

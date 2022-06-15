@@ -165,7 +165,15 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         replaceSLPKeyword(
           slpTemplate,
           functionKeywordPath,
-          `${slpTemplate.packageLocation}/${path_build}/${path_serverless}/${path_functions}/${_function.name}`
+          unixStylePath(
+            join(
+              slpTemplate.packageLocation,
+              path_build,
+              path_serverless,
+              path_functions,
+              _function.name
+            )
+          )
         );
 
         const resourceId = functionKeywordPath[0];

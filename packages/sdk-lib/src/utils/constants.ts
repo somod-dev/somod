@@ -79,3 +79,13 @@ export const defaultNjpConfigSchema =
   "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json";
 
 export type ModuleType = "njp" | "slp" | "somod";
+
+export const namespace_page = "Page";
+
+export const namespace_public = "Public Asset";
+
+export const namespace_env_config = "Env Config";
+
+export const namespace_runtime_config = "Runtime Config";
+
+export const namespace_serverruntime_config = "Server Runtime Config";

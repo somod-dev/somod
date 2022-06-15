@@ -228,6 +228,17 @@ export class ModuleHandler {
     return this.rootModuleNode;
   }
 
+  async getModule(moduleName: string) {
+    await this.load();
+    return this.locationToModuleNodeMap[
+      this.moduleNameToLocationMap[moduleName]
+    ];
+  }
+
+  /**
+   *
+   * @returns the list of modules , all parents are listed before children
+   */
   async listModules() {
     await this.load();
     return this.moduleNodesInBFSOrder;

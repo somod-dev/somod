@@ -1,96 +1,71 @@
 import { mkdir, writeFile } from "fs/promises";
-import { dirname, join } from "path";
-import { file_packageJson, path_pages } from "../../utils/constants";
-import { Exports } from "../../utils/exports";
-import { readJsonFileStore, ErrorSet } from "@solib/cli-base";
-import { resolve } from "../../utils/module";
-import { getModuleInfo } from "../../utils/moduleInfo";
-import { getPageToModulesMap } from "../../utils/nextJs/pages";
+import { dirname, join, relative, sep } from "path";
+import {
+  namespace_page,
+  path_build,
+  path_pages,
+  path_ui
+} from "../../utils/constants";
+import { Exports, get as getExports } from "../../utils/exports";
+import { ModuleHandler } from "../../utils/moduleHandler";
+import { loadPageNamespaces } from "../../utils/nextJs/pages";
 
 const generatePageStatement = (
-  moduleName: string,
-  prefix: string,
+  rootDir: string,
+  packageLocation: string,
+  page: string,
   exports: Exports
 ): string => {
+  const relativePackageLocation = relative(rootDir, packageLocation);
+  const pathSegments =
+    relativePackageLocation == "" ? [] : relativePackageLocation.split(sep);
+  pathSegments.unshift("..");
+  pathSegments.push(path_build, path_ui, path_pages, ...page.split("/"));
+
   const _exports: string[] = [];
   if (exports.default) {
-    _exports.push(`${prefix} as default`);
+    _exports.push("default");
   }
-  exports.named.forEach(namedExport => {
-    _exports.push(`${prefix}${namedExport} as ${namedExport}`);
-  });
-  return `export { ${_exports.join(", ")} } from "${moduleName}";`;
+  _exports.push(...exports.named);
+
+  return `export { ${_exports.join(", ")} } from "${pathSegments.join("/")}";`;
 };
 
 export const createPages = async (
   dir: string,
-  moduleIndicators: string[],
-  validateOnly = false
+  moduleIndicators: string[]
 ): Promise<void> => {
-  const modules = await getModuleInfo(dir, moduleIndicators);
-  const pageToModulesMap = await getPageToModulesMap(modules);
+  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
 
-  const dependencyMap: Record<string, string[]> = {};
-  modules.forEach(module => {
-    dependencyMap[module.name] = module.dependencies;
-  });
+  const namespaces = await moduleHandler.getNamespaces(
+    Object.fromEntries(
+      moduleIndicators.map(moduleType => [moduleType, loadPageNamespaces])
+    )
+  );
 
-  const errors: Error[] = [];
+  const allPages = namespaces[namespace_page];
 
-  const pageToModuleNameMap: Record<string, string> = {};
+  await Promise.all(
+    Object.keys(allPages).map(async page => {
+      const moduleName = allPages[page];
+      const moduleNode = await moduleHandler.getModule(moduleName);
+      const packageLocation = moduleNode.module.packageLocation;
 
-  Object.keys(pageToModulesMap).forEach(page => {
-    if (pageToModulesMap[page].length == 1) {
-      pageToModuleNameMap[page] = pageToModulesMap[page][0].moduleName;
-    } else {
-      const moduleNamesToResolve = pageToModulesMap[page].map(
-        m => m.moduleName
+      const exports = getExports(
+        join(packageLocation, path_build, path_ui, path_pages, page + ".js")
       );
-      try {
-        pageToModuleNameMap[page] = resolve(
-          moduleNamesToResolve,
-          dependencyMap
-        );
-      } catch (e) {
-        errors.push(
-          new Error(
-            `Error while resolving (${moduleNamesToResolve.join(
-              ", "
-            )}) modules for the page '${page}': ${e.message}`
-          )
-        );
-      }
-    }
-  });
 
-  if (errors.length > 0) {
-    throw new ErrorSet(errors);
-  }
+      const pageContent = generatePageStatement(
+        dir,
+        packageLocation,
+        page,
+        exports
+      );
 
-  if (!validateOnly) {
-    // create pages in root dir
-    const rootModuleName = (
-      await readJsonFileStore(join(dir, file_packageJson))
-    ).name as string;
-
-    const createPagePromises = Object.keys(pageToModuleNameMap).map(
-      async page => {
-        const moduleName = pageToModuleNameMap[page];
-        if (moduleName != rootModuleName) {
-          const { prefix, exports } = pageToModulesMap[page].filter(
-            pageModule => pageModule.moduleName == moduleName
-          )[0];
-
-          const content = generatePageStatement(moduleName, prefix, exports);
-
-          const pagePath = join(dir, path_pages, page + ".ts");
-          const pageDir = dirname(pagePath);
-          await mkdir(pageDir, { recursive: true });
-          await writeFile(pagePath, content);
-        }
-      }
-    );
-
-    await Promise.all(createPagePromises);
-  }
+      const pagePath = join(dir, path_pages, page + ".ts");
+      const pageDir = dirname(pagePath);
+      await mkdir(pageDir, { recursive: true });
+      await writeFile(pagePath, pageContent);
+    })
+  );
 };

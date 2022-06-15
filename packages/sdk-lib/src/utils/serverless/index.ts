@@ -1,4 +1,3 @@
-import { getModuleGraph, toChildFirstList } from "../module";
 import { cleanUpBaseModule } from "./baseModule";
 import { apply as applyDependsOn } from "./keywords/dependsOn";
 import { apply as applyExtend } from "./keywords/extend";
@@ -27,15 +26,15 @@ import {
 } from "./slpTemplate";
 import { KeywordSLPExtend, SAMTemplate, SLPTemplateType } from "./types";
 import { getSAMParameterName, getSAMResourceLogicalId } from "./utils";
+import { ModuleHandler } from "../moduleHandler";
 
 export const buildTemplateJson = async (
   dir: string,
   moduleIndicators: string[]
 ): Promise<void> => {
-  const rootModuleNode = await getModuleGraph(dir, moduleIndicators);
-
-  const allChildModules = toChildFirstList(rootModuleNode);
-  allChildModules.pop(); // remove the root module
+  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+  const allChildModules = (await moduleHandler.listModules()).reverse();
+  const rootModuleNode = allChildModules.pop(); // remove the root module
 
   const allChildSlpTemplates = await loadSLPTemplates(allChildModules);
 
@@ -58,9 +57,9 @@ export const generateSAMTemplate = async (
   dir: string,
   moduleIndicators: string[]
 ): Promise<SAMTemplate> => {
-  const rootModuleNode = await getModuleGraph(dir, moduleIndicators);
+  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+  const allModules = (await moduleHandler.listModules()).reverse();
 
-  const allModules = toChildFirstList(rootModuleNode);
   const templateTypes = new Array<SLPTemplateType>(allModules.length).fill(
     "dependent"
   );

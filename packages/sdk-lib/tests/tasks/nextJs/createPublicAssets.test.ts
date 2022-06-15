@@ -1,7 +1,6 @@
 import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 import { createPublicAssets } from "../../../src";
 import { join } from "path";
-import { existsSync } from "fs";
 import { ErrorSet } from "@solib/cli-base";
 
 describe("Test Task createPublicAssets", () => {
@@ -65,15 +64,10 @@ describe("Test Task createPublicAssets", () => {
       "node_modules/m3/build/ui/public/about/me.html": "nlkhkwjher"
     });
 
-    await expect(
-      createPublicAssets(dir, ["njp"], true)
-    ).resolves.toBeUndefined();
-
-    expect(existsSync(join(dir, "public"))).toBeFalsy();
-
     await expect(createPublicAssets(dir, ["njp"])).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "public"))).toEqual({
+      "home.html": "ghkdfjhgkjdsfkl",
       "about.html": "fewkqhkhfklhqekl",
       "contact.js": "kuowh",
       "survey.js": "iuuhiuh",
@@ -113,7 +107,11 @@ describe("Test Task createPublicAssets", () => {
     await expect(createPublicAssets(dir, ["njp"])).rejects.toEqual(
       new ErrorSet([
         new Error(
-          "Error while resolving (m2, m3) modules for the public asset 'contact.js': Can not resolve"
+          `Following namespaces are unresolved
+Public Asset
+ - contact.js
+   - m2
+   - m3`
         )
       ])
     );

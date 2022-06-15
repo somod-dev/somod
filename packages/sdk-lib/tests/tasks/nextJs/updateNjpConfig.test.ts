@@ -1,10 +1,8 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { updateNjpConfig } from "../../../src";
 import { Config } from "../../../src/utils/nextJs/config";
-import { ErrorSet } from "@solib/cli-base";
 
 describe("Test Task updateNjpConfig", () => {
   let dir: string = null;
@@ -75,38 +73,6 @@ describe("Test Task updateNjpConfig", () => {
     ).resolves.toMatchSnapshot();
   });
 
-  test("with validateOnly and content in root build dir", async () => {
-    createFiles(dir, {
-      "package.json": JSON.stringify({ name: "sample", njp: "1.2.3" }),
-      "build/ui/config.json": JSON.stringify(
-        {
-          env: {
-            DB_HOST: { default: "localhost", schema: { type: "string" } }
-          },
-          imageDomains: ["sodaru.com", "cloud.sodaru.com"],
-          runtimeConfig: {
-            theme: {
-              default: { palette: { primary: { main: "#004b89" } } },
-              label: "Theme",
-              schema: { type: "object" }
-            }
-          },
-          serverRuntimeConfig: {
-            googleRecaptchaApiKey: {
-              schema: { type: "string" }
-            }
-          }
-        } as Config,
-        null,
-        2
-      )
-    });
-    await expect(updateNjpConfig(dir, ["njp"], true)).resolves.toBeUndefined();
-    expect(existsSync(join(dir, "njp.config.json"))).not.toBeTruthy();
-    expect(existsSync(join(dir, ".env"))).not.toBeTruthy();
-    expect(existsSync(join(dir, "pages/_app.ts"))).not.toBeTruthy();
-  });
-
   test("with conflicting content", async () => {
     createFiles(dir, {
       "package.json": JSON.stringify({
@@ -165,14 +131,15 @@ describe("Test Task updateNjpConfig", () => {
       )
     });
     await expect(updateNjpConfig(dir, ["njp"])).rejects.toEqual(
-      new ErrorSet([
-        new Error(
-          "Error while resolving (pkg1, pkg2) modules for the env 'DB_HOST': Can not resolve"
-        ),
-        new Error(
-          "Error while resolving (pkg1, pkg2) modules for the runtimeConfig 'theme': Can not resolve"
-        )
-      ])
+      new Error(`Following namespaces are unresolved
+Env Config
+ - DB_HOST
+   - pkg1
+   - pkg2
+Runtime Config
+ - theme
+   - pkg1
+   - pkg2`)
     );
   });
 

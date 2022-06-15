@@ -1,19 +1,20 @@
-import { resolve } from "../../utils/module";
-import { getModuleInfo } from "../../utils/moduleInfo";
-import {
-  Config,
-  ConfigToModuleMap,
-  getConfigToModulesMap
-} from "../../utils/nextJs/config";
-import { ErrorSet } from "@solib/cli-base";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import {
   file_appPage,
   file_dotenv,
   file_njpConfigJson,
+  namespace_env_config,
+  namespace_runtime_config,
+  namespace_serverruntime_config,
   path_pages
 } from "../../utils/constants";
+import { ModuleHandler } from "../../utils/moduleHandler";
+import {
+  Config,
+  loadConfigNamespaces,
+  readConfigJson
+} from "../../utils/nextJs/config";
 
 const updateAppPage = async (dir: string, config: Config): Promise<void> => {
   let appPageContent = "";
@@ -99,70 +100,62 @@ const generateNjpConfigFile = async (
 
 export const updateNjpConfig = async (
   dir: string,
-  moduleIndicators: string[],
-  validateOnly = false
+  moduleIndicators: string[]
 ): Promise<void> => {
-  const modules = await getModuleInfo(dir, moduleIndicators);
-  const configToModulesMap = await getConfigToModulesMap(modules);
+  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
 
-  const dependencyMap: Record<string, string[]> = {};
-  modules.forEach(module => {
-    dependencyMap[module.name] = module.dependencies;
-  });
+  const namespaces = await moduleHandler.getNamespaces(
+    Object.fromEntries(
+      moduleIndicators.map(moduleType => [moduleType, loadConfigNamespaces])
+    )
+  );
 
-  const errors: Error[] = [];
+  const allModules = await moduleHandler.listModules();
 
   const combinedConfig: Config = {
-    globalCss: configToModulesMap.globalCss,
+    globalCss: [],
     env: {},
-    imageDomains: configToModulesMap.imageDomains,
+    imageDomains: [],
     runtimeConfig: {},
     serverRuntimeConfig: {}
   };
 
-  const keysToBeResolved: (keyof Omit<ConfigToModuleMap, "imageDomains">)[] = [
-    "env",
-    "runtimeConfig",
-    "serverRuntimeConfig"
-  ];
+  const configMap: Record<string, Config> = {};
 
-  keysToBeResolved.forEach(configKey => {
-    Object.keys(configToModulesMap[configKey]).forEach(configName => {
-      let config = null;
-      if (configToModulesMap[configKey][configName].length == 1) {
-        config = configToModulesMap[configKey][configName][0].config;
-      } else {
-        const moduleNamesToResolve = configToModulesMap[configKey][
-          configName
-        ].map(m => m.moduleName);
-        try {
-          const moduleName = resolve(moduleNamesToResolve, dependencyMap);
-          config = configToModulesMap[configKey][configName].filter(
-            m => m.moduleName == moduleName
-          )[0].config;
-        } catch (e) {
-          errors.push(
-            new Error(
-              `Error while resolving (${moduleNamesToResolve.join(
-                ", "
-              )}) modules for the ${configKey} '${configName}': ${e.message}`
-            )
-          );
-        }
-      }
-      if (config) {
-        combinedConfig[configKey][configName] = config;
-      }
-    });
+  await Promise.all(
+    allModules.map(async moduleNode => {
+      const config = await readConfigJson(moduleNode.module.packageLocation);
+      configMap[moduleNode.module.name] = config;
+      combinedConfig.globalCss.push(...config.globalCss);
+      combinedConfig.imageDomains.push(...config.imageDomains);
+    })
+  );
+
+  const allEnvConfig = namespaces[namespace_env_config];
+  const allRuntimeConfig = namespaces[namespace_runtime_config];
+  const allServerRuntimeConfig = namespaces[namespace_serverruntime_config];
+
+  Object.keys(allEnvConfig).map(envName => {
+    const moduleName = allEnvConfig[envName];
+    const env = configMap[moduleName].env[envName];
+    combinedConfig.env[envName] = env;
   });
 
-  if (errors.length > 0) {
-    throw new ErrorSet(errors);
-  }
+  Object.keys(allRuntimeConfig).map(runtimeConfigName => {
+    const moduleName = allRuntimeConfig[runtimeConfigName];
+    const runtimeConfig =
+      configMap[moduleName].runtimeConfig[runtimeConfigName];
+    combinedConfig.runtimeConfig[runtimeConfigName] = runtimeConfig;
+  });
 
-  if (!validateOnly) {
-    await generateDotEnvFile(dir, combinedConfig);
-    await generateNjpConfigFile(dir, combinedConfig);
-    await updateAppPage(dir, combinedConfig);
-  }
+  Object.keys(allServerRuntimeConfig).map(runtimeConfigName => {
+    const moduleName = allServerRuntimeConfig[runtimeConfigName];
+    const runtimeConfig =
+      configMap[moduleName].serverRuntimeConfig[runtimeConfigName];
+    combinedConfig.serverRuntimeConfig[runtimeConfigName] = runtimeConfig;
+  });
+
+  await generateDotEnvFile(dir, combinedConfig);
+  await generateNjpConfigFile(dir, combinedConfig);
+  await updateAppPage(dir, combinedConfig);
 };
