@@ -9,3 +9,5 @@ export { createPublicAssets } from "./createPublicAssets";
 export { validateUiConfigYaml } from "./validateUiConfigYaml";
 export { buildUiConfigYaml } from "./buildUiConfigYaml";
 export { updateNjpConfig } from "./updateNjpConfig";
+export { buildUiPublic } from "./buildUiPublic";
+export { initWelcomePage } from "./initWelcomePage";

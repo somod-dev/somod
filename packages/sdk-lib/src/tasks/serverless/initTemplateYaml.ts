@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { path_serverless, file_templateYaml } from "../../utils/constants";
 
-export const templateYaml = async (dir: string): Promise<void> => {
+export const initTemplateYaml = async (dir: string): Promise<void> => {
   const templatePath = join(dir, path_serverless, file_templateYaml);
 
   const templateContent = `# yaml-language-server: $schema=../node_modules/@somod/serverless-schema/schemas/index.json

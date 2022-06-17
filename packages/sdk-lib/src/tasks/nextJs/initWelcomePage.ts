@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { path_pages, path_ui } from "../../utils/constants";
 
-export const welcomePage = async (dir: string): Promise<void> => {
+export const initWelcomePage = async (dir: string): Promise<void> => {
   const pageName = "index.tsx";
   const pagePath = join(dir, path_ui, path_pages, pageName);
 
@@ -16,7 +16,7 @@ const Index: React.FunctionComponent = () => {
       <h2>This is a sample page</h2>
       <p>
         <a
-          href="https://gitlab.com/sodaru/somod/sdk"
+          href="https://sodaru.com/platform"
           target="_blank"
         >
           Click Me

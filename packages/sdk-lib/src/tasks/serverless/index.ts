@@ -5,3 +5,4 @@ export { doesFunctionsHaveDefaultExport as doesServerlessFunctionsHaveDefaultExp
 export { samCommand } from "./samCommand";
 export { bundleFunctions } from "./bundleFunctions";
 export { installLayerDependencies } from "./installLayerDependencies";
+export { initTemplateYaml } from "./initTemplateYaml";
