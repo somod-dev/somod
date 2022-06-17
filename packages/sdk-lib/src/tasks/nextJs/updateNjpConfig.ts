@@ -1,13 +1,10 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import { join } from "path";
 import {
-  file_appPage,
   file_dotenv,
-  file_njpConfigJson,
   namespace_env_config,
   namespace_runtime_config,
-  namespace_serverruntime_config,
-  path_pages
+  namespace_serverruntime_config
 } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
 import {
@@ -16,39 +13,8 @@ import {
   readConfigJson
 } from "../../utils/nextJs/config";
 
-const updateAppPage = async (dir: string, config: Config): Promise<void> => {
-  let appPageContent = "";
-  try {
-    appPageContent = await readFile(join(dir, path_pages, file_appPage), {
-      encoding: "utf8"
-    });
-  } catch (e) {
-    // ignore file read error
-  }
-
-  const divider = "/* NJP_GLOBAL_CSS */";
-
-  const appPageLines = appPageContent.split("\n");
-  const originalAppPageLines: string[] = [];
-  for (const line of appPageLines) {
-    if (line.trim() == divider) {
-      break;
-    } else {
-      originalAppPageLines.push(line);
-    }
-  }
-
-  originalAppPageLines.push(divider);
-
-  (config.globalCss || []).forEach(globalCssName => {
-    originalAppPageLines.push(`import "${globalCssName}";`);
-  });
-  await mkdir(join(dir, path_pages), { recursive: true });
-  await writeFile(
-    join(dir, path_pages, file_appPage),
-    originalAppPageLines.join("\n")
-  );
-};
+// TODO: remove this
+const file_njpConfigJson = "njp.config.json";
 
 const generateDotEnvFile = async (
   dir: string,
@@ -157,5 +123,4 @@ export const updateNjpConfig = async (
 
   await generateDotEnvFile(dir, combinedConfig);
   await generateNjpConfigFile(dir, combinedConfig);
-  await updateAppPage(dir, combinedConfig);
 };

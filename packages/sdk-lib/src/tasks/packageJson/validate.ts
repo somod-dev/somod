@@ -14,7 +14,8 @@ import {
   key_type,
   key_typings,
   ModuleType,
-  path_build
+  path_build,
+  path_lib
 } from "../../utils/constants";
 import { read, packageJsonPath } from "../../utils/packageJson";
 import { validate as validateJson } from "@solib/json-validator";
@@ -49,11 +50,11 @@ const packageJsonSchema: JSONSchema7 = {
     },
     [key_module]: {
       const: `${path_build}/${file_index_js}`,
-      errorMessage: `must be ${path_build}/${file_index_js}`
+      errorMessage: `must be ${path_build}/${path_lib}/${file_index_js}`
     },
     [key_typings]: {
       const: `${path_build}/${file_index_dts}`,
-      errorMessage: `must be ${path_build}/${file_index_dts}`
+      errorMessage: `must be ${path_build}/${path_lib}/${file_index_dts}`
     },
     [key_files]: {
       type: "array",

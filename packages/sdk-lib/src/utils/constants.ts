@@ -4,10 +4,8 @@ export const file_packageLockJson = "package-lock.json";
 export const file_gitIgnore = ".gitignore";
 export const file_eslintIgnore = ".eslintignore";
 export const file_prettierIgnore = ".prettierignore";
-export const file_vercelIgnore = ".vercelignore";
 
 export const file_dotenv = ".env";
-export const file_npmrc = ".npmrc";
 
 export const file_tsConfigJson = "tsconfig.json";
 export const file_tsConfigBuildJson = "tsconfig.build.json";
@@ -45,19 +43,11 @@ export const path_public = "public";
 export const file_index_js = "index.js";
 export const file_index_dts = "index.d.ts";
 
-export const file_pageIndex_js = "pageIndex.js";
-export const file_pageIndex_dts = "pageIndex.d.ts";
-
-export const file_pagesJson = "pages.json";
-
 export const path_git = ".git";
 export const path_nextBuild = ".next";
 
-export const file_appPage = "_app.ts";
-
 export const file_configYaml = "config.yaml";
 export const file_configJson = "config.json";
-export const file_njpConfigJson = "njp.config.json";
 
 export const path_serverless = "serverless";
 export const path_functions = "functions";

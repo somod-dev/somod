@@ -6,8 +6,6 @@ export { startNextDev } from "./startNextDev";
 export { vercelCommand } from "./vercelCommand";
 export { createPages } from "./createPages";
 export { createPublicAssets } from "./createPublicAssets";
-export { createNextConfigJs } from "./createNextConfigJs";
-export { createNjpConfigJson } from "./createNjpConfigJson";
 export { validateUiConfigYaml } from "./validateUiConfigYaml";
 export { buildUiConfigYaml } from "./buildUiConfigYaml";
 export { updateNjpConfig } from "./updateNjpConfig";

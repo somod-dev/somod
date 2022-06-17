@@ -26,9 +26,6 @@ describe("Test Task updateNjpConfig", () => {
     await expect(
       readFile(join(dir, ".env"), { encoding: "utf8" })
     ).resolves.toMatchSnapshot();
-    await expect(
-      readFile(join(dir, "pages/_app.ts"), { encoding: "utf8" })
-    ).resolves.toMatchSnapshot();
   });
 
   test("with content in root build dir", async () => {
@@ -67,9 +64,6 @@ describe("Test Task updateNjpConfig", () => {
     ).resolves.toMatchSnapshot();
     await expect(
       readFile(join(dir, ".env"), { encoding: "utf8" })
-    ).resolves.toMatchSnapshot();
-    await expect(
-      readFile(join(dir, "pages/_app.ts"), { encoding: "utf8" })
     ).resolves.toMatchSnapshot();
   });
 
@@ -145,7 +139,6 @@ Runtime Config
 
   test("with resolved conflicting content", async () => {
     createFiles(dir, {
-      "pages/_app.ts": 'export { default } from "../ui/pages/_app";',
       "package.json": JSON.stringify({
         name: "sample",
         njp: "1.2.3",
@@ -229,9 +222,6 @@ Runtime Config
     ).resolves.toMatchSnapshot();
     await expect(
       readFile(join(dir, ".env"), { encoding: "utf8" })
-    ).resolves.toMatchSnapshot();
-    await expect(
-      readFile(join(dir, "pages/_app.ts"), { encoding: "utf8" })
     ).resolves.toMatchSnapshot();
   });
 });

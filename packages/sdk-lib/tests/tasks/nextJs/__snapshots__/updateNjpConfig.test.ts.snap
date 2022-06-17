@@ -23,13 +23,6 @@ exports[`Test Task updateNjpConfig with content in root build dir 1`] = `
 
 exports[`Test Task updateNjpConfig with content in root build dir 2`] = `"DB_HOST=localhost"`;
 
-exports[`Test Task updateNjpConfig with content in root build dir 3`] = `
-"
-/* NJP_GLOBAL_CSS */
-import \\"@fontsource/roboto/300.css\\";
-import \\"@fontsource/roboto/400.css\\";"
-`;
-
 exports[`Test Task updateNjpConfig with empty dir 1`] = `
 "{
   \\"images\\": {
@@ -41,11 +34,6 @@ exports[`Test Task updateNjpConfig with empty dir 1`] = `
 `;
 
 exports[`Test Task updateNjpConfig with empty dir 2`] = `""`;
-
-exports[`Test Task updateNjpConfig with empty dir 3`] = `
-"
-/* NJP_GLOBAL_CSS */"
-`;
 
 exports[`Test Task updateNjpConfig with resolved conflicting content 1`] = `
 "{
@@ -70,13 +58,4 @@ exports[`Test Task updateNjpConfig with resolved conflicting content 1`] = `
 exports[`Test Task updateNjpConfig with resolved conflicting content 2`] = `
 "DB_HOST=localhost
 DB_PORT=8080"
-`;
-
-exports[`Test Task updateNjpConfig with resolved conflicting content 3`] = `
-"export { default } from \\"../ui/pages/_app\\";
-/* NJP_GLOBAL_CSS */
-import \\"@fontsource/roboto/300.css\\";
-import \\"@fontsource/roboto/400.css\\";
-import \\"@fontsource/roboto/500.css\\";
-import \\"@fontsource/roboto/700.css\\";"
 `;

@@ -13,7 +13,8 @@ import {
   key_type,
   key_typings,
   ModuleType,
-  path_build
+  path_build,
+  path_lib
 } from "../../utils/constants";
 import { read, update as _updatePackageJson } from "../../utils/packageJson";
 
@@ -47,9 +48,13 @@ export const update = async (dir: string, type: ModuleType): Promise<void> => {
   delete toBeUpdatedPackageJsonData[key_jsnextMain];
   delete toBeUpdatedPackageJsonData[key_type];
 
-  toBeUpdatedPackageJsonData[key_module] = `${path_build}/${file_index_js}`;
+  toBeUpdatedPackageJsonData[
+    key_module
+  ] = `${path_build}/${path_lib}/${file_index_js}`;
 
-  toBeUpdatedPackageJsonData[key_typings] = `${path_build}/${file_index_dts}`;
+  toBeUpdatedPackageJsonData[
+    key_typings
+  ] = `${path_build}/${path_lib}/${file_index_dts}`;
 
   if (!toBeUpdatedPackageJsonData[key_files]) {
     toBeUpdatedPackageJsonData[key_files] = [];
