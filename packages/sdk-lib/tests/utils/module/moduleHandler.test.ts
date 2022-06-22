@@ -202,7 +202,8 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {}
+        namespaces: {},
+        root: true
       }
     },
     parents: { m1: [] },
@@ -234,7 +235,8 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {}
+        namespaces: {},
+        root: true
       }
     },
     parents: { m1: [] },
@@ -274,7 +276,8 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {}
+        namespaces: {},
+        root: true
       }
     },
     parents: { m1: [] },
@@ -315,7 +318,8 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {}
+        namespaces: {},
+        root: true
       },
       m2: {
         type: "njp",
@@ -387,7 +391,8 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {}
+        namespaces: {},
+        root: true
       },
       m2: {
         type: "slp",
@@ -468,7 +473,8 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {}
+        namespaces: {},
+        root: true
       },
       m2: {
         type: "slp",
@@ -522,7 +528,8 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {}
+        namespaces: {},
+        root: true
       },
       "@s/m2": {
         type: "njp",

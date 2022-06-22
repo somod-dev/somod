@@ -126,11 +126,11 @@ describe("Test Task updateNjpConfig", () => {
     });
     await expect(updateNjpConfig(dir, ["njp"])).rejects.toEqual(
       new Error(`Following namespaces are unresolved
-Env Config
+UI Env Config
  - DB_HOST
    - pkg1
    - pkg2
-Runtime Config
+UI Runtime Config
  - theme
    - pkg1
    - pkg2`)

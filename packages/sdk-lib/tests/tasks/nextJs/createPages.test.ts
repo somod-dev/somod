@@ -128,7 +128,7 @@ describe("Test Task createPages", () => {
       new ErrorSet([
         new Error(
           `Following namespaces are unresolved
-Page
+UI Page
  - contact
    - m2
    - m3`

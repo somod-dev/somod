@@ -4,8 +4,7 @@ import {
   saveJsonFileStore,
   updateJsonFileStore
 } from "@solib/cli-base";
-import { mkdir, readFile } from "fs/promises";
-import { load } from "js-yaml";
+import { mkdir } from "fs/promises";
 import { cloneDeep } from "lodash";
 import { dirname, join } from "path";
 import {
@@ -14,7 +13,8 @@ import {
   path_build,
   path_serverless
 } from "../constants";
-import { ModuleNode } from "../moduleHandler";
+import { Module, ModuleNode } from "../moduleHandler";
+import { readYamlFileStore } from "../yamlFileStore";
 import { baseModuleName, getBaseModuleOriginalSLPTemplate } from "./baseModule";
 import { validate as validateDependsOn } from "./keywords/dependsOn";
 import { validate as validateExtend } from "./keywords/extend";
@@ -26,12 +26,7 @@ import { validate as validateFunctionLayers } from "./keywords/functionLayerLibr
 import { validate as validateRef } from "./keywords/ref";
 import { validate as validateRefParameter } from "./keywords/refParameter";
 import { validate as validateRefResourceName } from "./keywords/refResourceName";
-import {
-  OriginalSLPTemplate,
-  ServerlessTemplate,
-  SLPTemplate,
-  SLPTemplateType
-} from "./types";
+import { OriginalSLPTemplate, ServerlessTemplate, SLPTemplate } from "./types";
 import { updateKeywordPathsInSLPTemplate } from "./utils";
 
 export class NoSLPTemplateError extends Error {
@@ -43,10 +38,10 @@ export class NoSLPTemplateError extends Error {
 }
 
 const loadBuiltSLPTemplate = async (
-  moduleNode: ModuleNode
+  module: Module
 ): Promise<OriginalSLPTemplate> => {
   const templateLocation = join(
-    moduleNode.module.packageLocation,
+    module.packageLocation,
     path_build,
     path_serverless,
     file_templateJson
@@ -68,18 +63,17 @@ const loadBuiltSLPTemplate = async (
 };
 
 const loadSourceSLPTemplate = async (
-  moduleNode: ModuleNode
+  module: Module
 ): Promise<OriginalSLPTemplate> => {
   const templateLocation = join(
-    moduleNode.module.packageLocation,
+    module.packageLocation,
     path_serverless,
     file_templateYaml
   );
   try {
-    const templateYamlContent = await readFile(templateLocation, {
-      encoding: "utf8"
-    });
-    const slpTemplate = load(templateYamlContent) as OriginalSLPTemplate;
+    const slpTemplate = (await readYamlFileStore(
+      templateLocation
+    )) as OriginalSLPTemplate;
 
     return slpTemplate;
   } catch (e) {
@@ -92,19 +86,31 @@ const loadSourceSLPTemplate = async (
   }
 };
 
-export const loadSLPTemplate = async (
-  moduleNode: ModuleNode,
-  type: SLPTemplateType = "dependent"
-): Promise<SLPTemplate> => {
+export const loadOriginalSlpTemplate = async (
+  module: Module,
+  loadRootFromBuild = false
+): Promise<OriginalSLPTemplate> => {
   // the schema for slpTemplate is @somod/serverless-schema/schemas/index.json
   const originalSlpTemplate =
-    type == "source"
-      ? await loadSourceSLPTemplate(moduleNode)
-      : await loadBuiltSLPTemplate(moduleNode);
+    module.root && !loadRootFromBuild
+      ? await loadSourceSLPTemplate(module)
+      : await loadBuiltSLPTemplate(module);
+
+  return originalSlpTemplate;
+};
+
+const loadSLPTemplate = async (
+  moduleNode: ModuleNode,
+  loadRootFromBuild = false
+): Promise<SLPTemplate> => {
+  const originalSlpTemplate = await loadOriginalSlpTemplate(
+    moduleNode.module,
+    loadRootFromBuild
+  );
 
   const slpTemplate: SLPTemplate = {
     ...originalSlpTemplate,
-    root: type == "source" || type == "build",
+    root: moduleNode.module.root,
     module: moduleNode.module.name,
     packageLocation: moduleNode.module.packageLocation,
     keywordPaths: null,
@@ -115,7 +121,7 @@ export const loadSLPTemplate = async (
   return slpTemplate;
 };
 
-export const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
+const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
   const originalSlpTemplate: OriginalSLPTemplate =
     await getBaseModuleOriginalSLPTemplate();
 
@@ -131,14 +137,19 @@ export const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
   return baseSlpTemplate;
 };
 
-export const loadSLPTemplates = async (
+/**
+ * Tries to load the SLP Templates for the provided modules
+ *
+ * @returns SLPTemplate[], contains SLP Templates of only found templates, keeps the sort order same as the provided templates
+ */
+export const loadServerlessTemplate = async (
   modules: ModuleNode[],
-  types: SLPTemplateType[] = []
-): Promise<SLPTemplate[]> => {
-  let slpTemplates = await Promise.all(
-    modules.map(async (module, i) => {
+  loadRootFromBuild = false
+): Promise<ServerlessTemplate> => {
+  const slpTemplates = await Promise.all(
+    modules.map(async module => {
       try {
-        return await loadSLPTemplate(module, types[i] || "dependent");
+        return await loadSLPTemplate(module, loadRootFromBuild);
       } catch (e) {
         if (e instanceof NoSLPTemplateError) {
           return false;
@@ -149,17 +160,16 @@ export const loadSLPTemplates = async (
     })
   );
 
-  slpTemplates = slpTemplates.filter(slpTemplate => !!slpTemplate);
-  return slpTemplates as SLPTemplate[];
-};
+  const baseSlpTemplate = await loadBaseSlpTemplate();
 
-export const mergeSLPTemplates = (
-  slpTemplates: SLPTemplate[]
-): ServerlessTemplate => {
-  const serverlessTemplate: Record<string, SLPTemplate> = {};
+  const serverlessTemplate: Record<string, SLPTemplate> = {
+    [baseSlpTemplate.module]: baseSlpTemplate
+  };
 
   slpTemplates.forEach(slpTemplate => {
-    serverlessTemplate[slpTemplate.module] = slpTemplate;
+    if (slpTemplate) {
+      serverlessTemplate[slpTemplate.module] = slpTemplate;
+    }
   });
 
   return serverlessTemplate;
@@ -168,7 +178,9 @@ export const mergeSLPTemplates = (
 export const buildRootSLPTemplate = async (
   rootModuleNode: ModuleNode
 ): Promise<void> => {
-  const originalSLPTemplate = await loadSourceSLPTemplate(rootModuleNode);
+  const originalSLPTemplate = await loadSourceSLPTemplate(
+    rootModuleNode.module
+  );
 
   const templateJsonPath = join(
     rootModuleNode.module.packageLocation,

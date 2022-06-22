@@ -137,8 +137,6 @@ export type SLPTemplate = OriginalSLPTemplate & {
   original: OriginalSLPTemplate;
 };
 
-export type SLPTemplateType = "source" | "build" | "dependent";
-
 export type ServerlessTemplate = Record<string, SLPTemplate>;
 
 export type SAMTemplate = {

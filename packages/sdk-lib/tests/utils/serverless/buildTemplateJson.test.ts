@@ -4,7 +4,6 @@ import { dump } from "js-yaml";
 import { join } from "path";
 import { validateSchema } from "../../../src/tasks/serverless/validateSchema";
 import { buildTemplateJson } from "../../../src/utils/serverless";
-import { NoSLPTemplateError } from "../../../src/utils/serverless/slpTemplate";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import {
   functionDefaults,
@@ -33,9 +32,9 @@ describe("Test Util serverless.buildTemplateJson", () => {
 
   test("with empty module", async () => {
     createFiles(dir, { ...singlePackageJson });
-    await expect(buildTemplateJson(dir, moduleIndicators)).rejects.toEqual(
-      new NoSLPTemplateError(join(dir, "serverless", "template.yaml"))
-    );
+    await expect(
+      buildTemplateJson(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
     expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
 

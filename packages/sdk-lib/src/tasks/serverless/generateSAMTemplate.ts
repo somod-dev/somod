@@ -1,8 +1,10 @@
-import { writeFile } from "fs/promises";
-import { dump } from "js-yaml";
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
 import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverless";
+import {
+  saveYamlFileStore,
+  updateYamlFileStore
+} from "../../utils/yamlFileStore";
 
 export const generateSAMTemplate = async (
   dir: string,
@@ -25,8 +27,7 @@ export const generateSAMTemplate = async (
 
     const templateYamlPath = join(dir, file_templateYaml);
 
-    const templateStr = dump(completeSamTemplate);
-
-    await writeFile(templateYamlPath, templateStr);
+    updateYamlFileStore(templateYamlPath, completeSamTemplate);
+    await saveYamlFileStore(templateYamlPath);
   }
 };

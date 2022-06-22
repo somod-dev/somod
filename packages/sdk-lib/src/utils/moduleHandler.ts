@@ -12,6 +12,7 @@ export type Module = {
   version: string;
   packageLocation: string;
   namespaces: Record<string, string[]>;
+  root?: boolean;
 };
 
 export type NamespaceLoader = (module: Module) => Promise<void>;
@@ -90,7 +91,7 @@ export class ModuleHandler {
   /**
    * creates ModuleNode from given packageLocation
    */
-  private async loadModuleNode(packageLocation: string) {
+  private async loadModuleNode(packageLocation: string, root?: boolean) {
     if (this.moduleLoadJobs[packageLocation] === undefined) {
       this.moduleLoadJobs[packageLocation] = (async () => {
         const packageJson = await readJsonFileStore(
@@ -111,6 +112,10 @@ export class ModuleHandler {
             packageLocation,
             namespaces: {}
           };
+
+          if (root) {
+            module.root = true;
+          }
 
           const moduleNode: ModuleNode = {
             module,
@@ -217,7 +222,10 @@ export class ModuleHandler {
 
   private async load() {
     if (this.rootModuleNode == undefined) {
-      this.rootModuleNode = await this.loadModuleNode(normalize(this.rootDir));
+      this.rootModuleNode = await this.loadModuleNode(
+        normalize(this.rootDir),
+        true
+      );
       this.checkDuplicates();
       this.sort();
     }

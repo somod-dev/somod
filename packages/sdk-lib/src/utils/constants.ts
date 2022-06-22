@@ -70,12 +70,16 @@ export const defaultNjpConfigSchema =
 
 export type ModuleType = "njp" | "slp" | "somod";
 
-export const namespace_page = "Page";
+export const namespace_page = "UI Page";
 
-export const namespace_public = "Public Asset";
+export const namespace_public = "UI Public Asset";
 
-export const namespace_env_config = "Env Config";
+export const namespace_env_config = "UI Env Config";
 
-export const namespace_runtime_config = "Runtime Config";
+export const namespace_runtime_config = "UI Runtime Config";
 
-export const namespace_serverruntime_config = "Server Runtime Config";
+export const namespace_serverruntime_config = "UI Server Runtime Config";
+
+export const namespace_http_api = "Serverless Http Api";
+
+export const resourceType_Function = "AWS::Serverless::Function";

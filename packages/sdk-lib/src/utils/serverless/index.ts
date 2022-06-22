@@ -18,39 +18,79 @@ import { apply as applyModuleName } from "./keywords/moduleName";
 import { apply as applyFnSub } from "./keywords/fnSub";
 import {
   buildRootSLPTemplate,
-  loadBaseSlpTemplate,
-  loadSLPTemplate,
-  loadSLPTemplates,
-  mergeSLPTemplates,
+  loadOriginalSlpTemplate,
+  loadServerlessTemplate,
+  NoSLPTemplateError,
   validate
 } from "./slpTemplate";
-import { KeywordSLPExtend, SAMTemplate, SLPTemplateType } from "./types";
+import { KeywordSLPExtend, SAMTemplate, SLPTemplate } from "./types";
 import { getSAMParameterName, getSAMResourceLogicalId } from "./utils";
-import { ModuleHandler } from "../moduleHandler";
+import { Module, ModuleHandler } from "../moduleHandler";
+import { namespace_http_api, resourceType_Function } from "../constants";
+
+// must match to the schema of function resource
+type FunctionResourceProperties = Record<string, unknown> & {
+  Events?: Record<
+    string,
+    {
+      Type: string;
+      Properties: Record<string, unknown> & {
+        Method: string;
+        Path: string;
+      };
+    }
+  >;
+};
+
+export const loadHttpApiNamespaces = async (module: Module) => {
+  if (!module.namespaces[namespace_http_api]) {
+    module.namespaces[namespace_http_api] = [];
+    try {
+      const originalSlpTemplate = await loadOriginalSlpTemplate(module);
+
+      Object.values(originalSlpTemplate.Resources).forEach(resource => {
+        if (resource.Type == resourceType_Function) {
+          const resourceProperties =
+            resource.Properties as FunctionResourceProperties;
+          Object.values(resourceProperties.Events || {}).forEach(event => {
+            if (event.Type == "HttpApi") {
+              module.namespaces[namespace_http_api].push(
+                `${event.Properties.Method} ${event.Properties.Path}`
+              );
+            }
+          });
+        }
+      });
+    } catch (e) {
+      if (!(e instanceof NoSLPTemplateError)) {
+        throw e;
+      }
+    }
+  }
+};
 
 export const buildTemplateJson = async (
   dir: string,
   moduleIndicators: string[]
 ): Promise<void> => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
-  const allChildModules = (await moduleHandler.listModules()).reverse();
-  const rootModuleNode = allChildModules.pop(); // remove the root module
+  const allModules = await moduleHandler.listModules();
 
-  const allChildSlpTemplates = await loadSLPTemplates(allChildModules);
+  const serverlessTemplate = await loadServerlessTemplate(allModules);
 
-  const rootSlpTemplate = await loadSLPTemplate(rootModuleNode, "source"); // root slp template.yaml must exist
+  const rootModuleNode = allModules[0];
 
-  const baseSlpTemplate = await loadBaseSlpTemplate();
-  allChildSlpTemplates.unshift(baseSlpTemplate);
+  if (serverlessTemplate[rootModuleNode.module.name]) {
+    const rootSlpTemplate = serverlessTemplate[rootModuleNode.module.name];
+    delete serverlessTemplate[rootModuleNode.module.name];
 
-  const serverlessTemplate = mergeSLPTemplates(allChildSlpTemplates);
+    await validate(rootSlpTemplate, serverlessTemplate);
 
-  await validate(rootSlpTemplate, serverlessTemplate);
+    await buildRootSLPTemplate(rootModuleNode);
 
-  await buildRootSLPTemplate(rootModuleNode);
-
-  await buildFunction(rootSlpTemplate);
-  await buildFunctionLayerLibraries(rootSlpTemplate);
+    await buildFunction(rootSlpTemplate);
+    await buildFunctionLayerLibraries(rootSlpTemplate);
+  }
 };
 
 export const generateSAMTemplate = async (
@@ -58,20 +98,9 @@ export const generateSAMTemplate = async (
   moduleIndicators: string[]
 ): Promise<SAMTemplate> => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
-  const allModules = (await moduleHandler.listModules()).reverse();
+  const allModules = await moduleHandler.listModules();
 
-  const templateTypes = new Array<SLPTemplateType>(allModules.length).fill(
-    "dependent"
-  );
-  if (templateTypes.pop()) {
-    templateTypes.push("build"); // load from build for root module
-  }
-  const allSlpTemplates = await loadSLPTemplates(allModules, templateTypes);
-
-  const baseSlpTemplate = await loadBaseSlpTemplate();
-  allSlpTemplates.unshift(baseSlpTemplate);
-
-  const serverlessTemplate = mergeSLPTemplates(allSlpTemplates);
+  const serverlessTemplate = await loadServerlessTemplate(allModules, true);
 
   applyModuleName(serverlessTemplate);
   applyFnSub(serverlessTemplate);
@@ -89,30 +118,60 @@ export const generateSAMTemplate = async (
 
   const samTemplate: SAMTemplate = { Parameters: {}, Resources: {} };
 
-  Object.values(serverlessTemplate).forEach(slpTemplate => {
-    if (slpTemplate.Parameters) {
-      Object.keys(slpTemplate.Parameters).forEach(slpParameterName => {
-        const samParameterName = getSAMParameterName(
-          slpTemplate.module,
-          slpParameterName
-        );
-        samTemplate.Parameters[samParameterName] = {
-          Type: slpTemplate.Parameters[slpParameterName].SAMType
-        };
-      });
+  const allModuleNames = allModules.map(m => m.module.name);
+
+  /**
+   * This function defines the order of templates to be merged into SAM Template
+   *
+   * The Order In which the templates are merged is important to keep all child module's resources before parent's
+   *
+   * For allModuleNames = [A, B, C] in parent to child order
+   * The expected order of templates merging is ['base', C, B, A]
+   *
+   */
+  const slpTemplateCompareFn = (
+    slpTemplate1: SLPTemplate,
+    slpTemplate2: SLPTemplate
+  ) => {
+    const slpTemplate1Index = allModuleNames.indexOf(slpTemplate1.module);
+    const slpTemplate2Index = allModuleNames.indexOf(slpTemplate2.module);
+
+    if (slpTemplate1Index == -1) {
+      return -1;
+    }
+    if (slpTemplate2Index == -1) {
+      return 1;
     }
 
-    Object.keys(slpTemplate.Resources).forEach(slpResourceId => {
-      if (!slpTemplate.original.Resources[slpResourceId][KeywordSLPExtend]) {
-        const samResourceId = getSAMResourceLogicalId(
-          slpTemplate.module,
-          slpResourceId
-        );
-        samTemplate.Resources[samResourceId] =
-          slpTemplate.Resources[slpResourceId];
+    return slpTemplate2Index - slpTemplate1Index;
+  };
+
+  Object.values(serverlessTemplate)
+    .sort(slpTemplateCompareFn)
+    .forEach(slpTemplate => {
+      if (slpTemplate.Parameters) {
+        Object.keys(slpTemplate.Parameters).forEach(slpParameterName => {
+          const samParameterName = getSAMParameterName(
+            slpTemplate.module,
+            slpParameterName
+          );
+          samTemplate.Parameters[samParameterName] = {
+            Type: slpTemplate.Parameters[slpParameterName].SAMType
+          };
+        });
       }
+
+      Object.keys(slpTemplate.Resources).forEach(slpResourceId => {
+        if (!slpTemplate.original.Resources[slpResourceId][KeywordSLPExtend]) {
+          const samResourceId = getSAMResourceLogicalId(
+            slpTemplate.module,
+            slpResourceId
+          );
+          samTemplate.Resources[samResourceId] =
+            slpTemplate.Resources[slpResourceId];
+        }
+      });
     });
-  });
 
   return samTemplate;
 };

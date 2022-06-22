@@ -108,7 +108,7 @@ describe("Test Task createPublicAssets", () => {
       new ErrorSet([
         new Error(
           `Following namespaces are unresolved
-Public Asset
+UI Public Asset
  - contact.js
    - m2
    - m3`

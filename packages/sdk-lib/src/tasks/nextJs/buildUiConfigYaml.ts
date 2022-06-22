@@ -1,6 +1,5 @@
 import { existsSync } from "fs";
-import { mkdir, readFile, writeFile } from "fs/promises";
-import { load } from "js-yaml";
+import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import {
   file_configJson,
@@ -8,14 +7,12 @@ import {
   path_build,
   path_ui
 } from "../../utils/constants";
+import { readYamlFileStore } from "../../utils/yamlFileStore";
 
 export const buildUiConfigYaml = async (dir: string): Promise<void> => {
   const configYamlPath = join(dir, path_ui, file_configYaml);
   if (existsSync(configYamlPath)) {
-    const yamlContent = await readFile(configYamlPath, {
-      encoding: "utf8"
-    });
-    const yamlContentAsJson = load(yamlContent) || {};
+    const yamlContentAsJson = (await readYamlFileStore(configYamlPath)) || {};
 
     await mkdir(join(dir, path_build, path_ui), { recursive: true });
     await writeFile(
