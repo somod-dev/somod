@@ -7,11 +7,8 @@ import {
   namespace_serverruntime_config
 } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
-import {
-  Config,
-  loadConfigNamespaces,
-  readConfigJson
-} from "../../utils/nextJs/config";
+import { Config, readConfigJson } from "../../utils/nextJs/config";
+import { loadNamespaces } from "./namespace";
 
 // TODO: remove this
 const file_njpConfigJson = "njp.config.json";
@@ -70,11 +67,7 @@ export const updateNjpConfig = async (
 ): Promise<void> => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
 
-  const namespaces = await moduleHandler.getNamespaces(
-    Object.fromEntries(
-      moduleIndicators.map(moduleType => [moduleType, loadConfigNamespaces])
-    )
-  );
+  const namespaces = await loadNamespaces(dir, moduleIndicators);
 
   const allModules = await moduleHandler.listModules();
 

@@ -11,3 +11,5 @@ export { buildUiConfigYaml } from "./buildUiConfigYaml";
 export { updateNjpConfig } from "./updateNjpConfig";
 export { buildUiPublic } from "./buildUiPublic";
 export { initWelcomePage } from "./initWelcomePage";
+export { loadNamespaces as loadNjpNamespaces } from "./namespace";
+export { doesPagesHaveDefaultExport } from "./doesPagesHaveDefaultExport";

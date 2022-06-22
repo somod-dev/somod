@@ -8,7 +8,7 @@ import {
 } from "../../utils/constants";
 import { Exports, get as getExports } from "../../utils/exports";
 import { ModuleHandler } from "../../utils/moduleHandler";
-import { loadPageNamespaces } from "../../utils/nextJs/pages";
+import { loadNamespaces } from "./namespace";
 
 const generatePageStatement = (
   rootDir: string,
@@ -37,11 +37,7 @@ export const createPages = async (
 ): Promise<void> => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
 
-  const namespaces = await moduleHandler.getNamespaces(
-    Object.fromEntries(
-      moduleIndicators.map(moduleType => [moduleType, loadPageNamespaces])
-    )
-  );
+  const namespaces = await loadNamespaces(dir, moduleIndicators);
 
   const allPages = namespaces[namespace_page];
 

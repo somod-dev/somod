@@ -7,7 +7,7 @@ import {
   path_ui
 } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
-import { loadPublicAssetNamespaces } from "../../utils/nextJs/publicAssets";
+import { loadNamespaces } from "./namespace";
 
 export const createPublicAssets = async (
   dir: string,
@@ -15,14 +15,7 @@ export const createPublicAssets = async (
 ): Promise<void> => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
 
-  const namespaces = await moduleHandler.getNamespaces(
-    Object.fromEntries(
-      moduleIndicators.map(moduleType => [
-        moduleType,
-        loadPublicAssetNamespaces
-      ])
-    )
-  );
+  const namespaces = await loadNamespaces(dir, moduleIndicators);
 
   const allPublicAssets = namespaces[namespace_public];
 
