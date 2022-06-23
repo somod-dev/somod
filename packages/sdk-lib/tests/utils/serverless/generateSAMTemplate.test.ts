@@ -1,5 +1,6 @@
 import { unixStylePath } from "@solib/cli-base";
 import { existsSync } from "fs";
+import { dump } from "js-yaml";
 import { join } from "path";
 import { generateSAMTemplate } from "../../../src/utils/serverless";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
@@ -31,7 +32,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
 
   test("for simple template only", async () => {
     createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
+      "serverless/template.yaml": dump({
         Resources: {
           GetAuthGroupFunction: {
             Type: "AWS::Serverless::Function",
@@ -172,7 +173,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         slp: "1.3.2",
         dependencies: {}
       }),
-      "build/serverless/template.json": JSON.stringify({
+      "serverless/template.yaml": dump({
         Resources: {
           CorrectRestApi: {
             "SLP::Extend": {

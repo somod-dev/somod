@@ -56,8 +56,9 @@ describe("Test Task createPages", () => {
         name: "m6",
         version: "7.1.7"
       }),
-      "build/ui/pages/home.js":
-        "export default function Homepage () {return 'a';}",
+      "ui/pages/home.ts": "export default function Homepage () {return 'a';}",
+      "ui/pages/about/us.tsx":
+        "export default function AboutUs () {return 'a';} export const Us='Sodaru';",
       "node_modules/m2/build/ui/pages/about.js":
         "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
       "node_modules/m2/build/ui/pages/home.js":
@@ -75,7 +76,8 @@ describe("Test Task createPages", () => {
     await expect(createPages(dir, ["njp"])).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "pages"))).toEqual({
-      "home.ts": 'export { default } from "../build/ui/pages/home";',
+      "home.ts": 'export { default } from "../ui/pages/home";',
+      "about/us.ts": 'export { default, Us } from "../../ui/pages/about/us";',
       "about.ts":
         'export { default, getInitialProps } from "../node_modules/m2/build/ui/pages/about";',
       "contact.ts":
@@ -83,7 +85,7 @@ describe("Test Task createPages", () => {
       "survey.ts":
         'export { default } from "../node_modules/m2/node_modules/m5/build/ui/pages/survey";',
       "about/me.ts":
-        'export { default, Me } from "../node_modules/m3/build/ui/pages/about/me";'
+        'export { default, Me } from "../../node_modules/m3/build/ui/pages/about/me";'
     });
   });
 
@@ -108,8 +110,7 @@ describe("Test Task createPages", () => {
         version: "2.2.0",
         njp: "1.3.2"
       }),
-      "build/ui/pages/about.js":
-        "export default function Aboutpage () {return 'a';}",
+      "ui/pages/about.js": "export default function Aboutpage () {return 'a';}",
       "node_modules/m2/build/ui/pages/about.js":
         "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
       "node_modules/m2/build/ui/pages/contact.js":

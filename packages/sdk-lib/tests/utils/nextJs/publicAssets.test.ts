@@ -1,9 +1,9 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { exportRootModulePublicAsset } from "../../../src/utils/nextJs/publicAssets";
-import { readFile } from "fs/promises";
-import { join } from "path";
+import { loadPublicAssetNamespaces } from "../../../src/utils/nextJs/publicAssets";
+import { Module } from "../../../src/utils/moduleHandler";
+import { cloneDeep } from "lodash";
 
-describe("Test Util publicAssets.exportRootModulePublicAsset", () => {
+describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
   let dir: string = null;
 
   beforeEach(() => {
@@ -14,57 +14,77 @@ describe("Test Util publicAssets.exportRootModulePublicAsset", () => {
     deleteDir(dir);
   });
 
-  test("for no dir", async () => {
-    await expect(
-      exportRootModulePublicAsset(null, null)
-    ).rejects.toHaveProperty(
-      "message",
-      'The "path" argument must be of type string. Received null'
-    );
+  const getModuleTemplate = (directory: string): Module => ({
+    type: "njp",
+    name: "my-module",
+    version: "1.0.0",
+    packageLocation: directory,
+    namespaces: {}
   });
 
-  test("for no publicAsset", async () => {
-    await expect(exportRootModulePublicAsset(dir, null)).rejects.toHaveProperty(
-      "message",
-      'The "path" argument must be of type string. Received null'
-    );
-  });
-
-  test("for not existing dir", async () => {
-    const _dir = __dirname + "/sldkfjkljflkerjl";
-    await expect(
-      exportRootModulePublicAsset(_dir, null)
-    ).rejects.toHaveProperty(
-      "message",
-      'The "path" argument must be of type string. Received null'
-    );
-  });
-
-  test("for not existing publicAsset", async () => {
-    await expect(
-      exportRootModulePublicAsset(dir, "a.html")
-    ).rejects.toMatchObject({
-      message: expect.stringContaining("no such file or directory, copyfile ")
+  test("with no ui directory", async () => {
+    createFiles(dir, { "build/": "" });
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await loadPublicAssetNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Public Asset": [] }
     });
   });
 
-  test("for valid asset", async () => {
-    createFiles(dir, { "ui/public/a.html": "dfhdsjfhkjadshklfshd" });
-    await expect(
-      exportRootModulePublicAsset(dir, "a.html")
-    ).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "public", "a.html"), { encoding: "utf8" })
-    ).resolves.toEqual("dfhdsjfhkjadshklfshd");
+  test("with empty public directory", async () => {
+    createFiles(dir, { "build/ui/public/": "" });
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await loadPublicAssetNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Public Asset": [] }
+    });
   });
 
-  test("for deep asset", async () => {
-    createFiles(dir, { "ui/public/a/b/c.html": "iurroqieworhqo" });
-    await expect(
-      exportRootModulePublicAsset(dir, "a/b/c.html")
-    ).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "public", "a/b/c.html"), { encoding: "utf8" })
-    ).resolves.toEqual("iurroqieworhqo");
+  test("with one page", async () => {
+    createFiles(dir, { "build/ui/public/page1.html": "" });
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await loadPublicAssetNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Public Asset": ["page1.html"] }
+    });
+  });
+
+  test("with multiple public", async () => {
+    createFiles(dir, {
+      "build/ui/public/page1.html": "",
+      "build/ui/public/sub/page2.css": ""
+    });
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await loadPublicAssetNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Public Asset": ["page1.html", "sub/page2.css"] }
+    });
+  });
+
+  test("with public in root dir", async () => {
+    createFiles(dir, {
+      "ui/public/root-page1.html": "",
+      "ui/public/sub/root-page2.css": "",
+      "build/ui/public/page1.html": "",
+      "build/ui/public/sub/page2.css": ""
+    });
+    const moduleTemplate = getModuleTemplate(dir);
+    moduleTemplate.root = true;
+    const module = cloneDeep(moduleTemplate);
+    await loadPublicAssetNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: {
+        "UI Public Asset": ["root-page1.html", "sub/root-page2.css"]
+      }
+    });
   });
 });

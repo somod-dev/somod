@@ -1,5 +1,4 @@
-import { copyFile, mkdir } from "fs/promises";
-import { dirname, join } from "path";
+import { join } from "path";
 import {
   namespace_public,
   path_build,
@@ -7,6 +6,7 @@ import {
   path_ui
 } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
+import { linkAsset } from "../../utils/nextJs/publicAssets";
 import { loadNamespaces } from "./namespace";
 
 export const createPublicAssets = async (
@@ -25,13 +25,17 @@ export const createPublicAssets = async (
       const moduleNode = await moduleHandler.getModule(moduleName);
       const packageLocation = moduleNode.module.packageLocation;
 
-      const publicAssetPath = join(dir, path_public, publicAsset);
-      const publicAssetDir = dirname(publicAssetPath);
-      await mkdir(publicAssetDir, { recursive: true });
-      await copyFile(
-        join(packageLocation, path_build, path_ui, path_public, publicAsset),
-        publicAssetPath
+      const sourcePublicAssetPath = join(
+        packageLocation,
+        moduleNode.module.root ? "" : path_build,
+        path_ui,
+        path_public,
+        publicAsset
       );
+
+      const publicAssetPath = join(dir, path_public, publicAsset);
+
+      await linkAsset(sourcePublicAssetPath, publicAssetPath);
     })
   );
 };

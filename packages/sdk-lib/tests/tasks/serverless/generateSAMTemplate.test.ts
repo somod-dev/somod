@@ -79,7 +79,7 @@ describe("Test Task generateSAMTemplate", () => {
         slp: "1.3.2",
         dependencies: {}
       }),
-      "build/serverless/template.json": JSON.stringify({
+      "serverless/template.yaml": dump({
         Resources: {
           CorrectRestApi: {
             "SLP::Extend": {

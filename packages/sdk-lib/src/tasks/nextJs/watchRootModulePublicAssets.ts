@@ -3,9 +3,9 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { path_public, path_ui } from "../../utils/constants";
 import { copyDirectory } from "@solib/cli-base";
-import { exportRootModulePublicAsset } from "../../utils/nextJs/publicAssets";
 import watch from "../../utils/watch";
 import { sync as rimrafSync } from "rimraf";
+import { linkAsset } from "../../utils/nextJs/publicAssets";
 
 const createTempDir = (): string => {
   return mkdtempSync(join(tmpdir(), "sodaruPackageManagerLib-"));
@@ -25,7 +25,10 @@ export const watchRootModulePublicAssets = async (
     join(dir, path_ui, path_public),
     publicAssetsDir,
     file => {
-      exportRootModulePublicAsset(dir, file).catch(err => {
+      linkAsset(
+        join(dir, path_ui, path_public, file),
+        join(dir, path_public, file)
+      ).catch(err => {
         // eslint-disable-next-line no-console
         console.error(err);
       });

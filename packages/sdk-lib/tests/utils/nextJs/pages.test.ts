@@ -1,10 +1,10 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
-import { exportRootModulePage } from "../../../src/utils/nextJs/pages";
-import { readFile } from "fs/promises";
-import { join } from "path";
+import { loadPageNamespaces } from "../../../src/utils/nextJs/pages";
+import { Module } from "../../../src/utils/moduleHandler";
+import { cloneDeep } from "lodash";
 
-describe("Test Util pages.exportRootModulePage", () => {
+describe("Test util page.loadPageNamespaces", () => {
   let dir: string = null;
 
   beforeEach(() => {
@@ -15,83 +15,75 @@ describe("Test Util pages.exportRootModulePage", () => {
     deleteDir(dir);
   });
 
-  test("for no dir", async () => {
-    await expect(exportRootModulePage(null, null)).rejects.toHaveProperty(
-      "message",
-      'The "path" argument must be of type string. Received null'
-    );
+  const getModuleTemplate = (directory: string): Module => ({
+    type: "njp",
+    name: "my-module",
+    version: "1.0.0",
+    packageLocation: directory,
+    namespaces: {}
   });
 
-  test("for no page", async () => {
-    await expect(exportRootModulePage(dir, null)).rejects.toHaveProperty(
-      "message",
-      'The "path" argument must be of type string. Received null'
-    );
-  });
-
-  test("for not existing dir", async () => {
-    const _dir = __dirname + "/sldkfjkljflkerjl";
-    await expect(exportRootModulePage(_dir, null)).rejects.toHaveProperty(
-      "message",
-      'The "path" argument must be of type string. Received null'
-    );
-  });
-
-  test("for not existing page", async () => {
-    await expect(exportRootModulePage(dir, "a.ts")).rejects.toMatchObject({
-      message: expect.stringContaining("no such file or directory, open ")
+  test("with no ui directory", async () => {
+    createFiles(dir, { "build/": "" });
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await loadPageNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Page": [] }
     });
   });
 
-  test("for page no exports", async () => {
-    createFiles(dir, { "ui/pages/a.ts": "" });
-    await expect(exportRootModulePage(dir, "a.ts")).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export {  } from "../ui/pages/a";');
+  test("with empty pages directory", async () => {
+    createFiles(dir, { "build/ui/pages/": "" });
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await loadPageNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Page": [] }
+    });
   });
 
-  test("for page with only default exports", async () => {
-    createFiles(dir, { "ui/pages/a.ts": "const A = 10; export default A;" });
-    await expect(exportRootModulePage(dir, "a.ts")).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export { default } from "../ui/pages/a";');
+  test("with one page", async () => {
+    createFiles(dir, { "build/ui/pages/page1.js": "" });
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await loadPageNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Page": ["page1"] }
+    });
   });
 
-  test("for page with only named exports", async () => {
+  test("with multiple pages", async () => {
     createFiles(dir, {
-      "ui/pages/a.ts": "export const A = 10; export const B = 20;"
+      "build/ui/pages/page1.js": "",
+      "build/ui/pages/sub/page2.js": ""
     });
-    await expect(exportRootModulePage(dir, "a.ts")).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export { A, B } from "../ui/pages/a";');
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await loadPageNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Page": ["page1", "sub/page2"] }
+    });
   });
 
-  test("for page with default and named exports", async () => {
+  test("with pages in root dir", async () => {
     createFiles(dir, {
-      "ui/pages/a.ts":
-        "export const A = 10; export const B = 20; export default A;"
+      "ui/pages/root-page1.ts": "",
+      "ui/pages/sub/root-page2.tsx": "",
+      "build/ui/pages/page1.js": "",
+      "build/ui/pages/sub/page2.js": ""
     });
-    await expect(exportRootModulePage(dir, "a.ts")).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export { default, A, B } from "../ui/pages/a";');
-  });
-
-  test("for deep page", async () => {
-    createFiles(dir, {
-      "ui/pages/a/b/c.ts":
-        "export const A = 10; export const B = 20; export default A;"
+    const moduleTemplate = getModuleTemplate(dir);
+    moduleTemplate.root = true;
+    const module = cloneDeep(moduleTemplate);
+    await loadPageNamespaces(module);
+    expect(module).toEqual({
+      ...moduleTemplate,
+      namespaces: { "UI Page": ["root-page1", "sub/root-page2"] }
     });
-    await expect(
-      exportRootModulePage(dir, "a/b/c.ts")
-    ).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "pages", "a/b/c.ts"), { encoding: "utf8" })
-    ).resolves.toEqual(
-      'export { default, A, B } from "../../../ui/pages/a/b/c";'
-    );
   });
 });

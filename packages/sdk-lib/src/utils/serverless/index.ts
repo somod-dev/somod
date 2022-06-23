@@ -100,7 +100,7 @@ export const generateSAMTemplate = async (
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
   const allModules = await moduleHandler.listModules();
 
-  const serverlessTemplate = await loadServerlessTemplate(allModules, true);
+  const serverlessTemplate = await loadServerlessTemplate(allModules);
 
   applyModuleName(serverlessTemplate);
   applyFnSub(serverlessTemplate);

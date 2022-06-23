@@ -87,26 +87,20 @@ const loadSourceSLPTemplate = async (
 };
 
 export const loadOriginalSlpTemplate = async (
-  module: Module,
-  loadRootFromBuild = false
+  module: Module
 ): Promise<OriginalSLPTemplate> => {
   // the schema for slpTemplate is @somod/serverless-schema/schemas/index.json
-  const originalSlpTemplate =
-    module.root && !loadRootFromBuild
-      ? await loadSourceSLPTemplate(module)
-      : await loadBuiltSLPTemplate(module);
+  const originalSlpTemplate = module.root
+    ? await loadSourceSLPTemplate(module)
+    : await loadBuiltSLPTemplate(module);
 
   return originalSlpTemplate;
 };
 
 const loadSLPTemplate = async (
-  moduleNode: ModuleNode,
-  loadRootFromBuild = false
+  moduleNode: ModuleNode
 ): Promise<SLPTemplate> => {
-  const originalSlpTemplate = await loadOriginalSlpTemplate(
-    moduleNode.module,
-    loadRootFromBuild
-  );
+  const originalSlpTemplate = await loadOriginalSlpTemplate(moduleNode.module);
 
   const slpTemplate: SLPTemplate = {
     ...originalSlpTemplate,
@@ -143,13 +137,12 @@ const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
  * @returns SLPTemplate[], contains SLP Templates of only found templates, keeps the sort order same as the provided templates
  */
 export const loadServerlessTemplate = async (
-  modules: ModuleNode[],
-  loadRootFromBuild = false
+  modules: ModuleNode[]
 ): Promise<ServerlessTemplate> => {
   const slpTemplates = await Promise.all(
     modules.map(async module => {
       try {
-        return await loadSLPTemplate(module, loadRootFromBuild);
+        return await loadSLPTemplate(module);
       } catch (e) {
         if (e instanceof NoSLPTemplateError) {
           return false;

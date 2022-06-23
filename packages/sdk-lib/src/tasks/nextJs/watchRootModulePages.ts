@@ -3,7 +3,7 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { path_pages, path_ui } from "../../utils/constants";
 import { copyDirectory } from "@solib/cli-base";
-import { exportRootModulePage } from "../../utils/nextJs/pages";
+import { linkPage } from "../../utils/nextJs/pages";
 import watch from "../../utils/watch";
 import { sync as rimrafSync } from "rimraf";
 
@@ -24,8 +24,11 @@ export const watchRootModulePages = async (
   const closeWatch = watch(
     join(dir, path_ui, path_pages),
     pagesDir,
-    file => {
-      exportRootModulePage(dir, file).catch(err => {
+    page => {
+      linkPage(
+        join(dir, path_ui, path_pages, page),
+        join(dir, path_pages, page)
+      ).catch(err => {
         // eslint-disable-next-line no-console
         console.error(err);
       });

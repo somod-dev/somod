@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { copyFile, mkdir, readdir, stat } from "fs/promises";
+import { readdir, stat, mkdir, copyFile } from "fs/promises";
 import { dirname, join } from "path";
 import {
   namespace_public,
@@ -9,24 +9,16 @@ import {
 } from "../constants";
 import { Module } from "../moduleHandler";
 
-export const exportRootModulePublicAsset = async (
-  dir: string,
-  publicAsset: string
-): Promise<void> => {
-  const sourcePath = join(dir, path_ui, path_public, publicAsset);
-  const targetPath = join(dir, path_public, publicAsset);
-
-  const targetDir = dirname(targetPath);
-
-  await mkdir(targetDir, { recursive: true });
-  await copyFile(sourcePath, targetPath);
+export const linkAsset = async (from: string, to: string) => {
+  await mkdir(dirname(to), { recursive: true });
+  await copyFile(from, to);
 };
 
 export const loadPublicAssetNamespaces = async (module: Module) => {
   if (!module.namespaces[namespace_public]) {
     const baseDir = join(
       module.packageLocation,
-      path_build,
+      module.root ? "" : path_build,
       path_ui,
       path_public
     );

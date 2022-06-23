@@ -1,35 +1,14 @@
-import { mkdir, writeFile } from "fs/promises";
-import { dirname, join, relative, sep } from "path";
+import { existsSync } from "fs";
+import { join } from "path";
 import {
   namespace_page,
   path_build,
   path_pages,
   path_ui
 } from "../../utils/constants";
-import { Exports, get as getExports } from "../../utils/exports";
 import { ModuleHandler } from "../../utils/moduleHandler";
+import { linkPage } from "../../utils/nextJs/pages";
 import { loadNamespaces } from "./namespace";
-
-const generatePageStatement = (
-  rootDir: string,
-  packageLocation: string,
-  page: string,
-  exports: Exports
-): string => {
-  const relativePackageLocation = relative(rootDir, packageLocation);
-  const pathSegments =
-    relativePackageLocation == "" ? [] : relativePackageLocation.split(sep);
-  pathSegments.unshift("..");
-  pathSegments.push(path_build, path_ui, path_pages, ...page.split("/"));
-
-  const _exports: string[] = [];
-  if (exports.default) {
-    _exports.push("default");
-  }
-  _exports.push(...exports.named);
-
-  return `export { ${_exports.join(", ")} } from "${pathSegments.join("/")}";`;
-};
 
 export const createPages = async (
   dir: string,
@@ -47,21 +26,29 @@ export const createPages = async (
       const moduleNode = await moduleHandler.getModule(moduleName);
       const packageLocation = moduleNode.module.packageLocation;
 
-      const exports = getExports(
-        join(packageLocation, path_build, path_ui, path_pages, page + ".js")
-      );
-
-      const pageContent = generatePageStatement(
-        dir,
+      let sourcePagePath = join(
         packageLocation,
-        page,
-        exports
+        moduleNode.module.root ? "" : path_build,
+        path_ui,
+        path_pages,
+        page
       );
+      if (moduleNode.module.root) {
+        if (existsSync(sourcePagePath + ".tsx")) {
+          sourcePagePath += ".tsx";
+        } else if (existsSync(sourcePagePath + ".ts")) {
+          sourcePagePath += ".ts";
+        } else if (existsSync(sourcePagePath + ".jsx")) {
+          sourcePagePath += ".jsx";
+        } else {
+          sourcePagePath += ".js";
+        }
+      } else {
+        sourcePagePath += ".js";
+      }
 
       const pagePath = join(dir, path_pages, page + ".ts");
-      const pageDir = dirname(pagePath);
-      await mkdir(pageDir, { recursive: true });
-      await writeFile(pagePath, pageContent);
+      await linkPage(sourcePagePath, pagePath);
     })
   );
 };
