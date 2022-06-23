@@ -56,7 +56,7 @@ describe("Test Task createPages", () => {
         name: "m6",
         version: "7.1.7"
       }),
-      "ui/pages/home.ts": "export default function Homepage () {return 'a';}",
+      "ui/pages/home.tsx": "export default function Homepage () {return 'a';}",
       "ui/pages/about/us.tsx":
         "export default function AboutUs () {return 'a';} export const Us='Sodaru';",
       "node_modules/m2/build/ui/pages/about.js":
@@ -110,7 +110,8 @@ describe("Test Task createPages", () => {
         version: "2.2.0",
         njp: "1.3.2"
       }),
-      "ui/pages/about.js": "export default function Aboutpage () {return 'a';}",
+      "ui/pages/about.tsx":
+        "export default function Aboutpage () {return 'a';}",
       "node_modules/m2/build/ui/pages/about.js":
         "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
       "node_modules/m2/build/ui/pages/contact.js":

@@ -1,4 +1,3 @@
-import { existsSync } from "fs";
 import { join } from "path";
 import {
   namespace_page,
@@ -7,7 +6,7 @@ import {
   path_ui
 } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
-import { linkPage } from "../../utils/nextJs/pages";
+import { addPageExtention, linkPage } from "../../utils/nextJs/pages";
 import { loadNamespaces } from "./namespace";
 
 export const createPages = async (
@@ -26,26 +25,15 @@ export const createPages = async (
       const moduleNode = await moduleHandler.getModule(moduleName);
       const packageLocation = moduleNode.module.packageLocation;
 
-      let sourcePagePath = join(
-        packageLocation,
-        moduleNode.module.root ? "" : path_build,
-        path_ui,
-        path_pages,
-        page
+      const sourcePagePath = addPageExtention(
+        join(
+          packageLocation,
+          moduleNode.module.root ? "" : path_build,
+          path_ui,
+          path_pages,
+          page
+        )
       );
-      if (moduleNode.module.root) {
-        if (existsSync(sourcePagePath + ".tsx")) {
-          sourcePagePath += ".tsx";
-        } else if (existsSync(sourcePagePath + ".ts")) {
-          sourcePagePath += ".ts";
-        } else if (existsSync(sourcePagePath + ".jsx")) {
-          sourcePagePath += ".jsx";
-        } else {
-          sourcePagePath += ".js";
-        }
-      } else {
-        sourcePagePath += ".js";
-      }
 
       const pagePath = join(dir, path_pages, page + ".ts");
       await linkPage(sourcePagePath, pagePath);

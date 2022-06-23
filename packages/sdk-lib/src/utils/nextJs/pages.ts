@@ -1,11 +1,24 @@
 import { existsSync } from "fs";
 import { mkdir, readdir, stat, writeFile } from "fs/promises";
-import { uniq } from "lodash";
 import { dirname, join, relative } from "path";
 import { namespace_page, path_build, path_pages, path_ui } from "../constants";
 import { Module } from "../moduleHandler";
 import { get as getExports } from "../exports";
 import { unixStylePath } from "@solib/cli-base";
+
+export const addPageExtention = (pagePathWithoutExtension: string) => {
+  let extension = "";
+  if (existsSync(pagePathWithoutExtension + ".js")) {
+    extension = ".js";
+  } else if (existsSync(pagePathWithoutExtension + ".tsx")) {
+    extension = ".tsx";
+  } else {
+    throw new Error(
+      `Could not find supported extention for ${pagePathWithoutExtension}`
+    );
+  }
+  return pagePathWithoutExtension + extension;
+};
 
 export const linkPage = async (
   fromPage: string,
@@ -54,7 +67,7 @@ export const loadPageNamespaces = async (module: Module) => {
             const stats = await stat(join(baseDir, dirToParse, child));
             if (stats.isDirectory()) {
               queue.push(dirToParse + "/" + child);
-            } else {
+            } else if (child.endsWith(".js") || child.endsWith(".tsx")) {
               pages.push(
                 dirToParse + "/" + child.substring(0, child.lastIndexOf("."))
               );
@@ -64,8 +77,8 @@ export const loadPageNamespaces = async (module: Module) => {
       }
     }
 
-    module.namespaces[namespace_page] = uniq(
-      pages.map(page => (page.startsWith("/") ? page.substring(1) : page))
+    module.namespaces[namespace_page] = pages.map(page =>
+      page.startsWith("/") ? page.substring(1) : page
     );
   }
 };

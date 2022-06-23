@@ -116,6 +116,158 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     });
   });
 
+  test("for no root template", async () => {
+    createFiles(dir, {
+      "node_modules/@sodaru/baseapi/build/serverless/template.json":
+        JSON.stringify({
+          Parameters: {
+            Client: {
+              SAMType: "String",
+              schema: { type: "string", maxLength: 32 }
+            }
+          },
+          Resources: {
+            BaseRestApi: {
+              Type: "AWS::Serverless::Api",
+              Properties: {
+                Name: { "SLP::ResourceName": "rootRestApi" },
+                Tags: {
+                  Client: { "SLP::RefParameter": { parameter: "Client" } }
+                }
+              },
+              "SLP::Output": {
+                default: true,
+                attributes: ["RootResourceId"]
+              }
+            },
+            BaseRestApiWelcomeFunction: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                InlineCode:
+                  'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
+                Events: {
+                  ApiEvent: {
+                    Type: "Api",
+                    Properties: {
+                      Method: "GET",
+                      Path: {
+                        "SLP::ModuleName": "${SLP::ModuleName}/"
+                      },
+                      RestApiId: { "SLP::Ref": { resource: "BaseRestApi" } }
+                    }
+                  }
+                }
+              }
+            },
+            BaseAnotherFunction: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: { "SLP::Function": { name: "anotherFunction" } }
+              }
+            }
+          }
+        }),
+      "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
+        name: "@sodaru/baseapi",
+        version: "1.0.1",
+        slp: "1.3.2",
+        dependencies: {}
+      }),
+      "package.json": JSON.stringify({
+        name: "@sodaru/auth-slp",
+        version: "1.0.0",
+        slp: "1.3.2",
+        dependencies: {
+          "@sodaru/baseapi": "^1.0.0"
+        }
+      })
+    });
+
+    const result = await generateSAMTemplate(dir, ["slp"]);
+
+    expect(result).toEqual({
+      Parameters: { pa046855cClient: { Type: "String" } },
+      Resources: {
+        r64967c02baseLayer: {
+          Properties: {
+            CompatibleArchitectures: ["arm64"],
+            CompatibleRuntimes: ["nodejs14.x"],
+            RetentionPolicy: "Delete",
+            ContentUri: unixStylePath(
+              join(
+                __dirname,
+                "../../../",
+                "node_modules",
+                "@somod/lambda-base-layer",
+                "layer"
+              )
+            ),
+            Description:
+              "Set of npm libraries to be required in all Lambda funtions",
+            LayerName: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "64967c02",
+                  slpResourceName: "baseLayer",
+                  stackId
+                }
+              ]
+            }
+          },
+          Type: "AWS::Serverless::LayerVersion"
+        },
+        ra046855cBaseRestApi: {
+          Type: "AWS::Serverless::Api",
+          Properties: {
+            Name: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "a046855c",
+                  slpResourceName: "rootRestApi",
+                  stackId
+                }
+              ]
+            },
+            Tags: {
+              Client: { Ref: "pa046855cClient" }
+            }
+          }
+        },
+        ra046855cBaseRestApiWelcomeFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            InlineCode:
+              'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  Method: "GET",
+                  Path: "@sodaru/baseapi/",
+                  RestApiId: { Ref: "ra046855cBaseRestApi" }
+                }
+              }
+            }
+          }
+        },
+        ra046855cBaseAnotherFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: unixStylePath(
+              join(
+                dir,
+                "node_modules/@sodaru/baseapi/build/serverless/functions/anotherFunction"
+              )
+            ),
+            Layers: [{ Ref: "r64967c02baseLayer" }]
+          }
+        }
+      }
+    });
+  });
+
   test("for all valid input", async () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":

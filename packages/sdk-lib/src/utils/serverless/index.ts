@@ -27,6 +27,7 @@ import { KeywordSLPExtend, SAMTemplate, SLPTemplate } from "./types";
 import { getSAMParameterName, getSAMResourceLogicalId } from "./utils";
 import { Module, ModuleHandler } from "../moduleHandler";
 import { namespace_http_api, resourceType_Function } from "../constants";
+import { countBy } from "lodash";
 
 // must match to the schema of function resource
 type FunctionResourceProperties = Record<string, unknown> & {
@@ -44,7 +45,7 @@ type FunctionResourceProperties = Record<string, unknown> & {
 
 export const loadHttpApiNamespaces = async (module: Module) => {
   if (!module.namespaces[namespace_http_api]) {
-    module.namespaces[namespace_http_api] = [];
+    const namespaces = [];
     try {
       const originalSlpTemplate = await loadOriginalSlpTemplate(module);
 
@@ -54,18 +55,34 @@ export const loadHttpApiNamespaces = async (module: Module) => {
             resource.Properties as FunctionResourceProperties;
           Object.values(resourceProperties.Events || {}).forEach(event => {
             if (event.Type == "HttpApi") {
-              module.namespaces[namespace_http_api].push(
+              namespaces.push(
                 `${event.Properties.Method} ${event.Properties.Path}`
               );
             }
           });
         }
       });
+
+      const apiCounts = countBy(namespaces);
+      const repeatedApis: string[] = [];
+      for (const api in apiCounts) {
+        if (apiCounts[api] > 1) {
+          repeatedApis.push(api);
+        }
+      }
+      if (repeatedApis.length > 0) {
+        throw new Error(
+          `Following apis are repeated in ${module.name}\n${repeatedApis
+            .map(a => " - " + a)
+            .join("\n")}`
+        );
+      }
     } catch (e) {
       if (!(e instanceof NoSLPTemplateError)) {
         throw e;
       }
     }
+    module.namespaces[namespace_http_api] = namespaces;
   }
 };
 

@@ -378,6 +378,11 @@ export class ModuleHandler {
     return namespaceToModuleMap;
   }
 
+  /**
+   * load and resolve the namespaces
+   * @param loaders map of moduleType to NamespaceLoader , namespaceLoader must make sure that namespaces are not repeated in same module
+   * @returns Map of NamespaceKey to (Map of namespace to moduleName)
+   */
   async getNamespaces(loaders: Record<string, NamespaceLoader>) {
     await this.load();
     await this.loadNamespaces(loaders);

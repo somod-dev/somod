@@ -72,7 +72,7 @@ describe("Test util page.loadPageNamespaces", () => {
 
   test("with pages in root dir", async () => {
     createFiles(dir, {
-      "ui/pages/root-page1.ts": "",
+      "ui/pages/root-page1.tsx": "",
       "ui/pages/sub/root-page2.tsx": "",
       "build/ui/pages/page1.js": "",
       "build/ui/pages/sub/page2.js": ""
