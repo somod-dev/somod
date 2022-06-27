@@ -1,5 +1,5 @@
-import { writeFile } from "fs/promises";
-import { join } from "path";
+import { mkdir, writeFile } from "fs/promises";
+import { dirname, join } from "path";
 import {
   file_parametersJson,
   file_parametersYaml,
@@ -9,15 +9,14 @@ import { ModuleHandler, ModuleNode } from "../moduleHandler";
 import { readYamlFileStore } from "../yamlFileStore";
 import { loadParameters } from "./load";
 
-export const buildParametersYaml = async (dir: string): Promise<void> => {
+const buildParametersYaml = async (dir: string): Promise<void> => {
   const parameters = await readYamlFileStore(join(dir, file_parametersYaml));
-  await writeFile(
-    join(dir, path_build, file_parametersJson),
-    JSON.stringify(parameters)
-  );
+  const parametersBuildPath = join(dir, path_build, file_parametersJson);
+  await mkdir(dirname(parametersBuildPath));
+  await writeFile(parametersBuildPath, JSON.stringify(parameters));
 };
 
-export const validate = async (moduleNode: ModuleNode): Promise<void> => {
+const validate = async (moduleNode: ModuleNode): Promise<void> => {
   const parameters = await loadParameters(moduleNode.module);
 
   const parametersWithLongName = Object.keys(

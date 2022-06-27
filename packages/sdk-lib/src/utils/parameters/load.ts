@@ -19,7 +19,7 @@ export const loadParameters = async (module: Module): Promise<Parameters> => {
 
     return parameters;
   } catch (e) {
-    if (e.messsage.startsWith("ENOENT: no such file or directory, open")) {
+    if (e.message.startsWith("ENOENT: no such file or directory, open")) {
       return {};
     } else {
       throw e;
