@@ -7,7 +7,7 @@ import {
   path_public,
   path_ui
 } from "../constants";
-import { Module } from "../moduleHandler";
+import { Module, ModuleHandler } from "../moduleHandler";
 
 export const linkAsset = async (from: string, to: string) => {
   await mkdir(dirname(to), { recursive: true });
@@ -46,4 +46,21 @@ export const loadPublicAssetNamespaces = async (module: Module) => {
       pa.startsWith("/") ? pa.substring(1) : pa
     );
   }
+};
+
+export const listAllPublicAssets = async (
+  dir: string,
+  moduleIndicators: string[]
+) => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+
+  const publicAssetToModuleMap = (
+    await moduleHandler.getNamespaces(
+      Object.fromEntries(
+        moduleIndicators.map(mt => [mt, loadPublicAssetNamespaces])
+      )
+    )
+  )[namespace_public];
+
+  return publicAssetToModuleMap;
 };

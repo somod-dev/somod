@@ -47,7 +47,7 @@ export const doublePackageJson = {
 };
 
 export const StringifyTemplate = (json: unknown): string => {
-  return JSON.stringify(json, null, 2) + "\n";
+  return JSON.stringify(json);
 };
 
 export const moduleIndicators = ["slp"];

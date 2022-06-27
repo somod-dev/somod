@@ -1,10 +1,5 @@
-import {
-  ErrorSet,
-  readJsonFileStore,
-  saveJsonFileStore,
-  updateJsonFileStore
-} from "@solib/cli-base";
-import { mkdir } from "fs/promises";
+import { ErrorSet, readJsonFileStore } from "@solib/cli-base";
+import { mkdir, writeFile } from "fs/promises";
 import { cloneDeep } from "lodash";
 import { dirname, join } from "path";
 import {
@@ -182,10 +177,8 @@ export const buildRootSLPTemplate = async (
     file_templateJson
   );
 
-  const templateJsonDir = dirname(templateJsonPath);
-  await mkdir(templateJsonDir, { recursive: true });
-  updateJsonFileStore(templateJsonPath, originalSLPTemplate);
-  await saveJsonFileStore(templateJsonPath);
+  await mkdir(dirname(templateJsonPath), { recursive: true });
+  await writeFile(templateJsonPath, JSON.stringify(originalSLPTemplate));
 };
 
 export const validate = async (

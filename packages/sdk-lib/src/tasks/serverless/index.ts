@@ -6,4 +6,3 @@ export { samCommand } from "./samCommand";
 export { bundleFunctions } from "./bundleFunctions";
 export { installLayerDependencies } from "./installLayerDependencies";
 export { initTemplateYaml } from "./initTemplateYaml";
-export { loadNamespaces as loadSLPNamespaces } from "./namespace";

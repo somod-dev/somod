@@ -2,7 +2,7 @@ import { existsSync } from "fs";
 import { mkdir, readdir, stat, writeFile } from "fs/promises";
 import { dirname, join, relative } from "path";
 import { namespace_page, path_build, path_pages, path_ui } from "../constants";
-import { Module } from "../moduleHandler";
+import { Module, ModuleHandler } from "../moduleHandler";
 import { get as getExports } from "../exports";
 import { unixStylePath } from "@solib/cli-base";
 
@@ -81,4 +81,16 @@ export const loadPageNamespaces = async (module: Module) => {
       page.startsWith("/") ? page.substring(1) : page
     );
   }
+};
+
+export const listAllPages = async (dir: string, moduleIndicators: string[]) => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+
+  const pageToModuleMap = (
+    await moduleHandler.getNamespaces(
+      Object.fromEntries(moduleIndicators.map(mt => [mt, loadPageNamespaces]))
+    )
+  )[namespace_page];
+
+  return pageToModuleMap;
 };

@@ -68,6 +68,9 @@ export const defaultServerlessTemplateSchema =
 export const defaultNjpConfigSchema =
   "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json";
 
+export const defaultParametersSchema =
+  "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json";
+
 export type ModuleType = "njp" | "slp" | "somod";
 
 export const namespace_page = "UI Page";
@@ -76,10 +79,16 @@ export const namespace_public = "UI Public Asset";
 
 export const namespace_env_config = "UI Env Config";
 
-export const namespace_runtime_config = "UI Runtime Config";
+export const namespace_public_runtime_config = "UI Public Runtime Config";
 
-export const namespace_serverruntime_config = "UI Server Runtime Config";
+export const namespace_server_runtime_config = "UI Server Runtime Config";
 
 export const namespace_http_api = "Serverless Http Api";
 
+export const namespace_parameter = "Parameter";
+
 export const resourceType_Function = "AWS::Serverless::Function";
+
+export const file_parametersYaml = "parameters.yaml";
+
+export const file_parametersJson = "parameters.json";

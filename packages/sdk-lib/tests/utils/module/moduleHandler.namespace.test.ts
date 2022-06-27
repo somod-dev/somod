@@ -76,6 +76,18 @@ describe("Test util getNamespaces", () => {
     expect(namespaces).toEqual({});
   });
 
+  test("with empty namespaces", async () => {
+    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
+
+    const namespaces = await moduleHandler.getNamespaces({
+      njp: async module => {
+        module.namespaces["n"] = [];
+      }
+    });
+
+    expect(namespaces).toEqual({ n: {} });
+  });
+
   test("with distict namespaces", async () => {
     const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
 

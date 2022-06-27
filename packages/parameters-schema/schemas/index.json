@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "Parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9]*(\\.[a-zA-Z0-9]+)+$": {
+          "allOf": [
+            {
+              "$ref": "https://form-input-schema.json-schema.sodaru.com/schemas/index.json"
+            },
+            {
+              "type": "object",
+              "required": ["default"],
+              "properties": {
+                "default": true
+              }
+            }
+          ]
+        }
+      },
+      "maxProperties": 32,
+      "errorMessage": {
+        "additionalProperties": "Property Name must contain only alphaNumerics and dot (.). Must start with alphabet"
+      }
+    }
+  }
+}

@@ -8,17 +8,14 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import {
   functionDefaults,
   installSchemaInTempDir,
-  singlePackageJson
+  singlePackageJson,
+  StringifyTemplate
 } from "./utils";
 
 describe("Test Util serverless.buildTemplateJson", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
   const moduleIndicators = ["slp"];
-
-  const StringifyTemplate = (json: unknown): string => {
-    return JSON.stringify(json, null, 2) + "\n";
-  };
 
   beforeEach(async () => {
     dir = createTempDir();

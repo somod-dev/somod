@@ -1,13 +1,11 @@
 import { join } from "path";
-import {
-  namespace_page,
-  path_build,
-  path_pages,
-  path_ui
-} from "../../utils/constants";
+import { path_build, path_pages, path_ui } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
-import { addPageExtention, linkPage } from "../../utils/nextJs/pages";
-import { loadNamespaces } from "./namespace";
+import {
+  addPageExtention,
+  linkPage,
+  listAllPages
+} from "../../utils/nextJs/pages";
 
 export const createPages = async (
   dir: string,
@@ -15,9 +13,7 @@ export const createPages = async (
 ): Promise<void> => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
 
-  const namespaces = await loadNamespaces(dir, moduleIndicators);
-
-  const allPages = namespaces[namespace_page];
+  const allPages = await listAllPages(dir, moduleIndicators);
 
   await Promise.all(
     Object.keys(allPages).map(async page => {

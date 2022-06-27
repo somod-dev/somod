@@ -1,13 +1,10 @@
 import { join } from "path";
-import {
-  namespace_public,
-  path_build,
-  path_public,
-  path_ui
-} from "../../utils/constants";
+import { path_build, path_public, path_ui } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
-import { linkAsset } from "../../utils/nextJs/publicAssets";
-import { loadNamespaces } from "./namespace";
+import {
+  linkAsset,
+  listAllPublicAssets
+} from "../../utils/nextJs/publicAssets";
 
 export const createPublicAssets = async (
   dir: string,
@@ -15,9 +12,7 @@ export const createPublicAssets = async (
 ): Promise<void> => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
 
-  const namespaces = await loadNamespaces(dir, moduleIndicators);
-
-  const allPublicAssets = namespaces[namespace_public];
+  const allPublicAssets = await listAllPublicAssets(dir, moduleIndicators);
 
   await Promise.all(
     Object.keys(allPublicAssets).map(async publicAsset => {

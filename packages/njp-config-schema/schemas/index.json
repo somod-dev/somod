@@ -2,61 +2,15 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json",
   "definitions": {
-    "envSchema": {
+    "njpParameter": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schema"],
+      "required": ["NJP::Parameter"],
       "properties": {
-        "default": {
+        "NJP::Parameter": {
           "type": "string",
-          "maxLength": 256
-        },
-        "label": {
-          "type": "string",
-          "maxLength": 256
-        },
-        "schema": { "$ref": "http://json-schema.org/draft-07/schema" }
-      }
-    },
-    "runtimeConfigSchema": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["schema"],
-      "properties": {
-        "default": true,
-        "label": {
-          "type": "string",
-          "maxLength": 256
-        },
-        "schema": { "$ref": "http://json-schema.org/draft-07/schema" }
-      }
-    }
-  },
-  "type": "object",
-  "additionalProperties": false,
-  "properties": {
-    "globalCss": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "maxLength": 256
-      },
-      "maxItems": 10
-    },
-    "env": {
-      "type": "object",
-      "additionalProperties": false,
-      "patternProperties": {
-        "^[A-Z][A-Z0-9_]{0,63}$": {
-          "$ref": "#/definitions/envSchema"
+          "description": "Must refer the parameter available for this module"
         }
-      }
-    },
-    "imageDomains": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "format": "hostname"
       }
     },
     "runtimeConfig": {
@@ -64,18 +18,48 @@
       "additionalProperties": false,
       "patternProperties": {
         "^[a-zA-Z][a-zA-Z0-9_]{0,63}$": {
-          "$ref": "#/definitions/runtimeConfigSchema"
+          "$ref": "#/definitions/njpParameter"
         }
+      },
+      "maxProperties": 32,
+      "errorMessage": {
+        "additionalProperties": "Config Name must contain only Letters, Numbers and Underscore. Must start with letters only"
       }
-    },
-    "serverRuntimeConfig": {
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "env": {
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
-        "^[a-zA-Z][a-zA-Z0-9_]{0,63}$": {
-          "$ref": "#/definitions/runtimeConfigSchema"
+        "^[A-Z][A-Z0-9_]{0,63}$": {
+          "$ref": "#/definitions/njpParameter"
         }
+      },
+      "maxProperties": 32,
+      "errorMessage": {
+        "additionalProperties": "Environmental Variable Name must contain only UpperCase Letters, Numbers and Underscore. Must start with letters only"
       }
+    },
+    "imageDomains": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string", "format": "hostname" },
+          {
+            "$ref": "#/definitions/njpParameter"
+          }
+        ]
+      },
+      "maxItems": 16
+    },
+    "publicRuntimeConfig": {
+      "$ref": "#/definitions/runtimeConfig"
+    },
+    "serverRuntimeConfig": {
+      "$ref": "#/definitions/runtimeConfig"
     }
   }
 }
