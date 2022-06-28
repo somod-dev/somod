@@ -72,7 +72,7 @@ const buildConfigYaml = async (dir: string): Promise<void> => {
   const configJsonPath = join(dir, path_build, path_ui, file_configJson);
 
   await mkdir(dirname(configJsonPath), { recursive: true });
-  await writeFile(configJsonPath, JSON.stringify(yamlContentAsJson, null, 2));
+  await writeFile(configJsonPath, JSON.stringify(yamlContentAsJson));
 };
 
 const validate = async (dir: string, moduleIndicators: string[]) => {

@@ -6,6 +6,7 @@ import { loadPublicAssetNamespaces } from "../../utils/nextJs/publicAssets";
 import { loadParameterNamespaces } from "../../utils/parameters/namespace";
 import { loadHttpApiNamespaces } from "../../utils/serverless";
 
+/* istanbul ignore next reason: Its ok here */
 const loaderMap: Record<ModuleType, NamespaceLoader> = {
   njp: async module => {
     await Promise.all([

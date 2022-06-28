@@ -1,13 +1,13 @@
 import { save, update } from "../utils/ignoreFile";
 
-export const saveEslintIgnore = async (
+export const saveIgnore = async (
   dir: string,
   ignoreFile: string
 ): Promise<void> => {
   await save(dir, ignoreFile);
 };
 
-export const updateEslintIgnore = async (
+export const updateIgnore = async (
   dir: string,
   ignoreFile: string,
   paths: string[] = []

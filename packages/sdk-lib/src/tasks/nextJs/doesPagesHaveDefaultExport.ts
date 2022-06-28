@@ -10,7 +10,7 @@ export const doesPagesHaveDefaultExport = async (
   const errors: Error[] = [];
   const pagesDir = join(dir, path_ui, path_pages);
   if (existsSync(pagesDir)) {
-    const pages = await listFiles(dir, ".ts");
+    const pages = await listFiles(pagesDir, ".tsx");
 
     pages.forEach(page => {
       const pagePath = join(pagesDir, page);

@@ -5,6 +5,7 @@ import { path_build } from "../../utils/constants";
 export const deleteBuildDir = (dir: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     rimraf(join(dir, path_build), { disableGlob: true }, err => {
+      /* istanbul ignore if reason: its ok here */
       if (err) {
         reject(err);
       } else {
