@@ -1,5 +1,5 @@
 import CustomResource from "@solib/lambda-event-cfn-custom-resource";
-import { isPlainObject, isString } from "lodash";
+import { deserialize } from "../../parameter";
 import { parameterSpaceCustomResourceType } from "./types";
 
 const customResource = new CustomResource();
@@ -8,19 +8,12 @@ const convertInputParam = (
   input: Record<string, unknown>
 ): Record<string, string> => {
   const params: Record<string, string> = {};
-  const queue = [{ chunk: input, path: [] }];
-  while (queue.length > 0) {
-    const object = queue.shift();
-    if (isPlainObject(object.chunk)) {
-      Object.keys(object.chunk).forEach(key => {
-        queue.push({ chunk: object[key], path: [...object.path, key] });
-      });
-    } else {
-      params[object.path.join(".")] = isString(object.chunk)
-        ? object.chunk
-        : JSON.stringify(object.chunk);
-    }
-  }
+  Object.keys(input).forEach(key => {
+    params[key] =
+      typeof input[key] == "string"
+        ? (input[key] as string)
+        : JSON.stringify(input[key]);
+  });
   return params;
 };
 
@@ -36,7 +29,7 @@ customResource.register<{ parameters: string }, Record<string, string>>(
     create: async cfnResourceParams => {
       return {
         physicalResourceId: "param-space" + Date.now(),
-        attributes: convertInputParam(JSON.parse(cfnResourceParams.parameters))
+        attributes: convertInputParam(deserialize(cfnResourceParams.parameters))
       };
     },
     update: async physicalResourceId => {

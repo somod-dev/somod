@@ -1,6 +1,6 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
-import { loadHttpApiNamespaces } from "../../../src/utils/serverless";
+import { loadHttpApiNamespaces } from "../../../src/utils/serverless/namespace";
 import { Module } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
 import { dump } from "js-yaml";

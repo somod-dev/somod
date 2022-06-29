@@ -4,7 +4,7 @@ import { loadConfigNamespaces } from "../../utils/nextJs/config";
 import { loadPageNamespaces } from "../../utils/nextJs/pages";
 import { loadPublicAssetNamespaces } from "../../utils/nextJs/publicAssets";
 import { loadParameterNamespaces } from "../../utils/parameters/namespace";
-import { loadHttpApiNamespaces } from "../../utils/serverless";
+import { loadHttpApiNamespaces } from "../../utils/serverless/namespace";
 
 /* istanbul ignore next reason: Its ok here */
 const loaderMap: Record<ModuleType, NamespaceLoader> = {

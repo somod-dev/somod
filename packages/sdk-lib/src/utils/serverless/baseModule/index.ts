@@ -9,11 +9,11 @@ import {
 export const baseModuleName = "@somod/slp";
 
 export const getBaseModuleOriginalSLPTemplate = async (
-  parameters: string[]
+  slpParameters: Record<string, string[]>
 ): Promise<OriginalSLPTemplate> => {
   const baseLayer = await getBaseLayerSLPResource();
 
-  const parameterResources = await getParameterResources(parameters);
+  const parameterResources = await getParameterResources(slpParameters);
 
   const baseModule = {
     Resources: {

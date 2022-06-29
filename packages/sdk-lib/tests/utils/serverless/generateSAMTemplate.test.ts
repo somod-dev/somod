@@ -2,7 +2,7 @@ import { unixStylePath } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { dump } from "js-yaml";
 import { join } from "path";
-import { generateSAMTemplate } from "../../../src/utils/serverless";
+import { generateSAMTemplate } from "../../../src/utils/serverless/generateSAMTemplate";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 const stackId = {

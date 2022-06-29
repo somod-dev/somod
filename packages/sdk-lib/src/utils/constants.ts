@@ -92,3 +92,5 @@ export const resourceType_Function = "AWS::Serverless::Function";
 export const file_parametersYaml = "parameters.yaml";
 
 export const file_parametersJson = "parameters.json";
+
+export const key_parameter_overrides = "parameter_overrides";

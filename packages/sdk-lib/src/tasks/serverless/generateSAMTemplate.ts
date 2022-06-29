@@ -1,6 +1,6 @@
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
-import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverless";
+import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverless/generateSAMTemplate";
 import {
   saveYamlFileStore,
   updateYamlFileStore

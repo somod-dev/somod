@@ -1,4 +1,3 @@
-import { uniq } from "lodash";
 import { resourceType_Function } from "../../../constants";
 import { SAMTemplate, SLPResource } from "../../types";
 import { getParameterSpaceResourceLogicalId } from "../../utils";
@@ -6,22 +5,8 @@ import { lambdaCode } from "./getLambdaCode";
 import { parameterSpaceCustomResourceType } from "./types";
 
 export const getParameterResources = async (
-  parameters: string[]
+  slpParameters: Record<string, string[]>
 ): Promise<Record<string, SLPResource>> => {
-  const parameterSpaceParams: Record<string, string[]> = {};
-  const parameterSpaces = uniq(
-    parameters.map(p => {
-      const [parameterSpace, ...rest] = p.split(".");
-      const param = rest.join(".");
-      if (!parameterSpaceParams[parameterSpace]) {
-        parameterSpaceParams[parameterSpace] = [];
-      }
-      parameterSpaceParams[parameterSpace].push(param);
-
-      return parameterSpace;
-    })
-  );
-
   const parameterSpaceLambdaId = "parameterSpaceCfnLambda";
   const resources: Record<string, SLPResource> = {
     [parameterSpaceLambdaId]: {
@@ -39,13 +24,13 @@ export const getParameterResources = async (
     }
   };
 
-  parameterSpaces.forEach(parameterSpace => {
+  Object.keys(slpParameters).forEach(parameterSpace => {
     resources[getParameterSpaceResourceLogicalId(parameterSpace)] = {
       Type: parameterSpaceCustomResourceType,
       "SLP::Access": "public",
       "SLP::Output": {
         default: false,
-        attributes: parameterSpaceParams[parameterSpace]
+        attributes: slpParameters[parameterSpace]
       },
       Properties: {
         ServiceToken: {

@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateSchema } from "../../../src/tasks/serverless/validateSchema";
-import { buildTemplateJson } from "../../../src/utils/serverless";
+import { buildTemplateYaml } from "../../../src/utils/serverless/buildTemplateYaml";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import {
   functionDefaults,
@@ -12,7 +12,7 @@ import {
   StringifyTemplate
 } from "./utils";
 
-describe("Test Util serverless.buildTemplateJson", () => {
+describe("Test Util serverless.buildTemplateYaml", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
   const moduleIndicators = ["slp"];
@@ -30,7 +30,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
   test("with empty module", async () => {
     createFiles(dir, { ...singlePackageJson });
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
@@ -51,7 +51,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
 
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
 
     await expect(
@@ -176,7 +176,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
 
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
 
     await expect(

@@ -1,5 +1,6 @@
 import { file_templateYaml, path_serverless } from "../../constants";
 import { baseModuleName } from "../baseModule";
+import { separateParameterSpace } from "../parameter";
 import {
   KeywordSLPParameter,
   ServerlessTemplate,
@@ -53,8 +54,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         KeywordSLPParameter
       ];
 
-      const [parameterSpace, ...parameterNameChunks] = parameter.split(".");
-      const parameterName = parameterNameChunks.join(".");
+      const { parameterSpace, param } = separateParameterSpace(parameter);
 
       const parameterValue = {
         "Fn::GetAtt": [
@@ -62,7 +62,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
             baseModuleName,
             getParameterSpaceResourceLogicalId(parameterSpace)
           )}`,
-          parameterName
+          param
         ]
       };
       replaceSLPKeyword(slpTemplate, parameterPath, parameterValue);
