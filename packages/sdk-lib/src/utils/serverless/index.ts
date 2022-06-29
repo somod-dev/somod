@@ -1,4 +1,4 @@
-import { cleanUpBaseModule } from "./baseModule";
+import { cleanUpBaseModule, getSAMParameters } from "./baseModule";
 import { apply as applyDependsOn } from "./keywords/dependsOn";
 import { apply as applyExtend } from "./keywords/extend";
 import {
@@ -11,7 +11,7 @@ import {
 } from "./keywords/functionLayerLibraries";
 import { apply as applyOutput } from "./keywords/output";
 import { apply as applyRef } from "./keywords/ref";
-import { apply as applyRefParameter } from "./keywords/refParameter";
+import { apply as applyRefParameter } from "./keywords/parameter";
 import { apply as applyRefResourceName } from "./keywords/refResourceName";
 import { apply as applyResourceName } from "./keywords/resourceName";
 import { apply as applyModuleName } from "./keywords/moduleName";
@@ -24,10 +24,11 @@ import {
   validate
 } from "./slpTemplate";
 import { KeywordSLPExtend, SAMTemplate, SLPTemplate } from "./types";
-import { getSAMParameterName, getSAMResourceLogicalId } from "./utils";
+import { getSAMResourceLogicalId } from "./utils";
 import { Module, ModuleHandler } from "../moduleHandler";
 import { namespace_http_api, resourceType_Function } from "../constants";
 import { countBy } from "lodash";
+import { listAllParameters } from "../parameters/namespace";
 
 // must match to the schema of function resource
 type FunctionResourceProperties = Record<string, unknown> & {
@@ -93,7 +94,12 @@ export const buildTemplateJson = async (
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
   const allModules = await moduleHandler.listModules();
 
-  const serverlessTemplate = await loadServerlessTemplate(allModules);
+  const allParameters = await listAllParameters(dir, moduleIndicators);
+
+  const serverlessTemplate = await loadServerlessTemplate(
+    allModules,
+    allParameters
+  );
 
   const rootModuleNode = allModules[0];
 
@@ -101,7 +107,7 @@ export const buildTemplateJson = async (
     const rootSlpTemplate = serverlessTemplate[rootModuleNode.module.name];
     delete serverlessTemplate[rootModuleNode.module.name];
 
-    await validate(rootSlpTemplate, serverlessTemplate);
+    await validate(rootSlpTemplate, serverlessTemplate, allParameters);
 
     await buildRootSLPTemplate(rootModuleNode);
 
@@ -116,8 +122,12 @@ export const generateSAMTemplate = async (
 ): Promise<SAMTemplate> => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
   const allModules = await moduleHandler.listModules();
+  const allParameters = await listAllParameters(dir, moduleIndicators);
 
-  const serverlessTemplate = await loadServerlessTemplate(allModules);
+  const serverlessTemplate = await loadServerlessTemplate(
+    allModules,
+    allParameters
+  );
 
   applyModuleName(serverlessTemplate);
   applyFnSub(serverlessTemplate);
@@ -166,18 +176,6 @@ export const generateSAMTemplate = async (
   Object.values(serverlessTemplate)
     .sort(slpTemplateCompareFn)
     .forEach(slpTemplate => {
-      if (slpTemplate.Parameters) {
-        Object.keys(slpTemplate.Parameters).forEach(slpParameterName => {
-          const samParameterName = getSAMParameterName(
-            slpTemplate.module,
-            slpParameterName
-          );
-          samTemplate.Parameters[samParameterName] = {
-            Type: slpTemplate.Parameters[slpParameterName].SAMType
-          };
-        });
-      }
-
       Object.keys(slpTemplate.Resources).forEach(slpResourceId => {
         if (!slpTemplate.original.Resources[slpResourceId][KeywordSLPExtend]) {
           const samResourceId = getSAMResourceLogicalId(
@@ -189,6 +187,9 @@ export const generateSAMTemplate = async (
         }
       });
     });
+
+  const samParameters = getSAMParameters(serverlessTemplate);
+  samTemplate.Parameters = samParameters;
 
   return samTemplate;
 };

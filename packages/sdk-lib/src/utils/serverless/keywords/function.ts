@@ -250,7 +250,7 @@ export const bundle = async (dir: string): Promise<void> => {
           platform: "node",
           external: exclude.external as string[],
           minify: true,
-          target: ["node14"]
+          target: ["node16"]
         });
       })
     );

@@ -32,11 +32,10 @@ const hashModuleName = (str: string): string => {
   return createHash("sha256").update(str).digest("hex").substring(0, 8);
 };
 
-export const getSAMParameterName = (
-  moduleName: string,
-  slpParameterName: string
+export const getParameterSpaceResourceLogicalId = (
+  parameterSpace: string
 ): string => {
-  return "p" + hashModuleName(moduleName) + slpParameterName;
+  return "p" + parameterSpace;
 };
 
 export const getSAMResourceLogicalId = (

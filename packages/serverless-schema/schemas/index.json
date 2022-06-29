@@ -5,11 +5,6 @@
   "type": "object",
   "required": ["Resources"],
   "properties": {
-    "Description": {
-      "type": "string",
-      "maxLength": 256
-    },
-    "Parameters": { "$ref": "./components/parameters.json" },
     "Resources": {
       "type": "object",
       "additionalProperties": false,

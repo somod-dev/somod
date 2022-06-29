@@ -413,12 +413,12 @@
     "Properties": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["Architectures"],
+      "required": [],
       "oneOf": [{ "required": ["CodeUri"] }, { "required": ["InlineCode"] }],
       "properties": {
         "Architectures": {
           "type": "array",
-          "items": { "const": "arm64" },
+          "items": { "enum": ["x86_64", "arm64"] },
           "minItems": 1,
           "uniqueItems": true,
           "maxItems": 1
@@ -466,7 +466,7 @@
         },
         "Layers": {
           "type": "array",
-          "description": "@somod/slp-lib is added as default layer to every Serverless function , hence maximum of 4 layer is allowed in slp modules",
+          "description": "@somod/lambda-base-layer is added as default layer to every Serverless function , hence maximum of 4 layer is allowed in slp modules",
           "items": {
             "$ref": "../components/expression.json#/definitions/stringLike"
           },

@@ -120,20 +120,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
-          Parameters: {
-            Client: {
-              SAMType: "String",
-              schema: { type: "string", maxLength: 32 }
-            }
-          },
           Resources: {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
               Properties: {
-                Name: { "SLP::ResourceName": "rootRestApi" },
-                Tags: {
-                  Client: { "SLP::RefParameter": { parameter: "Client" } }
-                }
+                Name: { "SLP::ResourceName": "rootRestApi" }
               },
               "SLP::Output": {
                 default: true,
@@ -186,7 +177,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     const result = await generateSAMTemplate(dir, ["slp"]);
 
     expect(result).toEqual({
-      Parameters: { pa046855cClient: { Type: "String" } },
+      Parameters: {},
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -229,9 +220,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   stackId
                 }
               ]
-            },
-            Tags: {
-              Client: { Ref: "pa046855cClient" }
             }
           }
         },
@@ -272,20 +260,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
-          Parameters: {
-            Client: {
-              SAMType: "String",
-              schema: { type: "string", maxLength: 32 }
-            }
-          },
           Resources: {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
               Properties: {
-                Name: { "SLP::ResourceName": "rootRestApi" },
-                Tags: {
-                  Client: { "SLP::RefParameter": { parameter: "Client" } }
-                }
+                Name: { "SLP::ResourceName": "rootRestApi" }
               },
               "SLP::Output": {
                 default: true,
@@ -444,16 +423,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           ListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
             "SLP::DependsOn": [{ resource: "GetAuthGroupFunction" }],
-            Properties: {
-              Tags: {
-                Client: {
-                  "SLP::RefParameter": {
-                    module: "@sodaru/baseapi",
-                    parameter: "Client"
-                  }
-                }
-              }
-            }
+            Properties: {}
           },
           PermissionTable: {
             Type: "AWS::DynamoDB::Table",
@@ -475,7 +445,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     const result = await generateSAMTemplate(dir, ["slp"]);
 
     expect(result).toEqual({
-      Parameters: { pa046855cClient: { Type: "String" } },
+      Parameters: {},
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -535,9 +505,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   }
                 }
               ]
-            },
-            Tags: {
-              Client: { Ref: "pa046855cClient" }
             }
           },
           DependsOn: ["ra046855cBaseRestApiWelcomeFunction"]
@@ -672,13 +639,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         },
         r624eb34aListAuthGroupsFunction: {
           Type: "AWS::Serverless::Function",
-          Properties: {
-            Tags: {
-              Client: {
-                Ref: "pa046855cClient"
-              }
-            }
-          },
+          Properties: {},
           DependsOn: ["r624eb34aGetAuthGroupFunction"]
         },
         r624eb34aPermissionTable: {

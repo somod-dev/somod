@@ -6,7 +6,7 @@ export const KeywordSLPDependsOn = "SLP::DependsOn";
 export const KeywordSLPOutput = "SLP::Output";
 export const KeywordSLPResourceName = "SLP::ResourceName";
 export const KeywordSLPRef = "SLP::Ref";
-export const KeywordSLPRefParameter = "SLP::RefParameter";
+export const KeywordSLPParameter = "SLP::Parameter";
 export const KeywordSLPRefResourceName = "SLP::RefResourceName";
 export const KeywordSLPFunction = "SLP::Function";
 export const KeywordSLPFunctionLayerLibraries = "SLP::FunctionLayerLibraries";
@@ -20,7 +20,7 @@ export type KeywordAny =
   | typeof KeywordSLPOutput
   | typeof KeywordSLPResourceName
   | typeof KeywordSLPRef
-  | typeof KeywordSLPRefParameter
+  | typeof KeywordSLPParameter
   | typeof KeywordSLPRefResourceName
   | typeof KeywordSLPFunction
   | typeof KeywordSLPFunctionLayerLibraries
@@ -34,7 +34,7 @@ export const KeywordAll: KeywordAny[] = [
   KeywordSLPOutput,
   KeywordSLPResourceName,
   KeywordSLPRef,
-  KeywordSLPRefParameter,
+  KeywordSLPParameter,
   KeywordSLPRefResourceName,
   KeywordSLPFunction,
   KeywordSLPFunctionLayerLibraries,
@@ -70,11 +70,8 @@ export type SLPRef = {
   };
 };
 
-export type SLPRefParameter = {
-  [KeywordSLPRefParameter]: {
-    module?: string;
-    parameter: string;
-  };
+export type SLPParameter = {
+  [KeywordSLPParameter]: string;
 };
 
 export type SLPRefResourceName = {
@@ -112,7 +109,7 @@ export type SLPKeyword =
   | SLPOutput
   | SLPResourceName
   | SLPRef
-  | SLPRefParameter
+  | SLPParameter
   | SLPRefResourceName
   | SLPFunction
   | SLPFunctionLayerLibraries
@@ -125,7 +122,6 @@ export type SLPResource = {
 } & Partial<SLPAccess & SLPExtend & SLPDependsOn & SLPOutput>;
 
 export type OriginalSLPTemplate = {
-  Parameters?: Record<string, { SAMType: string; schema: JSONSchema7 }>;
   Resources: Record<string, SLPResource>;
 };
 

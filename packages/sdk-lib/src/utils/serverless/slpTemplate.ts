@@ -19,7 +19,7 @@ import {
 } from "./keywords/function";
 import { validate as validateFunctionLayers } from "./keywords/functionLayerLibraries";
 import { validate as validateRef } from "./keywords/ref";
-import { validate as validateRefParameter } from "./keywords/refParameter";
+import { validate as validateParameter } from "./keywords/parameter";
 import { validate as validateRefResourceName } from "./keywords/refResourceName";
 import { OriginalSLPTemplate, ServerlessTemplate, SLPTemplate } from "./types";
 import { updateKeywordPathsInSLPTemplate } from "./utils";
@@ -110,9 +110,11 @@ const loadSLPTemplate = async (
   return slpTemplate;
 };
 
-const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
+const loadBaseSlpTemplate = async (
+  parameters: string[]
+): Promise<SLPTemplate> => {
   const originalSlpTemplate: OriginalSLPTemplate =
-    await getBaseModuleOriginalSLPTemplate();
+    await getBaseModuleOriginalSLPTemplate(parameters);
 
   const baseSlpTemplate = {
     ...originalSlpTemplate,
@@ -129,10 +131,13 @@ const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
 /**
  * Tries to load the SLP Templates for the provided modules
  *
+ * @param modules list of ModuleNode objects
+ * @param parameters list of all parameters
  * @returns SLPTemplate[], contains SLP Templates of only found templates, keeps the sort order same as the provided templates
  */
 export const loadServerlessTemplate = async (
-  modules: ModuleNode[]
+  modules: ModuleNode[],
+  parameters: string[]
 ): Promise<ServerlessTemplate> => {
   const slpTemplates = await Promise.all(
     modules.map(async module => {
@@ -148,7 +153,7 @@ export const loadServerlessTemplate = async (
     })
   );
 
-  const baseSlpTemplate = await loadBaseSlpTemplate();
+  const baseSlpTemplate = await loadBaseSlpTemplate(parameters);
 
   const serverlessTemplate: Record<string, SLPTemplate> = {
     [baseSlpTemplate.module]: baseSlpTemplate
@@ -183,13 +188,14 @@ export const buildRootSLPTemplate = async (
 
 export const validate = async (
   slpTemplate: SLPTemplate,
-  serverlessTemplate: ServerlessTemplate
+  serverlessTemplate: ServerlessTemplate,
+  parameters: string[]
 ) => {
   const errors: Error[] = [];
   errors.push(...validateExtend(slpTemplate, serverlessTemplate));
   errors.push(...validateDependsOn(slpTemplate, serverlessTemplate));
   errors.push(...validateRef(slpTemplate, serverlessTemplate));
-  errors.push(...validateRefParameter(slpTemplate, serverlessTemplate));
+  errors.push(...validateParameter(slpTemplate, parameters));
   errors.push(...validateRefResourceName(slpTemplate, serverlessTemplate));
   errors.push(...validateFunction(slpTemplate));
   errors.push(...(await validateFunctionLayers(slpTemplate)));

@@ -35,20 +35,11 @@ describe("Test Task generateSAMTemplate", () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
-          Parameters: {
-            Client: {
-              SAMType: "String",
-              schema: { type: "string", maxLength: 32 }
-            }
-          },
+          Parameters: {},
           Resources: {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
-              Properties: {
-                Tags: {
-                  Client: { "SLP::RefParameter": { parameter: "Client" } }
-                }
-              },
+              Properties: {},
               "SLP::Output": {
                 default: true,
                 attributes: ["RootResourceId"]
@@ -120,16 +111,7 @@ describe("Test Task generateSAMTemplate", () => {
           ListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
             "SLP::DependsOn": [{ resource: "GetAuthGroupFunction" }],
-            Properties: {
-              Tags: {
-                Client: {
-                  "SLP::RefParameter": {
-                    module: "@sodaru/baseapi",
-                    parameter: "Client"
-                  }
-                }
-              }
-            }
+            Properties: {}
           }
         }
       }),
@@ -152,11 +134,12 @@ describe("Test Task generateSAMTemplate", () => {
         Transform: "AWS::Serverless-2016-10-31",
         Globals: {
           Function: {
-            Runtime: "nodejs14.x",
-            Handler: "index.default"
+            Runtime: "nodejs16.x",
+            Handler: "index.default",
+            Architectures: ["arm64"]
           }
         },
-        Parameters: { pa046855cClient: { Type: "String" } },
+        Parameters: {},
         Resources: {
           r64967c02baseLayer: {
             Type: "AWS::Serverless::LayerVersion",
@@ -195,11 +178,7 @@ describe("Test Task generateSAMTemplate", () => {
           },
           ra046855cBaseRestApi: {
             Type: "AWS::Serverless::Api",
-            Properties: {
-              Tags: {
-                Client: { Ref: "pa046855cClient" }
-              }
-            },
+            Properties: {},
             DependsOn: ["ra046855cBaseRestApiWelcomeFunction"]
           },
           ra046855cBaseRestApiWelcomeFunction: {
@@ -264,13 +243,7 @@ describe("Test Task generateSAMTemplate", () => {
           },
           r624eb34aListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
-            Properties: {
-              Tags: {
-                Client: {
-                  Ref: "pa046855cClient"
-                }
-              }
-            },
+            Properties: {},
             DependsOn: ["r624eb34aGetAuthGroupFunction"]
           }
         }
