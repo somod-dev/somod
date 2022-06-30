@@ -4,6 +4,11 @@ import { parameterSpaceCustomResourceType } from "./types";
 
 const customResource = new CustomResource();
 
+/**
+ * converts values of type other than string to string using `JSON.stringify`
+ *
+ * TODO: when the parameters are referenced in SAM Template, the value provided is always string (Need to check this on specific use-cases)
+ */
 const convertInputParam = (
   input: Record<string, unknown>
 ): Record<string, string> => {

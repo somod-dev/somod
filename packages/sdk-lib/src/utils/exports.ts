@@ -249,18 +249,3 @@ const getExports = (file: string): Exports => {
 };
 
 export const get = getExports;
-
-export const generateExportStatement = (
-  file: string,
-  prefix: string,
-  exports: Exports
-): string => {
-  const _exports: string[] = [];
-  if (exports.default) {
-    _exports.push(`default as ${prefix}`);
-  }
-  exports.named.forEach(exportName => {
-    _exports.push(`${exportName} as ${prefix}${exportName}`);
-  });
-  return `export { ${_exports.join(", ")} } from "${file}";`;
-};
