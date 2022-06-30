@@ -1,4 +1,4 @@
-import { isEqual } from "lodash";
+import { getKeyword, getKeywordPaths } from "../../keywords";
 import {
   KeywordSLPExtend,
   KeywordSLPOutput,
@@ -106,23 +106,44 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
   });
 };
 
-export const findReferences = (
+/**
+ * Checks if the given resource is referenced in ServerlessTemplate
+ *
+ * This method checks for occurances of `Fn::GetAtt` and `Ref`, so this method needs to be called after applying all keywords
+ */
+export const isReferenced = (
   serverlessTemplate: ServerlessTemplate,
-  slpRef: SLPRef["SLP::Ref"]
-): Record<string, string[][]> => {
-  const references: Record<string, string[][]> = {};
+  module: string,
+  resource: string,
+  attribute?: string
+): boolean => {
+  const dataToSearchFor = Object.fromEntries(
+    Object.keys(serverlessTemplate).map(moduleName => [
+      moduleName,
+      { Resources: serverlessTemplate[moduleName].Resources }
+    ])
+  );
 
-  Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPRef].forEach(refPath => {
-      const ref = getSLPKeyword<SLPRef>(slpTemplate, refPath)[KeywordSLPRef];
-      if (isEqual(ref, slpRef)) {
-        if (!references[slpTemplate.module]) {
-          references[slpTemplate.module] = [];
-        }
-        references[slpTemplate.module].push(refPath);
-      }
-    });
-  });
+  const samResourceLogicalId = getSAMResourceLogicalId(module, resource);
 
-  return references;
+  const refPaths = getKeywordPaths(dataToSearchFor, ["Ref"]);
+
+  for (const refPath of refPaths["Ref"]) {
+    const ref = getKeyword(dataToSearchFor, refPath)["Ref"] as string;
+    if (ref == samResourceLogicalId) {
+      return true;
+    }
+  }
+
+  const getAttPaths = getKeywordPaths(dataToSearchFor, ["Fn::GetAtt"]);
+  for (const getAttPath of getAttPaths["Fn::GetAtt"]) {
+    const ref = getKeyword(dataToSearchFor, getAttPath)[
+      "Fn::GetAtt"
+    ] as string[];
+    if (ref[0] == samResourceLogicalId && (!attribute || ref[1] == attribute)) {
+      return true;
+    }
+  }
+
+  return false;
 };

@@ -88,19 +88,14 @@ export const generateSamConfigParameterOverrides = async (
   const parameterOverrides: Record<string, string> = {};
 
   Object.keys(slpParameters).forEach(parameterSpace => {
-    const parameterSpaceValues = slpParameters[parameterSpace].map(param => [
-      param,
-      parameterValues[combineParameterSpace(parameterSpace, param)]
-    ]);
-
-    const strParameterSpaceValue = JSON.stringify(
-      JSON.stringify(JSON.stringify(parameterSpaceValues))
+    const parameterSpaceValues = Object.fromEntries(
+      slpParameters[parameterSpace].map(param => [
+        param,
+        parameterValues[combineParameterSpace(parameterSpace, param)]
+      ])
     );
 
-    parameterOverrides[parameterSpace] = strParameterSpaceValue.substring(
-      1,
-      strParameterSpaceValue.length - 1
-    );
+    parameterOverrides[parameterSpace] = JSON.stringify(parameterSpaceValues);
   });
 
   return parameterOverrides;

@@ -4,4 +4,4 @@
  * During build the lambda code is bundlled and minified code is assigned to `lambdaCode` variable
  *
  */
-export const lambdaCode = "";
+export const lambdaCode = "THIS_IS_A_PLACE_HOLDER_FOR_ACTUAL_CODE";

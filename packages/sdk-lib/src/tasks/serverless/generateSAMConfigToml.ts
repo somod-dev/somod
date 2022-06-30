@@ -4,6 +4,10 @@ import { join } from "path";
 import { file_samConfig, key_parameter_overrides } from "../../utils/constants";
 import { generateSamConfigParameterOverrides } from "../../utils/serverless/parameter";
 
+export const escapeQuotation = (str: string): string => {
+  return str.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+};
+
 export const generateSAMConfigToml = async (
   dir: string,
   moduleIndicators: string[]
@@ -27,14 +31,23 @@ export const generateSAMConfigToml = async (
       break;
     }
   }
-  samConfigLines[i] = `${key_parameter_overrides} = "${Object.keys(
-    parameterOverrides
-  )
+  if (i == samConfigLines.length && samConfigLines[i - 1].trim() == "") {
+    // if last line is empty
+    i = i - 1;
+  }
+
+  const parameterOverridesValue = Object.keys(parameterOverrides)
     .map(
       parameterSpace =>
-        `${(parameterSpace = parameterOverrides[parameterSpace])}`
+        `${parameterSpace}="${escapeQuotation(
+          parameterOverrides[parameterSpace]
+        )}"`
     )
-    .join(" ")}"`;
+    .join(" ");
+
+  samConfigLines[i] = `${key_parameter_overrides} = "${escapeQuotation(
+    parameterOverridesValue
+  )}"`;
 
   await writeFile(samConfigTomlPath, samConfigLines.join("\n"));
 };

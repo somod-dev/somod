@@ -258,6 +258,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
 
   test("for all valid input", async () => {
     createFiles(dir, {
+      "node_modules/@sodaru/baseapi/build/parameters.json": JSON.stringify({
+        Parameters: { "my.var1": { type: "text", default: "1" } }
+      }),
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
           Resources: {
@@ -304,6 +307,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         slp: "1.3.2",
         dependencies: {}
       }),
+      "parameters.yaml": dump({
+        Parameters: { "my.var2": { type: "text", default: "1" } }
+      }),
       "serverless/template.yaml": dump({
         Resources: {
           CorrectRestApi: {
@@ -343,6 +349,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               CodeUri: {
                 "SLP::Function": {
                   name: "createAuthGroup"
+                }
+              },
+              Environment: {
+                Variables: {
+                  MY_VAR1: { "SLP::Parameter": "my.var1" },
+                  MY_VAR2: { "SLP::Parameter": "my.var2" }
                 }
               }
             }
@@ -445,7 +457,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     const result = await generateSAMTemplate(dir, ["slp"]);
 
     expect(result).toEqual({
-      Parameters: {},
+      Parameters: {
+        my: {
+          Type: "String"
+        }
+      },
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -475,6 +491,23 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             }
           },
           Type: "AWS::Serverless::LayerVersion"
+        },
+        r64967c02parameterSpaceCfnLambda: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            InlineCode: "THIS_IS_A_PLACE_HOLDER_FOR_ACTUAL_CODE"
+          }
+        },
+        r64967c02pmy: {
+          Type: "Custom::ParameterSpace",
+          Properties: {
+            ServiceToken: {
+              "Fn::GetAtt": ["r64967c02parameterSpaceCfnLambda", "Arn"]
+            },
+            parameters: {
+              Ref: "my"
+            }
+          }
         },
         ra046855cBaseRestApi: {
           Type: "AWS::Serverless::Api",
@@ -552,6 +585,16 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   stackId
                 }
               ]
+            },
+            Environment: {
+              Variables: {
+                MY_VAR1: {
+                  "Fn::GetAtt": ["r64967c02pmy", "var1"]
+                },
+                MY_VAR2: {
+                  "Fn::GetAtt": ["r64967c02pmy", "var2"]
+                }
+              }
             },
             Layers: [{ Ref: "r64967c02baseLayer" }]
           },

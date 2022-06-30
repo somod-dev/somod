@@ -1,4 +1,4 @@
-import { findReferences } from "../keywords/ref";
+import { isReferenced } from "../keywords/ref";
 import { OriginalSLPTemplate, SAMTemplate, ServerlessTemplate } from "../types";
 import { baseLayerName, getBaseLayerSLPResource } from "./layers/baseLayer";
 import {
@@ -26,32 +26,27 @@ export const getBaseModuleOriginalSLPTemplate = async (
 };
 
 export const cleanUpBaseModule = (serverlessTemplate: ServerlessTemplate) => {
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const baseModuleResourceNames = Object.keys(
-      serverlessTemplate[baseModuleName].Resources
-    );
+  const baseModule = serverlessTemplate[baseModuleName];
 
+  const baseModuleResourceNames = Object.keys(baseModule.original.Resources);
+
+  let keepCleaningUp = true;
+
+  while (keepCleaningUp) {
+    keepCleaningUp = false;
     baseModuleResourceNames.forEach(baseModuleResourceName => {
-      // clean baseLayer
-      const baseResourceReferences = findReferences(serverlessTemplate, {
-        module: baseModuleName,
-        resource: baseModuleResourceName
-      });
-      if (Object.keys(baseResourceReferences).length == 0) {
-        delete serverlessTemplate[baseModuleName].Resources[
+      if (baseModule.Resources[baseModuleResourceName]) {
+        const hasReference = isReferenced(
+          serverlessTemplate,
+          baseModuleName,
           baseModuleResourceName
-        ];
+        );
+        if (!hasReference) {
+          keepCleaningUp = true;
+          delete baseModule.Resources[baseModuleResourceName];
+        }
       }
     });
-
-    if (
-      baseModuleResourceNames.length ==
-      Object.keys(serverlessTemplate[baseModuleName].Resources).length
-    ) {
-      // there is no change in last iteration , so break
-      break;
-    }
   }
 };
 

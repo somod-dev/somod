@@ -17,9 +17,7 @@ export const getParameterResources = async (
         attributes: ["Arn"]
       },
       Properties: {
-        InlineCode: {
-          InlineCode: lambdaCode
-        }
+        InlineCode: lambdaCode
       }
     }
   };

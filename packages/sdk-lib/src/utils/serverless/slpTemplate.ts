@@ -11,6 +11,7 @@ import {
 import { Module, ModuleNode } from "../moduleHandler";
 import { readYamlFileStore } from "../yamlFileStore";
 import { baseModuleName, getBaseModuleOriginalSLPTemplate } from "./baseModule";
+import { apply as applyAccess } from "./keywords/access";
 import {
   apply as applyDependsOn,
   validate as validateDependsOn
@@ -32,7 +33,7 @@ import {
 import { apply as applyModuleName } from "./keywords/moduleName";
 import { apply as applyOutput } from "./keywords/output";
 import {
-  apply as applyRefParameter,
+  apply as applyParameter,
   validate as validateParameter
 } from "./keywords/parameter";
 import { apply as applyRef, validate as validateRef } from "./keywords/ref";
@@ -227,12 +228,13 @@ export const validateKeywords = async (
 
 export const applyKeywords = (serverlessTemplate: ServerlessTemplate) => {
   applyModuleName(serverlessTemplate);
+  applyAccess(serverlessTemplate);
   applyFnSub(serverlessTemplate);
   applyFunction(serverlessTemplate);
   applyFunctionLayerLibraries(serverlessTemplate);
   applyResourceName(serverlessTemplate);
   applyRef(serverlessTemplate);
-  applyRefParameter(serverlessTemplate);
+  applyParameter(serverlessTemplate);
   applyRefResourceName(serverlessTemplate);
   applyDependsOn(serverlessTemplate);
   applyOutput(serverlessTemplate);
