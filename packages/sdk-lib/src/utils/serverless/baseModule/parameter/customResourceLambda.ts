@@ -1,5 +1,4 @@
 import CustomResource from "@solib/lambda-event-cfn-custom-resource";
-import { deserialize } from "../../parameter";
 import { parameterSpaceCustomResourceType } from "./types";
 
 const customResource = new CustomResource();
@@ -34,7 +33,7 @@ customResource.register<{ parameters: string }, Record<string, string>>(
     create: async cfnResourceParams => {
       return {
         physicalResourceId: "param-space" + Date.now(),
-        attributes: convertInputParam(deserialize(cfnResourceParams.parameters))
+        attributes: convertInputParam(JSON.parse(cfnResourceParams.parameters))
       };
     },
     update: async physicalResourceId => {

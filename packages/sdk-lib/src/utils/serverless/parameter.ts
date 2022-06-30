@@ -24,16 +24,6 @@ export const combineParameterSpace = (
   return `${parameterSpace}.${param}`;
 };
 
-export const serialize = (parameterValues: Record<string, unknown>): string => {
-  return JSON.stringify(parameterValues);
-};
-
-export const deserialize = (
-  strParameterValues: string
-): Record<string, unknown> => {
-  return JSON.parse(strParameterValues);
-};
-
 /**
  * Returns all referenced SLP::Parameter names grouped by 1st level parameterSpace
  */
