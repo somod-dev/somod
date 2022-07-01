@@ -495,7 +495,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         r64967c02parameterSpaceCfnLambda: {
           Type: "AWS::Serverless::Function",
           Properties: {
-            InlineCode: "THIS_IS_A_PLACE_HOLDER_FOR_ACTUAL_CODE"
+            InlineCode: "THIS_IS_A_PLACE_HOLDER_FOR_ACTUAL_CODE",
+            Layers: [{ Ref: "r64967c02baseLayer" }]
           }
         },
         r64967c02pmy: {

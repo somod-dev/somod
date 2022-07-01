@@ -33,7 +33,10 @@ customResource.register<{ parameters: string }, Record<string, string>>(
     create: async cfnResourceParams => {
       return {
         physicalResourceId: "param-space" + Date.now(),
-        attributes: convertInputParam(JSON.parse(cfnResourceParams.parameters))
+        attributes: convertInputParam(
+          // The will be extra escaping for " inside parameters string, so replacing `\\"` with `\"`
+          JSON.parse(cfnResourceParams.parameters.replaceAll('\\\\"', '\\"'))
+        )
       };
     },
     update: async physicalResourceId => {

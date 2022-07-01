@@ -18,7 +18,7 @@ describe("Test Task initParametersYaml", () => {
     await expect(initParametersYaml(dir)).resolves.toBeUndefined();
     await expect(readFile(join(dir, "parameters.yaml"), { encoding: "utf8" }))
       .resolves
-      .toEqual(`# yaml-language-server: $schema=../node_modules/@somod/parameters-schema/schemas/index.json
+      .toEqual(`# yaml-language-server: $schema=./node_modules/@somod/parameters-schema/schemas/index.json
 
 Parameters: {}
 

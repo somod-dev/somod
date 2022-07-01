@@ -6,7 +6,7 @@ import { file_parametersYaml } from "../../utils/constants";
 export const initParametersYaml = async (dir: string): Promise<void> => {
   const parametersPath = join(dir, file_parametersYaml);
 
-  const parametersContent = `# yaml-language-server: $schema=../node_modules/@somod/parameters-schema/schemas/index.json
+  const parametersContent = `# yaml-language-server: $schema=./node_modules/@somod/parameters-schema/schemas/index.json
 
 Parameters: {}
 

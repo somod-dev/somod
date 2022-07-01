@@ -1,6 +1,7 @@
 import { resourceType_Function } from "../../../constants";
-import { SAMTemplate, SLPResource } from "../../types";
+import { KeywordSLPRef, SAMTemplate, SLPResource } from "../../types";
 import { getParameterSpaceResourceLogicalId } from "../../utils";
+import { baseLayerName } from "../layers/baseLayer";
 import { lambdaCode } from "./getLambdaCode";
 import { parameterSpaceCustomResourceType } from "./types";
 
@@ -17,7 +18,8 @@ export const getParameterResources = async (
         attributes: ["Arn"]
       },
       Properties: {
-        InlineCode: lambdaCode
+        InlineCode: lambdaCode,
+        Layers: [{ [KeywordSLPRef]: { resource: baseLayerName } }]
       }
     }
   };

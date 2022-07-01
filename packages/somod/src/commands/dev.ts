@@ -15,15 +15,13 @@ import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";
 
 type DevOptions = CommonOptions & {
-  type: "ui" | "serverless";
   guided: boolean;
 };
 
-export const DevAction = async ({
-  verbose,
-  type,
-  guided
-}: DevOptions): Promise<void> => {
+export const DevAction = async (
+  type: "ui" | "serverless",
+  { verbose, guided }: DevOptions
+): Promise<void> => {
   const dir = findRootDir();
 
   await BuildAction({ verbose });
@@ -67,6 +65,13 @@ const devCommand = new Command("dev");
 devCommand.action(DevAction);
 
 devCommand.addArgument(new Argument("<type>").choices(["ui", "serverless"]));
+devCommand.addHelpText(
+  "after",
+  `
+Arguments:
+  <type>    either 'ui' or 'serverless' 
+`
+);
 
 devCommand.addOption(
   new Option(
