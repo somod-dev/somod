@@ -3,6 +3,7 @@ import {
   file_parametersJson,
   file_samConfig,
   file_templateYaml,
+  findRootDir,
   generateRootParameters,
   generateSAMConfigToml,
   generateSAMTemplate,
@@ -14,7 +15,7 @@ import { Command } from "commander";
 export const PrepareAction = async ({
   verbose
 }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await Promise.all([
     taskRunner(

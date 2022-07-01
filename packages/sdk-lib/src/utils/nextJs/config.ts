@@ -23,7 +23,7 @@ export type NjpParameter = {
   [KeywordNjpParameter]: string;
 };
 
-// this must match the @somod/njp-config-schema/schemas/index.json
+// this must match the @somod/ui-config-schema/schemas/index.json
 export type Config = {
   env?: Record<string, NjpParameter>;
   imageDomains?: (string | NjpParameter)[];

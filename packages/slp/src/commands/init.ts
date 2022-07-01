@@ -3,11 +3,14 @@ import {
   file_eslintIgnore,
   file_gitIgnore,
   file_packageJson,
+  file_parametersYaml,
   file_prettierIgnore,
   file_samConfig,
   file_templateYaml,
   file_tsConfigBuildJson,
+  findRootDir,
   initLib,
+  initParametersYaml,
   initTemplateYaml,
   key_slp,
   path_lib,
@@ -23,7 +26,7 @@ import {
 import { Command } from "commander";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await taskRunner(`run sodev git`, sodev, verbose, dir, "git");
   await taskRunner(`run sodev prettier`, sodev, verbose, dir, "prettier");
@@ -59,7 +62,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       verbose,
       dir,
       file_prettierIgnore,
-      slpIgnorePaths
+      [...slpIgnorePaths, file_tsConfigBuildJson]
     ),
 
     taskRunner(
@@ -79,7 +82,18 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     ),
 
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
-    taskRunner(`Intitalize Serverless Template`, initTemplateYaml, verbose, dir)
+    taskRunner(
+      `Intitalize Serverless Template`,
+      initTemplateYaml,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Initialize ${file_parametersYaml}`,
+      initParametersYaml,
+      verbose,
+      dir
+    )
   ]);
 
   await Promise.all([

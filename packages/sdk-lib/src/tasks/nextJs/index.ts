@@ -10,3 +10,4 @@ export { generateNextConfig } from "./generateNextConfig";
 export { buildUiPublic } from "./buildUiPublic";
 export { initWelcomePage } from "./initWelcomePage";
 export { doesPagesHaveDefaultExport } from "./doesPagesHaveDefaultExport";
+export { initUiConfigYaml } from "./initUiConfigYaml";

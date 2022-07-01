@@ -1,5 +1,6 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  findRootDir,
   path_pages,
   path_public,
   path_ui,
@@ -12,7 +13,7 @@ import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";
 
 export const DevAction = async ({ verbose }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await BuildAction({ verbose });
 

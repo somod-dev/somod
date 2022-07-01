@@ -1,18 +1,22 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  file_configYaml,
   file_dotenv,
   file_eslintIgnore,
   file_gitIgnore,
   file_nextConfigJs,
   file_nextEnvDTs,
   file_packageJson,
+  file_parametersYaml,
   file_prettierIgnore,
   file_tsConfigBuildJson,
   file_tsConfigJson,
+  findRootDir,
   initLib,
+  initParametersYaml,
+  initUiConfigYaml,
   initWelcomePage,
   key_njp,
-  path_build,
   path_lib,
   path_nextBuild,
   path_pages,
@@ -29,14 +33,13 @@ import {
 import { Command } from "commander";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await taskRunner(`run sodev git`, sodev, verbose, dir, "git");
   await taskRunner(`run sodev prettier`, sodev, verbose, dir, "prettier");
   await taskRunner(`run sodev eslint`, sodev, verbose, dir, "eslint");
 
   const njpIgnorePaths = [
-    path_build,
     path_nextBuild,
     file_tsConfigJson,
     `/${path_pages}`,
@@ -70,7 +73,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       verbose,
       dir,
       file_prettierIgnore,
-      njpIgnorePaths
+      [...njpIgnorePaths, file_tsConfigBuildJson]
     ),
 
     taskRunner(
@@ -91,8 +94,20 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       [path_ui]
     ),
 
+    taskRunner(
+      `Intitalize ${path_ui}/${file_configYaml}`,
+      initUiConfigYaml,
+      verbose,
+      dir
+    ),
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
-    taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir)
+    taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir),
+    taskRunner(
+      `Initialize ${file_parametersYaml}`,
+      initParametersYaml,
+      verbose,
+      dir
+    )
   ]);
 
   await Promise.all([

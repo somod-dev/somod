@@ -1,6 +1,7 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
   file_templateYaml,
+  findRootDir,
   path_pages,
   path_public,
   path_ui,
@@ -23,7 +24,7 @@ export const DevAction = async ({
   type,
   guided
 }: DevOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await BuildAction({ verbose });
 

@@ -5,8 +5,8 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 const installSchemaInTempDir = async (dir: string) => {
   await copyDirectory(
-    join(__dirname, "../../../../njp-config-schema"),
-    join(dir, "node_modules/@somod/njp-config-schema")
+    join(__dirname, "../../../../ui-config-schema"),
+    join(dir, "node_modules/@somod/ui-config-schema")
   );
 };
 

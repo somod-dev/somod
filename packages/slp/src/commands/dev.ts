@@ -1,5 +1,5 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
-import { file_templateYaml, samCommand } from "@somod/sdk-lib";
+import { file_templateYaml, findRootDir, samCommand } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";
@@ -12,7 +12,7 @@ export const DevAction = async ({
   verbose,
   guided
 }: DevOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await BuildAction({ verbose });
 

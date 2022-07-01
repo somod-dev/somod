@@ -7,6 +7,7 @@ import {
   file_parametersJson,
   file_samConfig,
   file_templateYaml,
+  findRootDir,
   generateNextConfig,
   generateRootParameters,
   generateSAMConfigToml,
@@ -23,7 +24,7 @@ import { Command } from "commander";
 export const PrepareAction = async ({
   verbose
 }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await Promise.all([
     taskRunner(`Create /${path_pages}`, createPages, verbose, dir, [

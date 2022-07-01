@@ -35,19 +35,31 @@ export const generateSAMConfigToml = async (
     // if last line is empty
     i = i - 1;
   }
+  if (i == 0) {
+    samConfigLines.pop(); // remove first empty line
+    samConfigLines.push(
+      "version = 0.1",
+      "[default]",
+      "[default.deploy]",
+      "[default.deploy.parameters]"
+    );
+    i = 4;
+  }
 
-  const parameterOverridesValue = Object.keys(parameterOverrides)
-    .map(
-      parameterSpace =>
-        `${parameterSpace}="${escapeQuotation(
-          parameterOverrides[parameterSpace]
-        )}"`
-    )
-    .join(" ");
+  if (Object.keys(parameterOverrides).length > 0) {
+    const parameterOverridesValue = Object.keys(parameterOverrides)
+      .map(
+        parameterSpace =>
+          `${parameterSpace}="${escapeQuotation(
+            parameterOverrides[parameterSpace]
+          )}"`
+      )
+      .join(" ");
 
-  samConfigLines[i] = `${key_parameter_overrides} = "${escapeQuotation(
-    parameterOverridesValue
-  )}"`;
+    samConfigLines[i] = `${key_parameter_overrides} = "${escapeQuotation(
+      parameterOverridesValue
+    )}"`;
 
-  await writeFile(samConfigTomlPath, samConfigLines.join("\n"));
+    await writeFile(samConfigTomlPath, samConfigLines.join("\n"));
+  }
 };

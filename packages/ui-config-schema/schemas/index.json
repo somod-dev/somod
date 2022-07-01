@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json",
+  "$id": "https://json-schema.sodaru.com/@somod/ui-config-schema/schemas/index.json",
   "definitions": {
     "njpParameter": {
       "type": "object",
