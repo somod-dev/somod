@@ -1,4 +1,4 @@
-import { KeywordSLPAccess, SLPTemplate } from "../types";
+import { KeywordSLPAccess, ServerlessTemplate, SLPTemplate } from "../types";
 
 export const checkAccess = (
   sourceModule: string,
@@ -39,4 +39,13 @@ export const checkAccess = (
   }
 
   return errors;
+};
+
+export const apply = (serverlessTemplate: ServerlessTemplate) => {
+  Object.values(serverlessTemplate).forEach(slpTemplate => {
+    slpTemplate.keywordPaths[KeywordSLPAccess].forEach(outputPath => {
+      const resourceId = outputPath[0];
+      delete slpTemplate.Resources[resourceId][KeywordSLPAccess];
+    });
+  });
 };

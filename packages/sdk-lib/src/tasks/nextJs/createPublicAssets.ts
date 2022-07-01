@@ -1,93 +1,36 @@
-import { copyFile, mkdir } from "fs/promises";
-import { dirname, join } from "path";
+import { join } from "path";
+import { path_build, path_public, path_ui } from "../../utils/constants";
+import { ModuleHandler } from "../../utils/moduleHandler";
 import {
-  file_packageJson,
-  path_build,
-  path_public,
-  path_ui
-} from "../../utils/constants";
-import { readJsonFileStore, ErrorSet } from "@solib/cli-base";
-import { resolve } from "../../utils/module";
-import { getModuleInfo } from "../../utils/moduleInfo";
-import { getPublicAssetToModulesMap } from "../../utils/nextJs/publicAssets";
+  linkAsset,
+  listAllPublicAssets
+} from "../../utils/nextJs/publicAssets";
 
 export const createPublicAssets = async (
   dir: string,
-  moduleIndicators: string[],
-  validateOnly = false
+  moduleIndicators: string[]
 ): Promise<void> => {
-  const modules = await getModuleInfo(dir, moduleIndicators);
-  const publicAssetToModulesMap = await getPublicAssetToModulesMap(modules);
+  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
 
-  const dependencyMap: Record<string, string[]> = {};
-  modules.forEach(module => {
-    dependencyMap[module.name] = module.dependencies;
-  });
+  const allPublicAssets = await listAllPublicAssets(dir, moduleIndicators);
 
-  const errors: Error[] = [];
+  await Promise.all(
+    Object.keys(allPublicAssets).map(async publicAsset => {
+      const moduleName = allPublicAssets[publicAsset];
+      const moduleNode = await moduleHandler.getModule(moduleName);
+      const packageLocation = moduleNode.module.packageLocation;
 
-  const publicAssetToModuleNameMap: Record<string, string> = {};
-
-  Object.keys(publicAssetToModulesMap).forEach(publicAsset => {
-    if (publicAssetToModulesMap[publicAsset].length == 1) {
-      publicAssetToModuleNameMap[publicAsset] =
-        publicAssetToModulesMap[publicAsset][0].moduleName;
-    } else {
-      const moduleNamesToResolve = publicAssetToModulesMap[publicAsset].map(
-        m => m.moduleName
+      const sourcePublicAssetPath = join(
+        packageLocation,
+        moduleNode.module.root ? "" : path_build,
+        path_ui,
+        path_public,
+        publicAsset
       );
-      try {
-        publicAssetToModuleNameMap[publicAsset] = resolve(
-          moduleNamesToResolve,
-          dependencyMap
-        );
-      } catch (e) {
-        errors.push(
-          new Error(
-            `Error while resolving (${moduleNamesToResolve.join(
-              ", "
-            )}) modules for the public asset '${publicAsset}': ${e.message}`
-          )
-        );
-      }
-    }
-  });
 
-  if (errors.length > 0) {
-    throw new ErrorSet(errors);
-  }
+      const publicAssetPath = join(dir, path_public, publicAsset);
 
-  if (!validateOnly) {
-    // create public assets in root dir
-    const rootModuleName = (
-      await readJsonFileStore(join(dir, file_packageJson))
-    ).name as string;
-
-    const createPagePromises = Object.keys(publicAssetToModuleNameMap).map(
-      async publicAsset => {
-        const moduleName = publicAssetToModuleNameMap[publicAsset];
-        if (moduleName != rootModuleName) {
-          const { packageLocation } = publicAssetToModulesMap[
-            publicAsset
-          ].filter(pageModule => pageModule.moduleName == moduleName)[0];
-
-          const publicAssetPath = join(dir, path_public, publicAsset);
-          const publicAssetDir = dirname(publicAssetPath);
-          await mkdir(publicAssetDir, { recursive: true });
-          await copyFile(
-            join(
-              packageLocation,
-              path_build,
-              path_ui,
-              path_public,
-              publicAsset
-            ),
-            publicAssetPath
-          );
-        }
-      }
-    );
-
-    await Promise.all(createPagePromises);
-  }
+      await linkAsset(sourcePublicAssetPath, publicAssetPath);
+    })
+  );
 };

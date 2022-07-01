@@ -2,4 +2,3 @@ node_modules
 dist
 
 /packages/sdk-lib/coverage
-/packages/common-layers/layers

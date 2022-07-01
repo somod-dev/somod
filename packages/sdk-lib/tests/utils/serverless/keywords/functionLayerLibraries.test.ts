@@ -8,7 +8,7 @@ import {
   path_serverless
 } from "../../../../src/utils/constants";
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateJson } from "../../../../src/utils/serverless";
+import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
 import {
   installSchemaInTempDir,
   moduleIndicators,
@@ -59,7 +59,7 @@ describe("test keyword SLP::FunctionLayerLibraries", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })

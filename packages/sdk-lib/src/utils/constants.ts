@@ -4,10 +4,8 @@ export const file_packageLockJson = "package-lock.json";
 export const file_gitIgnore = ".gitignore";
 export const file_eslintIgnore = ".eslintignore";
 export const file_prettierIgnore = ".prettierignore";
-export const file_vercelIgnore = ".vercelignore";
 
 export const file_dotenv = ".env";
-export const file_npmrc = ".npmrc";
 
 export const file_tsConfigJson = "tsconfig.json";
 export const file_tsConfigBuildJson = "tsconfig.build.json";
@@ -45,19 +43,11 @@ export const path_public = "public";
 export const file_index_js = "index.js";
 export const file_index_dts = "index.d.ts";
 
-export const file_pageIndex_js = "pageIndex.js";
-export const file_pageIndex_dts = "pageIndex.d.ts";
-
-export const file_pagesJson = "pages.json";
-
 export const path_git = ".git";
 export const path_nextBuild = ".next";
 
-export const file_appPage = "_app.ts";
-
 export const file_configYaml = "config.yaml";
 export const file_configJson = "config.json";
-export const file_njpConfigJson = "njp.config.json";
 
 export const path_serverless = "serverless";
 export const path_functions = "functions";
@@ -78,4 +68,29 @@ export const defaultServerlessTemplateSchema =
 export const defaultNjpConfigSchema =
   "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json";
 
+export const defaultParametersSchema =
+  "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json";
+
 export type ModuleType = "njp" | "slp" | "somod";
+
+export const namespace_page = "UI Page";
+
+export const namespace_public = "UI Public Asset";
+
+export const namespace_env_config = "UI Env Config";
+
+export const namespace_public_runtime_config = "UI Public Runtime Config";
+
+export const namespace_server_runtime_config = "UI Server Runtime Config";
+
+export const namespace_http_api = "Serverless Http Api";
+
+export const namespace_parameter = "Parameter";
+
+export const resourceType_Function = "AWS::Serverless::Function";
+
+export const file_parametersYaml = "parameters.yaml";
+
+export const file_parametersJson = "parameters.json";
+
+export const key_parameter_overrides = "parameter_overrides";

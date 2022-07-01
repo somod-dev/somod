@@ -6,4 +6,3 @@ lerna.json
 packages/sdk-lib/coverage
 packages/sdk-lib/tests/tasks/build/testData
 
-/packages/common-layers/layers

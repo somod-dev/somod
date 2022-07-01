@@ -1,69 +1,55 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/meta-schemas/index.json",
-  "title": "JSON Meta Schema to generate Schema for SLP and EMP packages",
-  "type": "object",
-  "required": [
-    "$schema",
-    "$id",
-    "title",
-    "type",
-    "required",
-    "properties",
-    "additionalProperties"
-  ],
-  "properties": {
-    "$schema": { "type": "string" },
-    "$id": { "type": "string", "format": "uri-reference" },
-    "title": { "type": "string" },
-    "type": { "const": "object" },
-    "definitions": {
+  "title": "JSON Meta Schema to generate Schema for SLP and SOMOD modules",
+  "allOf": [
+    { "$ref": "http://json-schema.org/draft-07/schema" },
+    {
       "type": "object",
-      "additionalProperties": {
-        "$ref": "https://json-schema.org/draft-07/schema"
-      },
-      "default": {}
-    },
-    "required": { "const": ["Resources"] },
-    "properties": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["Description", "Parameters", "Resources"],
+      "required": [
+        "$schema",
+        "$id",
+        "title",
+        "type",
+        "required",
+        "properties",
+        "additionalProperties"
+      ],
       "properties": {
-        "Description": {
-          "const": {
-            "type": "string",
-            "maxLength": 256
-          }
-        },
-        "Parameters": {
+        "$schema": { "type": "string" },
+        "$id": { "type": "string", "format": "uri-reference" },
+        "title": { "type": "string" },
+        "type": { "const": "object" },
+        "required": { "const": ["Resources"] },
+        "properties": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["$ref"],
-          "properties": { "$ref": { "type": "string" } }
-        },
-        "Resources": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "additionalProperties", "patternProperties"],
+          "required": ["Resources"],
           "properties": {
-            "type": { "const": "object" },
-            "additionalProperties": { "const": false },
-            "patternProperties": {
+            "Resources": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["^[a-zA-Z0-9]{1,64}$"],
+              "required": ["type", "additionalProperties", "patternProperties"],
               "properties": {
-                "^[a-zA-Z0-9]{1,64}$": {
-                  "$ref": "http://json-schema.org/draft-07/schema"
+                "type": { "const": "object" },
+                "additionalProperties": { "const": false },
+                "patternProperties": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["^[a-zA-Z0-9]{1,64}$"],
+                  "properties": {
+                    "^[a-zA-Z0-9]{1,64}$": {
+                      "$ref": "http://json-schema.org/draft-07/schema"
+                    }
+                  }
                 }
               }
             }
           }
-        }
-      }
-    },
-    "additionalProperties": { "const": false }
-  },
-  "additionalProperties": false
+        },
+        "additionalProperties": { "const": false }
+      },
+      "additionalProperties": false
+    }
+  ]
 }

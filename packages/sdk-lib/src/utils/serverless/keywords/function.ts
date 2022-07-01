@@ -1,5 +1,4 @@
 import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
-import { layerLibraries } from "@somod/common-layers";
 import { build as esbuild } from "esbuild";
 import { existsSync } from "fs";
 import { mkdir, readdir, writeFile } from "fs/promises";
@@ -11,7 +10,10 @@ import {
   path_functions,
   path_serverless
 } from "../../constants";
-import { apply as applyBaseLayer } from "../baseModule/layers/baseLayer";
+import {
+  apply as applyBaseLayer,
+  listLayerLibraries
+} from "../baseModule/layers/baseLayer";
 import {
   KeywordSLPFunction,
   KeywordSLPRef,
@@ -163,7 +165,15 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         replaceSLPKeyword(
           slpTemplate,
           functionKeywordPath,
-          `${slpTemplate.packageLocation}/${path_build}/${path_serverless}/${path_functions}/${_function.name}`
+          unixStylePath(
+            join(
+              slpTemplate.packageLocation,
+              path_build,
+              path_serverless,
+              path_functions,
+              _function.name
+            )
+          )
         );
 
         const resourceId = functionKeywordPath[0];
@@ -195,7 +205,8 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
           functionPaths
         )[KeywordSLPFunction];
         const external = ["aws-sdk", ...(_function.exclude || [])];
-        external.push(...layerLibraries.base);
+        const baseLayerLibraries = await listLayerLibraries();
+        external.push(...baseLayerLibraries);
 
         const excludeFilePath = join(
           buildFunctionsPath,
@@ -239,7 +250,7 @@ export const bundle = async (dir: string): Promise<void> => {
           platform: "node",
           external: exclude.external as string[],
           minify: true,
-          target: ["node14"]
+          target: ["node16"]
         });
       })
     );

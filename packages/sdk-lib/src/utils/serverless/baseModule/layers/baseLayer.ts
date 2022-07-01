@@ -1,5 +1,5 @@
 import { unixStylePath } from "@solib/cli-base";
-import { getLocation } from "@somod/common-layers";
+import { getPackageLocation, listLibraries } from "@somod/lambda-base-layer";
 import { cloneDeep } from "lodash";
 import { join } from "path";
 import { baseModuleName } from "..";
@@ -24,7 +24,7 @@ export const getBaseLayerSLPResource = async (): Promise<SLPResource> => {
       CompatibleArchitectures: ["arm64"],
       CompatibleRuntimes: ["nodejs14.x"],
       RetentionPolicy: "Delete",
-      ContentUri: unixStylePath(join(await getLocation(), "layers", "base"))
+      ContentUri: unixStylePath(join(await getPackageLocation(), "layer"))
     }
   } as SLPResource;
 };
@@ -39,3 +39,5 @@ export const apply = (slpTemplate: SLPTemplate, resourceId: string) => {
   slpTemplate.original.Resources[resourceId].Properties.Layers =
     cloneDeep(layers);
 };
+
+export const listLayerLibraries = listLibraries;

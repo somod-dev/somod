@@ -1,8 +1,10 @@
-import { writeFile } from "fs/promises";
-import { dump } from "js-yaml";
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
-import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverless";
+import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverless/generateSAMTemplate";
+import {
+  saveYamlFileStore,
+  updateYamlFileStore
+} from "../../utils/yamlFileStore";
 
 export const generateSAMTemplate = async (
   dir: string,
@@ -16,8 +18,9 @@ export const generateSAMTemplate = async (
       Transform: "AWS::Serverless-2016-10-31",
       Globals: {
         Function: {
-          Runtime: "nodejs14.x",
-          Handler: "index.default"
+          Runtime: "nodejs16.x",
+          Handler: "index.default",
+          Architectures: ["arm64"]
         }
       },
       ...samTemplate
@@ -25,8 +28,7 @@ export const generateSAMTemplate = async (
 
     const templateYamlPath = join(dir, file_templateYaml);
 
-    const templateStr = dump(completeSamTemplate);
-
-    await writeFile(templateYamlPath, templateStr);
+    updateYamlFileStore(templateYamlPath, completeSamTemplate);
+    await saveYamlFileStore(templateYamlPath);
   }
 };

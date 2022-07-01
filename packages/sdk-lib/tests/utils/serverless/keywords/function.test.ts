@@ -10,7 +10,7 @@ import {
   path_serverless
 } from "../../../../src/utils/constants";
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateJson } from "../../../../src/utils/serverless";
+import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
 import {
   doublePackageJson,
   functionDefaults,
@@ -55,7 +55,7 @@ describe("Test keyword SLP::Function", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
@@ -75,7 +75,7 @@ describe("Test keyword SLP::Function", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http"]}'
+      '{"external":["aws-sdk","@solib/common-types-schemas","@solib/errors","@solib/json-validator","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http","lodash","tslib","uuid"]}'
     );
   });
 
@@ -99,7 +99,7 @@ describe("Test keyword SLP::Function", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module function {@my-scope/sample, Resource1} not found. Looked for file "${dir}/serverless/functions/Resource1.ts". Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/CodeUri"`
@@ -128,7 +128,7 @@ describe("Test keyword SLP::Function", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
@@ -148,7 +148,7 @@ describe("Test keyword SLP::Function", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","smallest","@solib/json-validator","@solib/common-types-schemas","@solib/errors","lodash","tslib","uuid","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http"]}'
+      '{"external":["aws-sdk","smallest","@solib/common-types-schemas","@solib/errors","@solib/json-validator","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http","lodash","tslib","uuid"]}'
     );
   });
 
@@ -188,7 +188,7 @@ describe("Test keyword SLP::Function", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
@@ -250,7 +250,7 @@ describe("Test keyword SLP::Function", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateJson(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
       new ErrorSet([
         new Error(
           `Custom Resource Resource2 has following errors\n Properties must have required property 'attr1'`
@@ -315,7 +315,7 @@ describe("Test keyword SLP::Function", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateJson(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
       new ErrorSet([
         new Error(
           `Schema not found for CustomResource Resource2. Looked at 'Properties.CodeUri.SLP::Function.customResources.MyCustomResource1' in {@my-scope/sample, Resource1}`
@@ -392,7 +392,7 @@ describe("Test keyword SLP::Function", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })

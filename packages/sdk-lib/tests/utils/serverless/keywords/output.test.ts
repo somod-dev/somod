@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateJson } from "../../../../src/utils/serverless";
+import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
 import {
   functionDefaults,
   installSchemaInTempDir,
@@ -45,7 +45,7 @@ describe("test keyword SLP::Output", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })

@@ -50,9 +50,7 @@ describe("Test Task validateUiConfigYaml", () => {
       "ui/config.yaml": `
 env:
   MY_ENV_VAR:
-    default: abcd
-    schema:
-      type: string
+    NJP::Parameter: myparameter
 `
     });
     await expect(validateUiConfigYaml(dir)).resolves.toBeUndefined();
