@@ -49,11 +49,11 @@ const packageJsonSchema: JSONSchema7 = {
       type: "string"
     },
     [key_module]: {
-      const: `${path_build}/${file_index_js}`,
+      const: `${path_build}/${path_lib}/${file_index_js}`,
       errorMessage: `must be ${path_build}/${path_lib}/${file_index_js}`
     },
     [key_typings]: {
-      const: `${path_build}/${file_index_dts}`,
+      const: `${path_build}/${path_lib}/${file_index_dts}`,
       errorMessage: `must be ${path_build}/${path_lib}/${file_index_dts}`
     },
     [key_files]: {

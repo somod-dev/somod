@@ -33,8 +33,7 @@ const files = {
         default: "m1p1"
       },
       "my1.param2": {
-        type: "text",
-        default: "m1p2"
+        type: "text"
       }
     }
   })
@@ -87,7 +86,7 @@ describe("Test Util parameters.generate", () => {
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(
       JSON.stringify(
-        { "my.param1": "p1", "my1.param1": "m1p1", "my1.param2": "m1p2" },
+        { "my.param1": "p1", "my1.param1": "m1p1", "my1.param2": null },
         null,
         2
       ) + "\n"
@@ -111,7 +110,7 @@ describe("Test Util parameters.generate", () => {
         {
           "my.param1": "param1",
           "my1.param1": "m1p1",
-          "my1.param2": "m1p2",
+          "my1.param2": null,
           "m0.param1": "m0p1"
         },
         null,
@@ -138,7 +137,7 @@ describe("Test Util parameters.generate", () => {
           "my.param1": "p1",
           "my1.param1": "m1p1",
           "m0.param1": "m0p1",
-          "my1.param2": "m1p2"
+          "my1.param2": null
         },
         null,
         2

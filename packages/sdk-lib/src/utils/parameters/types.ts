@@ -2,7 +2,7 @@
 
 export type Parameter = {
   type: string;
-  default: string;
+  default?: string;
 } & Record<string, unknown>;
 
 export type Parameters = {

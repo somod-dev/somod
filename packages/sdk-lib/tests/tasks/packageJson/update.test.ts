@@ -17,8 +17,8 @@ describe("Test Task updatePackageJson", () => {
     name: "@my-scope/my-module",
     version: "1.0.1",
     description: "",
-    module: "build/index.js",
-    typings: "build/index.d.ts",
+    module: "build/lib/index.js",
+    typings: "build/lib/index.d.ts",
     files: ["build"],
     sideEffects: false
   };
@@ -63,7 +63,7 @@ describe("Test Task updatePackageJson", () => {
       {
         ...allRightPackageJson,
         ...njp,
-        module: "build/index.ts"
+        module: "build/lib/index.ts"
       }
     ],
     [
@@ -71,7 +71,7 @@ describe("Test Task updatePackageJson", () => {
       {
         ...allRightPackageJson,
         ...njp,
-        typings: "dist/index.ts"
+        typings: "dist/lib/index.ts"
       }
     ],
     [
@@ -95,8 +95,8 @@ describe("Test Task updatePackageJson", () => {
       {
         ...allRightPackageJson,
         ...njp,
-        main: "build/index.js",
-        "jsnext:main": "build/index.js",
+        main: "build/lib/index.js",
+        "jsnext:main": "build/lib/index.js",
         type: "esm"
       }
     ],

@@ -1,28 +1,25 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  buildParameters,
   buildServerlessTemplate,
   buildUiConfigYaml,
   buildUiPublic,
   bundleFunctions,
   compileTypeScript,
-  createPages,
-  createPublicAssets,
   deleteBuildDir,
+  doesPagesHaveDefaultExport,
   doesServerlessFunctionsHaveDefaultExport,
   file_configYaml,
-  file_index_js,
   file_packageJson,
-  file_pageIndex_js,
-  file_templateJson,
+  file_parametersYaml,
   file_templateYaml,
   file_tsConfigBuildJson,
-  generateIndex,
-  generatePageIndex,
   installLayerDependencies,
   isValidTsConfigBuildJson,
   key_njp,
   key_slp,
   key_somod,
+  loadAndResolveNamespaces,
   path_build,
   path_functions,
   path_pages,
@@ -30,38 +27,20 @@ import {
   path_serverless,
   path_ui,
   savePackageJson,
-  updateNjpConfig,
   updateSodaruModuleKeyInPackageJson,
-  validateDependencyModules,
   validatePackageJson,
+  validateParametersWithSchema,
   validateServerlessTemplateWithSchema,
   validateUiConfigYaml
 } from "@somod/sdk-lib";
-import { Command, Option } from "commander";
-
-type BuildActions = CommonOptions & {
-  type: "all" | "njp" | "slp";
-};
+import { Command } from "commander";
 
 export const BuildAction = async ({
-  verbose,
-  type
-}: BuildActions): Promise<void> => {
+  verbose
+}: CommonOptions): Promise<void> => {
   const dir = process.cwd();
 
-  const typescriptIncludePaths: string[] = [];
-  const moduleIndicators: string[] = [key_somod];
-  if (type == "all" || type == "njp") {
-    typescriptIncludePaths.push(path_ui);
-    moduleIndicators.push(key_njp);
-  }
-  if (type == "all" || type == "slp") {
-    // /serverless/functions use esbuild to bundle
-    //typescriptIncludePaths.push(path_serverless);
-    moduleIndicators.push(key_slp);
-  }
-
-  const validations: Promise<unknown>[] = [
+  await Promise.all([
     taskRunner(
       `Validate ${file_packageJson}`,
       validatePackageJson,
@@ -70,45 +49,52 @@ export const BuildAction = async ({
       key_somod
     ),
     taskRunner(
-      `Check if ${file_tsConfigBuildJson} is valid`,
+      `Validate ${file_tsConfigBuildJson}`,
       isValidTsConfigBuildJson,
       verbose,
       dir,
       { jsx: "react" },
-      typescriptIncludePaths
+      [path_ui]
     ),
     taskRunner(
-      `Validate module dependency`,
-      validateDependencyModules,
+      `Validate ${path_ui}/${file_configYaml} with schema`,
+      validateUiConfigYaml,
       verbose,
-      dir,
-      moduleIndicators
+      dir
+    ),
+    taskRunner(
+      `Validate ${path_serverless}/${file_templateYaml} with schema`,
+      validateServerlessTemplateWithSchema,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Validate ${file_parametersYaml} with schema`,
+      validateParametersWithSchema,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${path_ui}/${path_pages} have default export`,
+      doesPagesHaveDefaultExport,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${path_serverless}/${path_functions} have default export`,
+      doesServerlessFunctionsHaveDefaultExport,
+      verbose,
+      dir
     )
-  ];
+  ]);
 
-  if (type == "all" || type == "slp") {
-    validations.push(
-      taskRunner(
-        `Check if ${path_serverless}/${path_functions} have default export`,
-        doesServerlessFunctionsHaveDefaultExport,
-        verbose,
-        dir
-      )
-    );
-  }
-
-  if (type == "all" || type == "njp") {
-    validations.push(
-      taskRunner(
-        `validate ${path_ui}/${file_configYaml}`,
-        validateUiConfigYaml,
-        verbose,
-        dir
-      )
-    );
-  }
-
-  await Promise.all(validations);
+  await taskRunner(
+    `Resolve Namespaces`,
+    loadAndResolveNamespaces,
+    verbose,
+    dir,
+    [key_somod, key_njp, key_slp]
+  );
 
   await taskRunner(
     `Delete ${path_build} directory`,
@@ -117,106 +103,50 @@ export const BuildAction = async ({
     dir
   );
   await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
-
-  const njpBuildTasks = async () => {
-    await taskRunner(
-      `Build ${path_build}/${path_ui}/${path_public}`,
-      buildUiPublic,
-      verbose,
-      dir
-    );
-    await taskRunner(
-      `Generate ${path_build}/${path_ui}/${file_pageIndex_js}`,
-      generatePageIndex,
-      verbose,
-      dir
-    );
-    await taskRunner(
-      `Validate ${path_public} dependencies`,
-      createPublicAssets,
-      verbose,
-      dir,
-      [key_somod, key_njp],
-      true
-    );
-    await taskRunner(
-      `Validate ${path_pages} dependencies`,
-      createPages,
-      verbose,
-      dir,
-      [key_somod, key_njp],
-      true
-    );
-
-    await taskRunner(
-      `build ${path_ui}/${file_configYaml}`,
-      buildUiConfigYaml,
-      verbose,
-      dir
-    );
-
-    await taskRunner(
-      `validate config dependencies`,
-      updateNjpConfig,
-      verbose,
-      dir,
-      [key_somod, key_njp],
-      true
-    );
-  };
-  const slpBuildTasks = async () => {
-    await taskRunner(
-      `validate ${path_serverless}/${file_templateYaml}`,
-      validateServerlessTemplateWithSchema,
-      verbose,
-      dir
-    );
-    await taskRunner(
-      `Generate ${path_build}/${path_serverless}/${file_templateJson}`,
-      buildServerlessTemplate,
-      verbose,
-      dir,
-      moduleIndicators
-    );
-
-    await taskRunner(
-      `Bundle Serverless Functions`,
-      bundleFunctions,
-      verbose,
-      dir
-    );
-
-    await taskRunner(
-      `Install libraries of Serverless FunctionLayers`,
-      installLayerDependencies,
-      verbose,
-      dir,
-      verbose
-    );
-  };
-
-  const buildTasks: Promise<unknown>[] = [];
-
-  if (type == "all" || type == "njp") {
-    buildTasks.push(njpBuildTasks());
-  }
-  if (type == "all" || type == "slp") {
-    buildTasks.push(slpBuildTasks());
-  }
-
-  await Promise.all(buildTasks);
+  await taskRunner(
+    `Build ${path_ui}/${path_public}`,
+    buildUiPublic,
+    verbose,
+    dir
+  );
 
   await taskRunner(
-    `Generate ${path_build}/${file_index_js}`,
-    generateIndex,
+    `Build ${path_ui}/${file_configYaml}`,
+    buildUiConfigYaml,
     verbose,
     dir,
-    [
-      `${path_ui}/${file_pageIndex_js.substring(
-        0,
-        file_pageIndex_js.lastIndexOf(".js")
-      )}`
-    ]
+    [key_somod, key_njp, key_slp]
+  );
+
+  await taskRunner(
+    `Build ${path_serverless}/${file_templateYaml}`,
+    buildServerlessTemplate,
+    verbose,
+    dir,
+    [key_somod, key_njp, key_slp]
+  );
+
+  await taskRunner(
+    `Bundle Serverless Functions`,
+    bundleFunctions,
+    verbose,
+    dir
+  );
+
+  await taskRunner(
+    `Install libraries of Serverless FunctionLayers`,
+    installLayerDependencies,
+    verbose,
+    dir,
+    verbose
+  );
+
+  await taskRunner(
+    `Build ${file_parametersYaml}`,
+    buildParameters,
+    verbose,
+    dir,
+    [key_somod, key_njp, key_slp]
   );
 
   await taskRunner(
@@ -230,12 +160,6 @@ export const BuildAction = async ({
 };
 
 const buildCommand = new Command("build");
-
-buildCommand.addOption(
-  new Option("-t, --type [type]", "Type of modules to build")
-    .choices(["all", "njp", "slp"])
-    .default("all")
-);
 
 buildCommand.action(BuildAction);
 

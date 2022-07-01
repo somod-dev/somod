@@ -7,36 +7,27 @@ import {
   file_samConfig,
   file_templateYaml,
   file_tsConfigBuildJson,
-  initGit,
   initLib,
-  initSodev,
   initTemplateYaml,
   key_slp,
   path_lib,
   path_samBuild,
-  path_serverless,
-  saveEslintIgnore,
-  saveGitIgnore,
+  saveIgnore,
   savePackageJson,
-  savePrettierIgnore,
   saveTsConfigBuildJson,
-  updateEslintIgnore,
-  updateGitIgnore,
+  sodev,
+  updateIgnore,
   updatePackageJson,
-  updatePrettierIgnore,
   updateTsConfigBuildJson
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   const dir = process.cwd();
-  await taskRunner(
-    `Update ${file_packageJson}`,
-    updatePackageJson,
-    verbose,
-    dir,
-    key_slp
-  );
+
+  await taskRunner(`run sodev git`, sodev, verbose, dir, "git");
+  await taskRunner(`run sodev prettier`, sodev, verbose, dir, "prettier");
+  await taskRunner(`run sodev eslint`, sodev, verbose, dir, "eslint");
 
   const slpIgnorePaths = [
     `/${file_templateYaml}`,
@@ -45,29 +36,38 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
   ];
 
   await Promise.all([
-    taskRunner(`Initialise GIT`, initGit, verbose, dir),
+    taskRunner(
+      `update ${file_packageJson}`,
+      updatePackageJson,
+      verbose,
+      dir,
+      key_slp
+    ),
 
     taskRunner(
       `Initialize ${file_gitIgnore}`,
-      updateGitIgnore,
+      updateIgnore,
       verbose,
       dir,
+      file_gitIgnore,
       slpIgnorePaths
     ),
 
     taskRunner(
       `Initialize ${file_prettierIgnore}`,
-      updatePrettierIgnore,
+      updateIgnore,
       verbose,
       dir,
+      file_prettierIgnore,
       slpIgnorePaths
     ),
 
     taskRunner(
       `Initialize ${file_eslintIgnore}`,
-      updateEslintIgnore,
+      updateIgnore,
       verbose,
       dir,
+      file_eslintIgnore,
       slpIgnorePaths
     ),
 
@@ -75,26 +75,36 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       `Intitalize ${file_tsConfigBuildJson}`,
       updateTsConfigBuildJson,
       verbose,
-      dir,
-      {},
-      []
+      dir
     ),
 
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
-
-    taskRunner(
-      `Intitalize ${path_serverless}/${file_templateYaml}`,
-      initTemplateYaml,
-      verbose,
-      dir
-    )
+    taskRunner(`Intitalize Serverless Template`, initTemplateYaml, verbose, dir)
   ]);
 
   await Promise.all([
     taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),
-    taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir),
-    taskRunner(`Save ${file_prettierIgnore}`, savePrettierIgnore, verbose, dir),
-    taskRunner(`Save ${file_eslintIgnore}`, saveEslintIgnore, verbose, dir),
+    taskRunner(
+      `Save ${file_gitIgnore}`,
+      saveIgnore,
+      verbose,
+      dir,
+      file_gitIgnore
+    ),
+    taskRunner(
+      `Save ${file_prettierIgnore}`,
+      saveIgnore,
+      verbose,
+      dir,
+      file_prettierIgnore
+    ),
+    taskRunner(
+      `Save ${file_eslintIgnore}`,
+      saveIgnore,
+      verbose,
+      dir,
+      file_eslintIgnore
+    ),
     taskRunner(
       `Save ${file_tsConfigBuildJson}`,
       saveTsConfigBuildJson,
@@ -102,9 +112,6 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       dir
     )
   ]);
-
-  await taskRunner(`run sodev prettier`, initSodev, verbose, dir, "prettier");
-  await taskRunner(`run sodev eslint`, initSodev, verbose, dir, "eslint");
 };
 
 const initCommand = new Command("init");

@@ -9,23 +9,12 @@
       "additionalProperties": false,
       "patternProperties": {
         "^[a-zA-Z][a-zA-Z0-9]*(\\.[a-zA-Z0-9]+)+$": {
-          "allOf": [
-            {
-              "$ref": "https://form-input-schema.json-schema.sodaru.com/schemas/index.json"
-            },
-            {
-              "type": "object",
-              "required": ["default"],
-              "properties": {
-                "default": true
-              }
-            }
-          ]
+          "$ref": "https://form-input-schema.json-schema.sodaru.com/schemas/index.json"
         }
       },
       "maxProperties": 32,
       "errorMessage": {
-        "additionalProperties": "Property Name must contain only alphaNumerics and dot (.). Must start with alphabet"
+        "additionalProperties": "Parameter Name must contain only alphaNumerics and dot (.), must start with alphabet, Must contain one dot"
       }
     }
   }

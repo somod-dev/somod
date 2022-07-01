@@ -46,14 +46,18 @@ export const generate = async (
     })
   );
 
-  const parameterDefaultValues = Object.fromEntries(
-    Object.keys(parameterToModuleNameMap).map(parameterName => [
-      parameterName,
+  const parameterDefaultValues: Record<string, unknown> = {};
+  Object.keys(parameterToModuleNameMap).map(parameterName => {
+    let defaultValue =
       moduleToParametersMap[parameterToModuleNameMap[parameterName]].Parameters[
         parameterName
-      ].default
-    ])
-  );
+      ].default;
+
+    if (defaultValue === undefined) {
+      defaultValue = null;
+    }
+    parameterDefaultValues[parameterName] = defaultValue;
+  });
 
   const rootParametersJsonPath = join(dir, file_parametersJson);
   const existingParameters = existsSync(rootParametersJsonPath)
