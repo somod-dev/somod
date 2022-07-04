@@ -29,6 +29,7 @@
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.121.0",
     "@sodev/sodev": "^1.1.0",
     "@solib/cli-base": "^1.4.0",
     "@solib/graph": "^1.1.0",

@@ -31,7 +31,10 @@ import {
   validate as validateFunctionLayers
 } from "./keywords/functionLayerLibraries";
 import { apply as applyModuleName } from "./keywords/moduleName";
-import { apply as applyOutput } from "./keywords/output";
+import {
+  apply as applyOutput,
+  validate as validateOutput
+} from "./keywords/output";
 import {
   apply as applyParameter,
   validate as validateParameter
@@ -213,6 +216,7 @@ export const validateKeywords = async (
 ) => {
   const errors: Error[] = [];
   errors.push(...validateExtend(slpTemplate, serverlessTemplate));
+  errors.push(...validateOutput(slpTemplate, parameters));
   errors.push(...validateDependsOn(slpTemplate, serverlessTemplate));
   errors.push(...validateRef(slpTemplate, serverlessTemplate));
   errors.push(...validateParameter(slpTemplate, parameters));

@@ -438,9 +438,9 @@ describe("test util nextJs.generateCombinedConfig", () => {
         MY_ENV3: { "NJP::Parameter": "m2.p2" }
       },
       imageDomains: [
-        { "NJP::Parameter": "m1.p2" },
         "sodaru.com",
-        "somod.sodaru.com"
+        "somod.sodaru.com",
+        { "NJP::Parameter": "m1.p2" }
       ],
       publicRuntimeConfig: {
         myPRC1: {

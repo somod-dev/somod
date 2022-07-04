@@ -267,7 +267,7 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     moduleTemplate.root = true;
     const module = cloneDeep(moduleTemplate);
     await expect(loadHttpApiNamespaces(module)).rejects.toEqual(
-      new Error(`Following apis are repeated in my-module
+      new Error(`Following Serverless Http Api are repeated in my-module
  - POST my-resourceType/postresource`)
     );
   });

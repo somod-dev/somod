@@ -55,7 +55,11 @@ export type SLPDependsOn = {
 };
 
 export type SLPOutput = {
-  [KeywordSLPOutput]: { default: boolean; attributes: string[] };
+  [KeywordSLPOutput]: {
+    default: boolean;
+    attributes: string[];
+    export?: Record<string, string>;
+  };
 };
 
 export type SLPResourceName = {
@@ -136,13 +140,20 @@ export type SLPTemplate = OriginalSLPTemplate & {
 export type ServerlessTemplate = Record<string, SLPTemplate>;
 
 export type SAMTemplate = {
-  Parameters: Record<string, { Type: string }>;
+  Parameters?: Record<string, { Type: string }>;
   Resources: Record<
     string,
     {
       Type: string;
       DependsOn?: string[];
       Properties: Record<string, unknown>;
+    }
+  >;
+  Outputs?: Record<
+    string,
+    {
+      Description: string;
+      Value: { Ref: string } | { "Fn::GetAtt": [string, string] };
     }
   >;
 };

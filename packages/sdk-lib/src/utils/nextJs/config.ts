@@ -1,7 +1,7 @@
 import { readJsonFileStore } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { mkdir, writeFile } from "fs/promises";
-import { isString, uniqBy } from "lodash";
+import { isString, sortBy, uniqBy } from "lodash";
 import { dirname, join } from "path";
 import {
   file_configJson,
@@ -161,8 +161,12 @@ export const generateCombinedConfig = async (
   );
 
   return {
-    imageDomains: uniqBy(combinedImageDomains, imageDomain =>
-      isString(imageDomain) ? imageDomain : JSON.stringify(imageDomain)
+    imageDomains: sortBy(
+      uniqBy(combinedImageDomains, imageDomain =>
+        isString(imageDomain) ? imageDomain : JSON.stringify(imageDomain)
+      ),
+      imageDomain =>
+        isString(imageDomain) ? imageDomain : JSON.stringify(imageDomain)
     ),
     env: combinedEnv,
     publicRuntimeConfig: combinedPublicRuntimeConfig,

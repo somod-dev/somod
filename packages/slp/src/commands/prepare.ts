@@ -7,8 +7,7 @@ import {
   generateRootParameters,
   generateSAMConfigToml,
   generateSAMTemplate,
-  key_slp,
-  samCommand
+  key_slp
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
@@ -34,22 +33,6 @@ export const PrepareAction = async ({
       [key_slp]
     )
   ]);
-
-  await taskRunner(
-    `Validate /${file_templateYaml}`,
-    samCommand,
-    verbose,
-    dir,
-    "validate"
-  );
-
-  await taskRunner(
-    `Build /${file_templateYaml}`,
-    samCommand,
-    verbose,
-    dir,
-    "build"
-  );
 
   await taskRunner(
     `Gernerate /${file_samConfig}`,
