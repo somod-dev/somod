@@ -3,23 +3,19 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateSchema } from "../../../src/tasks/serverless/validateSchema";
-import { buildTemplateJson } from "../../../src/utils/serverless";
-import { NoSLPTemplateError } from "../../../src/utils/serverless/slpTemplate";
+import { buildTemplateYaml } from "../../../src/utils/serverless/buildTemplateYaml";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import {
   functionDefaults,
   installSchemaInTempDir,
-  singlePackageJson
+  singlePackageJson,
+  StringifyTemplate
 } from "./utils";
 
-describe("Test Util serverless.buildTemplateJson", () => {
+describe("Test Util serverless.buildTemplateYaml", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
   const moduleIndicators = ["slp"];
-
-  const StringifyTemplate = (json: unknown): string => {
-    return JSON.stringify(json, null, 2) + "\n";
-  };
 
   beforeEach(async () => {
     dir = createTempDir();
@@ -33,9 +29,9 @@ describe("Test Util serverless.buildTemplateJson", () => {
 
   test("with empty module", async () => {
     createFiles(dir, { ...singlePackageJson });
-    await expect(buildTemplateJson(dir, moduleIndicators)).rejects.toEqual(
-      new NoSLPTemplateError(join(dir, "serverless", "template.yaml"))
-    );
+    await expect(
+      buildTemplateYaml(dir, moduleIndicators)
+    ).resolves.toBeUndefined();
     expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
 
@@ -55,7 +51,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
 
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
 
     await expect(
@@ -180,7 +176,7 @@ describe("Test Util serverless.buildTemplateJson", () => {
 
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
 
     await expect(

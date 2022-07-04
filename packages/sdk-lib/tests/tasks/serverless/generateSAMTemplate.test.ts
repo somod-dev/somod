@@ -1,5 +1,5 @@
 import { unixStylePath } from "@solib/cli-base";
-import { getLocation } from "@somod/common-layers";
+import { getPackageLocation } from "@somod/lambda-base-layer";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
@@ -35,20 +35,11 @@ describe("Test Task generateSAMTemplate", () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
-          Parameters: {
-            Client: {
-              SAMType: "String",
-              schema: { type: "string", maxLength: 32 }
-            }
-          },
+          Parameters: {},
           Resources: {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
-              Properties: {
-                Tags: {
-                  Client: { "SLP::RefParameter": { parameter: "Client" } }
-                }
-              },
+              Properties: {},
               "SLP::Output": {
                 default: true,
                 attributes: ["RootResourceId"]
@@ -79,7 +70,7 @@ describe("Test Task generateSAMTemplate", () => {
         slp: "1.3.2",
         dependencies: {}
       }),
-      "build/serverless/template.json": JSON.stringify({
+      "serverless/template.yaml": dump({
         Resources: {
           CorrectRestApi: {
             "SLP::Extend": {
@@ -120,16 +111,7 @@ describe("Test Task generateSAMTemplate", () => {
           ListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
             "SLP::DependsOn": [{ resource: "GetAuthGroupFunction" }],
-            Properties: {
-              Tags: {
-                Client: {
-                  "SLP::RefParameter": {
-                    module: "@sodaru/baseapi",
-                    parameter: "Client"
-                  }
-                }
-              }
-            }
+            Properties: {}
           }
         }
       }),
@@ -152,11 +134,11 @@ describe("Test Task generateSAMTemplate", () => {
         Transform: "AWS::Serverless-2016-10-31",
         Globals: {
           Function: {
-            Runtime: "nodejs14.x",
-            Handler: "index.default"
+            Runtime: "nodejs16.x",
+            Handler: "index.default",
+            Architectures: ["arm64"]
           }
         },
-        Parameters: { pa046855cClient: { Type: "String" } },
         Resources: {
           r64967c02baseLayer: {
             Type: "AWS::Serverless::LayerVersion",
@@ -189,17 +171,13 @@ describe("Test Task generateSAMTemplate", () => {
               CompatibleRuntimes: ["nodejs14.x"],
               RetentionPolicy: "Delete",
               ContentUri: unixStylePath(
-                join(await getLocation(), "layers/base")
+                join(await getPackageLocation(), "layer")
               )
             }
           },
           ra046855cBaseRestApi: {
             Type: "AWS::Serverless::Api",
-            Properties: {
-              Tags: {
-                Client: { Ref: "pa046855cClient" }
-              }
-            },
+            Properties: {},
             DependsOn: ["ra046855cBaseRestApiWelcomeFunction"]
           },
           ra046855cBaseRestApiWelcomeFunction: {
@@ -264,13 +242,7 @@ describe("Test Task generateSAMTemplate", () => {
           },
           r624eb34aListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
-            Properties: {
-              Tags: {
-                Client: {
-                  Ref: "pa046855cClient"
-                }
-              }
-            },
+            Properties: {},
             DependsOn: ["r624eb34aGetAuthGroupFunction"]
           }
         }

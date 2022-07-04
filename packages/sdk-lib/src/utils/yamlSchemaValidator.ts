@@ -1,9 +1,8 @@
 import { load as loadSchema } from "@solib/schema-manager";
 import { getAjv, validate as jsonValidator } from "@solib/json-validator";
 import { existsSync } from "fs";
-import { readFile } from "fs/promises";
-import { load } from "js-yaml";
 import { DataValidationError } from "@solib/errors";
+import { readYamlFileStore } from "./yamlFileStore";
 
 export const yamlSchemaValidator = async (
   schemaId: string,
@@ -15,10 +14,7 @@ export const yamlSchemaValidator = async (
 
     const validate = await loadSchema(schemaId, ajv, dir);
 
-    const yamlContent = await readFile(yamlFilePath, {
-      encoding: "utf8"
-    });
-    const yamlContentAsJson = load(yamlContent);
+    const yamlContentAsJson = await readYamlFileStore(yamlFilePath);
     try {
       jsonValidator(null, yamlContentAsJson, validate);
     } catch (e) {

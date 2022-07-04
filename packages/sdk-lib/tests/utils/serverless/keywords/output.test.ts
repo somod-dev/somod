@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateJson } from "../../../../src/utils/serverless";
+import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
 import {
   functionDefaults,
   installSchemaInTempDir,
@@ -45,10 +45,44 @@ describe("test keyword SLP::Output", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
+  });
+
+  test("with missing export parameter", async () => {
+    const template = {
+      Resources: {
+        Resource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: { ...functionDefaults },
+          "SLP::Output": {
+            default: true,
+            attributes: ["Arn"],
+            export: {
+              default: "my.resource1.name",
+              Arn: "my.var1"
+            }
+          }
+        }
+      }
+    };
+    createFiles(dir, {
+      "parameters.yaml": dump({
+        Parameters: {
+          "my.var1": { type: "text", default: "1" },
+          "my.var3": { type: "text", default: "3" }
+        }
+      }),
+      "serverless/template.yaml": dump(template),
+      ...singlePackageJson
+    });
+    await validateSchema(dir); // make sure schema is right
+    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+      new Error(`Following export parameters referenced from 'serverless/template.yaml' are not found
+ - my.resource1.name`)
+    );
   });
 });

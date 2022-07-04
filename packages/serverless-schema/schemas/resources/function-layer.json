@@ -29,6 +29,17 @@
           "type": "array",
           "items": { "type": "string" },
           "maxItems": 0
+        },
+        "export": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "attributes to be exported to parameters after deployment. map of attribute/'default' to parameter name",
+          "properties": {
+            "default": {
+              "type": "string",
+              "description": "Parameter name"
+            }
+          }
         }
       }
     },

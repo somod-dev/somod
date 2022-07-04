@@ -1,7 +1,6 @@
 import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 import { createPublicAssets } from "../../../src";
 import { join } from "path";
-import { existsSync } from "fs";
 import { ErrorSet } from "@solib/cli-base";
 
 describe("Test Task createPublicAssets", () => {
@@ -56,7 +55,8 @@ describe("Test Task createPublicAssets", () => {
         name: "m6",
         version: "7.1.7"
       }),
-      "build/ui/public/home.html": "ghkdfjhgkjdsfkl",
+      "ui/public/home.html": "ghkdfjhgkjdsfkl",
+      "ui/public/about/us.html": "hrewiugtiwehuhti",
       "node_modules/m2/build/ui/public/about.html": "fewkqhkhfklhqekl",
       "node_modules/m2/build/ui/public/home.html": "roqpewyropewyopi",
       "node_modules/m2/node_modules/m5/build/ui/public/contact.js": "kuowh",
@@ -65,15 +65,11 @@ describe("Test Task createPublicAssets", () => {
       "node_modules/m3/build/ui/public/about/me.html": "nlkhkwjher"
     });
 
-    await expect(
-      createPublicAssets(dir, ["njp"], true)
-    ).resolves.toBeUndefined();
-
-    expect(existsSync(join(dir, "public"))).toBeFalsy();
-
     await expect(createPublicAssets(dir, ["njp"])).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "public"))).toEqual({
+      "home.html": "ghkdfjhgkjdsfkl",
+      "about/us.html": "hrewiugtiwehuhti",
       "about.html": "fewkqhkhfklhqekl",
       "contact.js": "kuowh",
       "survey.js": "iuuhiuh",
@@ -102,7 +98,7 @@ describe("Test Task createPublicAssets", () => {
         version: "2.2.0",
         njp: "1.3.2"
       }),
-      "build/ui/public/about.html": "ghkdfjhgkjdsfkl",
+      "ui/public/about.html": "ghkdfjhgkjdsfkl",
       "node_modules/m2/build/ui/public/about.html": "fewkqhkhfklhqekl",
       "node_modules/m2/build/ui/public/contact.js": "kuowh",
       "node_modules/m2/build/ui/public/survey.js": "iuuhiuh",
@@ -113,7 +109,11 @@ describe("Test Task createPublicAssets", () => {
     await expect(createPublicAssets(dir, ["njp"])).rejects.toEqual(
       new ErrorSet([
         new Error(
-          "Error while resolving (m2, m3) modules for the public asset 'contact.js': Can not resolve"
+          `Following namespaces are unresolved
+UI Public Asset
+ - contact.js
+   - m2
+   - m3`
         )
       ])
     );

@@ -12,9 +12,13 @@ Sodaru Module (somod) enables development and sharing of UI and Serverless Compo
 
 ## Package Inforamtion
 
-### [common-lib](./packages/common-lib)
+### [parameters-schema](./packages/parameters-schema)
 
-Common Dependencies and Helpers which are part of every NJP, SLP and SOMOD
+JSON schema to validate the parameters in NJP, SLP and SOMOD modules
+
+### [ui-config-schema](./packages/ui-config-schema)
+
+JSON schema to validate the UI Configuration in NJP and SOMOD modules
 
 ### [serverless-schema](./packages/serverless-schema)
 

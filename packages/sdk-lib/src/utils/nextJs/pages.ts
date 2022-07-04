@@ -1,102 +1,96 @@
 import { existsSync } from "fs";
-import { mkdir, writeFile } from "fs/promises";
-import { join, relative, dirname } from "path";
-import { file_pagesJson, path_build, path_pages, path_ui } from "../constants";
-import { get as getExports, Exports } from "../exports";
-import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
-import { ModuleInfo } from "../moduleInfo";
+import { mkdir, readdir, stat, writeFile } from "fs/promises";
+import { dirname, join, relative } from "path";
+import { namespace_page, path_build, path_pages, path_ui } from "../constants";
+import { Module, ModuleHandler } from "../moduleHandler";
+import { get as getExports } from "../exports";
+import { unixStylePath } from "@solib/cli-base";
 
-export type Pages = Record<string, { prefix: string; exports: Exports }>;
-
-export type PageToModulesMap = Record<
-  string,
-  {
-    moduleName: string;
-    prefix: string;
-    exports: Exports;
-  }[]
->;
-
-const loadPagesJson = async (packageLocation: string): Promise<Pages> => {
-  const pagesJsonPath = join(
-    packageLocation,
-    path_build,
-    path_ui,
-    file_pagesJson
-  );
-
-  const pages: Pages = existsSync(pagesJsonPath)
-    ? ((await readJsonFileStore(pagesJsonPath)) as Pages)
-    : ({} as Pages);
-
-  return pages;
+export const addPageExtention = (pagePathWithoutExtension: string) => {
+  let extension = "";
+  if (existsSync(pagePathWithoutExtension + ".js")) {
+    extension = ".js";
+  } else if (existsSync(pagePathWithoutExtension + ".tsx")) {
+    extension = ".tsx";
+  } else {
+    throw new Error(
+      `Could not find supported extention for ${pagePathWithoutExtension}`
+    );
+  }
+  return pagePathWithoutExtension + extension;
 };
 
-export const getPageToModulesMap = async (
-  modules: ModuleInfo[]
-): Promise<PageToModulesMap> => {
-  const allPages: { module: ModuleInfo; pages: Pages }[] = await Promise.all(
-    modules.map(async module => {
-      const pages = await loadPagesJson(module.packageLocation);
-      return { module, pages };
-    })
-  );
-
-  const pageToModulesMap: PageToModulesMap = {};
-
-  allPages.forEach(modulePages => {
-    const module = modulePages.module;
-    Object.keys(modulePages.pages).forEach(page => {
-      if (!pageToModulesMap[page]) {
-        pageToModulesMap[page] = [];
-      }
-      const thisPage = modulePages.pages[page];
-      pageToModulesMap[page].push({
-        moduleName: module.name,
-        prefix: thisPage.prefix,
-        exports: thisPage.exports
-      });
-    });
-  });
-
-  return pageToModulesMap;
-};
-
-const getRelativePath = (dir: string, page: string): string => {
-  const toPage = join(dir, path_ui, path_pages, page);
-  const fromPage = join(dir, path_pages, page);
-  const fromPageDir = dirname(fromPage);
-  const relativePath = relative(fromPageDir, toPage);
-  const relativePathWoExtension = relativePath.substring(
-    0,
-    relativePath.lastIndexOf(".")
-  );
-  return unixStylePath(relativePathWoExtension);
-};
-
-export const exportRootModulePage = async (
-  dir: string,
-  page: string
+export const linkPage = async (
+  fromPage: string,
+  toPage: string
 ): Promise<void> => {
-  const module = getRelativePath(dir, page);
-  const exports = getExports(join(dir, path_ui, path_pages, page));
-  const targetPage = join(dir, path_pages, page);
-  const targetPageTs =
-    targetPage.substring(0, targetPage.lastIndexOf(".")) + ".ts";
+  const exports = getExports(fromPage);
 
-  const targetPageTsDir = dirname(targetPageTs);
-  await mkdir(targetPageTsDir, { recursive: true });
+  const relativePagePath = unixStylePath(relative(dirname(toPage), fromPage));
+  const relativePageModule = relativePagePath.substring(
+    0,
+    relativePagePath.lastIndexOf(".")
+  );
 
   const _exports: string[] = [];
   if (exports.default) {
     _exports.push("default");
   }
-  exports.named.forEach(namedExport => {
-    _exports.push(namedExport);
-  });
+  _exports.push(...exports.named);
 
-  await writeFile(
-    targetPageTs,
-    `export { ${_exports.join(", ")} } from "${module}";`
-  );
+  const pageContent = `export { ${_exports.join(
+    ", "
+  )} } from "${relativePageModule}";`;
+
+  await mkdir(dirname(toPage), { recursive: true });
+  await writeFile(toPage, pageContent);
+};
+
+export const loadPageNamespaces = async (module: Module) => {
+  if (!module.namespaces[namespace_page]) {
+    const baseDir = join(
+      module.packageLocation,
+      module.root ? "" : path_build,
+      path_ui,
+      path_pages
+    );
+    const pages: string[] = [];
+
+    if (existsSync(baseDir)) {
+      const queue: string[] = [""];
+
+      while (queue.length > 0) {
+        const dirToParse = queue.shift();
+        const children = await readdir(join(baseDir, dirToParse));
+        await Promise.all(
+          children.map(async child => {
+            const stats = await stat(join(baseDir, dirToParse, child));
+            if (stats.isDirectory()) {
+              queue.push(dirToParse + "/" + child);
+            } else if (child.endsWith(".js") || child.endsWith(".tsx")) {
+              pages.push(
+                dirToParse + "/" + child.substring(0, child.lastIndexOf("."))
+              );
+            }
+          })
+        );
+      }
+    }
+
+    module.namespaces[namespace_page] = pages.map(page =>
+      page.startsWith("/") ? page.substring(1) : page
+    );
+  }
+};
+
+export const listAllPages = async (dir: string, moduleIndicators: string[]) => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+
+  const pageToModuleMap = (
+    await moduleHandler.getNamespaces(
+      Object.fromEntries(moduleIndicators.map(mt => [mt, loadPageNamespaces]))
+    )
+  )[namespace_page];
+
+  return pageToModuleMap;
 };

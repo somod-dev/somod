@@ -1,11 +1,5 @@
-import {
-  ErrorSet,
-  readJsonFileStore,
-  saveJsonFileStore,
-  updateJsonFileStore
-} from "@solib/cli-base";
-import { mkdir, readFile } from "fs/promises";
-import { load } from "js-yaml";
+import { ErrorSet, readJsonFileStore } from "@solib/cli-base";
+import { mkdir, writeFile } from "fs/promises";
 import { cloneDeep } from "lodash";
 import { dirname, join } from "path";
 import {
@@ -14,24 +8,45 @@ import {
   path_build,
   path_serverless
 } from "../constants";
-import { ModuleNode } from "../module";
+import { Module, ModuleNode } from "../moduleHandler";
+import { readYamlFileStore } from "../yamlFileStore";
 import { baseModuleName, getBaseModuleOriginalSLPTemplate } from "./baseModule";
-import { validate as validateDependsOn } from "./keywords/dependsOn";
-import { validate as validateExtend } from "./keywords/extend";
+import { apply as applyAccess } from "./keywords/access";
 import {
+  apply as applyDependsOn,
+  validate as validateDependsOn
+} from "./keywords/dependsOn";
+import {
+  apply as applyExtend,
+  validate as validateExtend
+} from "./keywords/extend";
+import { apply as applyFnSub } from "./keywords/fnSub";
+import {
+  apply as applyFunction,
   validate as validateFunction,
   validateCustomResourceSchema
 } from "./keywords/function";
-import { validate as validateFunctionLayers } from "./keywords/functionLayerLibraries";
-import { validate as validateRef } from "./keywords/ref";
-import { validate as validateRefParameter } from "./keywords/refParameter";
-import { validate as validateRefResourceName } from "./keywords/refResourceName";
 import {
-  OriginalSLPTemplate,
-  ServerlessTemplate,
-  SLPTemplate,
-  SLPTemplateType
-} from "./types";
+  apply as applyFunctionLayerLibraries,
+  validate as validateFunctionLayers
+} from "./keywords/functionLayerLibraries";
+import { apply as applyModuleName } from "./keywords/moduleName";
+import {
+  apply as applyOutput,
+  validate as validateOutput
+} from "./keywords/output";
+import {
+  apply as applyParameter,
+  validate as validateParameter
+} from "./keywords/parameter";
+import { apply as applyRef, validate as validateRef } from "./keywords/ref";
+import {
+  apply as applyRefResourceName,
+  validate as validateRefResourceName
+} from "./keywords/refResourceName";
+import { apply as applyResourceName } from "./keywords/resourceName";
+import { listAllSlpParameters } from "./parameter";
+import { OriginalSLPTemplate, ServerlessTemplate, SLPTemplate } from "./types";
 import { updateKeywordPathsInSLPTemplate } from "./utils";
 
 export class NoSLPTemplateError extends Error {
@@ -43,10 +58,10 @@ export class NoSLPTemplateError extends Error {
 }
 
 const loadBuiltSLPTemplate = async (
-  moduleNode: ModuleNode
+  module: Module
 ): Promise<OriginalSLPTemplate> => {
   const templateLocation = join(
-    moduleNode.packageLocation,
+    module.packageLocation,
     path_build,
     path_serverless,
     file_templateJson
@@ -68,18 +83,17 @@ const loadBuiltSLPTemplate = async (
 };
 
 const loadSourceSLPTemplate = async (
-  moduleNode: ModuleNode
+  module: Module
 ): Promise<OriginalSLPTemplate> => {
   const templateLocation = join(
-    moduleNode.packageLocation,
+    module.packageLocation,
     path_serverless,
     file_templateYaml
   );
   try {
-    const templateYamlContent = await readFile(templateLocation, {
-      encoding: "utf8"
-    });
-    const slpTemplate = load(templateYamlContent) as OriginalSLPTemplate;
+    const slpTemplate = (await readYamlFileStore(
+      templateLocation
+    )) as OriginalSLPTemplate;
 
     return slpTemplate;
   } catch (e) {
@@ -92,21 +106,27 @@ const loadSourceSLPTemplate = async (
   }
 };
 
-export const loadSLPTemplate = async (
-  moduleNode: ModuleNode,
-  type: SLPTemplateType = "dependent"
-): Promise<SLPTemplate> => {
+export const loadOriginalSlpTemplate = async (
+  module: Module
+): Promise<OriginalSLPTemplate> => {
   // the schema for slpTemplate is @somod/serverless-schema/schemas/index.json
-  const originalSlpTemplate =
-    type == "source"
-      ? await loadSourceSLPTemplate(moduleNode)
-      : await loadBuiltSLPTemplate(moduleNode);
+  const originalSlpTemplate = module.root
+    ? await loadSourceSLPTemplate(module)
+    : await loadBuiltSLPTemplate(module);
+
+  return originalSlpTemplate;
+};
+
+const loadSLPTemplate = async (
+  moduleNode: ModuleNode
+): Promise<SLPTemplate> => {
+  const originalSlpTemplate = await loadOriginalSlpTemplate(moduleNode.module);
 
   const slpTemplate: SLPTemplate = {
     ...originalSlpTemplate,
-    root: type == "source" || type == "build",
-    module: moduleNode.name,
-    packageLocation: moduleNode.packageLocation,
+    root: moduleNode.module.root,
+    module: moduleNode.module.name,
+    packageLocation: moduleNode.module.packageLocation,
     keywordPaths: null,
     original: cloneDeep(originalSlpTemplate)
   };
@@ -115,9 +135,11 @@ export const loadSLPTemplate = async (
   return slpTemplate;
 };
 
-export const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
+const loadBaseSlpTemplate = async (
+  slpParameters: Record<string, string[]>
+): Promise<SLPTemplate> => {
   const originalSlpTemplate: OriginalSLPTemplate =
-    await getBaseModuleOriginalSLPTemplate();
+    await getBaseModuleOriginalSLPTemplate(slpParameters);
 
   const baseSlpTemplate = {
     ...originalSlpTemplate,
@@ -131,14 +153,18 @@ export const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
   return baseSlpTemplate;
 };
 
-export const loadSLPTemplates = async (
-  modules: ModuleNode[],
-  types: SLPTemplateType[] = []
-): Promise<SLPTemplate[]> => {
-  let slpTemplates = await Promise.all(
-    modules.map(async (module, i) => {
+/**
+ * Tries to load the SLP Templates for the provided modules
+ *
+ * @returns SLPTemplate[], contains SLP Templates of only found templates, keeps the sort order same as the provided templates
+ */
+export const loadServerlessTemplate = async (
+  modules: ModuleNode[]
+): Promise<ServerlessTemplate> => {
+  const slpTemplates = await Promise.all(
+    modules.map(async module => {
       try {
-        return await loadSLPTemplate(module, types[i] || "dependent");
+        return await loadSLPTemplate(module);
       } catch (e) {
         if (e instanceof NoSLPTemplateError) {
           return false;
@@ -149,18 +175,18 @@ export const loadSLPTemplates = async (
     })
   );
 
-  slpTemplates = slpTemplates.filter(slpTemplate => !!slpTemplate);
-  return slpTemplates as SLPTemplate[];
-};
-
-export const mergeSLPTemplates = (
-  slpTemplates: SLPTemplate[]
-): ServerlessTemplate => {
   const serverlessTemplate: Record<string, SLPTemplate> = {};
 
   slpTemplates.forEach(slpTemplate => {
-    serverlessTemplate[slpTemplate.module] = slpTemplate;
+    if (slpTemplate) {
+      serverlessTemplate[slpTemplate.module] = slpTemplate;
+    }
   });
+
+  const slpParameters = listAllSlpParameters(serverlessTemplate);
+
+  const baseSlpTemplate = await loadBaseSlpTemplate(slpParameters);
+  serverlessTemplate[baseSlpTemplate.module] = baseSlpTemplate;
 
   return serverlessTemplate;
 };
@@ -168,30 +194,32 @@ export const mergeSLPTemplates = (
 export const buildRootSLPTemplate = async (
   rootModuleNode: ModuleNode
 ): Promise<void> => {
-  const originalSLPTemplate = await loadSourceSLPTemplate(rootModuleNode);
+  const originalSLPTemplate = await loadSourceSLPTemplate(
+    rootModuleNode.module
+  );
 
   const templateJsonPath = join(
-    rootModuleNode.packageLocation,
+    rootModuleNode.module.packageLocation,
     path_build,
     path_serverless,
     file_templateJson
   );
 
-  const templateJsonDir = dirname(templateJsonPath);
-  await mkdir(templateJsonDir, { recursive: true });
-  updateJsonFileStore(templateJsonPath, originalSLPTemplate);
-  await saveJsonFileStore(templateJsonPath);
+  await mkdir(dirname(templateJsonPath), { recursive: true });
+  await writeFile(templateJsonPath, JSON.stringify(originalSLPTemplate));
 };
 
-export const validate = async (
+export const validateKeywords = async (
   slpTemplate: SLPTemplate,
-  serverlessTemplate: ServerlessTemplate
+  serverlessTemplate: ServerlessTemplate,
+  parameters: string[]
 ) => {
   const errors: Error[] = [];
   errors.push(...validateExtend(slpTemplate, serverlessTemplate));
+  errors.push(...validateOutput(slpTemplate, parameters));
   errors.push(...validateDependsOn(slpTemplate, serverlessTemplate));
   errors.push(...validateRef(slpTemplate, serverlessTemplate));
-  errors.push(...validateRefParameter(slpTemplate, serverlessTemplate));
+  errors.push(...validateParameter(slpTemplate, parameters));
   errors.push(...validateRefResourceName(slpTemplate, serverlessTemplate));
   errors.push(...validateFunction(slpTemplate));
   errors.push(...(await validateFunctionLayers(slpTemplate)));
@@ -200,4 +228,19 @@ export const validate = async (
   if (errors.length > 0) {
     throw new ErrorSet(errors);
   }
+};
+
+export const applyKeywords = (serverlessTemplate: ServerlessTemplate) => {
+  applyModuleName(serverlessTemplate);
+  applyAccess(serverlessTemplate);
+  applyFnSub(serverlessTemplate);
+  applyFunction(serverlessTemplate);
+  applyFunctionLayerLibraries(serverlessTemplate);
+  applyResourceName(serverlessTemplate);
+  applyRef(serverlessTemplate);
+  applyParameter(serverlessTemplate);
+  applyRefResourceName(serverlessTemplate);
+  applyDependsOn(serverlessTemplate);
+  applyOutput(serverlessTemplate);
+  applyExtend(serverlessTemplate);
 };

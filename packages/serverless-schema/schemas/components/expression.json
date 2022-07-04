@@ -44,23 +44,14 @@
         }
       }
     },
-    "slpRefParameter": {
+    "slpParameter": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["SLP::RefParameter"],
+      "required": ["SLP::Parameter"],
       "properties": {
-        "SLP::RefParameter": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["parameter"],
-          "properties": {
-            "parameter": {
-              "type": "string",
-              "pattern": "^[a-zA-Z0-9]+$",
-              "maxLength": 32
-            },
-            "module": { "$ref": "#/definitions/moduleName" }
-          }
+        "SLP::Parameter": {
+          "type": "string",
+          "description": "Must refer the parameter available for this module"
         }
       }
     },
@@ -106,7 +97,7 @@
         { "$ref": "#/definitions/findInMap" },
         { "$ref": "#/definitions/ref" },
         { "$ref": "#/definitions/slpRef" },
-        { "$ref": "#/definitions/slpRefParameter" },
+        { "$ref": "#/definitions/slpParameter" },
         { "$ref": "#/definitions/slpRefResourceName" },
         { "$ref": "#/definitions/slpModuleName" }
       ]
@@ -122,7 +113,7 @@
         { "$ref": "#/definitions/findInMap" },
         { "$ref": "#/definitions/ref" },
         { "$ref": "#/definitions/slpRef" },
-        { "$ref": "#/definitions/slpRefParameter" }
+        { "$ref": "#/definitions/slpParameter" }
       ]
     },
     "numberLike": {
@@ -133,7 +124,7 @@
         { "$ref": "#/definitions/findInMap" },
         { "$ref": "#/definitions/ref" },
         { "$ref": "#/definitions/slpRef" },
-        { "$ref": "#/definitions/slpRefParameter" }
+        { "$ref": "#/definitions/slpParameter" }
       ]
     },
     "arrayLike": {
@@ -145,7 +136,7 @@
         { "$ref": "#/definitions/findInMap" },
         { "$ref": "#/definitions/ref" },
         { "$ref": "#/definitions/slpRef" },
-        { "$ref": "#/definitions/slpRefParameter" }
+        { "$ref": "#/definitions/slpParameter" }
       ]
     },
     "base64": {
@@ -295,7 +286,7 @@
           "oneOf": [
             { "$ref": "#/definitions/string" },
             { "$ref": "#/definitions/slpRef" },
-            { "$ref": "#/definitions/slpRefParameter" }
+            { "$ref": "#/definitions/slpParameter" }
           ]
         }
       }
@@ -326,7 +317,7 @@
                 { "$ref": "#/definitions/select" },
                 { "$ref": "#/definitions/ref" },
                 { "$ref": "#/definitions/slpRef" },
-                { "$ref": "#/definitions/slpRefParameter" }
+                { "$ref": "#/definitions/slpParameter" }
               ]
             }
           ],
@@ -346,7 +337,7 @@
             {
               "oneOf": [
                 { "$ref": "#/definitions/number" },
-                { "$ref": "#/definitions/slpRefParameter" },
+                { "$ref": "#/definitions/slpParameter" },
                 { "$ref": "#/definitions/findInMap" }
               ]
             },
@@ -358,7 +349,7 @@
                 { "$ref": "#/definitions/split" },
                 { "$ref": "#/definitions/ref" },
                 { "$ref": "#/definitions/slpRef" },
-                { "$ref": "#/definitions/slpRefParameter" }
+                { "$ref": "#/definitions/slpParameter" }
               ]
             }
           ],
@@ -388,7 +379,7 @@
                 { "$ref": "#/definitions/sub" },
                 { "$ref": "#/definitions/ref" },
                 { "$ref": "#/definitions/slpRef" },
-                { "$ref": "#/definitions/slpRefParameter" },
+                { "$ref": "#/definitions/slpParameter" },
                 { "$ref": "#/definitions/slpRefResourceName" },
                 { "$ref": "#/definitions/slpModuleName" }
               ]
@@ -426,7 +417,7 @@
                         { "$ref": "#/definitions/select" },
                         { "$ref": "#/definitions/ref" },
                         { "$ref": "#/definitions/slpRef" },
-                        { "$ref": "#/definitions/slpRefParameter" },
+                        { "$ref": "#/definitions/slpParameter" },
                         { "$ref": "#/definitions/slpRefResourceName" }
                       ]
                     }

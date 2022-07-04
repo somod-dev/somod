@@ -1,20 +1,20 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
-  createNextConfigJs,
-  createNjpConfigJson,
+  file_configYaml,
+  file_dotenv,
   file_eslintIgnore,
   file_gitIgnore,
   file_nextConfigJs,
   file_nextEnvDTs,
-  file_njpConfigJson,
   file_packageJson,
+  file_parametersYaml,
   file_prettierIgnore,
   file_tsConfigBuildJson,
   file_tsConfigJson,
-  file_vercelIgnore,
-  initGit,
+  findRootDir,
   initLib,
-  initSodev,
+  initParametersYaml,
+  initUiConfigYaml,
   initWelcomePage,
   key_njp,
   path_lib,
@@ -22,30 +22,22 @@ import {
   path_pages,
   path_public,
   path_ui,
-  path_vercel,
-  saveEslintIgnore,
-  saveGitIgnore,
+  saveIgnore,
   savePackageJson,
-  savePrettierIgnore,
   saveTsConfigBuildJson,
-  saveVercelIgnore,
-  updateEslintIgnore,
-  updateGitIgnore,
+  sodev,
+  updateIgnore,
   updatePackageJson,
-  updatePrettierIgnore,
   updateTsConfigBuildJson
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
-  await taskRunner(
-    `update ${file_packageJson}`,
-    updatePackageJson,
-    verbose,
-    dir,
-    key_njp
-  );
+  const dir = findRootDir();
+
+  await taskRunner(`run sodev git`, sodev, verbose, dir, "git");
+  await taskRunner(`run sodev prettier`, sodev, verbose, dir, "prettier");
+  await taskRunner(`run sodev eslint`, sodev, verbose, dir, "eslint");
 
   const njpIgnorePaths = [
     path_nextBuild,
@@ -53,36 +45,43 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     `/${path_pages}`,
     `/${path_public}`,
     file_nextEnvDTs,
-    path_vercel,
-    file_njpConfigJson,
-    file_nextConfigJs,
-    file_vercelIgnore
+    file_dotenv,
+    file_nextConfigJs
   ];
 
   await Promise.all([
-    taskRunner(`Initialise GIT`, initGit, verbose, dir),
+    taskRunner(
+      `update ${file_packageJson}`,
+      updatePackageJson,
+      verbose,
+      dir,
+      key_njp
+    ),
 
     taskRunner(
       `Initialize ${file_gitIgnore}`,
-      updateGitIgnore,
+      updateIgnore,
       verbose,
       dir,
+      file_gitIgnore,
       njpIgnorePaths
     ),
 
     taskRunner(
       `Initialize ${file_prettierIgnore}`,
-      updatePrettierIgnore,
+      updateIgnore,
       verbose,
       dir,
-      njpIgnorePaths
+      file_prettierIgnore,
+      [...njpIgnorePaths, file_tsConfigBuildJson]
     ),
 
     taskRunner(
       `Initialize ${file_eslintIgnore}`,
-      updateEslintIgnore,
+      updateIgnore,
       verbose,
       dir,
+      file_eslintIgnore,
       njpIgnorePaths
     ),
 
@@ -95,33 +94,52 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       [path_ui]
     ),
 
-    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
-    taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir)
-  ]);
-
-  await Promise.all([
-    taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),
-    taskRunner(`Save ${file_gitIgnore}`, saveGitIgnore, verbose, dir),
-    taskRunner(`Save ${file_prettierIgnore}`, savePrettierIgnore, verbose, dir),
-    taskRunner(`Save ${file_eslintIgnore}`, saveEslintIgnore, verbose, dir),
-    taskRunner(`Save ${file_vercelIgnore}`, saveVercelIgnore, verbose, dir),
     taskRunner(
-      `Save ${file_tsConfigBuildJson}`,
-      saveTsConfigBuildJson,
+      `Intitalize ${path_ui}/${file_configYaml}`,
+      initUiConfigYaml,
       verbose,
       dir
     ),
-    taskRunner(`Create ${file_nextConfigJs}`, createNextConfigJs, verbose, dir),
+    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
+    taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir),
     taskRunner(
-      `Create ${file_njpConfigJson}`,
-      createNjpConfigJson,
+      `Initialize ${file_parametersYaml}`,
+      initParametersYaml,
       verbose,
       dir
     )
   ]);
 
-  await taskRunner(`run sodev prettier`, initSodev, verbose, dir, "prettier");
-  await taskRunner(`run sodev eslint`, initSodev, verbose, dir, "eslint");
+  await Promise.all([
+    taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir),
+    taskRunner(
+      `Save ${file_gitIgnore}`,
+      saveIgnore,
+      verbose,
+      dir,
+      file_gitIgnore
+    ),
+    taskRunner(
+      `Save ${file_prettierIgnore}`,
+      saveIgnore,
+      verbose,
+      dir,
+      file_prettierIgnore
+    ),
+    taskRunner(
+      `Save ${file_eslintIgnore}`,
+      saveIgnore,
+      verbose,
+      dir,
+      file_eslintIgnore
+    ),
+    taskRunner(
+      `Save ${file_tsConfigBuildJson}`,
+      saveTsConfigBuildJson,
+      verbose,
+      dir
+    )
+  ]);
 };
 
 const initCommand = new Command("init");

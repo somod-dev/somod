@@ -25,7 +25,7 @@ describe("Test Util ignoreFile.validate", () => {
   test("for valid file", async () => {
     expect.assertions(1);
     createFiles(dir, {
-      ".someignore": "node_modules\nbuild"
+      ".someignore": "node_modules\nbuild\n/parameters.json"
     });
     await expect(validate(dir, [], ".someignore")).resolves.toBeUndefined();
   });
@@ -33,7 +33,7 @@ describe("Test Util ignoreFile.validate", () => {
   test("for valid file with more paths", async () => {
     expect.assertions(1);
     createFiles(dir, {
-      ".someignore": "node_modules\nbuild\nbin"
+      ".someignore": "node_modules\nbuild\n/parameters.json\nbin"
     });
     await expect(
       validate(dir, ["bin"], ".someignore")
@@ -46,7 +46,7 @@ describe("Test Util ignoreFile.validate", () => {
       ".someignore": "node_modules\nbin"
     });
     await expect(validate(dir, [], ".someignore")).rejects.toEqual(
-      new Error(`build must be in ${dir}/.someignore`)
+      new Error(`build, /parameters.json must be in ${dir}/.someignore`)
     );
   });
 
@@ -56,14 +56,14 @@ describe("Test Util ignoreFile.validate", () => {
       ".someignore": "node_modules\n.next"
     });
     await expect(validate(dir, ["bin"], ".someignore")).rejects.toEqual(
-      new Error(`build, bin must be in ${dir}/.someignore`)
+      new Error(`build, /parameters.json, bin must be in ${dir}/.someignore`)
     );
   });
 
   test("for valid file in parent dir", async () => {
     expect.assertions(1);
     createFiles(dir, {
-      ".someignore": "node_modules\nbuild",
+      ".someignore": "node_modules\nbuild\n/this/is/child/path/parameters.json",
       "this/is/child/path/": ""
     });
     await expect(
@@ -79,7 +79,11 @@ describe("Test Util ignoreFile.validate", () => {
     });
     await expect(
       validate(join(dir, "this/is/child/path/"), [], ".someignore")
-    ).rejects.toEqual(new Error(`build must be in ${dir}/.someignore`));
+    ).rejects.toEqual(
+      new Error(
+        `build, /this/is/child/path/parameters.json must be in ${dir}/.someignore`
+      )
+    );
   });
 });
 
@@ -98,7 +102,7 @@ describe("Test Util ignoreFile.update", () => {
     await expect(update(dir, [], ".someignore")).resolves.toBeUndefined();
     await expect(
       readIgnoreFileStore(join(dir, ".someignore"))
-    ).resolves.toEqual(["node_modules", "build"]);
+    ).resolves.toEqual(["node_modules", "build", "/parameters.json"]);
   });
 
   test("for existing file", async () => {
@@ -108,7 +112,7 @@ describe("Test Util ignoreFile.update", () => {
     await expect(update(dir, [], ".someignore")).resolves.toBeUndefined();
     await expect(
       readIgnoreFileStore(join(dir, ".someignore"))
-    ).resolves.toEqual(["node_modules", "bin", "build"]);
+    ).resolves.toEqual(["node_modules", "bin", "build", "/parameters.json"]);
   });
 
   test("for existing file with extra paths", async () => {
@@ -120,7 +124,14 @@ describe("Test Util ignoreFile.update", () => {
     ).resolves.toBeUndefined();
     await expect(
       readIgnoreFileStore(join(dir, ".someignore"))
-    ).resolves.toEqual(["node_modules", "bin", "build", ".next", "/.slp"]);
+    ).resolves.toEqual([
+      "node_modules",
+      "bin",
+      "build",
+      "/parameters.json",
+      ".next",
+      "/.slp"
+    ]);
   });
 
   test("for existing file with empty lines", async () => {
@@ -132,7 +143,15 @@ describe("Test Util ignoreFile.update", () => {
     ).resolves.toBeUndefined();
     await expect(
       readIgnoreFileStore(join(dir, ".someignore"))
-    ).resolves.toEqual(["", "node_modules", "", "bin", "build", ".next"]);
+    ).resolves.toEqual([
+      "",
+      "node_modules",
+      "",
+      "bin",
+      "build",
+      "/parameters.json",
+      ".next"
+    ]);
   });
 
   test("for valid file in parent dir", async () => {
@@ -154,6 +173,7 @@ describe("Test Util ignoreFile.update", () => {
       "node_modules",
       "bin",
       "build",
+      "/this/is/child/path/parameters.json",
       ".next",
       "/this/is/child/path/.slp"
     ]);

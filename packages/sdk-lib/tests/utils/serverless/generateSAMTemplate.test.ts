@@ -1,7 +1,8 @@
 import { unixStylePath } from "@solib/cli-base";
 import { existsSync } from "fs";
+import { dump } from "js-yaml";
 import { join } from "path";
-import { generateSAMTemplate } from "../../../src/utils/serverless";
+import { generateSAMTemplate } from "../../../src/utils/serverless/generateSAMTemplate";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 const stackId = {
@@ -31,7 +32,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
 
   test("for simple template only", async () => {
     createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
+      "serverless/template.yaml": dump({
         Resources: {
           GetAuthGroupFunction: {
             Type: "AWS::Serverless::Function",
@@ -57,7 +58,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     });
 
     await expect(generateSAMTemplate(dir, ["slp"])).resolves.toEqual({
-      Parameters: {},
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -65,7 +65,13 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             CompatibleRuntimes: ["nodejs14.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
-              join(__dirname, "../../../../", "common-layers", "layers", "base")
+              join(
+                __dirname,
+                "../../../",
+                "node_modules",
+                "@somod/lambda-base-layer",
+                "layer"
+              )
             ),
             Description:
               "Set of npm libraries to be required in all Lambda funtions",
@@ -109,24 +115,15 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     });
   });
 
-  test("for all valid input", async () => {
+  test("for no root template", async () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
-          Parameters: {
-            Client: {
-              SAMType: "String",
-              schema: { type: "string", maxLength: 32 }
-            }
-          },
           Resources: {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
               Properties: {
-                Name: { "SLP::ResourceName": "rootRestApi" },
-                Tags: {
-                  Client: { "SLP::RefParameter": { parameter: "Client" } }
-                }
+                Name: { "SLP::ResourceName": "rootRestApi" }
               },
               "SLP::Output": {
                 default: true,
@@ -166,7 +163,161 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         slp: "1.3.2",
         dependencies: {}
       }),
-      "build/serverless/template.json": JSON.stringify({
+      "package.json": JSON.stringify({
+        name: "@sodaru/auth-slp",
+        version: "1.0.0",
+        slp: "1.3.2",
+        dependencies: {
+          "@sodaru/baseapi": "^1.0.0"
+        }
+      })
+    });
+
+    const result = await generateSAMTemplate(dir, ["slp"]);
+
+    expect(result).toEqual({
+      Resources: {
+        r64967c02baseLayer: {
+          Properties: {
+            CompatibleArchitectures: ["arm64"],
+            CompatibleRuntimes: ["nodejs14.x"],
+            RetentionPolicy: "Delete",
+            ContentUri: unixStylePath(
+              join(
+                __dirname,
+                "../../../",
+                "node_modules",
+                "@somod/lambda-base-layer",
+                "layer"
+              )
+            ),
+            Description:
+              "Set of npm libraries to be required in all Lambda funtions",
+            LayerName: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "64967c02",
+                  slpResourceName: "baseLayer",
+                  stackId
+                }
+              ]
+            }
+          },
+          Type: "AWS::Serverless::LayerVersion"
+        },
+        ra046855cBaseRestApi: {
+          Type: "AWS::Serverless::Api",
+          Properties: {
+            Name: {
+              "Fn::Sub": [
+                "slp${stackId}${moduleHash}${slpResourceName}",
+                {
+                  moduleHash: "a046855c",
+                  slpResourceName: "rootRestApi",
+                  stackId
+                }
+              ]
+            }
+          }
+        },
+        ra046855cBaseRestApiWelcomeFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            InlineCode:
+              'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
+            Events: {
+              ApiEvent: {
+                Type: "Api",
+                Properties: {
+                  Method: "GET",
+                  Path: "@sodaru/baseapi/",
+                  RestApiId: { Ref: "ra046855cBaseRestApi" }
+                }
+              }
+            }
+          }
+        },
+        ra046855cBaseAnotherFunction: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: unixStylePath(
+              join(
+                dir,
+                "node_modules/@sodaru/baseapi/build/serverless/functions/anotherFunction"
+              )
+            ),
+            Layers: [{ Ref: "r64967c02baseLayer" }]
+          }
+        }
+      }
+    });
+  });
+
+  test("for all valid input", async () => {
+    createFiles(dir, {
+      "node_modules/@sodaru/baseapi/build/parameters.json": JSON.stringify({
+        Parameters: {
+          "my.var1": { type: "text", default: "1" },
+          "my.var3": { type: "text" }
+        }
+      }),
+      "node_modules/@sodaru/baseapi/build/serverless/template.json":
+        JSON.stringify({
+          Resources: {
+            BaseRestApi: {
+              Type: "AWS::Serverless::Api",
+              Properties: {
+                Name: { "SLP::ResourceName": "rootRestApi" }
+              },
+              "SLP::Output": {
+                default: true,
+                attributes: ["RootResourceId"],
+                export: {
+                  RootResourceId: "my.var3"
+                }
+              }
+            },
+            BaseRestApiWelcomeFunction: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                InlineCode:
+                  'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
+                Events: {
+                  ApiEvent: {
+                    Type: "Api",
+                    Properties: {
+                      Method: "GET",
+                      Path: {
+                        "SLP::ModuleName": "${SLP::ModuleName}/"
+                      },
+                      RestApiId: { "SLP::Ref": { resource: "BaseRestApi" } }
+                    }
+                  }
+                }
+              }
+            },
+            BaseAnotherFunction: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: { "SLP::Function": { name: "anotherFunction" } }
+              }
+            }
+          }
+        }),
+      "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
+        name: "@sodaru/baseapi",
+        version: "1.0.1",
+        slp: "1.3.2",
+        dependencies: {}
+      }),
+      "parameters.yaml": dump({
+        Parameters: {
+          "my.var2": { type: "text" },
+          "output.var4": { type: "text", default: "1" }
+        }
+      }),
+      "serverless/template.yaml": dump({
         Resources: {
           CorrectRestApi: {
             "SLP::Extend": {
@@ -206,6 +357,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 "SLP::Function": {
                   name: "createAuthGroup"
                 }
+              },
+              Environment: {
+                Variables: {
+                  MY_VAR1: { "SLP::Parameter": "my.var1" },
+                  MY_VAR2: { "SLP::Parameter": "my.var2" }
+                }
               }
             }
           },
@@ -213,7 +370,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Type: "AWS::Serverless::LayerVersion",
             "SLP::Output": {
               default: true,
-              attributes: []
+              attributes: [],
+              export: {
+                default: "output.var4"
+              }
             },
             Properties: {
               LayerName: {
@@ -285,16 +445,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           ListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
             "SLP::DependsOn": [{ resource: "GetAuthGroupFunction" }],
-            Properties: {
-              Tags: {
-                Client: {
-                  "SLP::RefParameter": {
-                    module: "@sodaru/baseapi",
-                    parameter: "Client"
-                  }
-                }
-              }
-            }
+            Properties: {}
           },
           PermissionTable: {
             Type: "AWS::DynamoDB::Table",
@@ -316,7 +467,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     const result = await generateSAMTemplate(dir, ["slp"]);
 
     expect(result).toEqual({
-      Parameters: { pa046855cClient: { Type: "String" } },
+      Parameters: {
+        my: {
+          Type: "String"
+        }
+      },
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -324,7 +479,13 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             CompatibleRuntimes: ["nodejs14.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
-              join(__dirname, "../../../../", "common-layers", "layers", "base")
+              join(
+                __dirname,
+                "../../../",
+                "node_modules",
+                "@somod/lambda-base-layer",
+                "layer"
+              )
             ),
             Description:
               "Set of npm libraries to be required in all Lambda funtions",
@@ -340,6 +501,24 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             }
           },
           Type: "AWS::Serverless::LayerVersion"
+        },
+        r64967c02parameterSpaceCfnLambda: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            InlineCode: "THIS_IS_A_PLACE_HOLDER_FOR_ACTUAL_CODE",
+            Layers: [{ Ref: "r64967c02baseLayer" }]
+          }
+        },
+        r64967c02pmy: {
+          Type: "Custom::ParameterSpace",
+          Properties: {
+            ServiceToken: {
+              "Fn::GetAtt": ["r64967c02parameterSpaceCfnLambda", "Arn"]
+            },
+            parameters: {
+              Ref: "my"
+            }
+          }
         },
         ra046855cBaseRestApi: {
           Type: "AWS::Serverless::Api",
@@ -370,9 +549,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   }
                 }
               ]
-            },
-            Tags: {
-              Client: { Ref: "pa046855cClient" }
             }
           },
           DependsOn: ["ra046855cBaseRestApiWelcomeFunction"]
@@ -420,6 +596,16 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                   stackId
                 }
               ]
+            },
+            Environment: {
+              Variables: {
+                MY_VAR1: {
+                  "Fn::GetAtt": ["r64967c02pmy", "var1"]
+                },
+                MY_VAR2: {
+                  "Fn::GetAtt": ["r64967c02pmy", "var2"]
+                }
+              }
             },
             Layers: [{ Ref: "r64967c02baseLayer" }]
           },
@@ -507,19 +693,27 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         },
         r624eb34aListAuthGroupsFunction: {
           Type: "AWS::Serverless::Function",
-          Properties: {
-            Tags: {
-              Client: {
-                Ref: "pa046855cClient"
-              }
-            }
-          },
+          Properties: {},
           DependsOn: ["r624eb34aGetAuthGroupFunction"]
         },
         r624eb34aPermissionTable: {
           Type: "AWS::DynamoDB::Table",
           DeletionPolicy: "Retain",
           UpdateReplacePolicy: "Retain"
+        }
+      },
+      Outputs: {
+        o6f75747075742e76617234: {
+          Description: "output.var4",
+          Value: {
+            Ref: "r624eb34aAuthLayer"
+          }
+        },
+        o6d792e76617233: {
+          Description: "my.var3",
+          Value: {
+            "Fn::GetAtt": ["ra046855cBaseRestApi", "RootResourceId"]
+          }
         }
       }
     });

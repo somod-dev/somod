@@ -1,26 +1,27 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  buildParameters,
   buildServerlessTemplate,
   bundleFunctions,
   compileTypeScript,
   deleteBuildDir,
   doesServerlessFunctionsHaveDefaultExport,
-  file_index_js,
   file_packageJson,
-  file_templateJson,
+  file_parametersYaml,
   file_templateYaml,
   file_tsConfigBuildJson,
-  generateIndex,
+  findRootDir,
   installLayerDependencies,
   isValidTsConfigBuildJson,
   key_slp,
+  loadAndResolveNamespaces,
   path_build,
   path_functions,
   path_serverless,
   savePackageJson,
   updateSodaruModuleKeyInPackageJson,
-  validateDependencyModules,
   validatePackageJson,
+  validateParametersWithSchema,
   validateServerlessTemplateWithSchema
 } from "@somod/sdk-lib";
 import { Command } from "commander";
@@ -28,18 +29,18 @@ import { Command } from "commander";
 export const BuildAction = async ({
   verbose
 }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await Promise.all([
     taskRunner(
-      `Validate in ${file_packageJson}`,
+      `Validate ${file_packageJson}`,
       validatePackageJson,
       verbose,
       dir,
       key_slp
     ),
     taskRunner(
-      `Check if ${file_tsConfigBuildJson} is valid`,
+      `Validate ${file_tsConfigBuildJson}`,
       isValidTsConfigBuildJson,
       verbose,
       dir,
@@ -47,11 +48,16 @@ export const BuildAction = async ({
       []
     ),
     taskRunner(
-      `Validate module dependency`,
-      validateDependencyModules,
+      `Validate ${path_serverless}/${file_templateYaml} with schema`,
+      validateServerlessTemplateWithSchema,
       verbose,
-      dir,
-      [key_slp]
+      dir
+    ),
+    taskRunner(
+      `Validate ${file_parametersYaml} with schema`,
+      validateParametersWithSchema,
+      verbose,
+      dir
     ),
     taskRunner(
       `Check if ${path_serverless}/${path_functions} have default export`,
@@ -62,6 +68,14 @@ export const BuildAction = async ({
   ]);
 
   await taskRunner(
+    `Resolve Namespaces`,
+    loadAndResolveNamespaces,
+    verbose,
+    dir,
+    [key_slp]
+  );
+
+  await taskRunner(
     `Delete ${path_build} directory`,
     deleteBuildDir,
     verbose,
@@ -70,14 +84,7 @@ export const BuildAction = async ({
   await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
 
   await taskRunner(
-    `validate ${path_serverless}/${file_templateYaml}`,
-    validateServerlessTemplateWithSchema,
-    verbose,
-    dir
-  );
-
-  await taskRunner(
-    `Generate ${path_build}/${path_serverless}/${file_templateJson}`,
+    `Build ${path_serverless}/${file_templateYaml}`,
     buildServerlessTemplate,
     verbose,
     dir,
@@ -100,11 +107,11 @@ export const BuildAction = async ({
   );
 
   await taskRunner(
-    `Generate ${path_build}/${file_index_js}`,
-    generateIndex,
+    `Build ${file_parametersYaml}`,
+    buildParameters,
     verbose,
     dir,
-    []
+    [key_slp]
   );
 
   await taskRunner(

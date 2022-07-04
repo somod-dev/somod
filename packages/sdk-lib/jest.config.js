@@ -7,12 +7,5 @@ const commonConfig = require("@sodev/jest-config");
  */
 module.exports = {
   ...commonConfig,
-  collectCoverageFrom: [
-    ...commonConfig.collectCoverageFrom,
-    "!src/tasks/codeSanity/**",
-    "!src/tasks/init/installAwsLambdaTypesAsDevDependency.ts",
-    "!src/tasks/init/installAwsSdkAsDevDependency.ts",
-    "!src/tasks/init/installAwsSdkAsPeerDependency.ts"
-  ],
   transformIgnorePatterns: ["node_modules/(?!@so|js-yaml)"]
 };

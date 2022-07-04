@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateJson } from "../../../../src/utils/serverless";
+import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
 import {
   doublePackageJson,
   functionDefaults,
@@ -48,7 +48,7 @@ describe("test keyword SLP::DependsOn", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         "Dependent module resource {@my-scope/sample2, Resource2} not found. Depended from {@my-scope/sample, Resource1}"
@@ -86,7 +86,7 @@ describe("test keyword SLP::DependsOn", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         "Dependent module resource {@my-scope/sample2, Resource2} not found. Depended from {@my-scope/sample, Resource1}"
@@ -131,7 +131,7 @@ describe("test keyword SLP::DependsOn", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })

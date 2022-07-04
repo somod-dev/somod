@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateJson } from "../../../../src/utils/serverless";
+import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
 import {
   doublePackageJson,
   functionDefaults,
@@ -59,7 +59,7 @@ describe("test keyword SLP::Ref", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
@@ -108,7 +108,7 @@ describe("test keyword SLP::Ref", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
@@ -164,7 +164,7 @@ describe("test keyword SLP::Ref", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample, Resource2} must not have SLP::Extend. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
@@ -213,7 +213,7 @@ describe("test keyword SLP::Ref", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} does not have SLP::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
@@ -265,7 +265,7 @@ describe("test keyword SLP::Ref", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} does not have default set to true in SLP::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
@@ -319,7 +319,7 @@ describe("test keyword SLP::Ref", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} does not have attribute Id in SLP::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
@@ -387,7 +387,7 @@ describe("test keyword SLP::Ref", () => {
 
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
@@ -446,7 +446,7 @@ describe("test keyword SLP::Ref", () => {
     });
     await validateSchema(dir); // make sure schema is right
     await expect(
-      buildTemplateJson(dir, moduleIndicators)
+      buildTemplateYaml(dir, moduleIndicators)
     ).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })

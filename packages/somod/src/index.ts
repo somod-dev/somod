@@ -1,14 +1,18 @@
 import { rootCommand } from "@solib/cli-base";
 import buildCommand from "./commands/build";
-import deployServerlessCommand from "./commands/deployServerless";
+import deployCommand from "./commands/deploy";
 import initCommand from "./commands/init";
+import prepareCommand from "./commands/prepare";
 import serveCommand from "./commands/serve";
+import updateParamsCommand from "./commands/updateParams";
 
 const program = rootCommand("emp", [
   initCommand,
   buildCommand,
+  prepareCommand,
+  deployCommand,
   serveCommand,
-  deployServerlessCommand
+  updateParamsCommand
 ]);
 
 export default program;

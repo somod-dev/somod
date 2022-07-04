@@ -6,7 +6,7 @@ export const KeywordSLPDependsOn = "SLP::DependsOn";
 export const KeywordSLPOutput = "SLP::Output";
 export const KeywordSLPResourceName = "SLP::ResourceName";
 export const KeywordSLPRef = "SLP::Ref";
-export const KeywordSLPRefParameter = "SLP::RefParameter";
+export const KeywordSLPParameter = "SLP::Parameter";
 export const KeywordSLPRefResourceName = "SLP::RefResourceName";
 export const KeywordSLPFunction = "SLP::Function";
 export const KeywordSLPFunctionLayerLibraries = "SLP::FunctionLayerLibraries";
@@ -20,7 +20,7 @@ export type KeywordAny =
   | typeof KeywordSLPOutput
   | typeof KeywordSLPResourceName
   | typeof KeywordSLPRef
-  | typeof KeywordSLPRefParameter
+  | typeof KeywordSLPParameter
   | typeof KeywordSLPRefResourceName
   | typeof KeywordSLPFunction
   | typeof KeywordSLPFunctionLayerLibraries
@@ -34,7 +34,7 @@ export const KeywordAll: KeywordAny[] = [
   KeywordSLPOutput,
   KeywordSLPResourceName,
   KeywordSLPRef,
-  KeywordSLPRefParameter,
+  KeywordSLPParameter,
   KeywordSLPRefResourceName,
   KeywordSLPFunction,
   KeywordSLPFunctionLayerLibraries,
@@ -55,7 +55,11 @@ export type SLPDependsOn = {
 };
 
 export type SLPOutput = {
-  [KeywordSLPOutput]: { default: boolean; attributes: string[] };
+  [KeywordSLPOutput]: {
+    default: boolean;
+    attributes: string[];
+    export?: Record<string, string>;
+  };
 };
 
 export type SLPResourceName = {
@@ -70,11 +74,8 @@ export type SLPRef = {
   };
 };
 
-export type SLPRefParameter = {
-  [KeywordSLPRefParameter]: {
-    module?: string;
-    parameter: string;
-  };
+export type SLPParameter = {
+  [KeywordSLPParameter]: string;
 };
 
 export type SLPRefResourceName = {
@@ -112,7 +113,7 @@ export type SLPKeyword =
   | SLPOutput
   | SLPResourceName
   | SLPRef
-  | SLPRefParameter
+  | SLPParameter
   | SLPRefResourceName
   | SLPFunction
   | SLPFunctionLayerLibraries
@@ -125,7 +126,6 @@ export type SLPResource = {
 } & Partial<SLPAccess & SLPExtend & SLPDependsOn & SLPOutput>;
 
 export type OriginalSLPTemplate = {
-  Parameters?: Record<string, { SAMType: string; schema: JSONSchema7 }>;
   Resources: Record<string, SLPResource>;
 };
 
@@ -137,18 +137,23 @@ export type SLPTemplate = OriginalSLPTemplate & {
   original: OriginalSLPTemplate;
 };
 
-export type SLPTemplateType = "source" | "build" | "dependent";
-
 export type ServerlessTemplate = Record<string, SLPTemplate>;
 
 export type SAMTemplate = {
-  Parameters: Record<string, { Type: string }>;
+  Parameters?: Record<string, { Type: string }>;
   Resources: Record<
     string,
     {
       Type: string;
       DependsOn?: string[];
       Properties: Record<string, unknown>;
+    }
+  >;
+  Outputs?: Record<
+    string,
+    {
+      Description: string;
+      Value: { Ref: string } | { "Fn::GetAtt": [string, string] };
     }
   >;
 };

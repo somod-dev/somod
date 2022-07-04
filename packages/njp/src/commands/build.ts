@@ -1,29 +1,27 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  buildParameters,
   buildUiConfigYaml,
   buildUiPublic,
   compileTypeScript,
-  createPages,
-  createPublicAssets,
   deleteBuildDir,
+  doesPagesHaveDefaultExport,
   file_configYaml,
-  file_index_js,
   file_packageJson,
-  file_pageIndex_js,
+  file_parametersYaml,
   file_tsConfigBuildJson,
-  generateIndex,
-  generatePageIndex,
+  findRootDir,
   isValidTsConfigBuildJson,
   key_njp,
+  loadAndResolveNamespaces,
   path_build,
   path_pages,
   path_public,
   path_ui,
   savePackageJson,
-  updateNjpConfig,
   updateSodaruModuleKeyInPackageJson,
-  validateDependencyModules,
   validatePackageJson,
+  validateParametersWithSchema,
   validateUiConfigYaml
 } from "@somod/sdk-lib";
 import { Command } from "commander";
@@ -31,18 +29,18 @@ import { Command } from "commander";
 export const BuildAction = async ({
   verbose
 }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await Promise.all([
     taskRunner(
-      `validate ${file_packageJson}`,
+      `Validate ${file_packageJson}`,
       validatePackageJson,
       verbose,
       dir,
       key_njp
     ),
     taskRunner(
-      `Check if ${file_tsConfigBuildJson} is valid`,
+      `Validate ${file_tsConfigBuildJson}`,
       isValidTsConfigBuildJson,
       verbose,
       dir,
@@ -50,19 +48,32 @@ export const BuildAction = async ({
       [path_ui]
     ),
     taskRunner(
-      `Validate module dependency`,
-      validateDependencyModules,
+      `Validate ${path_ui}/${file_configYaml} with schema`,
+      validateUiConfigYaml,
       verbose,
-      dir,
-      [key_njp]
+      dir
     ),
     taskRunner(
-      `validate ${path_ui}/${file_configYaml}`,
-      validateUiConfigYaml,
+      `Validate ${file_parametersYaml} with schema`,
+      validateParametersWithSchema,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Check if ${path_ui}/${path_pages} have default export`,
+      doesPagesHaveDefaultExport,
       verbose,
       dir
     )
   ]);
+
+  await taskRunner(
+    `Resolve Namespaces`,
+    loadAndResolveNamespaces,
+    verbose,
+    dir,
+    [key_njp]
+  );
 
   await taskRunner(
     `Delete ${path_build} directory`,
@@ -72,59 +83,28 @@ export const BuildAction = async ({
   );
   await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
   await taskRunner(
-    `Build ${path_build}/${path_ui}/${path_public}`,
+    `Build ${path_ui}/${path_public}`,
     buildUiPublic,
     verbose,
     dir
   );
+
   await taskRunner(
-    `Generate ${path_build}/${path_ui}/${file_pageIndex_js}`,
-    generatePageIndex,
-    verbose,
-    dir
-  );
-  await taskRunner(
-    `Validate ${path_public} dependencies`,
-    createPublicAssets,
-    verbose,
-    dir,
-    [key_njp],
-    true
-  );
-  await taskRunner(
-    `Validate ${path_pages} dependencies`,
-    createPages,
-    verbose,
-    dir,
-    [key_njp],
-    true
-  );
-  await taskRunner(
-    `build ${path_ui}/${file_configYaml}`,
+    `Build ${path_ui}/${file_configYaml}`,
     buildUiConfigYaml,
     verbose,
-    dir
+    dir,
+    [key_njp]
   );
+
   await taskRunner(
-    `validate config dependencies`,
-    updateNjpConfig,
+    `Build ${file_parametersYaml}`,
+    buildParameters,
     verbose,
     dir,
-    [key_njp],
-    true
+    [key_njp]
   );
-  await taskRunner(
-    `Generate ${path_build}/${file_index_js}`,
-    generateIndex,
-    verbose,
-    dir,
-    [
-      `${path_ui}/${file_pageIndex_js.substring(
-        0,
-        file_pageIndex_js.lastIndexOf(".js")
-      )}`
-    ]
-  );
+
   await taskRunner(
     `Set ${key_njp} in ${file_packageJson}`,
     updateSodaruModuleKeyInPackageJson,

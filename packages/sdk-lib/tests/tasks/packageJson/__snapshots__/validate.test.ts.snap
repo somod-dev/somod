@@ -62,7 +62,7 @@ exports[`Test Task validatePackageJson with wrong files 1`] = `
 
 exports[`Test Task validatePackageJson with wrong module 1`] = `
 "package.json has following errors
- module must be build/index.js"
+ module must be build/lib/index.js"
 `;
 
 exports[`Test Task validatePackageJson with wrong sideEffects 1`] = `
@@ -72,5 +72,5 @@ exports[`Test Task validatePackageJson with wrong sideEffects 1`] = `
 
 exports[`Test Task validatePackageJson with wrong typings 1`] = `
 "package.json has following errors
- typings must be build/index.d.ts"
+ typings must be build/lib/index.d.ts"
 `;

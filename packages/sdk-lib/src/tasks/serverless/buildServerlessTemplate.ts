@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { file_templateYaml, path_serverless } from "../../utils/constants";
-import { buildTemplateJson } from "../../utils/serverless";
+import { buildTemplateYaml } from "../../utils/serverless/buildTemplateYaml";
 
 export const buildServerlessTemplate = async (
   dir: string,
@@ -9,6 +9,6 @@ export const buildServerlessTemplate = async (
 ): Promise<void> => {
   const templateYamlPath = join(dir, path_serverless, file_templateYaml);
   if (existsSync(templateYamlPath)) {
-    await buildTemplateJson(dir, moduleIndicators);
+    await buildTemplateYaml(dir, moduleIndicators);
   }
 };
