@@ -3,18 +3,18 @@ import {
   file_parametersJson,
   file_samConfig,
   file_templateYaml,
+  findRootDir,
   generateRootParameters,
   generateSAMConfigToml,
   generateSAMTemplate,
-  key_slp,
-  samCommand
+  key_slp
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
 export const PrepareAction = async ({
   verbose
 }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await Promise.all([
     taskRunner(
@@ -33,22 +33,6 @@ export const PrepareAction = async ({
       [key_slp]
     )
   ]);
-
-  await taskRunner(
-    `Validate /${file_templateYaml}`,
-    samCommand,
-    verbose,
-    dir,
-    "validate"
-  );
-
-  await taskRunner(
-    `Build /${file_templateYaml}`,
-    samCommand,
-    verbose,
-    dir,
-    "build"
-  );
 
   await taskRunner(
     `Gernerate /${file_samConfig}`,

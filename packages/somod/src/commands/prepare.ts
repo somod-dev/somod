@@ -7,6 +7,7 @@ import {
   file_parametersJson,
   file_samConfig,
   file_templateYaml,
+  findRootDir,
   generateNextConfig,
   generateRootParameters,
   generateSAMConfigToml,
@@ -15,15 +16,14 @@ import {
   key_slp,
   key_somod,
   path_pages,
-  path_public,
-  samCommand
+  path_public
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 
 export const PrepareAction = async ({
   verbose
 }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await Promise.all([
     taskRunner(`Create /${path_pages}`, createPages, verbose, dir, [
@@ -60,22 +60,6 @@ export const PrepareAction = async ({
     verbose,
     dir,
     [key_somod, key_njp, key_slp]
-  );
-
-  await taskRunner(
-    `Validate /${file_templateYaml}`,
-    samCommand,
-    verbose,
-    dir,
-    "validate"
-  );
-
-  await taskRunner(
-    `Build /${file_templateYaml}`,
-    samCommand,
-    verbose,
-    dir,
-    "build"
   );
 
   await taskRunner(

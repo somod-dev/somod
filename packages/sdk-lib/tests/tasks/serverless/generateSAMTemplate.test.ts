@@ -139,7 +139,6 @@ describe("Test Task generateSAMTemplate", () => {
             Architectures: ["arm64"]
           }
         },
-        Parameters: {},
         Resources: {
           r64967c02baseLayer: {
             Type: "AWS::Serverless::LayerVersion",

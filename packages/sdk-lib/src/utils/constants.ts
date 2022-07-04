@@ -66,7 +66,7 @@ export const defaultServerlessTemplateSchema =
   "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/index.json";
 
 export const defaultNjpConfigSchema =
-  "https://json-schema.sodaru.com/@somod/njp-config-schema/schemas/index.json";
+  "https://json-schema.sodaru.com/@somod/ui-config-schema/schemas/index.json";
 
 export const defaultParametersSchema =
   "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json";
@@ -84,6 +84,8 @@ export const namespace_public_runtime_config = "UI Public Runtime Config";
 export const namespace_server_runtime_config = "UI Server Runtime Config";
 
 export const namespace_http_api = "Serverless Http Api";
+
+export const namespace_export_parameter = "Serverless Export Parameter";
 
 export const namespace_parameter = "Parameter";
 

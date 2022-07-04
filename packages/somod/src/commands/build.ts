@@ -14,6 +14,7 @@ import {
   file_parametersYaml,
   file_templateYaml,
   file_tsConfigBuildJson,
+  findRootDir,
   installLayerDependencies,
   isValidTsConfigBuildJson,
   key_njp,
@@ -38,7 +39,7 @@ import { Command } from "commander";
 export const BuildAction = async ({
   verbose
 }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await Promise.all([
     taskRunner(

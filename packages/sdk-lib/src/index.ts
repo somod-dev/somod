@@ -1,3 +1,5 @@
+export * from "./findRootDir";
+
 export * from "./tasks/packageJson";
 
 export * from "./tasks/ignoreFile";

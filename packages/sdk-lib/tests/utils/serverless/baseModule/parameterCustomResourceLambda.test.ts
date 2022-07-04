@@ -50,21 +50,15 @@ describe("test util parameterCustomResourceLambda", () => {
       createHandler(
         {
           parameters:
-            '{"string":"this is a string","integer":123,"number":100.02,"boolean":true,"null":null,"array":["this is a string",123,100.02,true,null],"object.content":{"string":"this is a string conatining quotes (\\")","integer":123,"number":100.02,"boolean":false,"null":null,"array":["this is a string",123,100.02,true,null],"object":{}}}'
+            '{"myvalue":"{\\\\"array\\\\":[\\\\"this is \\\\\\\\n a \'string\'\\\\",123,100.02,false,null],\\\\"object.content\\\\":{\\\\"string\\\\":\\\\"this is a string conatining quotes (\\\\\\\\\\\\")\\\\",\\\\"integer\\\\":123,\\\\"number\\\\":100.02,\\\\"boolean\\\\":false,\\\\"null\\\\":null,\\\\"array\\\\":[\\\\"this is a string\\\\",123,100.02,true,null],\\\\"object\\\\":{}}}"}'
         },
         null
       )
     ).resolves.toEqual({
       physicalResourceId: expect.stringContaining("param-space"),
       attributes: {
-        string: "this is a string",
-        integer: "123",
-        number: "100.02",
-        boolean: "true",
-        null: "null",
-        array: '["this is a string",123,100.02,true,null]',
-        "object.content":
-          '{"string":"this is a string conatining quotes (\\")","integer":123,"number":100.02,"boolean":false,"null":null,"array":["this is a string",123,100.02,true,null],"object":{}}'
+        myvalue:
+          '{"array":["this is \\\\n a \'string\'",123,100.02,false,null],"object.content":{"string":"this is a string conatining quotes (\\\\")","integer":123,"number":100.02,"boolean":false,"null":null,"array":["this is a string",123,100.02,true,null],"object":{}}}'
       }
     });
 

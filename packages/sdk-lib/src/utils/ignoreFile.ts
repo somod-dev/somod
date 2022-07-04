@@ -1,6 +1,6 @@
 import { difference, padEnd, union } from "lodash";
 import { dirname, join, normalize, relative } from "path";
-import { path_build, path_nodeModules } from "./constants";
+import { file_parametersJson, path_build, path_nodeModules } from "./constants";
 import {
   readIgnoreFileStore,
   updateIgnoreFileStore,
@@ -43,7 +43,7 @@ const relativeIgnorePaths = (
   });
 };
 
-const defaultPaths = [path_nodeModules, path_build];
+const defaultPaths = [path_nodeModules, path_build, `/${file_parametersJson}`];
 
 export const validate = async (
   dir: string,

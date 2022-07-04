@@ -10,6 +10,7 @@ import {
   file_packageJson,
   file_parametersYaml,
   file_tsConfigBuildJson,
+  findRootDir,
   isValidTsConfigBuildJson,
   key_njp,
   loadAndResolveNamespaces,
@@ -28,7 +29,7 @@ import { Command } from "commander";
 export const BuildAction = async ({
   verbose
 }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await Promise.all([
     taskRunner(

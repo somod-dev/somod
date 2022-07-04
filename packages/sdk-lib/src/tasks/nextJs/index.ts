@@ -1,6 +1,6 @@
 export { watchRootModulePages } from "./watchRootModulePages";
 export { watchRootModulePublicAssets } from "./watchRootModulePublicAssets";
-export { startNextDev } from "./startNextDev";
+export { nextCommand } from "./nextCommand";
 export { vercelCommand } from "./vercelCommand";
 export { createPages } from "./createPages";
 export { createPublicAssets } from "./createPublicAssets";
@@ -10,3 +10,4 @@ export { generateNextConfig } from "./generateNextConfig";
 export { buildUiPublic } from "./buildUiPublic";
 export { initWelcomePage } from "./initWelcomePage";
 export { doesPagesHaveDefaultExport } from "./doesPagesHaveDefaultExport";
+export { initUiConfigYaml } from "./initUiConfigYaml";

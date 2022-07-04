@@ -1,18 +1,18 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
-import { file_templateYaml, samCommand } from "@somod/sdk-lib";
+import { file_templateYaml, findRootDir, samDeploy } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
 import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";
 
-type DevOptions = CommonOptions & {
+type DeployOptions = CommonOptions & {
   guided: boolean;
 };
 
-export const DevAction = async ({
+export const DeployAction = async ({
   verbose,
   guided
-}: DevOptions): Promise<void> => {
-  const dir = process.cwd();
+}: DeployOptions): Promise<void> => {
+  const dir = findRootDir();
 
   await BuildAction({ verbose });
 
@@ -20,23 +20,23 @@ export const DevAction = async ({
 
   await taskRunner(
     `Deploying ${file_templateYaml}`,
-    samCommand,
+    samDeploy,
     verbose,
     dir,
-    "deploy",
+    verbose,
     guided
   );
 };
 
-const devCommand = new Command("dev");
+const deployCommand = new Command("deploy");
 
-devCommand.action(DevAction);
+deployCommand.action(DeployAction);
 
-devCommand.addOption(
+deployCommand.addOption(
   new Option(
     "-g, --guided",
     "guided will assist in configuring backend parameters in apply state"
   )
 );
 
-export default devCommand;
+export default deployCommand;

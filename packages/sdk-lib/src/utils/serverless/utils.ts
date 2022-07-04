@@ -62,3 +62,11 @@ export const getSAMResourceName = (
     ]
   };
 };
+
+export const getSAMOutputName = (exportParameterName: string) => {
+  return "o" + Buffer.from(exportParameterName).toString("hex");
+};
+
+export const getParameterNameFromSAMOutputName = (samOutputName: string) => {
+  return Buffer.from(samOutputName.substring(1), "hex").toString();
+};

@@ -407,6 +407,21 @@
           "type": "array",
           "items": { "enum": ["Arn"] },
           "uniqueItems": true
+        },
+        "export": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "attributes to be exported to parameters after deployment. map of attribute/'default' to parameter name",
+          "properties": {
+            "default": {
+              "type": "string",
+              "description": "Parameter name"
+            },
+            "Arn": {
+              "type": "string",
+              "description": "Parameter name"
+            }
+          }
         }
       }
     },

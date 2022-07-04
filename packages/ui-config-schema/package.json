@@ -1,11 +1,11 @@
 {
-  "name": "@somod/njp-config-schema",
+  "name": "@somod/ui-config-schema",
   "version": "1.8.0",
-  "description": "JSON Schema for NJP Configuration",
+  "description": "JSON Schema for UI Configuration",
   "files": [
     "schemas"
   ],
-  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/njp-config-schema#readme",
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/ui-config-schema#readme",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"

@@ -1,21 +1,25 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
+  file_configYaml,
   file_dotenv,
   file_eslintIgnore,
   file_gitIgnore,
   file_nextConfigJs,
   file_nextEnvDTs,
   file_packageJson,
+  file_parametersYaml,
   file_prettierIgnore,
   file_samConfig,
   file_templateYaml,
   file_tsConfigBuildJson,
   file_tsConfigJson,
+  findRootDir,
   initLib,
+  initParametersYaml,
   initTemplateYaml,
+  initUiConfigYaml,
   initWelcomePage,
   key_somod,
-  path_build,
   path_lib,
   path_nextBuild,
   path_pages,
@@ -33,14 +37,13 @@ import {
 import { Command } from "commander";
 
 export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
-  const dir = process.cwd();
+  const dir = findRootDir();
 
   await taskRunner(`run sodev git`, sodev, verbose, dir, "git");
   await taskRunner(`run sodev prettier`, sodev, verbose, dir, "prettier");
   await taskRunner(`run sodev eslint`, sodev, verbose, dir, "eslint");
 
   const somodIgnorePaths = [
-    path_build,
     path_nextBuild,
     file_tsConfigJson,
     `/${path_pages}`,
@@ -77,7 +80,7 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       verbose,
       dir,
       file_prettierIgnore,
-      somodIgnorePaths
+      [...somodIgnorePaths, file_tsConfigBuildJson]
     ),
 
     taskRunner(
@@ -98,9 +101,26 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
       [path_ui]
     ),
 
+    taskRunner(
+      `Intitalize ${path_ui}/${file_configYaml}`,
+      initUiConfigYaml,
+      verbose,
+      dir
+    ),
     taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
     taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir),
-    taskRunner(`Intitalize Serverless Template`, initTemplateYaml, verbose, dir)
+    taskRunner(
+      `Intitalize Serverless Template`,
+      initTemplateYaml,
+      verbose,
+      dir
+    ),
+    taskRunner(
+      `Initialize ${file_parametersYaml}`,
+      initParametersYaml,
+      verbose,
+      dir
+    )
   ]);
 
   await Promise.all([

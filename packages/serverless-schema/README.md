@@ -22,7 +22,7 @@ More on design [here](https://docs.google.com/presentation/d/1mxlUuocYzJfEmOmBrd
 
 #### Creating Schemas for Specific package
 
-create and build cub schemas using `@solib/schema-manager` utility
+create and build child schemas using `@solib/schema-manager` utility
 
 #### Using package specific schema
 

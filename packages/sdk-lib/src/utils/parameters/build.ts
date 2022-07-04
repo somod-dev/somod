@@ -12,7 +12,7 @@ import { loadParameters } from "./load";
 const buildParametersYaml = async (dir: string): Promise<void> => {
   const parameters = await readYamlFileStore(join(dir, file_parametersYaml));
   const parametersBuildPath = join(dir, path_build, file_parametersJson);
-  await mkdir(dirname(parametersBuildPath));
+  await mkdir(dirname(parametersBuildPath), { recursive: true });
   await writeFile(parametersBuildPath, JSON.stringify(parameters));
 };
 

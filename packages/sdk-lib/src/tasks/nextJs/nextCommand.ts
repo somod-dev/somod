@@ -2,11 +2,14 @@
 
 import { childProcess } from "@solib/cli-base";
 
-export const startNextDev = async (dir: string): Promise<void> => {
+export const nextCommand = async (
+  dir: string,
+  args: string[]
+): Promise<void> => {
   await childProcess(
     dir,
     process.platform === "win32" ? "npx.cmd" : "npx",
-    ["next", "dev"],
+    ["next", ...args],
     { show: "on", return: "off" },
     { show: "on", return: "off" }
   );

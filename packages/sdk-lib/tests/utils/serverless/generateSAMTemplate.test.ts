@@ -58,7 +58,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     });
 
     await expect(generateSAMTemplate(dir, ["slp"])).resolves.toEqual({
-      Parameters: {},
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -177,7 +176,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     const result = await generateSAMTemplate(dir, ["slp"]);
 
     expect(result).toEqual({
-      Parameters: {},
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -259,7 +257,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
   test("for all valid input", async () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/parameters.json": JSON.stringify({
-        Parameters: { "my.var1": { type: "text", default: "1" } }
+        Parameters: {
+          "my.var1": { type: "text", default: "1" },
+          "my.var3": { type: "text" }
+        }
       }),
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
@@ -271,7 +272,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               },
               "SLP::Output": {
                 default: true,
-                attributes: ["RootResourceId"]
+                attributes: ["RootResourceId"],
+                export: {
+                  RootResourceId: "my.var3"
+                }
               }
             },
             BaseRestApiWelcomeFunction: {
@@ -308,7 +312,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         dependencies: {}
       }),
       "parameters.yaml": dump({
-        Parameters: { "my.var2": { type: "text", default: "1" } }
+        Parameters: {
+          "my.var2": { type: "text" },
+          "output.var4": { type: "text", default: "1" }
+        }
       }),
       "serverless/template.yaml": dump({
         Resources: {
@@ -363,7 +370,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Type: "AWS::Serverless::LayerVersion",
             "SLP::Output": {
               default: true,
-              attributes: []
+              attributes: [],
+              export: {
+                default: "output.var4"
+              }
             },
             Properties: {
               LayerName: {
@@ -495,7 +505,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         r64967c02parameterSpaceCfnLambda: {
           Type: "AWS::Serverless::Function",
           Properties: {
-            InlineCode: "THIS_IS_A_PLACE_HOLDER_FOR_ACTUAL_CODE"
+            InlineCode: "THIS_IS_A_PLACE_HOLDER_FOR_ACTUAL_CODE",
+            Layers: [{ Ref: "r64967c02baseLayer" }]
           }
         },
         r64967c02pmy: {
@@ -689,6 +700,20 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           Type: "AWS::DynamoDB::Table",
           DeletionPolicy: "Retain",
           UpdateReplacePolicy: "Retain"
+        }
+      },
+      Outputs: {
+        o6f75747075742e76617234: {
+          Description: "output.var4",
+          Value: {
+            Ref: "r624eb34aAuthLayer"
+          }
+        },
+        o6d792e76617233: {
+          Description: "my.var3",
+          Value: {
+            "Fn::GetAtt": ["ra046855cBaseRestApi", "RootResourceId"]
+          }
         }
       }
     });
