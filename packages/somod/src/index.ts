@@ -6,7 +6,7 @@ import prepareCommand from "./commands/prepare";
 import serveCommand from "./commands/serve";
 import updateParamsCommand from "./commands/updateParams";
 
-const program = rootCommand("emp", [
+const program = rootCommand("somod", [
   initCommand,
   buildCommand,
   prepareCommand,
