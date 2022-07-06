@@ -1,6 +1,6 @@
 {
   "name": "@somod/njp",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Sodaru module Next Js Package Builder",
   "keywords": [
     "sodaru",
@@ -42,14 +42,14 @@
     "react": "^17.0.2 || ^18.0.0",
     "react-dom": "^17.0.2 || ^18.0.0",
     "typescript": "^4.5.5",
-    "@somod/ui-config-schema": "^1.9.0",
-    "@somod/parameters-schema": "^1.9.0"
+    "@somod/ui-config-schema": "^1.9.1",
+    "@somod/parameters-schema": "^1.9.1"
   },
   "devDependencies": {
     "@solib/cli-base": "^1.4.0",
     "@types/node": "^17.0.21",
     "typescript": "^4.5.5",
-    "@somod/sdk-lib": "^1.9.0"
+    "@somod/sdk-lib": "^1.9.1"
   },
   "dependencies": {
     "@solib/cli-open-telemetry": "^1.0.0"
