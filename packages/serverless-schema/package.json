@@ -16,11 +16,17 @@
     "meta-schemas",
     "schemas"
   ],
+  "scripts": {
+    "test": "npx schema-manager load meta-schemas && npx schema-manager load schemas"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
   },
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+  },
+  "devDependencies": {
+    "@solib/schema-manager": "^1.0.2"
   }
 }
