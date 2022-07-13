@@ -58,17 +58,12 @@ describe("Test watch", () => {
     const destDir = join(dir, "dest");
     const backupDir = join(dir, "backup");
 
-    closeHandle = watch(
-      watchDir,
-      destDir,
-      file => {
-        const destination = join(destDir, file);
-        const destinationDir = dirname(destination);
-        mkdirSync(destinationDir, { recursive: true });
-        copyFileSync(join(watchDir, file), destination);
-      },
-      backupDir
-    );
+    closeHandle = watch(watchDir, destDir, backupDir, file => {
+      const destination = join(destDir, file);
+      const destinationDir = dirname(destination);
+      mkdirSync(destinationDir, { recursive: true });
+      copyFileSync(join(watchDir, file), destination);
+    });
 
     expect(existsSync(destDir)).toBeFalsy();
 
@@ -93,17 +88,12 @@ describe("Test watch", () => {
 
     await sleep(100);
 
-    closeHandle = watch(
-      watchDir,
-      destDir,
-      file => {
-        const destination = join(destDir, file);
-        const destinationDir = dirname(destination);
-        mkdirSync(destinationDir, { recursive: true });
-        copyFileSync(join(watchDir, file), destination);
-      },
-      backupDir
-    );
+    closeHandle = watch(watchDir, destDir, backupDir, file => {
+      const destination = join(destDir, file);
+      const destinationDir = dirname(destination);
+      mkdirSync(destinationDir, { recursive: true });
+      copyFileSync(join(watchDir, file), destination);
+    });
 
     expect(existsSync(destDir)).toBeFalsy();
 
@@ -123,17 +113,12 @@ describe("Test watch", () => {
 
     await sleep(100);
 
-    closeHandle = watch(
-      watchDir,
-      destDir,
-      file => {
-        const destination = join(destDir, file);
-        const destinationDir = dirname(destination);
-        mkdirSync(destinationDir, { recursive: true });
-        copyFileSync(join(watchDir, file), destination);
-      },
-      backupDir
-    );
+    closeHandle = watch(watchDir, destDir, backupDir, file => {
+      const destination = join(destDir, file);
+      const destinationDir = dirname(destination);
+      mkdirSync(destinationDir, { recursive: true });
+      copyFileSync(join(watchDir, file), destination);
+    });
 
     expect(existsSync(destDir)).toBeFalsy();
 
@@ -155,17 +140,12 @@ describe("Test watch", () => {
 
     await sleep(100);
 
-    closeHandle = watch(
-      watchDir,
-      destDir,
-      file => {
-        const destination = join(destDir, file);
-        const destinationDir = dirname(destination);
-        mkdirSync(destinationDir, { recursive: true });
-        copyFileSync(join(watchDir, file), destination);
-      },
-      backupDir
-    );
+    closeHandle = watch(watchDir, destDir, backupDir, file => {
+      const destination = join(destDir, file);
+      const destinationDir = dirname(destination);
+      mkdirSync(destinationDir, { recursive: true });
+      copyFileSync(join(watchDir, file), destination);
+    });
 
     expect(existsSync(destDir)).toBeFalsy();
 
@@ -204,17 +184,12 @@ describe("Test watch", () => {
 
     await sleep(100);
 
-    closeHandle = watch(
-      watchDir,
-      destDir,
-      file => {
-        const destination = join(destDir, file);
-        const destinationDir = dirname(destination);
-        mkdirSync(destinationDir, { recursive: true });
-        copyFileSync(join(watchDir, file), destination);
-      },
-      backupDir
-    );
+    closeHandle = watch(watchDir, destDir, backupDir, file => {
+      const destination = join(destDir, file);
+      const destinationDir = dirname(destination);
+      mkdirSync(destinationDir, { recursive: true });
+      copyFileSync(join(watchDir, file), destination);
+    });
 
     expect(existsSync(destDir)).toBeFalsy();
 

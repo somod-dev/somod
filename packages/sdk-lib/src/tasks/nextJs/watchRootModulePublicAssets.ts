@@ -24,6 +24,7 @@ export const watchRootModulePublicAssets = async (
   const closeWatch = watch(
     join(dir, path_ui, path_public),
     publicAssetsDir,
+    backupDir,
     file => {
       linkAsset(
         join(dir, path_ui, path_public, file),
@@ -32,8 +33,7 @@ export const watchRootModulePublicAssets = async (
         // eslint-disable-next-line no-console
         console.error(err);
       });
-    },
-    backupDir
+    }
   );
   return () => {
     rimrafSync(backupDir);

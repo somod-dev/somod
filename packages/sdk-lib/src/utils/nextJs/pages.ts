@@ -6,6 +6,23 @@ import { Module, ModuleHandler } from "../moduleHandler";
 import { get as getExports } from "../exports";
 import { unixStylePath } from "@solib/cli-base";
 
+export const removeExtension = (pagePathWithExtension: string) => {
+  let extension = "";
+  if (pagePathWithExtension.endsWith(".js")) {
+    extension = ".js";
+  } else if (pagePathWithExtension.endsWith(".tsx")) {
+    extension = ".tsx";
+  } else {
+    throw new Error(
+      `Could not find supported extention for ${pagePathWithExtension}`
+    );
+  }
+  return pagePathWithExtension.substring(
+    0,
+    pagePathWithExtension.length - extension.length
+  );
+};
+
 export const addPageExtention = (pagePathWithoutExtension: string) => {
   let extension = "";
   if (existsSync(pagePathWithoutExtension + ".js")) {
@@ -68,9 +85,7 @@ export const loadPageNamespaces = async (module: Module) => {
             if (stats.isDirectory()) {
               queue.push(dirToParse + "/" + child);
             } else if (child.endsWith(".js") || child.endsWith(".tsx")) {
-              pages.push(
-                dirToParse + "/" + child.substring(0, child.lastIndexOf("."))
-              );
+              pages.push(removeExtension(dirToParse + "/" + child));
             }
           })
         );

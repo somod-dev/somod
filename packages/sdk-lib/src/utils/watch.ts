@@ -9,15 +9,16 @@ import {
 import { relative, join, normalize } from "path";
 import Watchpack from "watchpack";
 
-type OnFileChange = (file: string) => void;
+type OnFileChange = (sourcePath: string, destinationPath: string) => void;
 
 type WatchCloseHandler = () => void;
 
 const watch = (
   watchDir: string,
   destinationDir: string,
+  backupDir: string,
   onFileChange: OnFileChange,
-  backupDir: string
+  getDestinationPath?: (sourcePath: string) => string
 ): WatchCloseHandler => {
   const wp = new Watchpack({});
   const normalizedWatchDir = normalize(watchDir);
@@ -28,6 +29,8 @@ const watch = (
   }
   watchingParent = dirWatch != normalizedWatchDir;
   wp.watch([], [dirWatch]);
+
+  const _getDestinationPath = getDestinationPath || (path => path);
 
   wp.on("change", (filePath: string, mtime: number) => {
     if (watchingParent) {
@@ -44,15 +47,21 @@ const watch = (
       // change or creation
       if (stats.isFile()) {
         // apply only file changes
-        onFileChange(relativeFilepath);
+        onFileChange(relativeFilepath, _getDestinationPath(relativeFilepath));
       }
     } else {
       // deletion
-      const destinationPath = join(destinationDir, relativeFilepath);
+      const destinationPath = join(
+        destinationDir,
+        _getDestinationPath(relativeFilepath)
+      );
       if (existsSync(destinationPath)) {
         const stats = statSync(destinationPath);
         if (stats.isFile()) {
-          const backupPath = join(backupDir, relativeFilepath);
+          const backupPath = join(
+            backupDir,
+            _getDestinationPath(relativeFilepath)
+          );
           if (existsSync(backupPath)) {
             copyFileSync(backupPath, destinationPath);
           } else {

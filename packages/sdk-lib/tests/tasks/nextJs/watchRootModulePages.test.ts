@@ -58,7 +58,7 @@ describe("Test Task watchRootModulePages", () => {
     await helper.createDir(join(dir, "ui"));
     await helper.createDir(join(dir, "ui/pages"));
     await helper.createFile(
-      join(dir, "ui/pages/a.ts"),
+      join(dir, "ui/pages/a.tsx"),
       "const A = 10; export default A;"
     );
     await expect(
@@ -66,10 +66,10 @@ describe("Test Task watchRootModulePages", () => {
     ).resolves.toEqual('export { default } from "../ui/pages/a";');
 
     // another new deep file
-    expect(existsSync(join(dir, "pages", "b/c.ts"))).toBeFalsy();
+    expect(existsSync(join(dir, "pages", "b/c.tsx"))).toBeFalsy();
     await helper.createDir(join(dir, "ui/pages/b"));
     await helper.createFile(
-      join(dir, "ui/pages/b/c.ts"),
+      join(dir, "ui/pages/b/c.tsx"),
       "export const A = 10;"
     );
     await expect(
@@ -78,7 +78,7 @@ describe("Test Task watchRootModulePages", () => {
 
     // update file
     await helper.createFile(
-      join(dir, "ui/pages/a.ts"),
+      join(dir, "ui/pages/a.tsx"),
       "export const A = 10; export default A;"
     );
     await expect(
@@ -87,7 +87,7 @@ describe("Test Task watchRootModulePages", () => {
 
     // update another  deep file
     await helper.createFile(
-      join(dir, "ui/pages/b/c.ts"),
+      join(dir, "ui/pages/b/c.tsx"),
       "const A = 10; export default A;"
     );
     await expect(
@@ -95,11 +95,11 @@ describe("Test Task watchRootModulePages", () => {
     ).resolves.toEqual('export { default } from "../../ui/pages/b/c";');
 
     // delete file
-    await helper.deleteFile(join(dir, "ui/pages/a.ts"));
+    await helper.deleteFile(join(dir, "ui/pages/a.tsx"));
     expect(existsSync(join(dir, "pages", "a.ts"))).toBeFalsy();
 
     // delete another deep file
-    await helper.deleteFile(join(dir, "ui/pages/b/c.ts"));
+    await helper.deleteFile(join(dir, "ui/pages/b/c.tsx"));
     expect(existsSync(join(dir, "pages", "b/c.ts"))).toBeFalsy();
   });
 
@@ -118,7 +118,7 @@ describe("Test Task watchRootModulePages", () => {
     await helper.createDir(join(dir, "ui"));
     await helper.createDir(join(dir, "ui/pages"));
     await helper.createFile(
-      join(dir, "ui/pages/a.ts"),
+      join(dir, "ui/pages/a.tsx"),
       "const A = 10; export default A; const C ="
     );
     expect(existsSync(join(dir, "pages", "a.ts"))).toBeFalsy();
@@ -131,7 +131,7 @@ describe("Test Task watchRootModulePages", () => {
 
     // correct file
     await helper.createFile(
-      join(dir, "ui/pages/a.ts"),
+      join(dir, "ui/pages/a.tsx"),
       "const A = 10; export default A;"
     );
     await expect(
@@ -140,7 +140,7 @@ describe("Test Task watchRootModulePages", () => {
 
     // again currupt file
     await helper.createFile(
-      join(dir, "ui/pages/a.ts"),
+      join(dir, "ui/pages/a.tsx"),
       "const A = 10; export default A; const B="
     );
     await expect(
@@ -173,7 +173,7 @@ describe("Test Task watchRootModulePages", () => {
     await helper.createDir(join(dir, "ui"));
     await helper.createDir(join(dir, "ui/pages"));
     await helper.createFile(
-      join(dir, "ui/pages/a.ts"),
+      join(dir, "ui/pages/a.tsx"),
       "export const A = 10; export default A;"
     );
     await expect(
@@ -183,7 +183,7 @@ describe("Test Task watchRootModulePages", () => {
     // create another deep file
     await helper.createDir(join(dir, "ui/pages/b"));
     await helper.createFile(
-      join(dir, "ui/pages/b/c.ts"),
+      join(dir, "ui/pages/b/c.tsx"),
       "const A = 10; export default A;"
     );
     await expect(
@@ -191,13 +191,13 @@ describe("Test Task watchRootModulePages", () => {
     ).resolves.toEqual('export { default } from "../../ui/pages/b/c";');
 
     // delete file
-    await helper.deleteFile(join(dir, "ui/pages/a.ts"));
+    await helper.deleteFile(join(dir, "ui/pages/a.tsx"));
     await expect(
       readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
     ).resolves.toEqual('export { default } from "m1";');
 
     // delete another deep file
-    await helper.deleteFile(join(dir, "ui/pages/b/c.ts"));
+    await helper.deleteFile(join(dir, "ui/pages/b/c.tsx"));
     await expect(
       readFile(join(dir, "pages", "b/c.ts"), { encoding: "utf8" })
     ).resolves.toEqual('export { A } from "m2";');
