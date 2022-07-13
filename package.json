@@ -1,6 +1,6 @@
 {
   "name": "@somod/sdk",
-  "version": "1.9.4",
+  "version": "1.9.5",
   "description": "Sodaru Module (somod) - SDK",
   "scripts": {
     "postinstall": "npx mono-repo install -v && npx mono-repo run build -v",
