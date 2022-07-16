@@ -65,7 +65,7 @@ describe("Test Util nextjs.loadConfig", () => {
 
   test("for some config in build", async () => {
     const config: Config = {
-      imageDomains: ["sodaru.com", { "NJP::Parameter": "my.customdomain" }]
+      imageDomains: ["sodaru.com", { "SOMOD::Parameter": "my.customdomain" }]
     };
     createFiles(dir, {
       "build/ui/config.json": JSON.stringify(config)
@@ -83,7 +83,7 @@ describe("Test Util nextjs.loadConfig", () => {
 
   test("for config in root", async () => {
     const config: Config = {
-      imageDomains: ["sodaru.com", { "NJP::Parameter": "my.customdomain" }]
+      imageDomains: ["sodaru.com", { "SOMOD::Parameter": "my.customdomain" }]
     };
     createFiles(dir, {
       "ui/config.yaml": dump(config)
@@ -102,10 +102,10 @@ describe("Test Util nextjs.loadConfig", () => {
 
   test("for full config", async () => {
     const config: Config = {
-      env: { ENV_1: { "NJP::Parameter": "my.env1" } },
-      imageDomains: ["sodaru.com", { "NJP::Parameter": "my.customdomain" }],
-      publicRuntimeConfig: { theme: { "NJP::Parameter": "my.theme" } },
-      serverRuntimeConfig: { siteKey: { "NJP::Parameter": "my.siteKey" } }
+      env: { ENV_1: { "SOMOD::Parameter": "my.env1" } },
+      imageDomains: ["sodaru.com", { "SOMOD::Parameter": "my.customdomain" }],
+      publicRuntimeConfig: { theme: { "SOMOD::Parameter": "my.theme" } },
+      serverRuntimeConfig: { siteKey: { "SOMOD::Parameter": "my.siteKey" } }
     };
     createFiles(dir, {
       "build/ui/config.json": JSON.stringify(config)
@@ -196,10 +196,10 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
 
   test("for config in build", async () => {
     const config: Config = {
-      env: { ENV_1: { "NJP::Parameter": "my.env1" } },
-      imageDomains: ["sodaru.com", { "NJP::Parameter": "my.customdomain" }],
-      publicRuntimeConfig: { theme: { "NJP::Parameter": "my.theme" } },
-      serverRuntimeConfig: { siteKey: { "NJP::Parameter": "my.siteKey" } }
+      env: { ENV_1: { "SOMOD::Parameter": "my.env1" } },
+      imageDomains: ["sodaru.com", { "SOMOD::Parameter": "my.customdomain" }],
+      publicRuntimeConfig: { theme: { "SOMOD::Parameter": "my.theme" } },
+      serverRuntimeConfig: { siteKey: { "SOMOD::Parameter": "my.siteKey" } }
     };
     createFiles(dir, {
       "build/ui/config.json": JSON.stringify(config)
@@ -224,10 +224,10 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
 
   test("for config in root", async () => {
     const config: Config = {
-      env: { ENV_1: { "NJP::Parameter": "my.env1" } },
-      imageDomains: ["sodaru.com", { "NJP::Parameter": "my.customdomain" }],
-      publicRuntimeConfig: { theme: { "NJP::Parameter": "my.theme" } },
-      serverRuntimeConfig: { siteKey: { "NJP::Parameter": "my.siteKey" } }
+      env: { ENV_1: { "SOMOD::Parameter": "my.env1" } },
+      imageDomains: ["sodaru.com", { "SOMOD::Parameter": "my.customdomain" }],
+      publicRuntimeConfig: { theme: { "SOMOD::Parameter": "my.theme" } },
+      serverRuntimeConfig: { siteKey: { "SOMOD::Parameter": "my.siteKey" } }
     };
     createFiles(dir, {
       "ui/config.yaml": dump(config)
@@ -305,7 +305,7 @@ describe("Test Util nextJs.buildConfig", () => {
 
   test("for one config in ui/config.yaml", async () => {
     const config: Config = {
-      env: { MY_ENV1: { "NJP::Parameter": "my.param1" } }
+      env: { MY_ENV1: { "SOMOD::Parameter": "my.param1" } }
     };
     createFiles(dir, {
       "ui/config.yaml": dump(config),
@@ -321,7 +321,7 @@ describe("Test Util nextJs.buildConfig", () => {
 
   test("for invalid parameter in ui/config.yaml", async () => {
     const config: Config = {
-      env: { MY_ENV1: { "NJP::Parameter": "my.param1" } }
+      env: { MY_ENV1: { "SOMOD::Parameter": "my.param1" } }
     };
     createFiles(dir, {
       "ui/config.yaml": dump(config)
@@ -359,12 +359,12 @@ describe("test util nextJs.generateCombinedConfig", () => {
       }),
       "ui/config.yaml": dump({
         env: {
-          MY_ENV1: { "NJP::Parameter": "m1.p1" }
+          MY_ENV1: { "SOMOD::Parameter": "m1.p1" }
         },
-        imageDomains: [{ "NJP::Parameter": "m1.p2" }],
+        imageDomains: [{ "SOMOD::Parameter": "m1.p2" }],
         publicRuntimeConfig: {
           myPRC2: {
-            "NJP::Parameter": "m1.p3"
+            "SOMOD::Parameter": "m1.p3"
           }
         }
       }),
@@ -376,13 +376,13 @@ describe("test util nextJs.generateCombinedConfig", () => {
       }),
       "node_modules/m2/build/ui/config.json": JSON.stringify({
         env: {
-          MY_ENV1: { "NJP::Parameter": "m2.p1" },
-          MY_ENV3: { "NJP::Parameter": "m2.p2" }
+          MY_ENV1: { "SOMOD::Parameter": "m2.p1" },
+          MY_ENV3: { "SOMOD::Parameter": "m2.p2" }
         },
         imageDomains: ["sodaru.com"],
         publicRuntimeConfig: {
           myPRC2: {
-            "NJP::Parameter": "m2.p3"
+            "SOMOD::Parameter": "m2.p3"
           }
         }
       }),
@@ -398,7 +398,7 @@ describe("test util nextJs.generateCombinedConfig", () => {
         imageDomains: ["sodaru.com"],
         publicRuntimeConfig: {
           myPRC2: {
-            "NJP::Parameter": "m3.p1"
+            "SOMOD::Parameter": "m3.p1"
           }
         }
       }),
@@ -410,21 +410,21 @@ describe("test util nextJs.generateCombinedConfig", () => {
       }),
       "node_modules/m3/node_modules/m4/build/ui/config.json": JSON.stringify({
         env: {
-          MY_ENV1: { "NJP::Parameter": "m4.p1" },
-          MY_ENV2: { "NJP::Parameter": "m4.p2" }
+          MY_ENV1: { "SOMOD::Parameter": "m4.p1" },
+          MY_ENV2: { "SOMOD::Parameter": "m4.p2" }
         },
         imageDomains: ["somod.sodaru.com", "sodaru.com"],
         publicRuntimeConfig: {
           myPRC1: {
-            "NJP::Parameter": "m4.p3"
+            "SOMOD::Parameter": "m4.p3"
           }
         },
         serverRuntimeConfig: {
           mySRC1: {
-            "NJP::Parameter": "m4.p4"
+            "SOMOD::Parameter": "m4.p4"
           },
           mySRC2: {
-            "NJP::Parameter": "m4.p5"
+            "SOMOD::Parameter": "m4.p5"
           }
         }
       })
@@ -433,29 +433,29 @@ describe("test util nextJs.generateCombinedConfig", () => {
     const result = await generateCombinedConfig(dir, ["somod"]);
     expect(result).toEqual({
       env: {
-        MY_ENV1: { "NJP::Parameter": "m1.p1" },
-        MY_ENV2: { "NJP::Parameter": "m4.p2" },
-        MY_ENV3: { "NJP::Parameter": "m2.p2" }
+        MY_ENV1: { "SOMOD::Parameter": "m1.p1" },
+        MY_ENV2: { "SOMOD::Parameter": "m4.p2" },
+        MY_ENV3: { "SOMOD::Parameter": "m2.p2" }
       },
       imageDomains: [
         "sodaru.com",
         "somod.sodaru.com",
-        { "NJP::Parameter": "m1.p2" }
+        { "SOMOD::Parameter": "m1.p2" }
       ],
       publicRuntimeConfig: {
         myPRC1: {
-          "NJP::Parameter": "m4.p3"
+          "SOMOD::Parameter": "m4.p3"
         },
         myPRC2: {
-          "NJP::Parameter": "m1.p3"
+          "SOMOD::Parameter": "m1.p3"
         }
       },
       serverRuntimeConfig: {
         mySRC1: {
-          "NJP::Parameter": "m4.p4"
+          "SOMOD::Parameter": "m4.p4"
         },
         mySRC2: {
-          "NJP::Parameter": "m4.p5"
+          "SOMOD::Parameter": "m4.p5"
         }
       }
     });

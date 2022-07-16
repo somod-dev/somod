@@ -3,10 +3,10 @@
   "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/components/resource-properties.json",
   "title": "JSON Schema for Resource in Serverless Template by Sodaru Technologies",
   "definitions": {
-    "SLP::Access": {
+    "SOMOD::Access": {
       "enum": ["module", "scope", "public"]
     },
-    "SLP::Extend": {
+    "SOMOD::Extend": {
       "type": "object",
       "additionalProperties": false,
       "required": ["module", "resource"],
@@ -17,7 +17,7 @@
         }
       }
     },
-    "SLP::DependsOn": {
+    "SOMOD::DependsOn": {
       "type": "array",
       "items": {
         "type": "object",
@@ -33,7 +33,7 @@
       "minItems": 1,
       "maxItems": 20
     },
-    "SLP::Output": {
+    "SOMOD::Output": {
       "type": "object",
       "additionalProperties": false,
       "required": ["default", "attributes"],

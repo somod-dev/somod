@@ -8,6 +8,8 @@ import { loadHttpApiNamespaces } from "../../utils/serverless/namespace";
 
 /* istanbul ignore next reason: Its ok here */
 const loaderMap: Record<ModuleType, NamespaceLoader> = {
+  /* njp and slp are removed
+  
   njp: async module => {
     await Promise.all([
       loadParameterNamespaces(module),
@@ -21,7 +23,7 @@ const loaderMap: Record<ModuleType, NamespaceLoader> = {
       loadParameterNamespaces(module),
       loadHttpApiNamespaces(module)
     ]);
-  },
+  },*/
   somod: async module => {
     await Promise.all([
       loadParameterNamespaces(module),

@@ -13,7 +13,7 @@ import {
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::Ref", () => {
+describe("test keyword SOMOD::Ref", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -27,7 +27,7 @@ describe("test keyword SLP::Ref", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::Ref without module", async () => {
+  test("with SOMOD::Ref without module", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -39,7 +39,7 @@ describe("test keyword SLP::Ref", () => {
                 Type: "HttpApi",
                 Properties: {
                   ApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@my-scope/sample2",
                       resource: "Resource2"
                     }
@@ -67,7 +67,7 @@ describe("test keyword SLP::Ref", () => {
     });
   });
 
-  test("with SLP::Ref and with module but no Resource", async () => {
+  test("with SOMOD::Ref and with module but no Resource", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -79,7 +79,7 @@ describe("test keyword SLP::Ref", () => {
                 Type: "HttpApi",
                 Properties: {
                   ApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@my-scope/sample2",
                       resource: "Resource2"
                     }
@@ -116,7 +116,7 @@ describe("test keyword SLP::Ref", () => {
     });
   });
 
-  test("with SLP::Ref and with module with Extended Resource", async () => {
+  test("with SOMOD::Ref and with module with Extended Resource", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -128,7 +128,7 @@ describe("test keyword SLP::Ref", () => {
                 Type: "HttpApi",
                 Properties: {
                   ApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       resource: "Resource2"
                     }
                   },
@@ -141,7 +141,7 @@ describe("test keyword SLP::Ref", () => {
         },
         Resource2: {
           Type: "AWS::Serverless::Api",
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample2",
             resource: "Resource3"
           },
@@ -167,12 +167,12 @@ describe("test keyword SLP::Ref", () => {
       buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample, Resource2} must not have SLP::Extend. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
+        'Referenced module resource {@my-scope/sample, Resource2} must not have SOMOD::Extend. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
 
-  test("with SLP::Ref and with module with Resource but no output", async () => {
+  test("with SOMOD::Ref and with module with Resource but no output", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -184,7 +184,7 @@ describe("test keyword SLP::Ref", () => {
                 Type: "HttpApi",
                 Properties: {
                   ApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@my-scope/sample2",
                       resource: "Resource2"
                     }
@@ -216,12 +216,12 @@ describe("test keyword SLP::Ref", () => {
       buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample2, Resource2} does not have SLP::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
+        'Referenced module resource {@my-scope/sample2, Resource2} does not have SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
 
-  test("with SLP::Ref and with module with Resource but target output default is false", async () => {
+  test("with SOMOD::Ref and with module with Resource but target output default is false", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -233,7 +233,7 @@ describe("test keyword SLP::Ref", () => {
                 Type: "HttpApi",
                 Properties: {
                   ApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@my-scope/sample2",
                       resource: "Resource2"
                     }
@@ -256,7 +256,7 @@ describe("test keyword SLP::Ref", () => {
             Resource2: {
               Type: "AWS::Serverless::Api",
               Properties: {},
-              "SLP::Output": {
+              "SOMOD::Output": {
                 default: false
               }
             }
@@ -268,12 +268,12 @@ describe("test keyword SLP::Ref", () => {
       buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample2, Resource2} does not have default set to true in SLP::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
+        'Referenced module resource {@my-scope/sample2, Resource2} does not have default set to true in SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
 
-  test("with SLP::Ref and with module with Resource but target output attributes does not include", async () => {
+  test("with SOMOD::Ref and with module with Resource but target output attributes does not include", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -285,7 +285,7 @@ describe("test keyword SLP::Ref", () => {
                 Type: "HttpApi",
                 Properties: {
                   ApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@my-scope/sample2",
                       resource: "Resource2",
                       attribute: "Id"
@@ -309,7 +309,7 @@ describe("test keyword SLP::Ref", () => {
             Resource2: {
               Type: "AWS::Serverless::Api",
               Properties: {},
-              "SLP::Output": {
+              "SOMOD::Output": {
                 default: true,
                 attributes: ["Name"]
               }
@@ -322,12 +322,12 @@ describe("test keyword SLP::Ref", () => {
       buildTemplateYaml(dir, moduleIndicators)
     ).rejects.toMatchObject({
       message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample2, Resource2} does not have attribute Id in SLP::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
+        'Referenced module resource {@my-scope/sample2, Resource2} does not have attribute Id in SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
     });
   });
 
-  test("with SLP::Ref with a valid reference", async () => {
+  test("with SOMOD::Ref with a valid reference", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -339,7 +339,7 @@ describe("test keyword SLP::Ref", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@my-scope/sample2",
                       resource: "Resource2",
                       attribute: "Name"
@@ -353,7 +353,7 @@ describe("test keyword SLP::Ref", () => {
                 Type: "HttpApi",
                 Properties: {
                   ApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@my-scope/sample2",
                       resource: "Resource2"
                     }
@@ -376,7 +376,7 @@ describe("test keyword SLP::Ref", () => {
             Resource2: {
               Type: "AWS::Serverless::Api",
               Properties: {},
-              "SLP::Output": {
+              "SOMOD::Output": {
                 default: true,
                 attributes: ["Name"]
               }
@@ -394,7 +394,7 @@ describe("test keyword SLP::Ref", () => {
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with SLP::Ref with a valid local reference", async () => {
+  test("with SOMOD::Ref with a valid local reference", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -406,7 +406,7 @@ describe("test keyword SLP::Ref", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       resource: "Resource2",
                       attribute: "Name"
                     }
@@ -419,7 +419,7 @@ describe("test keyword SLP::Ref", () => {
                 Type: "HttpApi",
                 Properties: {
                   ApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       resource: "Resource2"
                     }
                   },
@@ -433,7 +433,7 @@ describe("test keyword SLP::Ref", () => {
         Resource2: {
           Type: "AWS::Serverless::Api",
           Properties: {},
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: ["Name"]
           }

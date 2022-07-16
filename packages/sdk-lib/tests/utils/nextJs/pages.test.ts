@@ -16,7 +16,7 @@ describe("Test util page.loadPageNamespaces", () => {
   });
 
   const getModuleTemplate = (directory: string): Module => ({
-    type: "njp",
+    type: "somod",
     name: "my-module",
     version: "1.0.0",
     packageLocation: directory,

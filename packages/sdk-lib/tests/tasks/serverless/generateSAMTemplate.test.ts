@@ -23,11 +23,11 @@ describe("Test Task generateSAMTemplate", () => {
       "package.json": JSON.stringify({
         name: "sample",
         version: "1.0.0",
-        slp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {}
       })
     });
-    await expect(generateSAMTemplate(dir, ["slp"])).resolves.toBeUndefined();
+    await expect(generateSAMTemplate(dir, ["somod"])).resolves.toBeUndefined();
     expect(existsSync(join(dir, "template.yaml"))).toBeFalsy();
   });
 
@@ -40,7 +40,7 @@ describe("Test Task generateSAMTemplate", () => {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
               Properties: {},
-              "SLP::Output": {
+              "SOMOD::Output": {
                 default: true,
                 attributes: ["RootResourceId"]
               }
@@ -56,7 +56,7 @@ describe("Test Task generateSAMTemplate", () => {
                     Properties: {
                       Method: "GET",
                       Path: "/",
-                      RestApiId: { "SLP::Ref": { resource: "BaseRestApi" } }
+                      RestApiId: { "SOMOD::Ref": { resource: "BaseRestApi" } }
                     }
                   }
                 }
@@ -67,17 +67,17 @@ describe("Test Task generateSAMTemplate", () => {
       "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
         name: "@sodaru/baseapi",
         version: "1.0.1",
-        slp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {}
       }),
       "serverless/template.yaml": dump({
         Resources: {
           CorrectRestApi: {
-            "SLP::Extend": {
+            "SOMOD::Extend": {
               module: "@sodaru/baseapi",
               resource: "BaseRestApi"
             },
-            "SLP::DependsOn": [
+            "SOMOD::DependsOn": [
               {
                 module: "@sodaru/baseapi",
                 resource: "BaseRestApiWelcomeFunction"
@@ -88,9 +88,9 @@ describe("Test Task generateSAMTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               FunctionName: {
-                "SLP::ResourceName": "GetAuthGroup"
+                "SOMOD::ResourceName": "GetAuthGroup"
               },
-              CodeUri: { "SLP::Function": { name: "getAuthGroup" } },
+              CodeUri: { "SOMOD::Function": { name: "getAuthGroup" } },
               Events: {
                 ApiEvent: {
                   Type: "Api",
@@ -98,7 +98,7 @@ describe("Test Task generateSAMTemplate", () => {
                     Method: "GET",
                     Path: "/auth-group/get",
                     RestApiId: {
-                      "SLP::Ref": {
+                      "SOMOD::Ref": {
                         module: "@sodaru/baseapi",
                         resource: "BaseRestApi"
                       }
@@ -110,22 +110,22 @@ describe("Test Task generateSAMTemplate", () => {
           },
           ListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
-            "SLP::DependsOn": [{ resource: "GetAuthGroupFunction" }],
+            "SOMOD::DependsOn": [{ resource: "GetAuthGroupFunction" }],
             Properties: {}
           }
         }
       }),
       "package.json": JSON.stringify({
-        name: "@sodaru/auth-slp",
+        name: "@sodaru/auth-somod",
         version: "1.0.0",
-        slp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           "@sodaru/baseapi": "^1.0.0"
         }
       })
     });
 
-    await expect(generateSAMTemplate(dir, ["slp"])).resolves.toBeUndefined();
+    await expect(generateSAMTemplate(dir, ["somod"])).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "template.yaml"), { encoding: "utf8" })
     ).resolves.toEqual(
@@ -145,7 +145,7 @@ describe("Test Task generateSAMTemplate", () => {
             Properties: {
               LayerName: {
                 "Fn::Sub": [
-                  "slp${stackId}${moduleHash}${slpResourceName}",
+                  "somod${stackId}${moduleHash}${somodResourceName}",
                   {
                     stackId: {
                       "Fn::Select": [
@@ -161,7 +161,7 @@ describe("Test Task generateSAMTemplate", () => {
                       ]
                     },
                     moduleHash: "64967c02",
-                    slpResourceName: "baseLayer"
+                    somodResourceName: "baseLayer"
                   }
                 ]
               },
@@ -197,12 +197,12 @@ describe("Test Task generateSAMTemplate", () => {
               }
             }
           },
-          r624eb34aGetAuthGroupFunction: {
+          rd7ec150dGetAuthGroupFunction: {
             Type: "AWS::Serverless::Function",
             Properties: {
               FunctionName: {
                 "Fn::Sub": [
-                  "slp${stackId}${moduleHash}${slpResourceName}",
+                  "somod${stackId}${moduleHash}${somodResourceName}",
                   {
                     stackId: {
                       "Fn::Select": [
@@ -217,8 +217,8 @@ describe("Test Task generateSAMTemplate", () => {
                         }
                       ]
                     },
-                    moduleHash: "624eb34a",
-                    slpResourceName: "GetAuthGroup"
+                    moduleHash: "d7ec150d",
+                    somodResourceName: "GetAuthGroup"
                   }
                 ]
               },
@@ -240,10 +240,10 @@ describe("Test Task generateSAMTemplate", () => {
               Layers: [{ Ref: "r64967c02baseLayer" }]
             }
           },
-          r624eb34aListAuthGroupsFunction: {
+          rd7ec150dListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
             Properties: {},
-            DependsOn: ["r624eb34aGetAuthGroupFunction"]
+            DependsOn: ["rd7ec150dGetAuthGroupFunction"]
           }
         }
       })

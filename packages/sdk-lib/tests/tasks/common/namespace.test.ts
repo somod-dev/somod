@@ -21,14 +21,14 @@ jest.mock("../../../src/utils/moduleHandler", () => {
 });
 
 describe("test Task loadAndResolveNamespaces", () => {
-  test("for njp only", async () => {
-    await expect(loadAndResolveNamespaces("", ["njp"])).resolves.toEqual(
+  test("for somod only", async () => {
+    await expect(loadAndResolveNamespaces("", ["somod"])).resolves.toEqual(
       mockNamespaces
     );
     expect(ModuleHandler.getModuleHandler).toHaveBeenCalledTimes(1);
-    expect(ModuleHandler.getModuleHandler).toHaveBeenCalledWith("", ["njp"]);
+    expect(ModuleHandler.getModuleHandler).toHaveBeenCalledWith("", ["somod"]);
 
-    const moduleHandler = ModuleHandler.getModuleHandler("", ["njp"]);
+    const moduleHandler = ModuleHandler.getModuleHandler("", ["somod"]);
     expect(moduleHandler.getNamespaces).toHaveBeenCalledTimes(1);
   });
 });

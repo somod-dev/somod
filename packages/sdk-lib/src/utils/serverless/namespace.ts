@@ -6,7 +6,7 @@ import {
 } from "../constants";
 import { Module } from "../moduleHandler";
 import { loadOriginalSlpTemplate, NoSLPTemplateError } from "./slpTemplate";
-import { KeywordSLPOutput } from "./types";
+import { KeywordSOMODOutput } from "./types";
 
 const detectDuplicateNamespaces = (
   namespaces: string[],
@@ -80,8 +80,13 @@ export const loadExportParameterNamespaces = async (module: Module) => {
       const originalSlpTemplate = await loadOriginalSlpTemplate(module);
 
       Object.values(originalSlpTemplate.Resources).forEach(resource => {
-        if (resource[KeywordSLPOutput] && resource[KeywordSLPOutput].export) {
-          namespaces.push(...Object.values(resource[KeywordSLPOutput].export));
+        if (
+          resource[KeywordSOMODOutput] &&
+          resource[KeywordSOMODOutput].export
+        ) {
+          namespaces.push(
+            ...Object.values(resource[KeywordSOMODOutput].export)
+          );
         }
       });
 

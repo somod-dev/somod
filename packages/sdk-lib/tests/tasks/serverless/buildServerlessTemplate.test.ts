@@ -18,7 +18,7 @@ describe("Test Task buildServerlessTemplate", () => {
 
   test("For no serverless directory", async () => {
     await expect(
-      buildServerlessTemplate(dir, ["slp"])
+      buildServerlessTemplate(dir, ["somod"])
     ).resolves.toBeUndefined();
     expect(existsSync(join(dir, "build"))).toBeFalsy();
   });
@@ -28,7 +28,7 @@ describe("Test Task buildServerlessTemplate", () => {
       "serverless/": ""
     });
     await expect(
-      buildServerlessTemplate(dir, ["slp"])
+      buildServerlessTemplate(dir, ["somod"])
     ).resolves.toBeUndefined();
     expect(existsSync(join(dir, "build"))).toBeFalsy();
   });
@@ -44,7 +44,7 @@ describe("Test Task buildServerlessTemplate", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       resource: "Resource2",
                       attribute: "Name"
                     }
@@ -57,7 +57,7 @@ describe("Test Task buildServerlessTemplate", () => {
                 Type: "Api",
                 Properties: {
                   RestApiId: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       resource: "Resource2"
                     }
                   }
@@ -69,7 +69,7 @@ describe("Test Task buildServerlessTemplate", () => {
         Resource2: {
           Type: "AWS::Serverless::Api",
           Properties: {},
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: ["Name"]
           }
@@ -82,11 +82,11 @@ describe("Test Task buildServerlessTemplate", () => {
         name: "sample",
         version: "1.0.0",
         dependencies: {},
-        slp: "1.3.2"
+        somod: "1.3.2"
       })
     });
     await expect(
-      buildServerlessTemplate(dir, ["slp"])
+      buildServerlessTemplate(dir, ["somod"])
     ).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build", "serverless", "template.json"), {

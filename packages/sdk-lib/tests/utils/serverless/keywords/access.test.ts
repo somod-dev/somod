@@ -12,7 +12,7 @@ import {
   moduleIndicators
 } from "../utils";
 
-describe("test keyword SLP::Access", () => {
+describe("test keyword SOMOD::Access", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -32,7 +32,7 @@ describe("test keyword SLP::Access", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::DependsOn": [
+          "SOMOD::DependsOn": [
             {
               module: "@my-scope/sample2",
               resource: "Resource2"
@@ -50,7 +50,7 @@ describe("test keyword SLP::Access", () => {
             Resource2: {
               Type: "AWS::Serverless::Function",
               Properties: { ...functionDefaults },
-              "SLP::Access": "module"
+              "SOMOD::Access": "module"
             }
           }
         })
@@ -72,7 +72,7 @@ describe("test keyword SLP::Access", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample2",
             resource: "Resource2"
           }
@@ -88,7 +88,7 @@ describe("test keyword SLP::Access", () => {
             Resource2: {
               Type: "AWS::Serverless::Function",
               Properties: { ...functionDefaults },
-              "SLP::Access": "module"
+              "SOMOD::Access": "module"
             }
           }
         })
@@ -116,7 +116,7 @@ describe("test keyword SLP::Access", () => {
                 "Invoked from ${resource2}",
                 {
                   resource2: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@my-scope/sample2",
                       resource: "Resource2"
                     }
@@ -136,8 +136,8 @@ describe("test keyword SLP::Access", () => {
           Resources: {
             Resource2: {
               Type: "AWS::Serverless::Api",
-              Properties: { Name: { "SLP::ResourceName": "restapi" } },
-              "SLP::Access": "module"
+              Properties: { Name: { "SOMOD::ResourceName": "restapi" } },
+              "SOMOD::Access": "module"
             }
           }
         })
@@ -165,7 +165,7 @@ describe("test keyword SLP::Access", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::RefResourceName": {
+                    "SOMOD::RefResourceName": {
                       module: "@my-scope/sample2",
                       resource: "Resource2",
                       property: "Name"
@@ -186,8 +186,8 @@ describe("test keyword SLP::Access", () => {
           Resources: {
             Resource2: {
               Type: "AWS::Serverless::Api",
-              Properties: { Name: { "SLP::ResourceName": "restapi" } },
-              "SLP::Access": "module"
+              Properties: { Name: { "SOMOD::ResourceName": "restapi" } },
+              "SOMOD::Access": "module"
             }
           }
         })
@@ -215,7 +215,7 @@ describe("test keyword SLP::Access", () => {
                 "Invoked from ${resource2}",
                 {
                   resource2: {
-                    "SLP::Ref": {
+                    "SOMOD::Ref": {
                       module: "@another-scope/sample2",
                       resource: "Resource2"
                     }
@@ -233,21 +233,21 @@ describe("test keyword SLP::Access", () => {
         name: "@my-scope/sample",
         version: "1.0.0",
         dependencies: { "@another-scope/sample2": "^1.0.0" },
-        slp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/@another-scope/sample2/package.json": JSON.stringify({
         name: "@another-scope/sample2",
         version: "1.0.0",
         dependencies: {},
-        slp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/@another-scope/sample2/build/serverless/template.json":
         JSON.stringify({
           Resources: {
             Resource2: {
               Type: "AWS::Serverless::Api",
-              Properties: { Name: { "SLP::ResourceName": "restapi" } },
-              "SLP::Access": "scope"
+              Properties: { Name: { "SOMOD::ResourceName": "restapi" } },
+              "SOMOD::Access": "scope"
             }
           }
         })

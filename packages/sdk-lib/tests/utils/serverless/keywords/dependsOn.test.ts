@@ -13,7 +13,7 @@ import {
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::DependsOn", () => {
+describe("test keyword SOMOD::DependsOn", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -27,13 +27,13 @@ describe("test keyword SLP::DependsOn", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::DependsOn without module", async () => {
+  test("with SOMOD::DependsOn without module", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::DependsOn": [
+          "SOMOD::DependsOn": [
             {
               module: "@my-scope/sample2",
               resource: "Resource2"
@@ -56,13 +56,13 @@ describe("test keyword SLP::DependsOn", () => {
     });
   });
 
-  test("with SLP::DependsOn and with module but no resource", async () => {
+  test("with SOMOD::DependsOn and with module but no resource", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::DependsOn": [
+          "SOMOD::DependsOn": [
             {
               module: "@my-scope/sample2",
               resource: "Resource2"
@@ -94,7 +94,7 @@ describe("test keyword SLP::DependsOn", () => {
     });
   });
 
-  test("with SLP::DependsOn and with valid module and resource", async () => {
+  test("with SOMOD::DependsOn and with valid module and resource", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -102,7 +102,7 @@ describe("test keyword SLP::DependsOn", () => {
           Properties: {
             ...functionDefaults
           },
-          "SLP::DependsOn": [
+          "SOMOD::DependsOn": [
             {
               module: "@my-scope/sample2",
               resource: "Resource2"
@@ -122,7 +122,7 @@ describe("test keyword SLP::DependsOn", () => {
               Type: "AWS::Serverless::Api",
               Properties: {
                 Name: {
-                  "SLP::ResourceName": "Resource2Api"
+                  "SOMOD::ResourceName": "Resource2Api"
                 }
               }
             }

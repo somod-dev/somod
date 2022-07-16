@@ -1,6 +1,6 @@
 import { join } from "path";
 import {
-  defaultNjpConfigSchema,
+  defaultUiConfigSchema,
   file_configYaml,
   path_ui
 } from "../../utils/constants";
@@ -8,7 +8,7 @@ import { yamlSchemaValidator } from "../../utils/yamlSchemaValidator";
 
 export const validateUiConfigYaml = async (dir: string): Promise<void> => {
   await yamlSchemaValidator(
-    defaultNjpConfigSchema,
+    defaultUiConfigSchema,
     join(dir, path_ui, file_configYaml),
     dir
   );

@@ -4,8 +4,12 @@ import { join } from "path";
 import { file_parametersJson } from "../constants";
 import { ModuleHandler } from "../moduleHandler";
 import { loadServerlessTemplate } from "./slpTemplate";
-import { KeywordSLPParameter, ServerlessTemplate, SLPParameter } from "./types";
-import { getSLPKeyword } from "./utils";
+import {
+  KeywordSOMODParameter,
+  ServerlessTemplate,
+  SOMODParameter
+} from "./types";
+import { getSOMODKeyword } from "./utils";
 
 export const separateParameterSpace = (
   param: string
@@ -25,20 +29,20 @@ export const combineParameterSpace = (
 };
 
 /**
- * Returns all referenced SLP::Parameter names grouped by 1st level parameterSpace
+ * Returns all referenced SOMOD::Parameter names grouped by 1st level parameterSpace
  */
-export const listAllSlpParameters = (
+export const listAllSomodParameters = (
   serverlessTemplate: ServerlessTemplate
 ): Record<string, string[]> => {
   const parameters: string[] = [];
 
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    const slpParameterPaths = slpTemplate.keywordPaths[KeywordSLPParameter];
+    const slpParameterPaths = slpTemplate.keywordPaths[KeywordSOMODParameter];
     slpParameterPaths.forEach(slpParameterPath => {
-      const parameter = getSLPKeyword<SLPParameter>(
+      const parameter = getSOMODKeyword<SOMODParameter>(
         slpTemplate,
         slpParameterPath
-      )[KeywordSLPParameter];
+      )[KeywordSOMODParameter];
       parameters.push(parameter);
     });
   });
@@ -69,7 +73,7 @@ export const generateSamConfigParameterOverrides = async (
 
   const serverlessTemplate = await loadServerlessTemplate(allModules);
 
-  const slpParameters = listAllSlpParameters(serverlessTemplate);
+  const slpParameters = listAllSomodParameters(serverlessTemplate);
 
   const parameterValues = await readJsonFileStore(
     join(dir, file_parametersJson)

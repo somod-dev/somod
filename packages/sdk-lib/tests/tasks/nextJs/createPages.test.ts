@@ -20,7 +20,7 @@ describe("Test Task createPages", () => {
       "package.json": JSON.stringify({
         name: "m1",
         version: "1.0.0",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m2: "^1.0.1",
           m3: "^2.1.0",
@@ -35,22 +35,22 @@ describe("Test Task createPages", () => {
           m5: "^4.6.0",
           m6: "^7.1.0"
         },
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m2/node_modules/m5/package.json": JSON.stringify({
         name: "m5",
         version: "4.6.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m3/package.json": JSON.stringify({
         name: "m3",
         version: "2.2.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m4/package.json": JSON.stringify({
         name: "m4",
         version: "3.6.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m6/package.json": JSON.stringify({
         name: "m6",
@@ -73,7 +73,7 @@ describe("Test Task createPages", () => {
         "export default function AboutMepage () {return 'a';} export const Me = () => {};"
     });
 
-    await expect(createPages(dir, ["njp"])).resolves.toBeUndefined();
+    await expect(createPages(dir, ["somod"])).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "pages"))).toEqual({
       "home.ts": 'export { default } from "../ui/pages/home";',
@@ -94,7 +94,7 @@ describe("Test Task createPages", () => {
       "package.json": JSON.stringify({
         name: "m1",
         version: "1.0.0",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m2: "^1.0.1",
           m3: "^2.1.0"
@@ -103,12 +103,12 @@ describe("Test Task createPages", () => {
       "node_modules/m2/package.json": JSON.stringify({
         name: "m2",
         version: "1.0.10",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m3/package.json": JSON.stringify({
         name: "m3",
         version: "2.2.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "ui/pages/about.tsx":
         "export default function Aboutpage () {return 'a';}",
@@ -126,7 +126,7 @@ describe("Test Task createPages", () => {
       "node_modules/m3/build/ui/pages/about/me.js":
         "export default function AbountMepage () {return 'a';}"
     });
-    await expect(createPages(dir, ["njp"])).rejects.toEqual(
+    await expect(createPages(dir, ["somod"])).rejects.toEqual(
       new ErrorSet([
         new Error(
           `Following namespaces are unresolved

@@ -13,8 +13,6 @@ export const file_tsConfigBuildJson = "tsconfig.build.json";
 export const file_nextEnvDTs = "next-env.d.ts";
 export const file_nextConfigJs = "next.config.js";
 
-export const key_njp = "njp";
-export const key_slp = "slp";
 export const key_somod = "somod";
 
 export const key_type = "type";
@@ -65,13 +63,13 @@ export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
 export const defaultServerlessTemplateSchema =
   "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/index.json";
 
-export const defaultNjpConfigSchema =
+export const defaultUiConfigSchema =
   "https://json-schema.sodaru.com/@somod/ui-config-schema/schemas/index.json";
 
 export const defaultParametersSchema =
   "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json";
 
-export type ModuleType = "njp" | "slp" | "somod";
+export type ModuleType = "somod";
 
 export const namespace_page = "UI Page";
 

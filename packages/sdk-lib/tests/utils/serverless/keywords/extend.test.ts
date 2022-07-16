@@ -14,7 +14,7 @@ import {
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::Extend", () => {
+describe("test keyword SOMOD::Extend", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -28,13 +28,13 @@ describe("test keyword SLP::Extend", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::Extend without module", async () => {
+  test("with SOMOD::Extend without module", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample2",
             resource: "Resource2"
           }
@@ -56,13 +56,13 @@ describe("test keyword SLP::Extend", () => {
     expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
 
-  test("with SLP::Extend and with module but no resource", async () => {
+  test("with SOMOD::Extend and with module but no resource", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample2",
             resource: "Resource2"
           }
@@ -92,7 +92,7 @@ describe("test keyword SLP::Extend", () => {
     });
   });
 
-  test("with SLP::Extend and with valid module and resource", async () => {
+  test("with SOMOD::Extend and with valid module and resource", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -100,10 +100,10 @@ describe("test keyword SLP::Extend", () => {
           Properties: {
             Architectures: functionDefaults.Architectures,
             CodeUri: {
-              "SLP::Function": { name: "resource1" }
+              "SOMOD::Function": { name: "resource1" }
             }
           },
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample2",
             resource: "Resource2"
           }

@@ -23,8 +23,8 @@ describe("Test Task validatePackageJson", () => {
     sideEffects: false
   };
 
-  const njp = {
-    njp: "1.2.3"
+  const somod = {
+    somod: "1.2.3"
   };
 
   const testData: [string, Record<string, unknown>][] = [
@@ -44,25 +44,17 @@ describe("Test Task validatePackageJson", () => {
       }
     ],
     [
-      "njp and somod",
+      "with somod",
       {
         ...allRightPackageJson,
-        ...njp,
-        somod: "1.2.3"
-      }
-    ],
-    [
-      "only njp",
-      {
-        ...allRightPackageJson,
-        ...njp
+        ...somod
       }
     ],
     [
       "wrong module",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         module: "build/lib/index.ts"
       }
     ],
@@ -70,7 +62,7 @@ describe("Test Task validatePackageJson", () => {
       "wrong typings",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         typings: "dist/lib/index.ts"
       }
     ],
@@ -78,7 +70,7 @@ describe("Test Task validatePackageJson", () => {
       "wrong files",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         files: []
       }
     ],
@@ -86,7 +78,7 @@ describe("Test Task validatePackageJson", () => {
       "wrong sideEffects",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         sideEffects: true
       }
     ],
@@ -94,15 +86,11 @@ describe("Test Task validatePackageJson", () => {
       "not-allowed keys",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         main: "build/lib/index.js",
         "jsnext:main": "build/lib/index.js",
         type: "esm"
       }
-    ],
-    [
-      "only somod set for njp module",
-      { ...allRightPackageJson, somod: "1.2.3" }
     ]
   ];
 
@@ -111,7 +99,7 @@ describe("Test Task validatePackageJson", () => {
 
     let error: string;
     try {
-      await validatePackageJson(dir, "njp");
+      await validatePackageJson(dir);
     } catch (e) {
       error = e.message;
     }
@@ -121,29 +109,5 @@ describe("Test Task validatePackageJson", () => {
         "package.json"
       )
     ).toMatchSnapshot();
-  });
-
-  test("with type = slp", async () => {
-    createFiles(dir, {
-      "package.json": JSON.stringify(
-        { ...allRightPackageJson, slp: "1.2.3" },
-        null,
-        2
-      )
-    });
-
-    await expect(validatePackageJson(dir, "slp")).resolves.toBeUndefined();
-  });
-
-  test("with type = somod", async () => {
-    createFiles(dir, {
-      "package.json": JSON.stringify(
-        { ...allRightPackageJson, somod: "1.2.3" },
-        null,
-        2
-      )
-    });
-
-    await expect(validatePackageJson(dir, "somod")).resolves.toBeUndefined();
   });
 });

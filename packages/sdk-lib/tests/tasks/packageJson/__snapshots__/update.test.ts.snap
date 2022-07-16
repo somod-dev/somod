@@ -8,25 +8,10 @@ Object {
   ],
   "module": "build/lib/index.js",
   "name": undefined,
-  "njp": Any<String>,
   "sideEffects": false,
+  "somod": Any<String>,
   "typings": "build/lib/index.d.ts",
   "version": undefined,
-}
-`;
-
-exports[`Test Task updatePackageJson with njp and somod 1`] = `
-Object {
-  "description": "",
-  "files": Array [
-    "build",
-  ],
-  "module": "build/lib/index.js",
-  "name": "@my-scope/my-module",
-  "njp": Any<String>,
-  "sideEffects": false,
-  "typings": "build/lib/index.d.ts",
-  "version": "1.0.1",
 }
 `;
 
@@ -38,8 +23,8 @@ Object {
   ],
   "module": "build/lib/index.js",
   "name": "@my-scope/my-module",
-  "njp": Any<String>,
   "sideEffects": false,
+  "somod": Any<String>,
   "typings": "build/lib/index.d.ts",
   "version": "1.0.1",
 }
@@ -53,8 +38,8 @@ Object {
   ],
   "module": "build/lib/index.js",
   "name": "@my-scope/my-module",
-  "njp": Any<String>,
   "sideEffects": false,
+  "somod": Any<String>,
   "typings": "build/lib/index.d.ts",
   "version": "1.0.1",
 }
@@ -68,72 +53,28 @@ Object {
   ],
   "module": "build/lib/index.js",
   "name": "@my-scope/my-module",
-  "njp": Any<String>,
-  "sideEffects": false,
-  "typings": "build/lib/index.d.ts",
-  "version": "1.0.1",
-}
-`;
-
-exports[`Test Task updatePackageJson with only njp 1`] = `
-Object {
-  "description": "",
-  "files": Array [
-    "build",
-  ],
-  "module": "build/lib/index.js",
-  "name": "@my-scope/my-module",
-  "njp": Any<String>,
-  "sideEffects": false,
-  "typings": "build/lib/index.d.ts",
-  "version": "1.0.1",
-}
-`;
-
-exports[`Test Task updatePackageJson with only somod set for njp module 1`] = `
-Object {
-  "description": "",
-  "files": Array [
-    "build",
-  ],
-  "module": "build/lib/index.js",
-  "name": "@my-scope/my-module",
-  "njp": Any<String>,
-  "sideEffects": false,
-  "typings": "build/lib/index.d.ts",
-  "version": "1.0.1",
-}
-`;
-
-exports[`Test Task updatePackageJson with type = slp 1`] = `
-Object {
-  "description": undefined,
-  "files": Array [
-    "build",
-  ],
-  "module": "build/lib/index.js",
-  "name": undefined,
-  "sideEffects": false,
-  "slp": Any<String>,
-  "typings": "build/lib/index.d.ts",
-  "version": undefined,
-}
-`;
-
-exports[`Test Task updatePackageJson with type = somod 1`] = `
-Object {
-  "description": undefined,
-  "files": Array [
-    "build",
-  ],
-  "module": "build/lib/index.js",
-  "name": undefined,
   "sideEffects": false,
   "somod": Any<String>,
   "typings": "build/lib/index.d.ts",
-  "version": undefined,
+  "version": "1.0.1",
 }
 `;
+
+exports[`Test Task updatePackageJson with with somod 1`] = `
+Object {
+  "description": "",
+  "files": Array [
+    "build",
+  ],
+  "module": "build/lib/index.js",
+  "name": "@my-scope/my-module",
+  "sideEffects": false,
+  "somod": Any<String>,
+  "typings": "build/lib/index.d.ts",
+  "version": "1.0.1",
+}
+`;
+
 
 exports[`Test Task updatePackageJson with wrong files 1`] = `
 Object {
@@ -143,8 +84,8 @@ Object {
   ],
   "module": "build/lib/index.js",
   "name": "@my-scope/my-module",
-  "njp": Any<String>,
   "sideEffects": false,
+  "somod": Any<String>,
   "typings": "build/lib/index.d.ts",
   "version": "1.0.1",
 }
@@ -158,8 +99,8 @@ Object {
   ],
   "module": "build/lib/index.js",
   "name": "@my-scope/my-module",
-  "njp": Any<String>,
   "sideEffects": false,
+  "somod": Any<String>,
   "typings": "build/lib/index.d.ts",
   "version": "1.0.1",
 }
@@ -173,8 +114,8 @@ Object {
   ],
   "module": "build/lib/index.js",
   "name": "@my-scope/my-module",
-  "njp": Any<String>,
   "sideEffects": false,
+  "somod": Any<String>,
   "typings": "build/lib/index.d.ts",
   "version": "1.0.1",
 }
@@ -188,8 +129,8 @@ Object {
   ],
   "module": "build/lib/index.js",
   "name": "@my-scope/my-module",
-  "njp": Any<String>,
   "sideEffects": false,
+  "somod": Any<String>,
   "typings": "build/lib/index.d.ts",
   "version": "1.0.1",
 }

@@ -2,7 +2,7 @@ import { ModuleHandler } from "../moduleHandler";
 import { cleanUpBaseModule, getSAMParameters } from "./baseModule";
 import { getSAMOutputs } from "./keywords/output";
 import { applyKeywords, loadServerlessTemplate } from "./slpTemplate";
-import { KeywordSLPExtend, SAMTemplate, SLPTemplate } from "./types";
+import { KeywordSOMODExtend, SAMTemplate, SLPTemplate } from "./types";
 import { getSAMResourceLogicalId } from "./utils";
 
 export const generateSAMTemplate = async (
@@ -52,7 +52,9 @@ export const generateSAMTemplate = async (
     .sort(slpTemplateCompareFn)
     .forEach(slpTemplate => {
       Object.keys(slpTemplate.Resources).forEach(slpResourceId => {
-        if (!slpTemplate.original.Resources[slpResourceId][KeywordSLPExtend]) {
+        if (
+          !slpTemplate.original.Resources[slpResourceId][KeywordSOMODExtend]
+        ) {
           const samResourceId = getSAMResourceLogicalId(
             slpTemplate.module,
             slpResourceId

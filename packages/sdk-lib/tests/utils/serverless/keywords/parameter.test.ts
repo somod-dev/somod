@@ -12,7 +12,7 @@ import {
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::Parameter", () => {
+describe("test keyword SOMOD::Parameter", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -26,7 +26,7 @@ describe("test keyword SLP::Parameter", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::Parameter", async () => {
+  test("with SOMOD::Parameter", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -36,7 +36,7 @@ describe("test keyword SLP::Parameter", () => {
             Environment: {
               Variables: {
                 MY_VAR1: {
-                  "SLP::Parameter": "my.var1"
+                  "SOMOD::Parameter": "my.var1"
                 }
               }
             }
@@ -60,7 +60,7 @@ describe("test keyword SLP::Parameter", () => {
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with missing SLP::Parameter", async () => {
+  test("with missing SOMOD::Parameter", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -70,10 +70,10 @@ describe("test keyword SLP::Parameter", () => {
             Environment: {
               Variables: {
                 MY_VAR1: {
-                  "SLP::Parameter": "my.var1"
+                  "SOMOD::Parameter": "my.var1"
                 },
                 MY_VAR2: {
-                  "SLP::Parameter": "my.var2"
+                  "SOMOD::Parameter": "my.var2"
                 }
               }
             }

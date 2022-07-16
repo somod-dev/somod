@@ -15,7 +15,7 @@ import {
 describe("Test Util serverless.buildTemplateYaml", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
-  const moduleIndicators = ["slp"];
+  const moduleIndicators = ["somod"];
 
   beforeEach(async () => {
     dir = createTempDir();
@@ -72,11 +72,11 @@ describe("Test Util serverless.buildTemplateYaml", () => {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample3",
             resource: "Sample3Function"
           },
-          "SLP::DependsOn": [
+          "SOMOD::DependsOn": [
             {
               module: "@my-scope/sample5",
               resource: "AnotherFunction"
@@ -95,20 +95,20 @@ describe("Test Util serverless.buildTemplateYaml", () => {
           "@my-scope/sample2": "^1.0.0",
           "@my-scope/sample3": "^1.0.0"
         },
-        slp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/@my-scope/sample2/package.json": JSON.stringify({
         name: "@my-scope/sample2",
         version: "1.0.0",
         dependencies: { "@my-scope/sample4": "^1.0.0" },
-        slp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/@my-scope/sample2/build/serverless/template.json":
         JSON.stringify({
           Resources: {
             Sample2Function: {
               Type: "AWS::Serverless::Function",
-              "SLP::DependsOn": [
+              "SOMOD::DependsOn": [
                 {
                   module: "@my-scope/sample4",
                   resource: "OriginalFunction"
@@ -125,14 +125,14 @@ describe("Test Util serverless.buildTemplateYaml", () => {
           "@my-scope/sample4": "^1.0.0",
           "@my-scope/sample5": "^1.0.0"
         },
-        slp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/@my-scope/sample3/build/serverless/template.json":
         JSON.stringify({
           Resources: {
             Sample3Function: {
               Type: "AWS::Serverless::Function",
-              "SLP::DependsOn": [
+              "SOMOD::DependsOn": [
                 {
                   module: "@my-scope/sample4",
                   resource: "OriginalFunction"
@@ -146,7 +146,7 @@ describe("Test Util serverless.buildTemplateYaml", () => {
         name: "@my-scope/sample4",
         version: "1.0.0",
         dependencies: {},
-        slp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/@my-scope/sample4/build/serverless/template.json":
         JSON.stringify({
@@ -161,7 +161,7 @@ describe("Test Util serverless.buildTemplateYaml", () => {
         name: "@my-scope/sample5",
         version: "1.0.0",
         dependencies: {},
-        slp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/@my-scope/sample5/build/serverless/template.json":
         JSON.stringify({

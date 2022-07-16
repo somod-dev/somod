@@ -38,10 +38,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               FunctionName: {
-                "SLP::ResourceName": "GetAuthGroup"
+                "SOMOD::ResourceName": "GetAuthGroup"
               },
               CodeUri: {
-                "SLP::Function": {
+                "SOMOD::Function": {
                   name: "getAuthGroup",
                   exclude: ["@sodaru/restapi-sdk"]
                 }
@@ -51,13 +51,13 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         }
       }),
       "package.json": JSON.stringify({
-        name: "@sodaru/auth-slp",
+        name: "@sodaru/auth-somod",
         version: "1.0.0",
-        slp: "1.3.2"
+        somod: "1.3.2"
       })
     });
 
-    await expect(generateSAMTemplate(dir, ["slp"])).resolves.toEqual({
+    await expect(generateSAMTemplate(dir, ["somod"])).resolves.toEqual({
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -77,10 +77,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               "Set of npm libraries to be required in all Lambda funtions",
             LayerName: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
                   moduleHash: "64967c02",
-                  slpResourceName: "baseLayer",
+                  somodResourceName: "baseLayer",
                   stackId
                 }
               ]
@@ -88,15 +88,15 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           },
           Type: "AWS::Serverless::LayerVersion"
         },
-        r624eb34aGetAuthGroupFunction: {
+        rd7ec150dGetAuthGroupFunction: {
           Type: "AWS::Serverless::Function",
           Properties: {
             FunctionName: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
-                  moduleHash: "624eb34a",
-                  slpResourceName: "GetAuthGroup",
+                  moduleHash: "d7ec150d",
+                  somodResourceName: "GetAuthGroup",
                   stackId
                 }
               ]
@@ -123,9 +123,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
               Properties: {
-                Name: { "SLP::ResourceName": "rootRestApi" }
+                Name: { "SOMOD::ResourceName": "rootRestApi" }
               },
-              "SLP::Output": {
+              "SOMOD::Output": {
                 default: true,
                 attributes: ["RootResourceId"]
               }
@@ -141,9 +141,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                     Properties: {
                       Method: "GET",
                       Path: {
-                        "SLP::ModuleName": "${SLP::ModuleName}/"
+                        "SOMOD::ModuleName": "${SOMOD::ModuleName}/"
                       },
-                      RestApiId: { "SLP::Ref": { resource: "BaseRestApi" } }
+                      RestApiId: { "SOMOD::Ref": { resource: "BaseRestApi" } }
                     }
                   }
                 }
@@ -152,7 +152,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             BaseAnotherFunction: {
               Type: "AWS::Serverless::Function",
               Properties: {
-                CodeUri: { "SLP::Function": { name: "anotherFunction" } }
+                CodeUri: { "SOMOD::Function": { name: "anotherFunction" } }
               }
             }
           }
@@ -160,20 +160,20 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
         name: "@sodaru/baseapi",
         version: "1.0.1",
-        slp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {}
       }),
       "package.json": JSON.stringify({
-        name: "@sodaru/auth-slp",
+        name: "@sodaru/auth-somod",
         version: "1.0.0",
-        slp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           "@sodaru/baseapi": "^1.0.0"
         }
       })
     });
 
-    const result = await generateSAMTemplate(dir, ["slp"]);
+    const result = await generateSAMTemplate(dir, ["somod"]);
 
     expect(result).toEqual({
       Resources: {
@@ -195,10 +195,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               "Set of npm libraries to be required in all Lambda funtions",
             LayerName: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
                   moduleHash: "64967c02",
-                  slpResourceName: "baseLayer",
+                  somodResourceName: "baseLayer",
                   stackId
                 }
               ]
@@ -211,10 +211,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           Properties: {
             Name: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
                   moduleHash: "a046855c",
-                  slpResourceName: "rootRestApi",
+                  somodResourceName: "rootRestApi",
                   stackId
                 }
               ]
@@ -268,9 +268,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",
               Properties: {
-                Name: { "SLP::ResourceName": "rootRestApi" }
+                Name: { "SOMOD::ResourceName": "rootRestApi" }
               },
-              "SLP::Output": {
+              "SOMOD::Output": {
                 default: true,
                 attributes: ["RootResourceId"],
                 export: {
@@ -289,9 +289,9 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                     Properties: {
                       Method: "GET",
                       Path: {
-                        "SLP::ModuleName": "${SLP::ModuleName}/"
+                        "SOMOD::ModuleName": "${SOMOD::ModuleName}/"
                       },
-                      RestApiId: { "SLP::Ref": { resource: "BaseRestApi" } }
+                      RestApiId: { "SOMOD::Ref": { resource: "BaseRestApi" } }
                     }
                   }
                 }
@@ -300,7 +300,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             BaseAnotherFunction: {
               Type: "AWS::Serverless::Function",
               Properties: {
-                CodeUri: { "SLP::Function": { name: "anotherFunction" } }
+                CodeUri: { "SOMOD::Function": { name: "anotherFunction" } }
               }
             }
           }
@@ -308,7 +308,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
         name: "@sodaru/baseapi",
         version: "1.0.1",
-        slp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {}
       }),
       "parameters.yaml": dump({
@@ -320,11 +320,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       "serverless/template.yaml": dump({
         Resources: {
           CorrectRestApi: {
-            "SLP::Extend": {
+            "SOMOD::Extend": {
               module: "@sodaru/baseapi",
               resource: "BaseRestApi"
             },
-            "SLP::DependsOn": [
+            "SOMOD::DependsOn": [
               {
                 module: "@sodaru/baseapi",
                 resource: "BaseRestApiWelcomeFunction"
@@ -333,10 +333,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Properties: {
               Description: {
                 "Fn::Sub": [
-                  "Extends ${baseApi} in ${SLP::ModuleName}",
+                  "Extends ${baseApi} in ${SOMOD::ModuleName}",
                   {
                     baseApi: {
-                      "SLP::RefResourceName": {
+                      "SOMOD::RefResourceName": {
                         module: "@sodaru/baseapi",
                         resource: "BaseRestApi",
                         property: "Name"
@@ -351,24 +351,24 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               FunctionName: {
-                "SLP::ResourceName": "CreateAuthGroup"
+                "SOMOD::ResourceName": "CreateAuthGroup"
               },
               CodeUri: {
-                "SLP::Function": {
+                "SOMOD::Function": {
                   name: "createAuthGroup"
                 }
               },
               Environment: {
                 Variables: {
-                  MY_VAR1: { "SLP::Parameter": "my.var1" },
-                  MY_VAR2: { "SLP::Parameter": "my.var2" }
+                  MY_VAR1: { "SOMOD::Parameter": "my.var1" },
+                  MY_VAR2: { "SOMOD::Parameter": "my.var2" }
                 }
               }
             }
           },
           AuthLayer: {
             Type: "AWS::Serverless::LayerVersion",
-            "SLP::Output": {
+            "SOMOD::Output": {
               default: true,
               attributes: [],
               export: {
@@ -377,7 +377,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             },
             Properties: {
               LayerName: {
-                "SLP::ResourceName": "SodaruAuthLayer"
+                "SOMOD::ResourceName": "SodaruAuthLayer"
               },
               RetentionPolicy: "Delete",
               CompatibleArchitectures: ["arm64"],
@@ -397,14 +397,14 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               FunctionName: {
-                "SLP::ResourceName": "GetAuthGroup"
+                "SOMOD::ResourceName": "GetAuthGroup"
               },
               Description: {
                 "Fn::Sub": [
                   "Uses layer ${authLayer}",
                   {
                     authLayer: {
-                      "SLP::RefResourceName": {
+                      "SOMOD::RefResourceName": {
                         resource: "AuthLayer",
                         property: "LayerName"
                       }
@@ -413,14 +413,14 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 ]
               },
               CodeUri: {
-                "SLP::Function": {
+                "SOMOD::Function": {
                   name: "getAuthGroup",
                   exclude: ["@sodaru/restapi-sdk"]
                 }
               },
               Layers: [
                 {
-                  "SLP::Ref": {
+                  "SOMOD::Ref": {
                     resource: "AuthLayer"
                   }
                 }
@@ -432,7 +432,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                     Method: "GET",
                     Path: "/auth-group/get",
                     RestApiId: {
-                      "SLP::Ref": {
+                      "SOMOD::Ref": {
                         module: "@sodaru/baseapi",
                         resource: "BaseRestApi"
                       }
@@ -444,7 +444,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           },
           ListAuthGroupsFunction: {
             Type: "AWS::Serverless::Function",
-            "SLP::DependsOn": [{ resource: "GetAuthGroupFunction" }],
+            "SOMOD::DependsOn": [{ resource: "GetAuthGroupFunction" }],
             Properties: {}
           },
           PermissionTable: {
@@ -455,16 +455,16 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         }
       }),
       "package.json": JSON.stringify({
-        name: "@sodaru/auth-slp",
+        name: "@sodaru/auth-somod",
         version: "1.0.0",
-        slp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           "@sodaru/baseapi": "^1.0.0"
         }
       })
     });
 
-    const result = await generateSAMTemplate(dir, ["slp"]);
+    const result = await generateSAMTemplate(dir, ["somod"]);
 
     expect(result).toEqual({
       Parameters: {
@@ -491,10 +491,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               "Set of npm libraries to be required in all Lambda funtions",
             LayerName: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
                   moduleHash: "64967c02",
-                  slpResourceName: "baseLayer",
+                  somodResourceName: "baseLayer",
                   stackId
                 }
               ]
@@ -525,24 +525,24 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           Properties: {
             Name: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
                   moduleHash: "a046855c",
-                  slpResourceName: "rootRestApi",
+                  somodResourceName: "rootRestApi",
                   stackId
                 }
               ]
             },
             Description: {
               "Fn::Sub": [
-                "Extends ${baseApi} in @sodaru/auth-slp",
+                "Extends ${baseApi} in @sodaru/auth-somod",
                 {
                   baseApi: {
                     "Fn::Sub": [
-                      "slp${stackId}${moduleHash}${slpResourceName}",
+                      "somod${stackId}${moduleHash}${somodResourceName}",
                       {
                         moduleHash: "a046855c",
-                        slpResourceName: "rootRestApi",
+                        somodResourceName: "rootRestApi",
                         stackId
                       }
                     ]
@@ -582,17 +582,17 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Layers: [{ Ref: "r64967c02baseLayer" }]
           }
         },
-        r624eb34aCreateAuthGroupFunction: {
+        rd7ec150dCreateAuthGroupFunction: {
           Properties: {
             CodeUri: unixStylePath(
               join(dir, "build/serverless/functions/createAuthGroup")
             ),
             FunctionName: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
-                  moduleHash: "624eb34a",
-                  slpResourceName: "CreateAuthGroup",
+                  moduleHash: "d7ec150d",
+                  somodResourceName: "CreateAuthGroup",
                   stackId
                 }
               ]
@@ -611,15 +611,15 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           },
           Type: "AWS::Serverless::Function"
         },
-        r624eb34aAuthLayer: {
+        rd7ec150dAuthLayer: {
           Type: "AWS::Serverless::LayerVersion",
           Properties: {
             LayerName: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
-                  moduleHash: "624eb34a",
-                  slpResourceName: "SodaruAuthLayer",
+                  moduleHash: "d7ec150d",
+                  somodResourceName: "SodaruAuthLayer",
                   stackId
                 }
               ]
@@ -638,15 +638,15 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             )
           }
         },
-        r624eb34aGetAuthGroupFunction: {
+        rd7ec150dGetAuthGroupFunction: {
           Type: "AWS::Serverless::Function",
           Properties: {
             FunctionName: {
               "Fn::Sub": [
-                "slp${stackId}${moduleHash}${slpResourceName}",
+                "somod${stackId}${moduleHash}${somodResourceName}",
                 {
-                  moduleHash: "624eb34a",
-                  slpResourceName: "GetAuthGroup",
+                  moduleHash: "d7ec150d",
+                  somodResourceName: "GetAuthGroup",
                   stackId
                 }
               ]
@@ -660,10 +660,10 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 {
                   authLayer: {
                     "Fn::Sub": [
-                      "slp${stackId}${moduleHash}${slpResourceName}",
+                      "somod${stackId}${moduleHash}${somodResourceName}",
                       {
-                        moduleHash: "624eb34a",
-                        slpResourceName: "SodaruAuthLayer",
+                        moduleHash: "d7ec150d",
+                        somodResourceName: "SodaruAuthLayer",
                         stackId
                       }
                     ]
@@ -674,7 +674,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             Layers: [
               { Ref: "r64967c02baseLayer" },
               {
-                Ref: "r624eb34aAuthLayer"
+                Ref: "rd7ec150dAuthLayer"
               }
             ],
             Events: {
@@ -691,12 +691,12 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             }
           }
         },
-        r624eb34aListAuthGroupsFunction: {
+        rd7ec150dListAuthGroupsFunction: {
           Type: "AWS::Serverless::Function",
           Properties: {},
-          DependsOn: ["r624eb34aGetAuthGroupFunction"]
+          DependsOn: ["rd7ec150dGetAuthGroupFunction"]
         },
-        r624eb34aPermissionTable: {
+        rd7ec150dPermissionTable: {
           Type: "AWS::DynamoDB::Table",
           DeletionPolicy: "Retain",
           UpdateReplacePolicy: "Retain"
@@ -706,7 +706,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         o6f75747075742e76617234: {
           Description: "output.var4",
           Value: {
-            Ref: "r624eb34aAuthLayer"
+            Ref: "rd7ec150dAuthLayer"
           }
         },
         o6d792e76617233: {
@@ -718,6 +718,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       }
     });
 
-    expect(existsSync(join(dir, ".slp"))).not.toBeTruthy();
+    expect(existsSync(join(dir, ".somod"))).not.toBeTruthy();
   });
 });

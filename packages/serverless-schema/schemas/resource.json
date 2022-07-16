@@ -6,16 +6,16 @@
   "required": ["Type", "Properties"],
   "properties": {
     "Type": { "type": "string" },
-    "SLP::Access": {
-      "$ref": "./components/resource-properties.json#/definitions/SLP::Access"
+    "SOMOD::Access": {
+      "$ref": "./components/resource-properties.json#/definitions/SOMOD::Access"
     },
-    "SLP::Extend": {
-      "$ref": "./components/resource-properties.json#/definitions/SLP::Extend"
+    "SOMOD::Extend": {
+      "$ref": "./components/resource-properties.json#/definitions/SOMOD::Extend"
     },
-    "SLP::DependsOn": {
-      "$ref": "./components/resource-properties.json#/definitions/SLP::DependsOn"
+    "SOMOD::DependsOn": {
+      "$ref": "./components/resource-properties.json#/definitions/SOMOD::DependsOn"
     },
-    "SLP::Output": {
+    "SOMOD::Output": {
       "type": "object",
       "additionalProperties": false,
       "required": ["default", "attributes"],

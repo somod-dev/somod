@@ -17,18 +17,18 @@ import { Module, ModuleHandler } from "../moduleHandler";
 import { listAllParameters } from "../parameters/namespace";
 import { readYamlFileStore } from "../yamlFileStore";
 
-export const KeywordNjpParameter = "NJP::Parameter";
+export const KeywordSomodParameter = "SOMOD::Parameter";
 
-export type NjpParameter = {
-  [KeywordNjpParameter]: string;
+export type SomodParameter = {
+  [KeywordSomodParameter]: string;
 };
 
 // this must match the @somod/ui-config-schema/schemas/index.json
 export type Config = {
-  env?: Record<string, NjpParameter>;
-  imageDomains?: (string | NjpParameter)[];
-  publicRuntimeConfig?: Record<string, NjpParameter>;
-  serverRuntimeConfig?: Record<string, NjpParameter>;
+  env?: Record<string, SomodParameter>;
+  imageDomains?: (string | SomodParameter)[];
+  publicRuntimeConfig?: Record<string, SomodParameter>;
+  serverRuntimeConfig?: Record<string, SomodParameter>;
 };
 
 export const loadConfig = async (module: Module): Promise<Config> => {
@@ -83,13 +83,16 @@ const validate = async (dir: string, moduleIndicators: string[]) => {
 
   const parameters = await listAllParameters(dir, moduleIndicators);
 
-  const keywordPaths = getKeywordPaths(config, [KeywordNjpParameter]);
+  const keywordPaths = getKeywordPaths(config, [KeywordSomodParameter]);
 
   const missingParameters: string[] = [];
-  keywordPaths[KeywordNjpParameter].forEach(njpParameterPath => {
-    const njpParameter = getKeyword(config, njpParameterPath) as NjpParameter;
+  keywordPaths[KeywordSomodParameter].forEach(somodParameterPath => {
+    const somodParameter = getKeyword(
+      config,
+      somodParameterPath
+    ) as SomodParameter;
 
-    const parameter = njpParameter[KeywordNjpParameter];
+    const parameter = somodParameter[KeywordSomodParameter];
     if (!parameters.includes(parameter)) {
       missingParameters.push(parameter);
     }

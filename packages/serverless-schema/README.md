@@ -10,13 +10,13 @@ npm i @somod/serverless-schema;
 
 ## Overview
 
-At [sodaru](https://sodaru.com), serverless backend is authered in special npm packages called `slp` or `somod`. These npm packages contains a part of AWS SAM Template which can be shared using npm
+At [sodaru](https://sodaru.com), serverless backend is authered in special npm package called `somod`. These npm packages contains a part of AWS SAM Template which can be shared using npm
 
 More on design [here](https://docs.google.com/presentation/d/1mxlUuocYzJfEmOmBrdyPbB1hktiQQHzDAReXXLcOCyM#slide=id.gfb6ddf4b5a_0_0)
 
 ### Schemas
 
-- All `slp` and `somod` packages must adhere to common schema [schemas/index.json](./schemas/index.json)
+- All `somod` packages must adhere to common schema [schemas/index.json](./schemas/index.json)
 
 - Each package can adhere to more specific schema
 

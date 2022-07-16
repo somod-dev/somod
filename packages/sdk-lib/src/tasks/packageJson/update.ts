@@ -6,9 +6,7 @@ import {
   key_jsnextMain,
   key_main,
   key_module,
-  key_njp,
   key_sideEffects,
-  key_slp,
   key_somod,
   key_type,
   key_typings,
@@ -18,7 +16,7 @@ import {
 } from "../../utils/constants";
 import { read, update as _updatePackageJson } from "../../utils/packageJson";
 
-export const update = async (dir: string, type: ModuleType): Promise<void> => {
+export const update = async (dir: string): Promise<void> => {
   const packageJson = await read(dir);
 
   const keysToBeUpdated = [
@@ -32,8 +30,6 @@ export const update = async (dir: string, type: ModuleType): Promise<void> => {
     key_typings,
     key_files,
     key_sideEffects,
-    key_njp,
-    key_slp,
     key_somod
   ];
 
@@ -69,17 +65,7 @@ export const update = async (dir: string, type: ModuleType): Promise<void> => {
 
   const commandVersion = await getCommandVersion();
 
-  delete toBeUpdatedPackageJsonData[key_njp];
-  delete toBeUpdatedPackageJsonData[key_slp];
-  delete toBeUpdatedPackageJsonData[key_somod];
-
-  if (type == "njp") {
-    toBeUpdatedPackageJsonData[key_njp] = commandVersion;
-  } else if (type == "slp") {
-    toBeUpdatedPackageJsonData[key_slp] = commandVersion;
-  } else {
-    toBeUpdatedPackageJsonData[key_somod] = commandVersion;
-  }
+  toBeUpdatedPackageJsonData[key_somod] = commandVersion;
 
   _updatePackageJson(dir, {
     ...toBeUpdatedPackageJsonData,

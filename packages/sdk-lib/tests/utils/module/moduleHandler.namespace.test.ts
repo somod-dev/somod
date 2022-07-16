@@ -11,7 +11,7 @@ describe("Test util getNamespaces", () => {
       "package.json": JSON.stringify({
         name: "root",
         version: "1.0.0",
-        njp: "1.0.0",
+        somod: "1.0.0",
         dependencies: {
           m1: "1.0.1",
           m2: "1.0.2"
@@ -20,7 +20,7 @@ describe("Test util getNamespaces", () => {
       "node_modules/m1/package.json": JSON.stringify({
         name: "m1",
         version: "1.0.1",
-        njp: "1.0.0",
+        somod: "1.0.0",
         dependencies: {
           m4: "1.4.0"
         },
@@ -36,7 +36,7 @@ describe("Test util getNamespaces", () => {
       "node_modules/m2/package.json": JSON.stringify({
         name: "m2",
         version: "1.0.2",
-        njp: "1.0.0",
+        somod: "1.0.0",
         dependencies: {
           m4: "1.4.0",
           m5: "1.5.0"
@@ -45,17 +45,17 @@ describe("Test util getNamespaces", () => {
       "node_modules/m3/package.json": JSON.stringify({
         name: "m3",
         version: "1.3.0",
-        njp: "1.0.0"
+        somod: "1.0.0"
       }),
       "node_modules/m4/package.json": JSON.stringify({
         name: "m4",
         version: "1.4.0",
-        njp: "1.0.0"
+        somod: "1.0.0"
       }),
       "node_modules/m2/node_modules/m5/package.json": JSON.stringify({
         name: "m5",
         version: "1.5.0",
-        njp: "1.0.0"
+        somod: "1.0.0"
       })
     });
   });
@@ -65,10 +65,10 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with no namespaces", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
 
     const namespaces = await moduleHandler.getNamespaces({
-      njp: async () => {
+      somod: async () => {
         // don't do anything
       }
     });
@@ -77,10 +77,10 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with empty namespaces", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
 
     const namespaces = await moduleHandler.getNamespaces({
-      njp: async module => {
+      somod: async module => {
         module.namespaces["n"] = [];
       }
     });
@@ -89,10 +89,10 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with distict namespaces", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
 
     const namespaces = await moduleHandler.getNamespaces({
-      njp: async module => {
+      somod: async module => {
         module.namespaces["n"] = [module.name + "-" + module.version];
       }
     });
@@ -110,10 +110,10 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with distict namespaces in multiple namespaceNames", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
 
     const namespaces = await moduleHandler.getNamespaces({
-      njp: async module => {
+      somod: async module => {
         module.namespaces["n1"] = [module.name + "-" + module.version];
         module.namespaces["n2"] = [module.name + "-" + module.version];
       }
@@ -140,7 +140,7 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with conflicts resolved at higher modules", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
 
     const namespaceMap = {
       root: ["n1"],
@@ -151,7 +151,7 @@ describe("Test util getNamespaces", () => {
       m5: []
     };
     const namespaces = await moduleHandler.getNamespaces({
-      njp: async module => {
+      somod: async module => {
         module.namespaces["n"] = namespaceMap[module.name];
       }
     });
@@ -168,7 +168,7 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with conflicts resolved at super higher modules", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
 
     const namespaceMap = {
       root: ["n1", "n2"],
@@ -179,7 +179,7 @@ describe("Test util getNamespaces", () => {
       m5: ["n2"]
     };
     const namespaces = await moduleHandler.getNamespaces({
-      njp: async module => {
+      somod: async module => {
         module.namespaces["n"] = namespaceMap[module.name];
       }
     });
@@ -196,7 +196,7 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with unresolved conflicts", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["njp"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
 
     const namespace1Map = {
       root: ["n1", "n2"],
@@ -217,7 +217,7 @@ describe("Test util getNamespaces", () => {
 
     await expect(
       moduleHandler.getNamespaces({
-        njp: async module => {
+        somod: async module => {
           module.namespaces["namespaceA"] = namespace1Map[module.name];
           module.namespaces["namespaceB"] = namespace2Map[module.name];
         }

@@ -21,7 +21,7 @@ describe("test Task generateNextConfig", () => {
       "package.json": JSON.stringify({
         name: "my-module",
         version: "1.0.0",
-        njp: "1.0.0"
+        somod: "1.0.0"
       }),
       "parameters.json": JSON.stringify({
         "m1.p1": null,
@@ -36,26 +36,26 @@ describe("test Task generateNextConfig", () => {
       }),
       "ui/config.yaml": dump({
         env: {
-          MY_ENV1: { "NJP::Parameter": "m1.p1" },
-          MY_ENV2: { "NJP::Parameter": "m1.p2" },
-          MY_ENV3: { "NJP::Parameter": "m2.p1" },
-          MY_ENV4: { "NJP::Parameter": "m2.p2" }
+          MY_ENV1: { "SOMOD::Parameter": "m1.p1" },
+          MY_ENV2: { "SOMOD::Parameter": "m1.p2" },
+          MY_ENV3: { "SOMOD::Parameter": "m2.p1" },
+          MY_ENV4: { "SOMOD::Parameter": "m2.p2" }
         },
-        imageDomains: ["sodaru.com", { "NJP::Parameter": "m2.p1" }],
+        imageDomains: ["sodaru.com", { "SOMOD::Parameter": "m2.p1" }],
         publicRuntimeConfig: {
-          prc1: { "NJP::Parameter": "m2.p2" },
-          prc2: { "NJP::Parameter": "m2.p3" },
-          prc3: { "NJP::Parameter": "m3.p1" }
+          prc1: { "SOMOD::Parameter": "m2.p2" },
+          prc2: { "SOMOD::Parameter": "m2.p3" },
+          prc3: { "SOMOD::Parameter": "m3.p1" }
         },
         serverRuntimeConfig: {
-          src1: { "NJP::Parameter": "m3.p2" },
-          src2: { "NJP::Parameter": "m3.p3" },
-          src3: { "NJP::Parameter": "m3.p4" }
+          src1: { "SOMOD::Parameter": "m3.p2" },
+          src2: { "SOMOD::Parameter": "m3.p3" },
+          src3: { "SOMOD::Parameter": "m3.p4" }
         }
       } as Config)
     });
 
-    await expect(generateNextConfig(dir, ["njp"])).resolves.toBeUndefined();
+    await expect(generateNextConfig(dir, ["somod"])).resolves.toBeUndefined();
 
     await expect(
       readFile(join(dir, ".env"), { encoding: "utf8" })

@@ -15,7 +15,7 @@ import {
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::FunctionLayerLibraries", () => {
+describe("test keyword SOMOD::FunctionLayerLibraries", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -29,7 +29,7 @@ describe("test keyword SLP::FunctionLayerLibraries", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::FunctionLayerLibraries", async () => {
+  test("with SOMOD::FunctionLayerLibraries", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -38,9 +38,9 @@ describe("test keyword SLP::FunctionLayerLibraries", () => {
             CompatibleArchitectures: ["arm64"],
             CompatibleRuntimes: ["nodejs14.x"],
             LayerName: {
-              "SLP::ResourceName": "mylayer"
+              "SOMOD::ResourceName": "mylayer"
             },
-            "SLP::FunctionLayerLibraries": ["smallest"],
+            "SOMOD::FunctionLayerLibraries": ["smallest"],
             RetentionPolicy: "Delete"
           }
         }
@@ -54,7 +54,7 @@ describe("test keyword SLP::FunctionLayerLibraries", () => {
         devDependencies: {
           smallest: "^1.0.1"
         },
-        slp: "1.3.2"
+        somod: "1.3.2"
       })
     });
     await validateSchema(dir); // make sure schema is right

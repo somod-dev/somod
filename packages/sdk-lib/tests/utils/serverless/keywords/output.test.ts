@@ -12,7 +12,7 @@ import {
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::Output", () => {
+describe("test keyword SOMOD::Output", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -26,13 +26,13 @@ describe("test keyword SLP::Output", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::Output", async () => {
+  test("with SOMOD::Output", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: []
           }
@@ -58,7 +58,7 @@ describe("test keyword SLP::Output", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: ["Arn"],
             export: {

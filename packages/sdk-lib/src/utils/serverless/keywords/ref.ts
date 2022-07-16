@@ -1,16 +1,16 @@
 import { getKeyword, getKeywordPaths } from "../../keywords";
 import {
-  KeywordSLPExtend,
-  KeywordSLPOutput,
-  KeywordSLPRef,
+  KeywordSOMODExtend,
+  KeywordSOMODOutput,
+  KeywordSOMODRef,
   ServerlessTemplate,
-  SLPRef,
+  SOMODRef,
   SLPTemplate
 } from "../types";
 import {
   getSAMResourceLogicalId,
-  getSLPKeyword,
-  replaceSLPKeyword
+  getSOMODKeyword,
+  replaceSOMODKeyword
 } from "../utils";
 import { checkAccess } from "./access";
 
@@ -20,9 +20,9 @@ export const validate = (
 ): Error[] => {
   const errors: Error[] = [];
 
-  slpTemplate.keywordPaths[KeywordSLPRef].forEach(refKeywordPath => {
-    const ref = getSLPKeyword<SLPRef>(slpTemplate, refKeywordPath)[
-      KeywordSLPRef
+  slpTemplate.keywordPaths[KeywordSOMODRef].forEach(refKeywordPath => {
+    const ref = getSOMODKeyword<SOMODRef>(slpTemplate, refKeywordPath)[
+      KeywordSOMODRef
     ];
     if (!ref.module) {
       ref.module = slpTemplate.module;
@@ -53,32 +53,32 @@ export const validate = (
       if (accessErrors.length > 0) {
         errors.push(...accessErrors);
       } else {
-        if (referencedSLPTemplate.Resources[ref.resource][KeywordSLPExtend]) {
-          errors.push(getError(`must not have ${KeywordSLPExtend}`));
+        if (referencedSLPTemplate.Resources[ref.resource][KeywordSOMODExtend]) {
+          errors.push(getError(`must not have ${KeywordSOMODExtend}`));
         } else if (
-          !referencedSLPTemplate.Resources[ref.resource][KeywordSLPOutput]
+          !referencedSLPTemplate.Resources[ref.resource][KeywordSOMODOutput]
         ) {
-          errors.push(getError(`does not have ${KeywordSLPOutput}`));
+          errors.push(getError(`does not have ${KeywordSOMODOutput}`));
         } else if (ref.attribute) {
           if (
             !referencedSLPTemplate.Resources[ref.resource][
-              KeywordSLPOutput
+              KeywordSOMODOutput
             ].attributes.includes(ref.attribute)
           ) {
             errors.push(
               getError(
-                `does not have attribute ${ref.attribute} in ${KeywordSLPOutput}`
+                `does not have attribute ${ref.attribute} in ${KeywordSOMODOutput}`
               )
             );
           }
         } else {
           if (
-            !referencedSLPTemplate.Resources[ref.resource][KeywordSLPOutput]
+            !referencedSLPTemplate.Resources[ref.resource][KeywordSOMODOutput]
               .default
           ) {
             errors.push(
               getError(
-                `does not have default set to true in ${KeywordSLPOutput}`
+                `does not have default set to true in ${KeywordSOMODOutput}`
               )
             );
           }
@@ -92,8 +92,10 @@ export const validate = (
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPRef].forEach(refPath => {
-      const ref = getSLPKeyword<SLPRef>(slpTemplate, refPath)[KeywordSLPRef];
+    slpTemplate.keywordPaths[KeywordSOMODRef].forEach(refPath => {
+      const ref = getSOMODKeyword<SOMODRef>(slpTemplate, refPath)[
+        KeywordSOMODRef
+      ];
       const resourceId = getSAMResourceLogicalId(
         ref.module || slpTemplate.module,
         ref.resource
@@ -101,7 +103,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
       const refValue = ref.attribute
         ? { "Fn::GetAtt": [resourceId, ref.attribute] }
         : { Ref: resourceId };
-      replaceSLPKeyword(slpTemplate, refPath, refValue);
+      replaceSOMODKeyword(slpTemplate, refPath, refValue);
     });
   });
 };
