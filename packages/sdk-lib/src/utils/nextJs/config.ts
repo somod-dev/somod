@@ -75,13 +75,13 @@ const buildConfigYaml = async (dir: string): Promise<void> => {
   await writeFile(configJsonPath, JSON.stringify(yamlContentAsJson));
 };
 
-const validate = async (dir: string, moduleIndicators: string[]) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+const validate = async (dir: string) => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const rootModuleNode = await moduleHandler.getRoodModuleNode();
 
   const config = await loadConfig(rootModuleNode.module);
 
-  const parameters = await listAllParameters(dir, moduleIndicators);
+  const parameters = await listAllParameters(dir);
 
   const keywordPaths = getKeywordPaths(config, [KeywordSomodParameter]);
 
@@ -107,16 +107,13 @@ const validate = async (dir: string, moduleIndicators: string[]) => {
   }
 };
 
-export const buildConfig = async (dir: string, moduleIndicators: string[]) => {
-  await validate(dir, moduleIndicators);
+export const buildConfig = async (dir: string) => {
+  await validate(dir);
   await buildConfigYaml(dir);
 };
 
-export const generateCombinedConfig = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<Config> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const generateCombinedConfig = async (dir: string): Promise<Config> => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const allModules = await moduleHandler.listModules();
 
   const moduleNameToConfigMap: Record<string, Config> = {};
@@ -128,9 +125,7 @@ export const generateCombinedConfig = async (
     })
   );
 
-  const namespaces = await moduleHandler.getNamespaces(
-    Object.fromEntries(moduleIndicators.map(mt => [mt, loadConfigNamespaces]))
-  );
+  const namespaces = await moduleHandler.getNamespaces(loadConfigNamespaces);
 
   const combinedImageDomains: Config["imageDomains"] = [];
   Object.values(moduleNameToConfigMap).forEach(config => {

@@ -57,7 +57,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       })
     });
 
-    await expect(generateSAMTemplate(dir, ["somod"])).resolves.toEqual({
+    await expect(generateSAMTemplate(dir)).resolves.toEqual({
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -173,7 +173,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       })
     });
 
-    const result = await generateSAMTemplate(dir, ["somod"]);
+    const result = await generateSAMTemplate(dir);
 
     expect(result).toEqual({
       Resources: {
@@ -464,7 +464,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       })
     });
 
-    const result = await generateSAMTemplate(dir, ["somod"]);
+    const result = await generateSAMTemplate(dir);
 
     expect(result).toEqual({
       Parameters: {

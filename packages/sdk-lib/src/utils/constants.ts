@@ -69,8 +69,6 @@ export const defaultUiConfigSchema =
 export const defaultParametersSchema =
   "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json";
 
-export type ModuleType = "somod";
-
 export const namespace_page = "UI Page";
 
 export const namespace_public = "UI Public Asset";

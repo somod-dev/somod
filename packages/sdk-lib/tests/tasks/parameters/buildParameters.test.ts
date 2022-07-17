@@ -27,14 +27,14 @@ describe("test Task buildParameters", () => {
   });
 
   test("for no parameters.yaml", async () => {
-    await expect(buildParameters(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(buildParameters(dir)).resolves.toBeUndefined();
     expect(build).toHaveBeenCalledTimes(0);
   });
 
   test("for valid parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": "" });
-    await expect(buildParameters(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(buildParameters(dir)).resolves.toBeUndefined();
     expect(build).toHaveBeenCalledTimes(1);
-    expect(build).toHaveBeenCalledWith(dir, ["somod"]);
+    expect(build).toHaveBeenCalledWith(dir);
   });
 });

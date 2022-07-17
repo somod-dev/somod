@@ -74,9 +74,7 @@ describe("test util serverless.generateSamConfigParameterOverrides", () => {
       })
     });
 
-    await expect(
-      generateSamConfigParameterOverrides(dir, ["somod"])
-    ).resolves.toEqual({
+    await expect(generateSamConfigParameterOverrides(dir)).resolves.toEqual({
       p1: '{"string":"this is a string","integer":123,"number":100.02}',
       p2: '{"boolean":true,"null":null}',
       p3: '{"array":["this is a string",123,100.02,true,null],"object.content":{"string":"this is a string conatining quotes (\\")","integer":123,"number":100.02,"boolean":false,"null":null,"array":["this is a string",123,100.02,true,null],"object":{}}}'

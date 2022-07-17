@@ -47,11 +47,8 @@ module.exports = {
   await writeFile(join(dir, file_nextConfigJs), nextConfigJsContent);
 };
 
-export const generateNextConfig = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<void> => {
-  const config = await generateCombinedConfig(dir, moduleIndicators);
+export const generateNextConfig = async (dir: string): Promise<void> => {
+  const config = await generateCombinedConfig(dir);
 
   const somodParameterPaths = getKeywordPaths(config, [KeywordSomodParameter])[
     KeywordSomodParameter

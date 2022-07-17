@@ -64,11 +64,8 @@ export const listAllSomodParameters = (
   return slpParameters;
 };
 
-export const generateSamConfigParameterOverrides = async (
-  dir: string,
-  moduleIndicators: string[]
-) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const generateSamConfigParameterOverrides = async (dir: string) => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const allModules = await moduleHandler.listModules();
 
   const serverlessTemplate = await loadServerlessTemplate(allModules);

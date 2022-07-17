@@ -8,8 +8,7 @@ import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplat
 import {
   doublePackageJson,
   functionDefaults,
-  installSchemaInTempDir,
-  moduleIndicators
+  installSchemaInTempDir
 } from "../utils";
 
 describe("test keyword SOMOD::Access", () => {
@@ -56,7 +55,7 @@ describe("test keyword SOMOD::Access", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           'Referenced module resource {@my-scope/sample2, Resource2} can not be accessed (has "module" access). Referenced in "@my-scope/sample" at "Resources/Resource1"'
@@ -94,7 +93,7 @@ describe("test keyword SOMOD::Access", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           'Referenced module resource {@my-scope/sample2, Resource2} can not be accessed (has "module" access). Referenced in "@my-scope/sample" at "Resources/Resource1"'
@@ -143,7 +142,7 @@ describe("test keyword SOMOD::Access", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           'Referenced module resource {@my-scope/sample2, Resource2} can not be accessed (has "module" access). Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/resource2"'
@@ -193,7 +192,7 @@ describe("test keyword SOMOD::Access", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           'Referenced module resource {@my-scope/sample2, Resource2} can not be accessed (has "module" access). Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"'
@@ -253,7 +252,7 @@ describe("test keyword SOMOD::Access", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           'Referenced module resource {@another-scope/sample2, Resource2} can not be accessed (has "scope" access). Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/resource2"'

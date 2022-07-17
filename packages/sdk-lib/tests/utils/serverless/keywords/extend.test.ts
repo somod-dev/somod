@@ -9,7 +9,6 @@ import {
   doublePackageJson,
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
@@ -46,9 +45,7 @@ describe("test keyword SOMOD::Extend", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         "Extended module resource {@my-scope/sample2, Resource2} not found. Extended in {@my-scope/sample, Resource1}"
       )
@@ -83,9 +80,7 @@ describe("test keyword SOMOD::Extend", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         "Extended module resource {@my-scope/sample2, Resource2} not found. Extended in {@my-scope/sample, Resource1}"
       )
@@ -134,9 +129,7 @@ describe("test keyword SOMOD::Extend", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));

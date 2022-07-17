@@ -65,36 +65,30 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with no namespaces", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
-    const namespaces = await moduleHandler.getNamespaces({
-      somod: async () => {
-        // don't do anything
-      }
+    const namespaces = await moduleHandler.getNamespaces(async () => {
+      // don't do anything
     });
 
     expect(namespaces).toEqual({});
   });
 
   test("with empty namespaces", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
-    const namespaces = await moduleHandler.getNamespaces({
-      somod: async module => {
-        module.namespaces["n"] = [];
-      }
+    const namespaces = await moduleHandler.getNamespaces(async module => {
+      module.namespaces["n"] = [];
     });
 
     expect(namespaces).toEqual({ n: {} });
   });
 
   test("with distict namespaces", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
-    const namespaces = await moduleHandler.getNamespaces({
-      somod: async module => {
-        module.namespaces["n"] = [module.name + "-" + module.version];
-      }
+    const namespaces = await moduleHandler.getNamespaces(async module => {
+      module.namespaces["n"] = [module.name + "-" + module.version];
     });
 
     expect(namespaces).toEqual({
@@ -110,13 +104,11 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with distict namespaces in multiple namespaceNames", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
-    const namespaces = await moduleHandler.getNamespaces({
-      somod: async module => {
-        module.namespaces["n1"] = [module.name + "-" + module.version];
-        module.namespaces["n2"] = [module.name + "-" + module.version];
-      }
+    const namespaces = await moduleHandler.getNamespaces(async module => {
+      module.namespaces["n1"] = [module.name + "-" + module.version];
+      module.namespaces["n2"] = [module.name + "-" + module.version];
     });
 
     expect(namespaces).toEqual({
@@ -140,7 +132,7 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with conflicts resolved at higher modules", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
     const namespaceMap = {
       root: ["n1"],
@@ -150,10 +142,8 @@ describe("Test util getNamespaces", () => {
       m4: ["n2", "n5"],
       m5: []
     };
-    const namespaces = await moduleHandler.getNamespaces({
-      somod: async module => {
-        module.namespaces["n"] = namespaceMap[module.name];
-      }
+    const namespaces = await moduleHandler.getNamespaces(async module => {
+      module.namespaces["n"] = namespaceMap[module.name];
     });
 
     expect(namespaces).toEqual({
@@ -168,7 +158,7 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with conflicts resolved at super higher modules", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
     const namespaceMap = {
       root: ["n1", "n2"],
@@ -178,10 +168,8 @@ describe("Test util getNamespaces", () => {
       m4: ["n2", "n5"],
       m5: ["n2"]
     };
-    const namespaces = await moduleHandler.getNamespaces({
-      somod: async module => {
-        module.namespaces["n"] = namespaceMap[module.name];
-      }
+    const namespaces = await moduleHandler.getNamespaces(async module => {
+      module.namespaces["n"] = namespaceMap[module.name];
     });
 
     expect(namespaces).toEqual({
@@ -196,7 +184,7 @@ describe("Test util getNamespaces", () => {
   });
 
   test("with unresolved conflicts", async () => {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir, ["somod"]);
+    const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
     const namespace1Map = {
       root: ["n1", "n2"],
@@ -216,11 +204,9 @@ describe("Test util getNamespaces", () => {
     };
 
     await expect(
-      moduleHandler.getNamespaces({
-        somod: async module => {
-          module.namespaces["namespaceA"] = namespace1Map[module.name];
-          module.namespaces["namespaceB"] = namespace2Map[module.name];
-        }
+      moduleHandler.getNamespaces(async module => {
+        module.namespaces["namespaceA"] = namespace1Map[module.name];
+        module.namespaces["namespaceB"] = namespace2Map[module.name];
       })
     ).rejects.toEqual(
       new Error(`Following namespaces are unresolved

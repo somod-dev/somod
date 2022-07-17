@@ -8,7 +8,6 @@ import {
   doublePackageJson,
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
@@ -57,9 +56,7 @@ describe("test keyword SOMOD::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module resource name {@my-scope/sample1, Resource2, Name} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
@@ -95,9 +92,7 @@ describe("test keyword SOMOD::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module resource name {@my-scope/sample, Resource2, Name} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
@@ -141,9 +136,7 @@ describe("test keyword SOMOD::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module resource name {@my-scope/sample, Resource2, Name} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
@@ -187,9 +180,7 @@ describe("test keyword SOMOD::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module resource name property {@my-scope/sample, Resource2, StageName} is not a valid SOMOD::ResourceName. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
@@ -233,9 +224,7 @@ describe("test keyword SOMOD::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
@@ -284,9 +273,7 @@ describe("test keyword SOMOD::RefResourceName", () => {
       ...doublePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));

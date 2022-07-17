@@ -8,11 +8,8 @@ import {
   validateKeywords
 } from "./slpTemplate";
 
-export const buildTemplateYaml = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const buildTemplateYaml = async (dir: string): Promise<void> => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const allModules = await moduleHandler.listModules();
 
   const serverlessTemplate = await loadServerlessTemplate(allModules);
@@ -23,7 +20,7 @@ export const buildTemplateYaml = async (
     const rootSlpTemplate = serverlessTemplate[rootModuleNode.module.name];
     delete serverlessTemplate[rootModuleNode.module.name];
 
-    const allParameters = await listAllParameters(dir, moduleIndicators);
+    const allParameters = await listAllParameters(dir);
     await validateKeywords(rootSlpTemplate, serverlessTemplate, allParameters);
 
     await buildRootSLPTemplate(rootModuleNode);

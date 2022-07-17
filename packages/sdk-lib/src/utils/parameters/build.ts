@@ -32,11 +32,8 @@ const validate = async (moduleNode: ModuleNode): Promise<void> => {
   }
 };
 
-export const build = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const build = async (dir: string): Promise<void> => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
   const rootModuleNode = await moduleHandler.getRoodModuleNode();
 

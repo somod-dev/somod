@@ -17,9 +17,7 @@ describe("Test Task buildServerlessTemplate", () => {
   });
 
   test("For no serverless directory", async () => {
-    await expect(
-      buildServerlessTemplate(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(buildServerlessTemplate(dir)).resolves.toBeUndefined();
     expect(existsSync(join(dir, "build"))).toBeFalsy();
   });
 
@@ -27,9 +25,7 @@ describe("Test Task buildServerlessTemplate", () => {
     createFiles(dir, {
       "serverless/": ""
     });
-    await expect(
-      buildServerlessTemplate(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(buildServerlessTemplate(dir)).resolves.toBeUndefined();
     expect(existsSync(join(dir, "build"))).toBeFalsy();
   });
 
@@ -85,9 +81,7 @@ describe("Test Task buildServerlessTemplate", () => {
         somod: "1.3.2"
       })
     });
-    await expect(
-      buildServerlessTemplate(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(buildServerlessTemplate(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build", "serverless", "template.json"), {
         encoding: "utf8"

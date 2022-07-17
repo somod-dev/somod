@@ -8,7 +8,6 @@ import {
   doublePackageJson,
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
@@ -58,9 +57,7 @@ describe("test keyword SOMOD::Ref", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
@@ -107,9 +104,7 @@ describe("test keyword SOMOD::Ref", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
@@ -163,9 +158,7 @@ describe("test keyword SOMOD::Ref", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample, Resource2} must not have SOMOD::Extend. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
@@ -212,9 +205,7 @@ describe("test keyword SOMOD::Ref", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} does not have SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
@@ -264,9 +255,7 @@ describe("test keyword SOMOD::Ref", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} does not have default set to true in SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
@@ -318,9 +307,7 @@ describe("test keyword SOMOD::Ref", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         'Referenced module resource {@my-scope/sample2, Resource2} does not have attribute Id in SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
       )
@@ -386,9 +373,7 @@ describe("test keyword SOMOD::Ref", () => {
     });
 
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
@@ -445,9 +430,7 @@ describe("test keyword SOMOD::Ref", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));

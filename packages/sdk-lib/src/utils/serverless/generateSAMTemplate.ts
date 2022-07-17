@@ -6,10 +6,9 @@ import { KeywordSOMODExtend, SAMTemplate, SLPTemplate } from "./types";
 import { getSAMResourceLogicalId } from "./utils";
 
 export const generateSAMTemplate = async (
-  dir: string,
-  moduleIndicators: string[]
+  dir: string
 ): Promise<SAMTemplate> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const allModules = await moduleHandler.listModules();
 
   const serverlessTemplate = await loadServerlessTemplate(allModules);
@@ -71,7 +70,7 @@ export const generateSAMTemplate = async (
     samTemplate.Parameters = Parameters;
   }
 
-  const Outputs = await getSAMOutputs(dir, moduleIndicators);
+  const Outputs = await getSAMOutputs(dir);
   if (Object.keys(Outputs).length > 0) {
     samTemplate.Outputs = Outputs;
   }

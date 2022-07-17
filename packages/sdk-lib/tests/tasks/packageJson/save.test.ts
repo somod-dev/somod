@@ -58,7 +58,7 @@ describe("Test Task savePackageJson", () => {
       })
     });
     const packageJsonPath = join(dir, "package.json");
-    await updateSodaruModuleKeyInPackageJson(dir, "somod");
+    await updateSodaruModuleKeyInPackageJson(dir);
     await expect(savePackageJson(dir)).resolves.toBeUndefined();
     const result = await readFile(packageJsonPath, { encoding: "utf8" });
     expect(JSON.parse(result)).toEqual({

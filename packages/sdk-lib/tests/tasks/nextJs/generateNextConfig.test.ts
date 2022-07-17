@@ -55,7 +55,7 @@ describe("test Task generateNextConfig", () => {
       } as Config)
     });
 
-    await expect(generateNextConfig(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(generateNextConfig(dir)).resolves.toBeUndefined();
 
     await expect(
       readFile(join(dir, ".env"), { encoding: "utf8" })

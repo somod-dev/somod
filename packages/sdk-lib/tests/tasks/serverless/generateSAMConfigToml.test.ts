@@ -50,13 +50,9 @@ describe("test Task generateSAMConfigToml", () => {
   });
 
   test("for no prior samconfig.toml", async () => {
-    await expect(
-      generateSAMConfigToml(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(generateSAMConfigToml(dir)).resolves.toBeUndefined();
     expect(generateSamConfigParameterOverrides).toHaveBeenCalledTimes(1);
-    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir, [
-      "somod"
-    ]);
+    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir);
     await expect(readFile(join(dir, "samconfig.toml"), { encoding: "utf8" }))
       .resolves.toEqual(`version = 0.1
 [default]
@@ -67,13 +63,9 @@ ${expectedParameterOverrides}`);
 
   test("for no parameters and no prior samconfig.toml", async () => {
     mockedFunction(generateSamConfigParameterOverrides).mockResolvedValue({});
-    await expect(
-      generateSAMConfigToml(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(generateSAMConfigToml(dir)).resolves.toBeUndefined();
     expect(generateSamConfigParameterOverrides).toHaveBeenCalledTimes(1);
-    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir, [
-      "somod"
-    ]);
+    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir);
     expect(existsSync(join(dir, "samconfig.toml"))).not.toBeTruthy();
   });
 
@@ -81,13 +73,9 @@ ${expectedParameterOverrides}`);
     createFiles(dir, {
       "samconfig.toml": defaultSamConfigContent
     });
-    await expect(
-      generateSAMConfigToml(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(generateSAMConfigToml(dir)).resolves.toBeUndefined();
     expect(generateSamConfigParameterOverrides).toHaveBeenCalledTimes(1);
-    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir, [
-      "somod"
-    ]);
+    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir);
     await expect(
       readFile(join(dir, "samconfig.toml"), { encoding: "utf8" })
     ).resolves.toEqual(
@@ -100,13 +88,9 @@ ${expectedParameterOverrides}`);
     createFiles(dir, {
       "samconfig.toml": defaultSamConfigContent
     });
-    await expect(
-      generateSAMConfigToml(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(generateSAMConfigToml(dir)).resolves.toBeUndefined();
     expect(generateSamConfigParameterOverrides).toHaveBeenCalledTimes(1);
-    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir, [
-      "somod"
-    ]);
+    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir);
     await expect(
       readFile(join(dir, "samconfig.toml"), { encoding: "utf8" })
     ).resolves.toEqual(defaultSamConfigContent);
@@ -116,13 +100,9 @@ ${expectedParameterOverrides}`);
     createFiles(dir, {
       "samconfig.toml": `${defaultSamConfigContent}parameter_overrides = "Param1=\\"Hah\\""\nimage_repositories = []\n`
     });
-    await expect(
-      generateSAMConfigToml(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(generateSAMConfigToml(dir)).resolves.toBeUndefined();
     expect(generateSamConfigParameterOverrides).toHaveBeenCalledTimes(1);
-    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir, [
-      "somod"
-    ]);
+    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir);
     await expect(
       readFile(join(dir, "samconfig.toml"), { encoding: "utf8" })
     ).resolves.toEqual(
@@ -135,13 +115,9 @@ ${expectedParameterOverrides}`);
     createFiles(dir, {
       "samconfig.toml": `${defaultSamConfigContent}parameter_overrides = "Param1=\\"Hah\\""\nimage_repositories = []\n`
     });
-    await expect(
-      generateSAMConfigToml(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(generateSAMConfigToml(dir)).resolves.toBeUndefined();
     expect(generateSamConfigParameterOverrides).toHaveBeenCalledTimes(1);
-    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir, [
-      "somod"
-    ]);
+    expect(generateSamConfigParameterOverrides).toHaveBeenCalledWith(dir);
     await expect(
       readFile(join(dir, "samconfig.toml"), { encoding: "utf8" })
     ).resolves.toEqual(

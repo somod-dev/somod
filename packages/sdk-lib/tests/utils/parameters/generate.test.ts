@@ -58,7 +58,7 @@ describe("Test Util parameters.generate", () => {
         somod: "1.0.0"
       })
     });
-    await expect(generate(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(generate(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}\n");
@@ -73,7 +73,7 @@ describe("Test Util parameters.generate", () => {
       }),
       "parameters.yaml": files["parameters.yaml"]
     });
-    await expect(generate(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(generate(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(JSON.stringify({ "my.param1": "p1" }, null, 2) + "\n");
@@ -81,7 +81,7 @@ describe("Test Util parameters.generate", () => {
 
   test("for parameters in dependency too", async () => {
     createFiles(dir, files);
-    await expect(generate(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(generate(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(
@@ -102,7 +102,7 @@ describe("Test Util parameters.generate", () => {
       ),
       ...files
     });
-    await expect(generate(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(generate(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(
@@ -128,7 +128,7 @@ describe("Test Util parameters.generate", () => {
       ),
       ...files
     });
-    await expect(generate(dir, ["somod"], true)).resolves.toBeUndefined();
+    await expect(generate(dir, true)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(

@@ -7,7 +7,6 @@ import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplat
 import {
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
@@ -52,9 +51,7 @@ describe("test keyword SOMOD::Parameter", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
@@ -92,7 +89,7 @@ describe("test keyword SOMOD::Parameter", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new Error(`Following parameters referenced from 'serverless/template.yaml' are not found
  - my.var2`)
     );

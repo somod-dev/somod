@@ -24,7 +24,7 @@ describe("Test Util parameters.build", () => {
   });
 
   test("for no parameters.yaml", async () => {
-    await expect(build(dir, ["somod"])).rejects.toMatchObject({
+    await expect(build(dir)).rejects.toMatchObject({
       message: `ENOENT: no such file or directory, open '${join(
         dir,
         "parameters.yaml"
@@ -34,14 +34,14 @@ describe("Test Util parameters.build", () => {
 
   test("for empty parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": "" });
-    await expect(build(dir, ["somod"])).rejects.toMatchObject({
+    await expect(build(dir)).rejects.toMatchObject({
       message: `Cannot read properties of undefined (reading 'Parameters')`
     });
   });
 
   test("for empty object in parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": dump({}) });
-    await expect(build(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(build(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}");
@@ -49,7 +49,7 @@ describe("Test Util parameters.build", () => {
 
   test("for no parameters in parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": dump({ Parameters: {} }) });
-    await expect(build(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(build(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual('{"Parameters":{}}');
@@ -62,7 +62,7 @@ describe("Test Util parameters.build", () => {
     createFiles(dir, {
       "parameters.yaml": dump(parameters)
     });
-    await expect(build(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(build(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(JSON.stringify(parameters));
@@ -78,7 +78,7 @@ describe("Test Util parameters.build", () => {
     createFiles(dir, {
       "parameters.yaml": dump(parameters)
     });
-    await expect(build(dir, ["somod"])).rejects.toEqual(
+    await expect(build(dir)).rejects.toEqual(
       new Error(
         `Following parameters have too long name (maximum 128 characters are allowed)\n - my.${"x".repeat(
           128

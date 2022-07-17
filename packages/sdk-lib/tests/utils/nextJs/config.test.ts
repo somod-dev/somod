@@ -271,7 +271,7 @@ describe("Test Util nextJs.buildConfig", () => {
   });
 
   test("for no ui/config.yaml", async () => {
-    await expect(buildConfig(dir, ["somod"])).rejects.toMatchObject({
+    await expect(buildConfig(dir)).rejects.toMatchObject({
       message: `ENOENT: no such file or directory, open '${join(
         dir,
         "ui/config.yaml"
@@ -281,7 +281,7 @@ describe("Test Util nextJs.buildConfig", () => {
 
   test("for empty ui/config.yaml", async () => {
     createFiles(dir, { "ui/config.yaml": "" });
-    await expect(buildConfig(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(buildConfig(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}");
@@ -289,7 +289,7 @@ describe("Test Util nextJs.buildConfig", () => {
 
   test("for empty object in ui/config.yaml", async () => {
     createFiles(dir, { "ui/config.yaml": dump({}) });
-    await expect(buildConfig(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(buildConfig(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}");
@@ -297,7 +297,7 @@ describe("Test Util nextJs.buildConfig", () => {
 
   test("for no config in ui/config.yaml", async () => {
     createFiles(dir, { "ui/config.yaml": dump({ env: {} } as Config) });
-    await expect(buildConfig(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(buildConfig(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual('{"env":{}}');
@@ -313,7 +313,7 @@ describe("Test Util nextJs.buildConfig", () => {
         Parameters: { "my.param1": { type: "text", default: "1" } }
       })
     });
-    await expect(buildConfig(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(buildConfig(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual(JSON.stringify(config));
@@ -326,7 +326,7 @@ describe("Test Util nextJs.buildConfig", () => {
     createFiles(dir, {
       "ui/config.yaml": dump(config)
     });
-    await expect(buildConfig(dir, ["somod"])).rejects.toEqual(
+    await expect(buildConfig(dir)).rejects.toEqual(
       new Error(
         `Following parameters referenced from 'ui/config.yaml' are not found\n - my.param1`
       )
@@ -430,7 +430,7 @@ describe("test util nextJs.generateCombinedConfig", () => {
       })
     });
 
-    const result = await generateCombinedConfig(dir, ["somod"]);
+    const result = await generateCombinedConfig(dir);
     expect(result).toEqual({
       env: {
         MY_ENV1: { "SOMOD::Parameter": "m1.p1" },

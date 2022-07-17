@@ -73,7 +73,7 @@ describe("Test Task createPages", () => {
         "export default function AboutMepage () {return 'a';} export const Me = () => {};"
     });
 
-    await expect(createPages(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(createPages(dir)).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "pages"))).toEqual({
       "home.ts": 'export { default } from "../ui/pages/home";',
@@ -126,7 +126,7 @@ describe("Test Task createPages", () => {
       "node_modules/m3/build/ui/pages/about/me.js":
         "export default function AbountMepage () {return 'a';}"
     });
-    await expect(createPages(dir, ["somod"])).rejects.toEqual(
+    await expect(createPages(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           `Following namespaces are unresolved

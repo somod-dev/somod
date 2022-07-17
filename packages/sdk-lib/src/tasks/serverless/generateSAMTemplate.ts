@@ -6,11 +6,8 @@ import {
   updateYamlFileStore
 } from "../../utils/yamlFileStore";
 
-export const generateSAMTemplate = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<void> => {
-  const samTemplate = await _generateSAMTemplate(dir, moduleIndicators);
+export const generateSAMTemplate = async (dir: string): Promise<void> => {
+  const samTemplate = await _generateSAMTemplate(dir);
 
   if (samTemplate.Resources && Object.keys(samTemplate.Resources).length > 0) {
     const completeSamTemplate = {

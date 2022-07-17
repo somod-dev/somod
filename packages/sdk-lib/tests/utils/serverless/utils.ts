@@ -49,5 +49,3 @@ export const doublePackageJson = {
 export const StringifyTemplate = (json: unknown): string => {
   return JSON.stringify(json);
 };
-
-export const moduleIndicators = ["somod"];

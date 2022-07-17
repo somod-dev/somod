@@ -27,7 +27,7 @@ describe("Test Task generateSAMTemplate", () => {
         dependencies: {}
       })
     });
-    await expect(generateSAMTemplate(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(generateSAMTemplate(dir)).resolves.toBeUndefined();
     expect(existsSync(join(dir, "template.yaml"))).toBeFalsy();
   });
 
@@ -125,7 +125,7 @@ describe("Test Task generateSAMTemplate", () => {
       })
     });
 
-    await expect(generateSAMTemplate(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(generateSAMTemplate(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "template.yaml"), { encoding: "utf8" })
     ).resolves.toEqual(

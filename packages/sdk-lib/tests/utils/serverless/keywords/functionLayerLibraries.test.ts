@@ -9,11 +9,7 @@ import {
 } from "../../../../src/utils/constants";
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
 import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
-import {
-  installSchemaInTempDir,
-  moduleIndicators,
-  StringifyTemplate
-} from "../utils";
+import { installSchemaInTempDir, StringifyTemplate } from "../utils";
 
 describe("test keyword SOMOD::FunctionLayerLibraries", () => {
   let dir: string = null;
@@ -58,9 +54,7 @@ describe("test keyword SOMOD::FunctionLayerLibraries", () => {
       })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));

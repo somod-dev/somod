@@ -15,7 +15,6 @@ import {
 describe("Test Util serverless.buildTemplateYaml", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
-  const moduleIndicators = ["somod"];
 
   beforeEach(async () => {
     dir = createTempDir();
@@ -29,9 +28,7 @@ describe("Test Util serverless.buildTemplateYaml", () => {
 
   test("with empty module", async () => {
     createFiles(dir, { ...singlePackageJson });
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
 
@@ -50,9 +47,7 @@ describe("Test Util serverless.buildTemplateYaml", () => {
     });
 
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
 
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
@@ -175,9 +170,7 @@ describe("Test Util serverless.buildTemplateYaml", () => {
     });
 
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
 
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })

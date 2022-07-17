@@ -63,16 +63,11 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
 };
 
 export const getSAMOutputs = async (
-  dir: string,
-  moduleIndicators: string[]
+  dir: string
 ): Promise<SAMTemplate["Outputs"]> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const exportParameterNamespaces = (
-    await moduleHandler.getNamespaces(
-      Object.fromEntries(
-        moduleIndicators.map(mt => [mt, loadExportParameterNamespaces])
-      )
-    )
+    await moduleHandler.getNamespaces(loadExportParameterNamespaces)
   )[namespace_export_parameter];
 
   const moduleNames = uniq(Object.values(exportParameterNamespaces));

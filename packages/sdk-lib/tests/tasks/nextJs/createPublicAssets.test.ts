@@ -65,7 +65,7 @@ describe("Test Task createPublicAssets", () => {
       "node_modules/m3/build/ui/public/about/me.html": "nlkhkwjher"
     });
 
-    await expect(createPublicAssets(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(createPublicAssets(dir)).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "public"))).toEqual({
       "home.html": "ghkdfjhgkjdsfkl",
@@ -106,7 +106,7 @@ describe("Test Task createPublicAssets", () => {
       "node_modules/m3/build/ui/public/contact.js": "iphodjhor",
       "node_modules/m3/build/ui/public/about/me.html": "nlkhkwjher"
     });
-    await expect(createPublicAssets(dir, ["somod"])).rejects.toEqual(
+    await expect(createPublicAssets(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           `Following namespaces are unresolved

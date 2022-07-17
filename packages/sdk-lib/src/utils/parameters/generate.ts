@@ -20,16 +20,11 @@ import { Parameters } from "./types";
  */
 export const generate = async (
   dir: string,
-  moduleIndicators: string[],
   override = false
 ): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
-  const namespaces = await moduleHandler.getNamespaces(
-    Object.fromEntries(
-      moduleIndicators.map(mt => [mt, loadParameterNamespaces])
-    )
-  );
+  const namespaces = await moduleHandler.getNamespaces(loadParameterNamespaces);
 
   const parameterToModuleNameMap = namespaces[namespace_parameter];
 

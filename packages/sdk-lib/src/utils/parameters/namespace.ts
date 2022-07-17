@@ -11,17 +11,10 @@ export const loadParameterNamespaces = async (module: Module) => {
   }
 };
 
-export const listAllParameters = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<string[]> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const listAllParameters = async (dir: string): Promise<string[]> => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const parameters = (
-    await moduleHandler.getNamespaces(
-      Object.fromEntries(
-        moduleIndicators.map(mt => [mt, loadParameterNamespaces])
-      )
-    )
+    await moduleHandler.getNamespaces(loadParameterNamespaces)
   )[namespace_parameter];
   return Object.keys(parameters);
 };

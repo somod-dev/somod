@@ -10,7 +10,6 @@ import {
   key_somod,
   key_type,
   key_typings,
-  ModuleType,
   path_build,
   path_lib
 } from "../../utils/constants";
@@ -73,11 +72,8 @@ export const update = async (dir: string): Promise<void> => {
   });
 };
 
-export const updateSodaruModuleKey = async (
-  dir: string,
-  type: ModuleType
-): Promise<void> => {
+export const updateSodaruModuleKey = async (dir: string): Promise<void> => {
   const packageJson = await read(dir);
-  packageJson[type] = await getCommandVersion();
+  packageJson[key_somod] = await getCommandVersion();
   _updatePackageJson(dir, packageJson);
 };
