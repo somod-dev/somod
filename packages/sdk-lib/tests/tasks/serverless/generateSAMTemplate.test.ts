@@ -168,7 +168,7 @@ describe("Test Task generateSAMTemplate", () => {
               Description:
                 "Set of npm libraries to be required in all Lambda funtions",
               CompatibleArchitectures: ["arm64"],
-              CompatibleRuntimes: ["nodejs14.x"],
+              CompatibleRuntimes: ["nodejs16.x"],
               RetentionPolicy: "Delete",
               ContentUri: unixStylePath(
                 join(await getPackageLocation(), "layer")

@@ -32,7 +32,6 @@ describe("test keyword SOMOD::FunctionLayerLibraries", () => {
           Type: "AWS::Serverless::LayerVersion",
           Properties: {
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs14.x"],
             LayerName: {
               "SOMOD::ResourceName": "mylayer"
             },

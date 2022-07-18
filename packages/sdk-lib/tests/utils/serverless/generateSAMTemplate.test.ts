@@ -62,7 +62,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         r64967c02baseLayer: {
           Properties: {
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs14.x"],
+            CompatibleRuntimes: ["nodejs16.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
               join(
@@ -180,7 +180,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         r64967c02baseLayer: {
           Properties: {
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs14.x"],
+            CompatibleRuntimes: ["nodejs16.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
               join(
@@ -381,7 +381,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               },
               RetentionPolicy: "Delete",
               CompatibleArchitectures: ["arm64"],
-              CompatibleRuntimes: ["nodejs14.x"],
+              CompatibleRuntimes: ["nodejs16.x"],
               ContentUri: unixStylePath(
                 join(
                   dir,
@@ -476,7 +476,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         r64967c02baseLayer: {
           Properties: {
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs14.x"],
+            CompatibleRuntimes: ["nodejs16.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
               join(
@@ -625,7 +625,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               ]
             },
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs14.x"],
+            CompatibleRuntimes: ["nodejs16.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
               join(
