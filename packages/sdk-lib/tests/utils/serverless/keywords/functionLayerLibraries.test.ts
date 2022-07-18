@@ -9,13 +9,9 @@ import {
 } from "../../../../src/utils/constants";
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
 import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
-import {
-  installSchemaInTempDir,
-  moduleIndicators,
-  StringifyTemplate
-} from "../utils";
+import { installSchemaInTempDir, StringifyTemplate } from "../utils";
 
-describe("test keyword SLP::FunctionLayerLibraries", () => {
+describe("test keyword SOMOD::FunctionLayerLibraries", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -29,18 +25,17 @@ describe("test keyword SLP::FunctionLayerLibraries", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::FunctionLayerLibraries", async () => {
+  test("with SOMOD::FunctionLayerLibraries", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::LayerVersion",
           Properties: {
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs14.x"],
             LayerName: {
-              "SLP::ResourceName": "mylayer"
+              "SOMOD::ResourceName": "mylayer"
             },
-            "SLP::FunctionLayerLibraries": ["smallest"],
+            "SOMOD::FunctionLayerLibraries": ["smallest"],
             RetentionPolicy: "Delete"
           }
         }
@@ -54,13 +49,11 @@ describe("test keyword SLP::FunctionLayerLibraries", () => {
         devDependencies: {
           smallest: "^1.0.1"
         },
-        slp: "1.3.2"
+        somod: "1.3.2"
       })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));

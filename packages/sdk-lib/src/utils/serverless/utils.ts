@@ -1,18 +1,18 @@
 import { createHash } from "crypto";
 import { getKeyword, getKeywordPaths, replaceKeyword } from "../keywords";
-import { KeywordAll, SLPKeyword, SLPTemplate } from "./types";
+import { KeywordAll, SOMODKeyword, SLPTemplate } from "./types";
 
 export const updateKeywordPathsInSLPTemplate = (
   slpTemplate: SLPTemplate
 ): void => {
-  const slpKeywords = getKeywordPaths(
+  const somodKeywords = getKeywordPaths(
     slpTemplate.original.Resources,
     KeywordAll
   );
-  slpTemplate.keywordPaths = slpKeywords;
+  slpTemplate.keywordPaths = somodKeywords;
 };
 
-export const getSLPKeyword = <T extends SLPKeyword>(
+export const getSOMODKeyword = <T extends SOMODKeyword>(
   slpTemplate: SLPTemplate,
   path: string[]
 ): T => {
@@ -20,12 +20,16 @@ export const getSLPKeyword = <T extends SLPKeyword>(
   return getKeyword(slpTemplate.original.Resources, path) as T;
 };
 
-export const replaceSLPKeyword = (
+export const replaceSOMODKeyword = (
   slpTemplate: SLPTemplate,
   path: string[],
   newValue: unknown
 ): void => {
   replaceKeyword(slpTemplate.Resources, path, newValue);
+};
+
+export const getNodeRuntimeVersion = () => {
+  return process.env.SOMOD_SERVERLESS_NODEJS_VERSION || "16";
 };
 
 const hashModuleName = (str: string): string => {
@@ -40,24 +44,24 @@ export const getParameterSpaceResourceLogicalId = (
 
 export const getSAMResourceLogicalId = (
   moduleName: string,
-  slpResourceId: string
+  somodResourceId: string
 ): string => {
-  return "r" + hashModuleName(moduleName) + slpResourceId;
+  return "r" + hashModuleName(moduleName) + somodResourceId;
 };
 
 export const getSAMResourceName = (
   moduleName: string,
-  slpResourceName: string
+  somodResourceName: string
 ): unknown => {
   return {
     "Fn::Sub": [
-      "slp${stackId}${moduleHash}${slpResourceName}",
+      "somod${stackId}${moduleHash}${somodResourceName}",
       {
         stackId: {
           "Fn::Select": [2, { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }]
         },
         moduleHash: hashModuleName(moduleName),
-        slpResourceName
+        somodResourceName: somodResourceName
       }
     ]
   };

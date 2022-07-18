@@ -17,18 +17,18 @@ import { Module, ModuleHandler } from "../moduleHandler";
 import { listAllParameters } from "../parameters/namespace";
 import { readYamlFileStore } from "../yamlFileStore";
 
-export const KeywordNjpParameter = "NJP::Parameter";
+export const KeywordSomodParameter = "SOMOD::Parameter";
 
-export type NjpParameter = {
-  [KeywordNjpParameter]: string;
+export type SomodParameter = {
+  [KeywordSomodParameter]: string;
 };
 
 // this must match the @somod/ui-config-schema/schemas/index.json
 export type Config = {
-  env?: Record<string, NjpParameter>;
-  imageDomains?: (string | NjpParameter)[];
-  publicRuntimeConfig?: Record<string, NjpParameter>;
-  serverRuntimeConfig?: Record<string, NjpParameter>;
+  env?: Record<string, SomodParameter>;
+  imageDomains?: (string | SomodParameter)[];
+  publicRuntimeConfig?: Record<string, SomodParameter>;
+  serverRuntimeConfig?: Record<string, SomodParameter>;
 };
 
 export const loadConfig = async (module: Module): Promise<Config> => {
@@ -75,21 +75,24 @@ const buildConfigYaml = async (dir: string): Promise<void> => {
   await writeFile(configJsonPath, JSON.stringify(yamlContentAsJson));
 };
 
-const validate = async (dir: string, moduleIndicators: string[]) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+const validate = async (dir: string) => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const rootModuleNode = await moduleHandler.getRoodModuleNode();
 
   const config = await loadConfig(rootModuleNode.module);
 
-  const parameters = await listAllParameters(dir, moduleIndicators);
+  const parameters = await listAllParameters(dir);
 
-  const keywordPaths = getKeywordPaths(config, [KeywordNjpParameter]);
+  const keywordPaths = getKeywordPaths(config, [KeywordSomodParameter]);
 
   const missingParameters: string[] = [];
-  keywordPaths[KeywordNjpParameter].forEach(njpParameterPath => {
-    const njpParameter = getKeyword(config, njpParameterPath) as NjpParameter;
+  keywordPaths[KeywordSomodParameter].forEach(somodParameterPath => {
+    const somodParameter = getKeyword(
+      config,
+      somodParameterPath
+    ) as SomodParameter;
 
-    const parameter = njpParameter[KeywordNjpParameter];
+    const parameter = somodParameter[KeywordSomodParameter];
     if (!parameters.includes(parameter)) {
       missingParameters.push(parameter);
     }
@@ -104,16 +107,13 @@ const validate = async (dir: string, moduleIndicators: string[]) => {
   }
 };
 
-export const buildConfig = async (dir: string, moduleIndicators: string[]) => {
-  await validate(dir, moduleIndicators);
+export const buildConfig = async (dir: string) => {
+  await validate(dir);
   await buildConfigYaml(dir);
 };
 
-export const generateCombinedConfig = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<Config> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const generateCombinedConfig = async (dir: string): Promise<Config> => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const allModules = await moduleHandler.listModules();
 
   const moduleNameToConfigMap: Record<string, Config> = {};
@@ -125,9 +125,7 @@ export const generateCombinedConfig = async (
     })
   );
 
-  const namespaces = await moduleHandler.getNamespaces(
-    Object.fromEntries(moduleIndicators.map(mt => [mt, loadConfigNamespaces]))
-  );
+  const namespaces = await moduleHandler.getNamespaces(loadConfigNamespaces);
 
   const combinedImageDomains: Config["imageDomains"] = [];
   Object.values(moduleNameToConfigMap).forEach(config => {

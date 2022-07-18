@@ -15,24 +15,24 @@
       "type": "string",
       "pattern": "^[a-zA-Z0-9]{1,64}$"
     },
-    "slpResourceName": {
+    "somodResourceName": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["SLP::ResourceName"],
+      "required": ["SOMOD::ResourceName"],
       "properties": {
-        "SLP::ResourceName": {
+        "SOMOD::ResourceName": {
           "type": "string",
           "pattern": "^[a-zA-Z]+[a-zA-Z0-9]*$",
           "maxLength": 64
         }
       }
     },
-    "slpRef": {
+    "somodRef": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["SLP::Ref"],
+      "required": ["SOMOD::Ref"],
       "properties": {
-        "SLP::Ref": {
+        "SOMOD::Ref": {
           "type": "object",
           "additionalProperties": false,
           "required": ["resource"],
@@ -44,23 +44,23 @@
         }
       }
     },
-    "slpParameter": {
+    "somodParameter": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["SLP::Parameter"],
+      "required": ["SOMOD::Parameter"],
       "properties": {
-        "SLP::Parameter": {
+        "SOMOD::Parameter": {
           "type": "string",
           "description": "Must refer the parameter available for this module"
         }
       }
     },
-    "slpRefResourceName": {
+    "somodRefResourceName": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["SLP::RefResourceName"],
+      "required": ["SOMOD::RefResourceName"],
       "properties": {
-        "SLP::RefResourceName": {
+        "SOMOD::RefResourceName": {
           "type": "object",
           "additionalProperties": false,
           "required": ["resource", "property"],
@@ -75,12 +75,12 @@
         }
       }
     },
-    "slpModuleName": {
+    "somodModuleName": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["SLP::ModuleName"],
+      "required": ["SOMOD::ModuleName"],
       "properties": {
-        "SLP::ModuleName": {
+        "SOMOD::ModuleName": {
           "type": "string"
         }
       }
@@ -96,10 +96,10 @@
         { "$ref": "#/definitions/sub" },
         { "$ref": "#/definitions/findInMap" },
         { "$ref": "#/definitions/ref" },
-        { "$ref": "#/definitions/slpRef" },
-        { "$ref": "#/definitions/slpParameter" },
-        { "$ref": "#/definitions/slpRefResourceName" },
-        { "$ref": "#/definitions/slpModuleName" }
+        { "$ref": "#/definitions/somodRef" },
+        { "$ref": "#/definitions/somodParameter" },
+        { "$ref": "#/definitions/somodRefResourceName" },
+        { "$ref": "#/definitions/somodModuleName" }
       ]
     },
     "booleanLike": {
@@ -112,8 +112,8 @@
         { "$ref": "#/definitions/if" },
         { "$ref": "#/definitions/findInMap" },
         { "$ref": "#/definitions/ref" },
-        { "$ref": "#/definitions/slpRef" },
-        { "$ref": "#/definitions/slpParameter" }
+        { "$ref": "#/definitions/somodRef" },
+        { "$ref": "#/definitions/somodParameter" }
       ]
     },
     "numberLike": {
@@ -123,8 +123,8 @@
         { "$ref": "#/definitions/if" },
         { "$ref": "#/definitions/findInMap" },
         { "$ref": "#/definitions/ref" },
-        { "$ref": "#/definitions/slpRef" },
-        { "$ref": "#/definitions/slpParameter" }
+        { "$ref": "#/definitions/somodRef" },
+        { "$ref": "#/definitions/somodParameter" }
       ]
     },
     "arrayLike": {
@@ -135,8 +135,8 @@
         { "$ref": "#/definitions/if" },
         { "$ref": "#/definitions/findInMap" },
         { "$ref": "#/definitions/ref" },
-        { "$ref": "#/definitions/slpRef" },
-        { "$ref": "#/definitions/slpParameter" }
+        { "$ref": "#/definitions/somodRef" },
+        { "$ref": "#/definitions/somodParameter" }
       ]
     },
     "base64": {
@@ -285,8 +285,8 @@
         "Fn::GetAZs": {
           "oneOf": [
             { "$ref": "#/definitions/string" },
-            { "$ref": "#/definitions/slpRef" },
-            { "$ref": "#/definitions/slpParameter" }
+            { "$ref": "#/definitions/somodRef" },
+            { "$ref": "#/definitions/somodParameter" }
           ]
         }
       }
@@ -316,8 +316,8 @@
                 { "$ref": "#/definitions/split" },
                 { "$ref": "#/definitions/select" },
                 { "$ref": "#/definitions/ref" },
-                { "$ref": "#/definitions/slpRef" },
-                { "$ref": "#/definitions/slpParameter" }
+                { "$ref": "#/definitions/somodRef" },
+                { "$ref": "#/definitions/somodParameter" }
               ]
             }
           ],
@@ -337,7 +337,7 @@
             {
               "oneOf": [
                 { "$ref": "#/definitions/number" },
-                { "$ref": "#/definitions/slpParameter" },
+                { "$ref": "#/definitions/somodParameter" },
                 { "$ref": "#/definitions/findInMap" }
               ]
             },
@@ -348,8 +348,8 @@
                 { "$ref": "#/definitions/if" },
                 { "$ref": "#/definitions/split" },
                 { "$ref": "#/definitions/ref" },
-                { "$ref": "#/definitions/slpRef" },
-                { "$ref": "#/definitions/slpParameter" }
+                { "$ref": "#/definitions/somodRef" },
+                { "$ref": "#/definitions/somodParameter" }
               ]
             }
           ],
@@ -378,10 +378,10 @@
                 { "$ref": "#/definitions/select" },
                 { "$ref": "#/definitions/sub" },
                 { "$ref": "#/definitions/ref" },
-                { "$ref": "#/definitions/slpRef" },
-                { "$ref": "#/definitions/slpParameter" },
-                { "$ref": "#/definitions/slpRefResourceName" },
-                { "$ref": "#/definitions/slpModuleName" }
+                { "$ref": "#/definitions/somodRef" },
+                { "$ref": "#/definitions/somodParameter" },
+                { "$ref": "#/definitions/somodRefResourceName" },
+                { "$ref": "#/definitions/somodModuleName" }
               ]
             }
           ],
@@ -416,9 +416,9 @@
                         { "$ref": "#/definitions/join" },
                         { "$ref": "#/definitions/select" },
                         { "$ref": "#/definitions/ref" },
-                        { "$ref": "#/definitions/slpRef" },
-                        { "$ref": "#/definitions/slpParameter" },
-                        { "$ref": "#/definitions/slpRefResourceName" }
+                        { "$ref": "#/definitions/somodRef" },
+                        { "$ref": "#/definitions/somodParameter" },
+                        { "$ref": "#/definitions/somodRefResourceName" }
                       ]
                     }
                   }

@@ -6,15 +6,12 @@ import {
   ModuleNode
 } from "../../../src/utils/moduleHandler";
 
-const getRootModuleNode = async (dir: string, moduleTypes: string[]) => {
-  return await ModuleHandler.getModuleHandler(
-    dir,
-    moduleTypes
-  ).getRoodModuleNode();
+const getRootModuleNode = async (dir: string) => {
+  return await ModuleHandler.getModuleHandler(dir).getRoodModuleNode();
 };
 
-const listModules = async (dir: string, moduleTypes: string[]) => {
-  return await ModuleHandler.getModuleHandler(dir, moduleTypes).listModules();
+const listModules = async (dir: string) => {
+  return await ModuleHandler.getModuleHandler(dir).listModules();
 };
 
 describe("Test util getRootModuleNode with invalid input", () => {
@@ -28,23 +25,21 @@ describe("Test util getRootModuleNode with invalid input", () => {
 
   test("no input", async () => {
     const _dir = undefined;
-    await expect(getRootModuleNode(_dir, ["njp"])).rejects.toHaveProperty(
+    await expect(getRootModuleNode(_dir)).rejects.toHaveProperty(
       "message",
       'The "path" argument must be of type string. Received undefined'
     );
   });
 
   test("empty string", async () => {
-    await expect(getRootModuleNode("", ["njp"])).rejects.toEqual(
+    await expect(getRootModuleNode("")).rejects.toEqual(
       new Error("Not a module")
     );
   });
 
   test("non existing directory", async () => {
     const nonExistingDir = join(__dirname, "hhgrgiurehkwhgruii");
-    await expect(
-      getRootModuleNode(nonExistingDir, ["njp"])
-    ).rejects.toHaveProperty(
+    await expect(getRootModuleNode(nonExistingDir)).rejects.toHaveProperty(
       "message",
       `ENOENT: no such file or directory, open '${join(
         nonExistingDir,
@@ -53,12 +48,12 @@ describe("Test util getRootModuleNode with invalid input", () => {
     );
   });
 
-  test("non njp module", async () => {
+  test("non somod module", async () => {
     createFiles(dir, {
       "node_modules/a/package.json": '{"name":"a"}',
       "package.json": '{"name":"m1"}'
     });
-    await expect(getRootModuleNode(dir, ["njp"])).rejects.toEqual(
+    await expect(getRootModuleNode(dir)).rejects.toEqual(
       new Error("Not a module")
     );
   });
@@ -68,11 +63,11 @@ describe("Test util getRootModuleNode with invalid input", () => {
       "node_modules/a/package.json": '{"name":"a"}',
       "package.json": JSON.stringify({
         name: "m1",
-        njp: "1.3.0",
+        somod: "1.3.0",
         dependencies: { m1: "0.0.2" }
       })
     });
-    await expect(getRootModuleNode(dir, ["njp"])).rejects.toEqual(
+    await expect(getRootModuleNode(dir)).rejects.toEqual(
       new Error(`Package m1 not found from ${normalize(dir)}`)
     );
   });
@@ -82,7 +77,7 @@ describe("Test util getRootModuleNode with invalid input", () => {
       "node_modules/m2/package.json": stringify({
         name: "m2",
         version: "0.0.2",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m3: "0.0.3",
           m4: "2.1.0"
@@ -91,7 +86,7 @@ describe("Test util getRootModuleNode with invalid input", () => {
       "node_modules/m2/node_modules/m3/package.json": stringify({
         name: "m3",
         version: "0.0.3",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m4: "0.0.4"
         }
@@ -99,24 +94,24 @@ describe("Test util getRootModuleNode with invalid input", () => {
       "node_modules/m2/node_modules/m4/package.json": stringify({
         name: "m4",
         version: "2.1.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m4/package.json": stringify({
         name: "m4",
         version: "1.0.4",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "package.json": stringify({
         name: "m1",
         version: "0.0.1",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m2: "0.0.2",
           m4: "1.0.4"
         }
       })
     });
-    await expect(getRootModuleNode(dir, ["njp"])).rejects.toEqual(
+    await expect(getRootModuleNode(dir)).rejects.toEqual(
       new Error(`Following modules are repeated
 m4
  - ${join(dir, "node_modules/m4")}
@@ -159,7 +154,6 @@ const serializeModuleNode = (moduleNode: ModuleNode) => {
 const template = (
   description: string,
   files: Record<string, string>,
-  indicators: string[],
   expected: ModuleNodeSerialized
 ): void => {
   describe(description, () => {
@@ -172,7 +166,7 @@ const template = (
       deleteDir(dir);
     });
     test("test", async () => {
-      const actual = await getRootModuleNode(dir, indicators);
+      const actual = await getRootModuleNode(dir);
 
       const actualSerialized = serializeModuleNode(actual);
 
@@ -192,13 +186,12 @@ const stringify = (json: Record<string, unknown>): string => {
 template(
   "Test util getRootModuleNode with no dependencies",
   {
-    "package.json": stringify({ name: "m1", version: "0.0.1", njp: "1.3.0" })
+    "package.json": stringify({ name: "m1", version: "0.0.1", somod: "1.3.0" })
   },
-  ["njp"],
   {
     nodes: {
       m1: {
-        type: "njp",
+        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -221,17 +214,16 @@ template(
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: "1.3.0",
+      somod: "1.3.0",
       dependencies: {
         m2: "0.0.2"
       }
     })
   },
-  ["njp"],
   {
     nodes: {
       m1: {
-        type: "njp",
+        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -257,22 +249,21 @@ template(
     "node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: "1.3.0"
+      somod: "1.3.0"
     }),
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: "1.2.9",
+      somod: "1.2.9",
       dependencies: {
         m2: "0.0.2"
       }
     })
   },
-  ["njp"],
   {
     nodes: {
       m1: {
-        type: "njp",
+        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -291,7 +282,7 @@ template(
     "node_modules/m2/package.json": stringify({
       name: "m2",
       version: "0.0.2",
-      njp: "1.3.2",
+      somod: "1.3.2",
       dependencies: {
         m3: "0.0.3"
       }
@@ -299,22 +290,21 @@ template(
     "node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: "1.3.2"
+      somod: "1.3.2"
     }),
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: "1.3.2",
+      somod: "1.3.2",
       dependencies: {
         m2: "0.0.2"
       }
     })
   },
-  ["njp"],
   {
     nodes: {
       m1: {
-        type: "njp",
+        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -322,14 +312,14 @@ template(
         root: true
       },
       m2: {
-        type: "njp",
+        type: "somod",
         name: "m2",
         version: "0.0.2",
         packageLocation: "node_modules/m2",
         namespaces: {}
       },
       m3: {
-        type: "njp",
+        type: "somod",
         name: "m3",
         version: "0.0.3",
         packageLocation: "node_modules/m3",
@@ -350,94 +340,12 @@ template(
 );
 
 template(
-  "Test util getRootModuleNode with multiple indicators",
-  {
-    "node_modules/m2/package.json": stringify({
-      name: "m2",
-      version: "0.0.2",
-      slp: "1.3.0",
-      dependencies: {
-        m3: "0.0.3"
-      }
-    }),
-    "node_modules/m2/node_modules/m3/package.json": stringify({
-      name: "m3",
-      version: "0.0.3",
-      njp: "1.3.2",
-      dependencies: {
-        m4: "0.0.4"
-      }
-    }),
-    "node_modules/m4/package.json": stringify({
-      name: "m4",
-      version: "1.0.4",
-      somod: "1.3.1"
-    }),
-    "package.json": stringify({
-      name: "m1",
-      version: "0.0.1",
-      njp: "1.3.2",
-      dependencies: {
-        m2: "0.0.2",
-        m4: "1.0.4"
-      }
-    })
-  },
-  ["njp", "slp", "somod"],
-  {
-    nodes: {
-      m1: {
-        type: "njp",
-        name: "m1",
-        version: "0.0.1",
-        packageLocation: "",
-        namespaces: {},
-        root: true
-      },
-      m2: {
-        type: "slp",
-        name: "m2",
-        version: "0.0.2",
-        packageLocation: "node_modules/m2",
-        namespaces: {}
-      },
-      m3: {
-        type: "njp",
-        name: "m3",
-        version: "0.0.3",
-        packageLocation: "node_modules/m2/node_modules/m3",
-        namespaces: {}
-      },
-      m4: {
-        type: "somod",
-        name: "m4",
-        version: "1.0.4",
-        packageLocation: "node_modules/m4",
-        namespaces: {}
-      }
-    },
-    parents: {
-      m1: [],
-      m2: ["m1"],
-      m3: ["m2"],
-      m4: ["m1", "m3"]
-    },
-    children: {
-      m1: ["m2", "m4"],
-      m2: ["m3"],
-      m3: ["m4"],
-      m4: []
-    }
-  }
-);
-
-template(
   "Test util getRootModuleNode with dev and peer dependencies",
   {
     "node_modules/m2/package.json": stringify({
       name: "m2",
       version: "0.0.2",
-      slp: "1.3.0",
+      somod: "1.3.0",
       peerDependencies: {
         m4: "1.0.4"
       }
@@ -445,7 +353,7 @@ template(
     "node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: "1.3.2"
+      somod: "1.3.2"
     }),
     "node_modules/m4/package.json": stringify({
       name: "m4",
@@ -455,7 +363,7 @@ template(
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: "1.3.2",
+      somod: "1.3.2",
       devDependencies: {
         m2: "0.0.2",
         m3: "0.0.3"
@@ -465,11 +373,10 @@ template(
       }
     })
   },
-  ["njp", "slp", "somod"],
   {
     nodes: {
       m1: {
-        type: "njp",
+        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -477,7 +384,7 @@ template(
         root: true
       },
       m2: {
-        type: "slp",
+        type: "somod",
         name: "m2",
         version: "0.0.2",
         packageLocation: "node_modules/m2",
@@ -501,7 +408,7 @@ template(
     "node_modules/@s/m2/package.json": stringify({
       name: "@s/m2",
       version: "0.0.2",
-      njp: "1.3.2",
+      somod: "1.3.2",
       dependencies: {
         m3: "0.0.3"
       }
@@ -509,22 +416,21 @@ template(
     "node_modules/m3/package.json": stringify({
       name: "m3",
       version: "0.0.3",
-      njp: "1.3.2"
+      somod: "1.3.2"
     }),
     "package.json": stringify({
       name: "m1",
       version: "0.0.1",
-      njp: "1.3.2",
+      somod: "1.3.2",
       dependencies: {
         "@s/m2": "0.0.2"
       }
     })
   },
-  ["njp"],
   {
     nodes: {
       m1: {
-        type: "njp",
+        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -532,14 +438,14 @@ template(
         root: true
       },
       "@s/m2": {
-        type: "njp",
+        type: "somod",
         name: "@s/m2",
         version: "0.0.2",
         packageLocation: "node_modules/@s/m2",
         namespaces: {}
       },
       m3: {
-        type: "njp",
+        type: "somod",
         name: "m3",
         version: "0.0.3",
         packageLocation: "node_modules/m3",
@@ -567,7 +473,7 @@ describe("Test util listModules", () => {
       "node_modules/m2/package.json": stringify({
         name: "m2",
         version: "0.0.2",
-        slp: "1.3.0",
+        somod: "1.3.0",
         dependencies: {
           m3: "0.0.3"
         }
@@ -575,7 +481,7 @@ describe("Test util listModules", () => {
       "node_modules/m2/node_modules/m3/package.json": stringify({
         name: "m3",
         version: "0.0.3",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m4: "0.0.4"
         }
@@ -588,7 +494,7 @@ describe("Test util listModules", () => {
       "package.json": stringify({
         name: "m1",
         version: "0.0.1",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m2: "0.0.2",
           m4: "1.0.4"
@@ -600,7 +506,7 @@ describe("Test util listModules", () => {
     deleteDir(dir);
   });
   test("test", async () => {
-    const actual = await listModules(dir, ["njp", "slp", "somod"]);
+    const actual = await listModules(dir);
 
     expect(actual.map(mn => mn.module.name)).toEqual(["m1", "m2", "m3", "m4"]);
   });

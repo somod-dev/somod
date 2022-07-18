@@ -19,7 +19,7 @@ describe("Test Task createPublicAssets", () => {
       "package.json": JSON.stringify({
         name: "m1",
         version: "1.0.0",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m2: "^1.0.1",
           m3: "^2.1.0",
@@ -34,22 +34,22 @@ describe("Test Task createPublicAssets", () => {
           m5: "^4.6.0",
           m6: "^7.1.0"
         },
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m2/node_modules/m5/package.json": JSON.stringify({
         name: "m5",
         version: "4.6.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m3/package.json": JSON.stringify({
         name: "m3",
         version: "2.2.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m4/package.json": JSON.stringify({
         name: "m4",
         version: "3.6.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m6/package.json": JSON.stringify({
         name: "m6",
@@ -65,7 +65,7 @@ describe("Test Task createPublicAssets", () => {
       "node_modules/m3/build/ui/public/about/me.html": "nlkhkwjher"
     });
 
-    await expect(createPublicAssets(dir, ["njp"])).resolves.toBeUndefined();
+    await expect(createPublicAssets(dir)).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "public"))).toEqual({
       "home.html": "ghkdfjhgkjdsfkl",
@@ -82,7 +82,7 @@ describe("Test Task createPublicAssets", () => {
       "package.json": JSON.stringify({
         name: "m1",
         version: "1.0.0",
-        njp: "1.3.2",
+        somod: "1.3.2",
         dependencies: {
           m2: "^1.0.1",
           m3: "^2.1.0"
@@ -91,12 +91,12 @@ describe("Test Task createPublicAssets", () => {
       "node_modules/m2/package.json": JSON.stringify({
         name: "m2",
         version: "1.0.10",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "node_modules/m3/package.json": JSON.stringify({
         name: "m3",
         version: "2.2.0",
-        njp: "1.3.2"
+        somod: "1.3.2"
       }),
       "ui/public/about.html": "ghkdfjhgkjdsfkl",
       "node_modules/m2/build/ui/public/about.html": "fewkqhkhfklhqekl",
@@ -106,7 +106,7 @@ describe("Test Task createPublicAssets", () => {
       "node_modules/m3/build/ui/public/contact.js": "iphodjhor",
       "node_modules/m3/build/ui/public/about/me.html": "nlkhkwjher"
     });
-    await expect(createPublicAssets(dir, ["njp"])).rejects.toEqual(
+    await expect(createPublicAssets(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           `Following namespaces are unresolved

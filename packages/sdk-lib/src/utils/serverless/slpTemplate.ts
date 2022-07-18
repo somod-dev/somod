@@ -45,7 +45,7 @@ import {
   validate as validateRefResourceName
 } from "./keywords/refResourceName";
 import { apply as applyResourceName } from "./keywords/resourceName";
-import { listAllSlpParameters } from "./parameter";
+import { listAllSomodParameters } from "./parameter";
 import { OriginalSLPTemplate, ServerlessTemplate, SLPTemplate } from "./types";
 import { updateKeywordPathsInSLPTemplate } from "./utils";
 
@@ -183,7 +183,7 @@ export const loadServerlessTemplate = async (
     }
   });
 
-  const slpParameters = listAllSlpParameters(serverlessTemplate);
+  const slpParameters = listAllSomodParameters(serverlessTemplate);
 
   const baseSlpTemplate = await loadBaseSlpTemplate(slpParameters);
   serverlessTemplate[baseSlpTemplate.module] = baseSlpTemplate;

@@ -1,26 +1,19 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
-  file_configYaml,
   file_dotenv,
   file_eslintIgnore,
   file_gitIgnore,
   file_nextConfigJs,
   file_nextEnvDTs,
   file_packageJson,
-  file_parametersYaml,
+  file_parametersJson,
   file_prettierIgnore,
   file_samConfig,
   file_templateYaml,
   file_tsConfigBuildJson,
   file_tsConfigJson,
   findRootDir,
-  initLib,
-  initParametersYaml,
-  initTemplateYaml,
-  initUiConfigYaml,
-  initWelcomePage,
-  key_somod,
-  path_lib,
+  initFiles,
   path_nextBuild,
   path_pages,
   path_public,
@@ -35,35 +28,50 @@ import {
   updateTsConfigBuildJson
 } from "@somod/sdk-lib";
 import { Command } from "commander";
+import {
+  addSOMODCommandTypeOptions,
+  getSOMODCommandTypeOptions,
+  SOMODCommandTypeOptions
+} from "../utils/common";
 
-export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
+type InitOptions = CommonOptions & SOMODCommandTypeOptions;
+
+export const InitAction = async ({
+  verbose,
+  ...options
+}: InitOptions): Promise<void> => {
   const dir = findRootDir();
+
+  const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
   await taskRunner(`run sodev git`, sodev, verbose, dir, "git");
   await taskRunner(`run sodev prettier`, sodev, verbose, dir, "prettier");
-  await taskRunner(`run sodev eslint`, sodev, verbose, dir, "eslint");
+  await taskRunner(`run sodev eslint`, sodev, verbose, dir, "eslint", ["next"]);
 
-  const somodIgnorePaths = [
-    path_nextBuild,
-    file_tsConfigJson,
-    `/${path_pages}`,
-    `/${path_public}`,
-    file_nextEnvDTs,
-    file_dotenv,
-    file_nextConfigJs,
-    `/${file_templateYaml}`,
-    path_samBuild,
-    file_samConfig
-  ];
+  const somodIgnorePaths = [`/${file_parametersJson}`];
+
+  if (ui) {
+    somodIgnorePaths.push(
+      ...[
+        path_nextBuild,
+        file_tsConfigJson,
+        `/${path_pages}`,
+        `/${path_public}`,
+        file_nextEnvDTs,
+        file_dotenv,
+        file_nextConfigJs
+      ]
+    );
+  }
+
+  if (serverless) {
+    somodIgnorePaths.push(
+      ...[path_samBuild, `/${file_templateYaml}`, file_samConfig]
+    );
+  }
 
   await Promise.all([
-    taskRunner(
-      `update ${file_packageJson}`,
-      updatePackageJson,
-      verbose,
-      dir,
-      key_somod
-    ),
+    taskRunner(`update ${file_packageJson}`, updatePackageJson, verbose, dir),
 
     taskRunner(
       `Initialize ${file_gitIgnore}`,
@@ -102,24 +110,12 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
     ),
 
     taskRunner(
-      `Intitalize ${path_ui}/${file_configYaml}`,
-      initUiConfigYaml,
+      `Intitalize Sample Project files`,
+      initFiles,
       verbose,
-      dir
-    ),
-    taskRunner(`Intitalize ${path_lib}`, initLib, verbose, dir),
-    taskRunner(`Intitalize Welcome Page`, initWelcomePage, verbose, dir),
-    taskRunner(
-      `Intitalize Serverless Template`,
-      initTemplateYaml,
-      verbose,
-      dir
-    ),
-    taskRunner(
-      `Initialize ${file_parametersYaml}`,
-      initParametersYaml,
-      verbose,
-      dir
+      dir,
+      ui,
+      serverless
     )
   ]);
 
@@ -158,5 +154,6 @@ export const InitAction = async ({ verbose }: CommonOptions): Promise<void> => {
 const initCommand = new Command("init");
 
 initCommand.action(InitAction);
+addSOMODCommandTypeOptions(initCommand);
 
 export default initCommand;

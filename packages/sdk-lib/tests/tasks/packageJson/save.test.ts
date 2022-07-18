@@ -51,19 +51,19 @@ describe("Test Task savePackageJson", () => {
     );
   });
 
-  test("for setNjp and save", async () => {
+  test("for setSomod and save", async () => {
     createFiles(dir, {
       "package.json": JSON.stringify({
         name: "some-package"
       })
     });
     const packageJsonPath = join(dir, "package.json");
-    await updateSodaruModuleKeyInPackageJson(dir, "njp");
+    await updateSodaruModuleKeyInPackageJson(dir);
     await expect(savePackageJson(dir)).resolves.toBeUndefined();
     const result = await readFile(packageJsonPath, { encoding: "utf8" });
     expect(JSON.parse(result)).toEqual({
       name: "some-package",
-      njp: expect.stringMatching(/^[0-9]+\.[0-9]+\.[0-9]+$/)
+      somod: expect.stringMatching(/^[0-9]+\.[0-9]+\.[0-9]+$/)
     });
   });
 });

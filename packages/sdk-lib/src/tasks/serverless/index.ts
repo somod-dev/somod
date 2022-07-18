@@ -7,4 +7,3 @@ export { samDeploy } from "./samDeploy";
 export { updateParametersFromSAM } from "./updateParametersFromSAM";
 export { bundleFunctions } from "./bundleFunctions";
 export { installLayerDependencies } from "./installLayerDependencies";
-export { initTemplateYaml } from "./initTemplateYaml";

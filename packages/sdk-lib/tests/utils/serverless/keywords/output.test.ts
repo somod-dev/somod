@@ -7,12 +7,11 @@ import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplat
 import {
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::Output", () => {
+describe("test keyword SOMOD::Output", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -26,13 +25,13 @@ describe("test keyword SLP::Output", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::Output", async () => {
+  test("with SOMOD::Output", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: []
           }
@@ -44,9 +43,7 @@ describe("test keyword SLP::Output", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
@@ -58,7 +55,7 @@ describe("test keyword SLP::Output", () => {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: ["Arn"],
             export: {
@@ -80,7 +77,7 @@ describe("test keyword SLP::Output", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new Error(`Following export parameters referenced from 'serverless/template.yaml' are not found
  - my.resource1.name`)
     );

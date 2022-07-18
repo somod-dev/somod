@@ -7,12 +7,11 @@ import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplat
 import {
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::Parameter", () => {
+describe("test keyword SOMOD::Parameter", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -26,7 +25,7 @@ describe("test keyword SLP::Parameter", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::Parameter", async () => {
+  test("with SOMOD::Parameter", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -36,7 +35,7 @@ describe("test keyword SLP::Parameter", () => {
             Environment: {
               Variables: {
                 MY_VAR1: {
-                  "SLP::Parameter": "my.var1"
+                  "SOMOD::Parameter": "my.var1"
                 }
               }
             }
@@ -52,15 +51,13 @@ describe("test keyword SLP::Parameter", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with missing SLP::Parameter", async () => {
+  test("with missing SOMOD::Parameter", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -70,10 +67,10 @@ describe("test keyword SLP::Parameter", () => {
             Environment: {
               Variables: {
                 MY_VAR1: {
-                  "SLP::Parameter": "my.var1"
+                  "SOMOD::Parameter": "my.var1"
                 },
                 MY_VAR2: {
-                  "SLP::Parameter": "my.var2"
+                  "SOMOD::Parameter": "my.var2"
                 }
               }
             }
@@ -92,7 +89,7 @@ describe("test keyword SLP::Parameter", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new Error(`Following parameters referenced from 'serverless/template.yaml' are not found
  - my.var2`)
     );

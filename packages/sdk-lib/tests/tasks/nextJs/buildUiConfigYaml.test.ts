@@ -27,14 +27,14 @@ describe("test Task buildUiConfigYaml", () => {
   });
 
   test("for no config.yaml", async () => {
-    await expect(buildUiConfigYaml(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(buildUiConfigYaml(dir)).resolves.toBeUndefined();
     expect(buildConfig).toHaveBeenCalledTimes(0);
   });
 
   test("for valid config.yaml", async () => {
     createFiles(dir, { "ui/config.yaml": "" });
-    await expect(buildUiConfigYaml(dir, ["somod"])).resolves.toBeUndefined();
+    await expect(buildUiConfigYaml(dir)).resolves.toBeUndefined();
     expect(buildConfig).toHaveBeenCalledTimes(1);
-    expect(buildConfig).toHaveBeenCalledWith(dir, ["somod"]);
+    expect(buildConfig).toHaveBeenCalledWith(dir);
   });
 });

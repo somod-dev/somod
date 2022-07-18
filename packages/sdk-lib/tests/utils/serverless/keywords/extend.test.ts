@@ -9,12 +9,11 @@ import {
   doublePackageJson,
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::Extend", () => {
+describe("test keyword SOMOD::Extend", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -28,13 +27,13 @@ describe("test keyword SLP::Extend", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::Extend without module", async () => {
+  test("with SOMOD::Extend without module", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample2",
             resource: "Resource2"
           }
@@ -46,9 +45,7 @@ describe("test keyword SLP::Extend", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         "Extended module resource {@my-scope/sample2, Resource2} not found. Extended in {@my-scope/sample, Resource1}"
       )
@@ -56,13 +53,13 @@ describe("test keyword SLP::Extend", () => {
     expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
   });
 
-  test("with SLP::Extend and with module but no resource", async () => {
+  test("with SOMOD::Extend and with module but no resource", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
           Properties: { ...functionDefaults },
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample2",
             resource: "Resource2"
           }
@@ -83,16 +80,14 @@ describe("test keyword SLP::Extend", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         "Extended module resource {@my-scope/sample2, Resource2} not found. Extended in {@my-scope/sample, Resource1}"
       )
     });
   });
 
-  test("with SLP::Extend and with valid module and resource", async () => {
+  test("with SOMOD::Extend and with valid module and resource", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -100,10 +95,10 @@ describe("test keyword SLP::Extend", () => {
           Properties: {
             Architectures: functionDefaults.Architectures,
             CodeUri: {
-              "SLP::Function": { name: "resource1" }
+              "SOMOD::Function": { name: "resource1" }
             }
           },
-          "SLP::Extend": {
+          "SOMOD::Extend": {
             module: "@my-scope/sample2",
             resource: "Resource2"
           }
@@ -134,9 +129,7 @@ describe("test keyword SLP::Extend", () => {
         })
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));

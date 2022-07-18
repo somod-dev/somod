@@ -17,7 +17,7 @@ describe("Test util serverless.loadExportParameterNamespaces", () => {
   });
 
   const getModuleTemplate = (directory: string): Module => ({
-    type: "slp",
+    type: "somod",
     name: "my-module",
     version: "1.0.0",
     packageLocation: directory,
@@ -65,7 +65,7 @@ describe("Test util serverless.loadExportParameterNamespaces", () => {
         Resources: {
           MyLambda: {
             Type: "AWS::Serverless::Function",
-            "SLP::Output": {
+            "SOMOD::Output": {
               default: true,
               attributes: ["Arn"],
               export: {
@@ -93,7 +93,7 @@ describe("Test util serverless.loadExportParameterNamespaces", () => {
         Resources: {
           MyLambda: {
             Type: "AWS::Serverless::Function",
-            "SLP::Output": {
+            "SOMOD::Output": {
               default: true,
               attributes: ["Arn"],
               export: {
@@ -104,7 +104,7 @@ describe("Test util serverless.loadExportParameterNamespaces", () => {
           },
           MyAnotherLambda: {
             Type: "AWS::Serverless::Function",
-            "SLP::Output": {
+            "SOMOD::Output": {
               default: true,
               attributes: ["Arn"],
               export: {
@@ -136,7 +136,7 @@ describe("Test util serverless.loadExportParameterNamespaces", () => {
         Resources: {
           MyLambda: {
             Type: "AWS::Serverless::Function",
-            "SLP::Output": {
+            "SOMOD::Output": {
               default: true,
               attributes: ["Arn"],
               export: {
@@ -151,7 +151,7 @@ describe("Test util serverless.loadExportParameterNamespaces", () => {
         Resources: {
           MyLambda: {
             Type: "AWS::Serverless::Function",
-            "SLP::Output": {
+            "SOMOD::Output": {
               default: true,
               attributes: ["Arn"],
               export: {
@@ -180,7 +180,7 @@ describe("Test util serverless.loadExportParameterNamespaces", () => {
         Resources: {
           MyLambda: {
             Type: "AWS::Serverless::Function",
-            "SLP::Output": {
+            "SOMOD::Output": {
               default: true,
               attributes: ["Arn"],
               export: {
@@ -191,7 +191,7 @@ describe("Test util serverless.loadExportParameterNamespaces", () => {
           },
           MyAnotherLambda: {
             Type: "AWS::Serverless::Function",
-            "SLP::Output": {
+            "SOMOD::Output": {
               default: true,
               attributes: ["Arn"],
               export: {

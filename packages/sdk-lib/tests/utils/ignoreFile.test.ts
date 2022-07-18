@@ -120,7 +120,7 @@ describe("Test Util ignoreFile.update", () => {
       ".someignore": "node_modules\nbin"
     });
     await expect(
-      update(dir, ["bin", ".next", "/.slp"], ".someignore")
+      update(dir, ["bin", ".next", "/.somod"], ".someignore")
     ).resolves.toBeUndefined();
     await expect(
       readIgnoreFileStore(join(dir, ".someignore"))
@@ -130,7 +130,7 @@ describe("Test Util ignoreFile.update", () => {
       "build",
       "/parameters.json",
       ".next",
-      "/.slp"
+      "/.somod"
     ]);
   });
 
@@ -162,7 +162,7 @@ describe("Test Util ignoreFile.update", () => {
     await expect(
       update(
         join(dir, "this/is/child/path/"),
-        ["bin", ".next", "/.slp"],
+        ["bin", ".next", "/.somod"],
         ".someignore"
       )
     ).resolves.toBeUndefined();
@@ -175,7 +175,7 @@ describe("Test Util ignoreFile.update", () => {
       "build",
       "/this/is/child/path/parameters.json",
       ".next",
-      "/this/is/child/path/.slp"
+      "/this/is/child/path/.somod"
     ]);
   });
 });

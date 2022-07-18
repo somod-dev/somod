@@ -98,13 +98,11 @@ export const loadPageNamespaces = async (module: Module) => {
   }
 };
 
-export const listAllPages = async (dir: string, moduleIndicators: string[]) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const listAllPages = async (dir: string) => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
   const pageToModuleMap = (
-    await moduleHandler.getNamespaces(
-      Object.fromEntries(moduleIndicators.map(mt => [mt, loadPageNamespaces]))
-    )
+    await moduleHandler.getNamespaces(loadPageNamespaces)
   )[namespace_page];
 
   return pageToModuleMap;

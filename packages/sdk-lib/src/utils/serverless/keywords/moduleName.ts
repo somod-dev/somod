@@ -1,23 +1,23 @@
 import {
-  KeywordSLPModuleName,
+  KeywordSOMODModuleName,
   ServerlessTemplate,
-  SLPModuleName
+  SOMODModuleName
 } from "../types";
-import { getSLPKeyword, replaceSLPKeyword } from "../utils";
+import { getSOMODKeyword, replaceSOMODKeyword } from "../utils";
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPModuleName].forEach(
+    slpTemplate.keywordPaths[KeywordSOMODModuleName].forEach(
       slpModuleNamePath => {
-        const slpModuleName = getSLPKeyword<SLPModuleName>(
+        const slpModuleName = getSOMODKeyword<SOMODModuleName>(
           slpTemplate,
           slpModuleNamePath
-        )[KeywordSLPModuleName];
+        )[KeywordSOMODModuleName];
         const resultStr = slpModuleName.replace(
-          /\$\{SLP::ModuleName\}/g,
+          /\$\{SOMOD::ModuleName\}/g,
           slpTemplate.module
         );
-        replaceSLPKeyword(slpTemplate, slpModuleNamePath, resultStr);
+        replaceSOMODKeyword(slpTemplate, slpModuleNamePath, resultStr);
       }
     );
   });

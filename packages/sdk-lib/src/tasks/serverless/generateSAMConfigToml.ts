@@ -8,14 +8,8 @@ export const escapeQuotation = (str: string): string => {
   return str.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
 };
 
-export const generateSAMConfigToml = async (
-  dir: string,
-  moduleIndicators: string[]
-) => {
-  const parameterOverrides = await generateSamConfigParameterOverrides(
-    dir,
-    moduleIndicators
-  );
+export const generateSAMConfigToml = async (dir: string) => {
+  const parameterOverrides = await generateSamConfigParameterOverrides(dir);
 
   const samConfigTomlPath = join(dir, file_samConfig);
 

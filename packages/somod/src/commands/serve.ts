@@ -22,9 +22,9 @@ export const ServeAction = async ({
 }: ServeOptions): Promise<void> => {
   const dir = findRootDir();
 
-  await BuildAction({ verbose });
+  await BuildAction({ verbose, ui: true, serverless: false });
 
-  await PrepareAction({ verbose });
+  await PrepareAction({ verbose, ui: true, serverless: false });
 
   if (dev) {
     await taskRunner(

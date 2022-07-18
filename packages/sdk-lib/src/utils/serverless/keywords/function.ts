@@ -15,16 +15,17 @@ import {
   listLayerLibraries
 } from "../baseModule/layers/baseLayer";
 import {
-  KeywordSLPFunction,
-  KeywordSLPRef,
+  KeywordSOMODFunction,
+  KeywordSOMODRef,
   ServerlessTemplate,
-  SLPFunction,
-  SLPRef,
+  SOMODFunction,
+  SOMODRef,
   SLPTemplate
 } from "../types";
 import {
-  getSLPKeyword,
-  replaceSLPKeyword,
+  getNodeRuntimeVersion,
+  getSOMODKeyword,
+  replaceSOMODKeyword,
   updateKeywordPathsInSLPTemplate
 } from "../utils";
 import { validate as jsonValidator } from "@solib/json-validator";
@@ -33,41 +34,43 @@ import { DataValidationError } from "@solib/errors";
 export const validate = (slpTemplate: SLPTemplate): Error[] => {
   const errors: Error[] = [];
 
-  slpTemplate.keywordPaths[KeywordSLPFunction].forEach(functionKeywordPath => {
-    const _function = getSLPKeyword<SLPFunction>(
-      slpTemplate,
-      functionKeywordPath
-    )[KeywordSLPFunction];
+  slpTemplate.keywordPaths[KeywordSOMODFunction].forEach(
+    functionKeywordPath => {
+      const _function = getSOMODKeyword<SOMODFunction>(
+        slpTemplate,
+        functionKeywordPath
+      )[KeywordSOMODFunction];
 
-    /**
-     * for root module look in <$packageLocation>/serverless/functions/<functionName>.ts
-     * for child module look in <$packageLocation>/build/serverless/functions/<functionName>/index.js
-     */
-    let functionFilePath = slpTemplate.packageLocation;
-    if (!slpTemplate.root) {
-      functionFilePath = join(functionFilePath, path_build);
-    }
-    functionFilePath = join(
-      functionFilePath,
-      path_serverless,
-      path_functions,
-      _function.name + (slpTemplate.root ? ".ts" : "/index.js")
-    );
-
-    if (!existsSync(functionFilePath)) {
-      errors.push(
-        new Error(
-          `Referenced module function {${slpTemplate.module}, ${
-            _function.name
-          }} not found. Looked for file "${unixStylePath(
-            functionFilePath
-          )}". Referenced in "${
-            slpTemplate.module
-          }" at "Resources/${functionKeywordPath.join("/")}"`
-        )
+      /**
+       * for root module look in <$packageLocation>/serverless/functions/<functionName>.ts
+       * for child module look in <$packageLocation>/build/serverless/functions/<functionName>/index.js
+       */
+      let functionFilePath = slpTemplate.packageLocation;
+      if (!slpTemplate.root) {
+        functionFilePath = join(functionFilePath, path_build);
+      }
+      functionFilePath = join(
+        functionFilePath,
+        path_serverless,
+        path_functions,
+        _function.name + (slpTemplate.root ? ".ts" : "/index.js")
       );
+
+      if (!existsSync(functionFilePath)) {
+        errors.push(
+          new Error(
+            `Referenced module function {${slpTemplate.module}, ${
+              _function.name
+            }} not found. Looked for file "${unixStylePath(
+              functionFilePath
+            )}". Referenced in "${
+              slpTemplate.module
+            }" at "Resources/${functionKeywordPath.join("/")}"`
+          )
+        );
+      }
     }
-  });
+  );
 
   return errors;
 };
@@ -89,8 +92,8 @@ export const validateCustomResourceSchema = (
       const customResourceType = customResource.Type.substring(
         "Custom::".length
       );
-      const serviceToken = (customResource.Properties.ServiceToken as SLPRef)[
-        KeywordSLPRef
+      const serviceToken = (customResource.Properties.ServiceToken as SOMODRef)[
+        KeywordSOMODRef
       ];
       if (!serviceToken.module) {
         serviceToken.module = slpTemplate.module;
@@ -109,13 +112,13 @@ export const validateCustomResourceSchema = (
         if (customResourceFunctionResource) {
           // else part is taken care by SLPRef validation
           const schemaNotFoundError = new Error(
-            `Schema not found for CustomResource ${logicalResourceId}. Looked at 'Properties.CodeUri.${KeywordSLPFunction}.customResources.${customResourceType}' in {${serviceToken.module}, ${serviceToken.resource}}`
+            `Schema not found for CustomResource ${logicalResourceId}. Looked at 'Properties.CodeUri.${KeywordSOMODFunction}.customResources.${customResourceType}' in {${serviceToken.module}, ${serviceToken.resource}}`
           );
           const customResourceCodeUri = customResourceFunctionResource
-            .Properties?.CodeUri as SLPFunction;
+            .Properties?.CodeUri as SOMODFunction;
           if (customResourceCodeUri) {
             const customResourceSlpFunction =
-              customResourceCodeUri[KeywordSLPFunction];
+              customResourceCodeUri[KeywordSOMODFunction];
             if (customResourceSlpFunction) {
               const customResourceSchema =
                 (customResourceSlpFunction.customResources || {})[
@@ -156,13 +159,13 @@ export const validateCustomResourceSchema = (
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPFunction].forEach(
+    slpTemplate.keywordPaths[KeywordSOMODFunction].forEach(
       functionKeywordPath => {
-        const _function = getSLPKeyword<SLPFunction>(
+        const _function = getSOMODKeyword<SOMODFunction>(
           slpTemplate,
           functionKeywordPath
-        )[KeywordSLPFunction];
-        replaceSLPKeyword(
+        )[KeywordSOMODFunction];
+        replaceSOMODKeyword(
           slpTemplate,
           functionKeywordPath,
           unixStylePath(
@@ -181,7 +184,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         applyBaseLayer(slpTemplate, resourceId);
       }
     );
-    if (slpTemplate.keywordPaths[KeywordSLPFunction].length > 0) {
+    if (slpTemplate.keywordPaths[KeywordSOMODFunction].length > 0) {
       // refresh keyword paths after applying layers
       updateKeywordPathsInSLPTemplate(slpTemplate);
     }
@@ -198,12 +201,12 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
     path_functions
   );
   await Promise.all(
-    rootSLPTemplate.keywordPaths[KeywordSLPFunction].map(
+    rootSLPTemplate.keywordPaths[KeywordSOMODFunction].map(
       async functionPaths => {
-        const _function = getSLPKeyword<SLPFunction>(
+        const _function = getSOMODKeyword<SOMODFunction>(
           rootSLPTemplate,
           functionPaths
-        )[KeywordSLPFunction];
+        )[KeywordSOMODFunction];
         const external = ["aws-sdk", ...(_function.exclude || [])];
         const baseLayerLibraries = await listLayerLibraries();
         external.push(...baseLayerLibraries);
@@ -250,7 +253,7 @@ export const bundle = async (dir: string): Promise<void> => {
           platform: "node",
           external: exclude.external as string[],
           minify: true,
-          target: ["node16"]
+          target: ["node" + getNodeRuntimeVersion()]
         });
       })
     );

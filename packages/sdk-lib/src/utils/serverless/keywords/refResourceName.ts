@@ -1,11 +1,11 @@
 import {
-  KeywordSLPRefResourceName,
-  KeywordSLPResourceName,
+  KeywordSOMODRefResourceName,
+  KeywordSOMODResourceName,
   ServerlessTemplate,
-  SLPRefResourceName,
+  SOMODRefResourceName,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword, replaceSLPKeyword } from "../utils";
+import { getSOMODKeyword, replaceSOMODKeyword } from "../utils";
 import { checkAccess } from "./access";
 
 export const validate = (
@@ -14,12 +14,12 @@ export const validate = (
 ): Error[] => {
   const errors: Error[] = [];
 
-  slpTemplate.keywordPaths[KeywordSLPRefResourceName].forEach(
+  slpTemplate.keywordPaths[KeywordSOMODRefResourceName].forEach(
     refResourceNameKeywordPath => {
-      const refResourceName = getSLPKeyword<SLPRefResourceName>(
+      const refResourceName = getSOMODKeyword<SOMODRefResourceName>(
         slpTemplate,
         refResourceNameKeywordPath
-      )[KeywordSLPRefResourceName];
+      )[KeywordSOMODRefResourceName];
 
       if (!refResourceName.module) {
         refResourceName.module = slpTemplate.module;
@@ -62,7 +62,7 @@ export const validate = (
         } else if (
           !referencedSLPTemplate.Resources[refResourceName.resource].Properties[
             refResourceName.property
-          ][KeywordSLPResourceName]
+          ][KeywordSOMODResourceName]
         ) {
           errors.push(
             new Error(
@@ -70,7 +70,7 @@ export const validate = (
                 refResourceName.module
               }, ${refResourceName.resource}, ${
                 refResourceName.property
-              }} is not a valid ${KeywordSLPResourceName}. Referenced in "${
+              }} is not a valid ${KeywordSOMODResourceName}. Referenced in "${
                 slpTemplate.module
               }" at "Resources/${refResourceNameKeywordPath.join("/")}"`
             )
@@ -85,16 +85,16 @@ export const validate = (
 
 export const apply = (serverlessTemplate: ServerlessTemplate): void => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPRefResourceName].forEach(
+    slpTemplate.keywordPaths[KeywordSOMODRefResourceName].forEach(
       refResourceNameKeywordPath => {
-        const refResourceName = getSLPKeyword<SLPRefResourceName>(
+        const refResourceName = getSOMODKeyword<SOMODRefResourceName>(
           slpTemplate,
           refResourceNameKeywordPath
-        )[KeywordSLPRefResourceName];
+        )[KeywordSOMODRefResourceName];
         if (!refResourceName.module) {
           refResourceName.module = slpTemplate.module;
         }
-        replaceSLPKeyword(
+        replaceSOMODKeyword(
           slpTemplate,
           refResourceNameKeywordPath,
           serverlessTemplate[refResourceName.module].Resources[

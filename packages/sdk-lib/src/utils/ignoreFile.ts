@@ -10,7 +10,7 @@ import {
 import { existsSync } from "fs";
 
 // read from ignore file in current dir to any parent dir
-// usefull in monorepo cases , .prettierignore and .eslintignore will be in parent directory at repo root, slp and njp are at package level
+// usefull in monorepo cases , .prettierignore and .eslintignore will be in parent directory at repo root, somod are at package level
 const locateIgnoreFile = (dir: string, ignoreFileName: string): string => {
   const paths = unixStylePath(normalize(dir)).split("/");
 

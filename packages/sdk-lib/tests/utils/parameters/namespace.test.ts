@@ -161,7 +161,7 @@ describe("Test Util parameters.listAllParameters", () => {
         somod: "1.0.0"
       })
     });
-    await expect(listAllParameters(dir, ["somod"])).resolves.toEqual([]);
+    await expect(listAllParameters(dir)).resolves.toEqual([]);
   });
 
   test("for only root parameters.yaml", async () => {
@@ -173,14 +173,12 @@ describe("Test Util parameters.listAllParameters", () => {
       }),
       "parameters.yaml": files["parameters.yaml"]
     });
-    await expect(listAllParameters(dir, ["somod"])).resolves.toEqual([
-      "my.param1"
-    ]);
+    await expect(listAllParameters(dir)).resolves.toEqual(["my.param1"]);
   });
 
   test("for parameters in dependency too", async () => {
     createFiles(dir, files);
-    await expect(listAllParameters(dir, ["somod"])).resolves.toEqual([
+    await expect(listAllParameters(dir)).resolves.toEqual([
       "my.param1",
       "my1.param1",
       "my1.param2"

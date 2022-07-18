@@ -17,7 +17,7 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
   });
 
   const getModuleTemplate = (directory: string): Module => ({
-    type: "slp",
+    type: "somod",
     name: "my-module",
     version: "1.0.0",
     packageLocation: directory,

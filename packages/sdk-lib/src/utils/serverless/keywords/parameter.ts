@@ -2,16 +2,16 @@ import { file_templateYaml, path_serverless } from "../../constants";
 import { baseModuleName } from "../baseModule";
 import { separateParameterSpace } from "../parameter";
 import {
-  KeywordSLPParameter,
+  KeywordSOMODParameter,
   ServerlessTemplate,
-  SLPParameter,
+  SOMODParameter,
   SLPTemplate
 } from "../types";
 import {
   getParameterSpaceResourceLogicalId,
   getSAMResourceLogicalId,
-  getSLPKeyword,
-  replaceSLPKeyword
+  getSOMODKeyword,
+  replaceSOMODKeyword
 } from "../utils";
 
 export const validate = (
@@ -21,12 +21,12 @@ export const validate = (
   const errors: Error[] = [];
 
   const missingParameters: string[] = [];
-  slpTemplate.keywordPaths[KeywordSLPParameter].forEach(
+  slpTemplate.keywordPaths[KeywordSOMODParameter].forEach(
     refParameterKeywordPath => {
-      const refParameter = getSLPKeyword<SLPParameter>(
+      const refParameter = getSOMODKeyword<SOMODParameter>(
         slpTemplate,
         refParameterKeywordPath
-      )[KeywordSLPParameter];
+      )[KeywordSOMODParameter];
 
       if (!parameters.includes(refParameter)) {
         missingParameters.push(refParameter);
@@ -49,10 +49,11 @@ export const validate = (
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPParameter].forEach(parameterPath => {
-      const parameter = getSLPKeyword<SLPParameter>(slpTemplate, parameterPath)[
-        KeywordSLPParameter
-      ];
+    slpTemplate.keywordPaths[KeywordSOMODParameter].forEach(parameterPath => {
+      const parameter = getSOMODKeyword<SOMODParameter>(
+        slpTemplate,
+        parameterPath
+      )[KeywordSOMODParameter];
 
       const { parameterSpace, param } = separateParameterSpace(parameter);
 
@@ -65,7 +66,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
           param
         ]
       };
-      replaceSLPKeyword(slpTemplate, parameterPath, parameterValue);
+      replaceSOMODKeyword(slpTemplate, parameterPath, parameterValue);
     });
   });
 };

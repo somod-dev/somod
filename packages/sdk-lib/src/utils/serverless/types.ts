@@ -1,129 +1,130 @@
 import { JSONSchema7 } from "json-schema";
 
-export const KeywordSLPAccess = "SLP::Access";
-export const KeywordSLPExtend = "SLP::Extend";
-export const KeywordSLPDependsOn = "SLP::DependsOn";
-export const KeywordSLPOutput = "SLP::Output";
-export const KeywordSLPResourceName = "SLP::ResourceName";
-export const KeywordSLPRef = "SLP::Ref";
-export const KeywordSLPParameter = "SLP::Parameter";
-export const KeywordSLPRefResourceName = "SLP::RefResourceName";
-export const KeywordSLPFunction = "SLP::Function";
-export const KeywordSLPFunctionLayerLibraries = "SLP::FunctionLayerLibraries";
-export const KeywordSLPModuleName = "SLP::ModuleName";
+export const KeywordSOMODAccess = "SOMOD::Access";
+export const KeywordSOMODExtend = "SOMOD::Extend";
+export const KeywordSOMODDependsOn = "SOMOD::DependsOn";
+export const KeywordSOMODOutput = "SOMOD::Output";
+export const KeywordSOMODResourceName = "SOMOD::ResourceName";
+export const KeywordSOMODRef = "SOMOD::Ref";
+export const KeywordSOMODParameter = "SOMOD::Parameter";
+export const KeywordSOMODRefResourceName = "SOMOD::RefResourceName";
+export const KeywordSOMODFunction = "SOMOD::Function";
+export const KeywordSOMODFunctionLayerLibraries =
+  "SOMOD::FunctionLayerLibraries";
+export const KeywordSOMODModuleName = "SOMOD::ModuleName";
 export const KeywordFnSub = "Fn::Sub";
 
 export type KeywordAny =
-  | typeof KeywordSLPAccess
-  | typeof KeywordSLPExtend
-  | typeof KeywordSLPDependsOn
-  | typeof KeywordSLPOutput
-  | typeof KeywordSLPResourceName
-  | typeof KeywordSLPRef
-  | typeof KeywordSLPParameter
-  | typeof KeywordSLPRefResourceName
-  | typeof KeywordSLPFunction
-  | typeof KeywordSLPFunctionLayerLibraries
-  | typeof KeywordSLPModuleName
+  | typeof KeywordSOMODAccess
+  | typeof KeywordSOMODExtend
+  | typeof KeywordSOMODDependsOn
+  | typeof KeywordSOMODOutput
+  | typeof KeywordSOMODResourceName
+  | typeof KeywordSOMODRef
+  | typeof KeywordSOMODParameter
+  | typeof KeywordSOMODRefResourceName
+  | typeof KeywordSOMODFunction
+  | typeof KeywordSOMODFunctionLayerLibraries
+  | typeof KeywordSOMODModuleName
   | typeof KeywordFnSub;
 
 export const KeywordAll: KeywordAny[] = [
-  KeywordSLPAccess,
-  KeywordSLPExtend,
-  KeywordSLPDependsOn,
-  KeywordSLPOutput,
-  KeywordSLPResourceName,
-  KeywordSLPRef,
-  KeywordSLPParameter,
-  KeywordSLPRefResourceName,
-  KeywordSLPFunction,
-  KeywordSLPFunctionLayerLibraries,
-  KeywordSLPModuleName,
+  KeywordSOMODAccess,
+  KeywordSOMODExtend,
+  KeywordSOMODDependsOn,
+  KeywordSOMODOutput,
+  KeywordSOMODResourceName,
+  KeywordSOMODRef,
+  KeywordSOMODParameter,
+  KeywordSOMODRefResourceName,
+  KeywordSOMODFunction,
+  KeywordSOMODFunctionLayerLibraries,
+  KeywordSOMODModuleName,
   KeywordFnSub
 ];
 
-export type SLPAccess = {
-  [KeywordSLPAccess]: "module" | "scope" | "public";
+export type SOMODAccess = {
+  [KeywordSOMODAccess]: "module" | "scope" | "public";
 };
 
-export type SLPExtend = {
-  [KeywordSLPExtend]: { module: string; resource: string };
+export type SOMODExtend = {
+  [KeywordSOMODExtend]: { module: string; resource: string };
 };
 
-export type SLPDependsOn = {
-  [KeywordSLPDependsOn]: { module?: string; resource: string }[];
+export type SOMODDependsOn = {
+  [KeywordSOMODDependsOn]: { module?: string; resource: string }[];
 };
 
-export type SLPOutput = {
-  [KeywordSLPOutput]: {
+export type SOMODOutput = {
+  [KeywordSOMODOutput]: {
     default: boolean;
     attributes: string[];
     export?: Record<string, string>;
   };
 };
 
-export type SLPResourceName = {
-  [KeywordSLPResourceName]: string;
+export type SOMODResourceName = {
+  [KeywordSOMODResourceName]: string;
 };
 
-export type SLPRef = {
-  [KeywordSLPRef]: {
+export type SOMODRef = {
+  [KeywordSOMODRef]: {
     module?: string;
     resource: string;
     attribute?: string;
   };
 };
 
-export type SLPParameter = {
-  [KeywordSLPParameter]: string;
+export type SOMODParameter = {
+  [KeywordSOMODParameter]: string;
 };
 
-export type SLPRefResourceName = {
-  [KeywordSLPRefResourceName]: {
+export type SOMODRefResourceName = {
+  [KeywordSOMODRefResourceName]: {
     module?: string;
     resource: string;
     property: string;
   };
 };
 
-export type SLPFunction = {
-  [KeywordSLPFunction]: {
+export type SOMODFunction = {
+  [KeywordSOMODFunction]: {
     name: string;
     exclude?: string[];
     customResources?: Record<string, JSONSchema7>;
   };
 };
 
-export type SLPFunctionLayerLibraries = {
-  LayerName: SLPResourceName;
-  [KeywordSLPFunctionLayerLibraries]: string[];
+export type SOMODFunctionLayerLibraries = {
+  LayerName: SOMODResourceName;
+  [KeywordSOMODFunctionLayerLibraries]: string[];
 };
 
-export type SLPModuleName = {
-  [KeywordSLPModuleName]: string;
+export type SOMODModuleName = {
+  [KeywordSOMODModuleName]: string;
 };
 
 export type FnSub = {
   [KeywordFnSub]: string | [string, Record<string, unknown>];
 };
 
-export type SLPKeyword =
-  | SLPExtend
-  | SLPDependsOn
-  | SLPOutput
-  | SLPResourceName
-  | SLPRef
-  | SLPParameter
-  | SLPRefResourceName
-  | SLPFunction
-  | SLPFunctionLayerLibraries
-  | SLPModuleName
+export type SOMODKeyword =
+  | SOMODExtend
+  | SOMODDependsOn
+  | SOMODOutput
+  | SOMODResourceName
+  | SOMODRef
+  | SOMODParameter
+  | SOMODRefResourceName
+  | SOMODFunction
+  | SOMODFunctionLayerLibraries
+  | SOMODModuleName
   | FnSub;
 
 export type SLPResource = {
   Type: string;
   Properties: Record<string, unknown>;
-} & Partial<SLPAccess & SLPExtend & SLPDependsOn & SLPOutput>;
+} & Partial<SOMODAccess & SOMODExtend & SOMODDependsOn & SOMODOutput>;
 
 export type OriginalSLPTemplate = {
   Resources: Record<string, SLPResource>;

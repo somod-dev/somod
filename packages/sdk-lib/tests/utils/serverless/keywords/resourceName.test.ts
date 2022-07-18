@@ -7,12 +7,11 @@ import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplat
 import {
   doublePackageJson,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::ResourceName", () => {
+describe("test keyword SOMOD::ResourceName", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -26,14 +25,14 @@ describe("test keyword SLP::ResourceName", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::ResourceName", async () => {
+  test("with SOMOD::ResourceName", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::DynamoDB::Table",
           Properties: {
             TableName: {
-              "SLP::ResourceName": "Resource1"
+              "SOMOD::ResourceName": "Resource1"
             }
           }
         }
@@ -44,23 +43,24 @@ describe("test keyword SLP::ResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with SLP::ResourceName on extended resource", async () => {
+  test("with SOMOD::ResourceName on extended resource", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::DynamoDB::Table",
-          "SLP::Extend": { module: "@my-scope/sample2", resource: "Resource2" },
+          "SOMOD::Extend": {
+            module: "@my-scope/sample2",
+            resource: "Resource2"
+          },
           Properties: {
             TableName: {
-              "SLP::ResourceName": "Resource1"
+              "SOMOD::ResourceName": "Resource1"
             }
           }
         }
@@ -80,8 +80,6 @@ describe("test keyword SLP::ResourceName", () => {
       ...doublePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
   });
 });

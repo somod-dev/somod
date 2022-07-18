@@ -13,13 +13,13 @@ import {
   path_serverless
 } from "../../constants";
 import {
-  KeywordSLPFunctionLayerLibraries,
-  KeywordSLPResourceName,
+  KeywordSOMODFunctionLayerLibraries,
+  KeywordSOMODResourceName,
   ServerlessTemplate,
-  SLPFunctionLayerLibraries,
+  SOMODFunctionLayerLibraries,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword, replaceSLPKeyword } from "../utils";
+import { getSOMODKeyword, replaceSOMODKeyword } from "../utils";
 
 export const validate = async (slpTemplate: SLPTemplate): Promise<Error[]> => {
   const errors: Error[] = [];
@@ -32,16 +32,16 @@ export const validate = async (slpTemplate: SLPTemplate): Promise<Error[]> => {
   const moduleDevDependencies = modulePackageJson.devDependencies || {};
 
   await Promise.all(
-    slpTemplate.keywordPaths[KeywordSLPFunctionLayerLibraries].map(
+    slpTemplate.keywordPaths[KeywordSOMODFunctionLayerLibraries].map(
       async layerPaths => {
-        const layer = getSLPKeyword<SLPFunctionLayerLibraries>(
+        const layer = getSOMODKeyword<SOMODFunctionLayerLibraries>(
           slpTemplate,
           layerPaths
         );
 
-        const layerName = layer.LayerName[KeywordSLPResourceName];
+        const layerName = layer.LayerName[KeywordSOMODResourceName];
 
-        layer[KeywordSLPFunctionLayerLibraries].forEach(dependency => {
+        layer[KeywordSOMODFunctionLayerLibraries].forEach(dependency => {
           if (!moduleDevDependencies[dependency]) {
             errors.push(
               new Error(
@@ -58,22 +58,23 @@ export const validate = async (slpTemplate: SLPTemplate): Promise<Error[]> => {
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPFunctionLayerLibraries].forEach(
+    slpTemplate.keywordPaths[KeywordSOMODFunctionLayerLibraries].forEach(
       functionLayerLibrariesKeywordPath => {
-        const functionLayerLibraries = getSLPKeyword<SLPFunctionLayerLibraries>(
-          slpTemplate,
-          functionLayerLibrariesKeywordPath
-        ) as SLPFunctionLayerLibraries & {
-          ContentUri: string;
-        };
+        const functionLayerLibraries =
+          getSOMODKeyword<SOMODFunctionLayerLibraries>(
+            slpTemplate,
+            functionLayerLibrariesKeywordPath
+          ) as SOMODFunctionLayerLibraries & {
+            ContentUri: string;
+          };
 
         const layerName =
-          functionLayerLibraries.LayerName[KeywordSLPResourceName];
+          functionLayerLibraries.LayerName[KeywordSOMODResourceName];
 
         functionLayerLibraries.ContentUri = `${slpTemplate.packageLocation}/${path_build}/${path_serverless}/${path_functionLayers}/${layerName}`;
-        delete functionLayerLibraries[KeywordSLPFunctionLayerLibraries];
+        delete functionLayerLibraries[KeywordSOMODFunctionLayerLibraries];
 
-        replaceSLPKeyword(
+        replaceSOMODKeyword(
           slpTemplate,
           functionLayerLibrariesKeywordPath,
           functionLayerLibraries
@@ -101,17 +102,17 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
   );
 
   await Promise.all(
-    rootSLPTemplate.keywordPaths[KeywordSLPFunctionLayerLibraries].map(
+    rootSLPTemplate.keywordPaths[KeywordSOMODFunctionLayerLibraries].map(
       async layerPaths => {
-        const layer = getSLPKeyword<SLPFunctionLayerLibraries>(
+        const layer = getSOMODKeyword<SOMODFunctionLayerLibraries>(
           rootSLPTemplate,
           layerPaths
         );
 
-        const layerName = layer.LayerName[KeywordSLPResourceName];
+        const layerName = layer.LayerName[KeywordSOMODResourceName];
         const dependencies = {};
 
-        layer[KeywordSLPFunctionLayerLibraries].forEach(dependency => {
+        layer[KeywordSOMODFunctionLayerLibraries].forEach(dependency => {
           dependencies[dependency] = moduleDevDependencies[dependency];
         });
 

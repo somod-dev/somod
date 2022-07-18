@@ -385,16 +385,16 @@
     "Type": {
       "const": "AWS::Serverless::Function"
     },
-    "SLP::Access": {
-      "$ref": "../components/resource-properties.json#/definitions/SLP::Access"
+    "SOMOD::Access": {
+      "$ref": "../components/resource-properties.json#/definitions/SOMOD::Access"
     },
-    "SLP::Extend": {
-      "$ref": "../components/resource-properties.json#/definitions/SLP::Extend"
+    "SOMOD::Extend": {
+      "$ref": "../components/resource-properties.json#/definitions/SOMOD::Extend"
     },
-    "SLP::DependsOn": {
-      "$ref": "../components/resource-properties.json#/definitions/SLP::DependsOn"
+    "SOMOD::DependsOn": {
+      "$ref": "../components/resource-properties.json#/definitions/SOMOD::DependsOn"
     },
-    "SLP::Output": {
+    "SOMOD::Output": {
       "type": "object",
       "additionalProperties": false,
       "required": ["default", "attributes"],
@@ -442,7 +442,7 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "SLP::Function": {
+            "SOMOD::Function": {
               "type": "object",
               "additionalProperties": false,
               "required": ["name"],
@@ -481,7 +481,7 @@
         },
         "Layers": {
           "type": "array",
-          "description": "@somod/lambda-base-layer is added as default layer to every Serverless function , hence maximum of 4 layer is allowed in slp modules",
+          "description": "@somod/lambda-base-layer is added as default layer to every Serverless function , hence maximum of 4 layer is allowed in somod modules",
           "items": {
             "$ref": "../components/expression.json#/definitions/stringLike"
           },

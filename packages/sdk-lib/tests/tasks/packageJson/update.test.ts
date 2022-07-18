@@ -23,8 +23,8 @@ describe("Test Task updatePackageJson", () => {
     sideEffects: false
   };
 
-  const njp = {
-    njp: "1.2.3"
+  const somod = {
+    somod: "1.2.3"
   };
 
   const testData: [string, Record<string, unknown>][] = [
@@ -44,25 +44,17 @@ describe("Test Task updatePackageJson", () => {
       }
     ],
     [
-      "njp and somod",
+      "with somod",
       {
         ...allRightPackageJson,
-        ...njp,
-        somod: "1.2.3"
-      }
-    ],
-    [
-      "only njp",
-      {
-        ...allRightPackageJson,
-        ...njp
+        ...somod
       }
     ],
     [
       "wrong module",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         module: "build/lib/index.ts"
       }
     ],
@@ -70,7 +62,7 @@ describe("Test Task updatePackageJson", () => {
       "wrong typings",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         typings: "dist/lib/index.ts"
       }
     ],
@@ -78,7 +70,7 @@ describe("Test Task updatePackageJson", () => {
       "wrong files",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         files: []
       }
     ],
@@ -86,7 +78,7 @@ describe("Test Task updatePackageJson", () => {
       "wrong sideEffects",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         sideEffects: true
       }
     ],
@@ -94,42 +86,18 @@ describe("Test Task updatePackageJson", () => {
       "not-allowed keys",
       {
         ...allRightPackageJson,
-        ...njp,
+        ...somod,
         main: "build/lib/index.js",
         "jsnext:main": "build/lib/index.js",
         type: "esm"
       }
-    ],
-    [
-      "only somod set for njp module",
-      { ...allRightPackageJson, somod: "1.2.3" }
     ]
   ];
 
   test.each(testData)("with %s", async (title, content) => {
     createFiles(dir, { "package.json": JSON.stringify(content) });
 
-    await updatePackageJson(dir, "njp");
-    const result = await readPackageJson(dir);
-    expect(result).toMatchSnapshot({
-      njp: expect.any(String)
-    });
-  });
-
-  test("with type = slp", async () => {
-    createFiles(dir, { "package.json": "{}" });
-
-    await updatePackageJson(dir, "slp");
-    const result = await readPackageJson(dir);
-    expect(result).toMatchSnapshot({
-      slp: expect.any(String)
-    });
-  });
-
-  test("with type = somod", async () => {
-    createFiles(dir, { "package.json": "{}" });
-
-    await updatePackageJson(dir, "somod");
+    await updatePackageJson(dir);
     const result = await readPackageJson(dir);
     expect(result).toMatchSnapshot({
       somod: expect.any(String)

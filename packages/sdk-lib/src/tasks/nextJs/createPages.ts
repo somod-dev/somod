@@ -7,13 +7,10 @@ import {
   listAllPages
 } from "../../utils/nextJs/pages";
 
-export const createPages = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const createPages = async (dir: string): Promise<void> => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
-  const allPages = await listAllPages(dir, moduleIndicators);
+  const allPages = await listAllPages(dir);
 
   await Promise.all(
     Object.keys(allPages).map(async page => {

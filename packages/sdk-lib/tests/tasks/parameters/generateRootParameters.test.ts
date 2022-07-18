@@ -22,18 +22,14 @@ describe("test Task generateRootParameters", () => {
   });
 
   test("for no override", async () => {
-    await expect(
-      generateRootParameters(dir, ["somod"])
-    ).resolves.toBeUndefined();
+    await expect(generateRootParameters(dir)).resolves.toBeUndefined();
     expect(generate).toHaveBeenCalledTimes(1);
-    expect(generate).toHaveBeenCalledWith(dir, ["somod"], false);
+    expect(generate).toHaveBeenCalledWith(dir, false);
   });
 
   test("for override", async () => {
-    await expect(
-      generateRootParameters(dir, ["somod"], true)
-    ).resolves.toBeUndefined();
+    await expect(generateRootParameters(dir, true)).resolves.toBeUndefined();
     expect(generate).toHaveBeenCalledTimes(1);
-    expect(generate).toHaveBeenCalledWith(dir, ["somod"], true);
+    expect(generate).toHaveBeenCalledWith(dir, true);
   });
 });

@@ -1,4 +1,4 @@
-import { KeywordSLPAccess, ServerlessTemplate, SLPTemplate } from "../types";
+import { KeywordSOMODAccess, ServerlessTemplate, SLPTemplate } from "../types";
 
 export const checkAccess = (
   sourceModule: string,
@@ -9,7 +9,7 @@ export const checkAccess = (
   const errors: Error[] = [];
 
   const access =
-    targetSlpTemplate.Resources[targetResource][KeywordSLPAccess] || "scope";
+    targetSlpTemplate.Resources[targetResource][KeywordSOMODAccess] || "scope";
 
   if (access == "module" && sourceModule != targetSlpTemplate.module) {
     errors.push(
@@ -43,9 +43,9 @@ export const checkAccess = (
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPAccess].forEach(outputPath => {
+    slpTemplate.keywordPaths[KeywordSOMODAccess].forEach(outputPath => {
       const resourceId = outputPath[0];
-      delete slpTemplate.Resources[resourceId][KeywordSLPAccess];
+      delete slpTemplate.Resources[resourceId][KeywordSOMODAccess];
     });
   });
 };

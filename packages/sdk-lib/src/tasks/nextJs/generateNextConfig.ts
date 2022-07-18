@@ -14,8 +14,8 @@ import {
 import {
   Config,
   generateCombinedConfig,
-  KeywordNjpParameter,
-  NjpParameter
+  KeywordSomodParameter,
+  SomodParameter
 } from "../../utils/nextJs/config";
 
 const generateDotEnvFile = async (
@@ -47,25 +47,22 @@ module.exports = {
   await writeFile(join(dir, file_nextConfigJs), nextConfigJsContent);
 };
 
-export const generateNextConfig = async (
-  dir: string,
-  moduleIndicators: string[]
-): Promise<void> => {
-  const config = await generateCombinedConfig(dir, moduleIndicators);
+export const generateNextConfig = async (dir: string): Promise<void> => {
+  const config = await generateCombinedConfig(dir);
 
-  const njpParameterPaths = getKeywordPaths(config, [KeywordNjpParameter])[
-    KeywordNjpParameter
+  const somodParameterPaths = getKeywordPaths(config, [KeywordSomodParameter])[
+    KeywordSomodParameter
   ];
 
   const parameterValues = await readJsonFileStore(
     join(dir, file_parametersJson)
   );
 
-  njpParameterPaths.forEach(njpParameterPath => {
+  somodParameterPaths.forEach(somodParameterPath => {
     const parameterName = (
-      getKeyword(config, njpParameterPath) as NjpParameter
-    )[KeywordNjpParameter];
-    replaceKeyword(config, njpParameterPath, parameterValues[parameterName]);
+      getKeyword(config, somodParameterPath) as SomodParameter
+    )[KeywordSomodParameter];
+    replaceKeyword(config, somodParameterPath, parameterValues[parameterName]);
   });
 
   await generateDotEnvFile(dir, config);

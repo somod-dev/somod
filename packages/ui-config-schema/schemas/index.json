@@ -2,12 +2,12 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://json-schema.sodaru.com/@somod/ui-config-schema/schemas/index.json",
   "definitions": {
-    "njpParameter": {
+    "somodParameter": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["NJP::Parameter"],
+      "required": ["SOMOD::Parameter"],
       "properties": {
-        "NJP::Parameter": {
+        "SOMOD::Parameter": {
           "type": "string",
           "description": "Must refer the parameter available for this module"
         }
@@ -18,7 +18,7 @@
       "additionalProperties": false,
       "patternProperties": {
         "^[a-zA-Z][a-zA-Z0-9_]{0,63}$": {
-          "$ref": "#/definitions/njpParameter"
+          "$ref": "#/definitions/somodParameter"
         }
       },
       "maxProperties": 32,
@@ -35,7 +35,7 @@
       "additionalProperties": false,
       "patternProperties": {
         "^[A-Z][A-Z0-9_]{0,63}$": {
-          "$ref": "#/definitions/njpParameter"
+          "$ref": "#/definitions/somodParameter"
         }
       },
       "maxProperties": 32,
@@ -49,7 +49,7 @@
         "oneOf": [
           { "type": "string", "format": "hostname" },
           {
-            "$ref": "#/definitions/njpParameter"
+            "$ref": "#/definitions/somodParameter"
           }
         ]
       },

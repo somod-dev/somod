@@ -7,16 +7,16 @@
   "additionalProperties": false,
   "properties": {
     "Type": { "const": "AWS::Serverless::LayerVersion" },
-    "SLP::Access": {
-      "$ref": "../components/resource-properties.json#/definitions/SLP::Access"
+    "SOMOD::Access": {
+      "$ref": "../components/resource-properties.json#/definitions/SOMOD::Access"
     },
-    "SLP::Extend": {
-      "$ref": "../components/resource-properties.json#/definitions/SLP::Extend"
+    "SOMOD::Extend": {
+      "$ref": "../components/resource-properties.json#/definitions/SOMOD::Extend"
     },
-    "SLP::DependsOn": {
-      "$ref": "../components/resource-properties.json#/definitions/SLP::DependsOn"
+    "SOMOD::DependsOn": {
+      "$ref": "../components/resource-properties.json#/definitions/SOMOD::DependsOn"
     },
-    "SLP::Output": {
+    "SOMOD::Output": {
       "type": "object",
       "additionalProperties": false,
       "required": ["default", "attributes"],
@@ -49,13 +49,12 @@
       "required": [
         "LayerName",
         "CompatibleArchitectures",
-        "CompatibleRuntimes",
-        "SLP::FunctionLayerLibraries",
+        "SOMOD::FunctionLayerLibraries",
         "RetentionPolicy"
       ],
       "properties": {
         "LayerName": {
-          "$ref": "../components/expression.json#/definitions/slpResourceName"
+          "$ref": "../components/expression.json#/definitions/somodResourceName"
         },
         "CompatibleArchitectures": {
           "type": "array",
@@ -63,14 +62,8 @@
           "minItems": 1,
           "maxItems": 1
         },
-        "CompatibleRuntimes": {
-          "type": "array",
-          "items": { "const": "nodejs14.x" },
-          "minItems": 1,
-          "maxItems": 1
-        },
         "RetentionPolicy": { "const": "Delete" },
-        "SLP::FunctionLayerLibraries": {
+        "SOMOD::FunctionLayerLibraries": {
           "type": "array",
           "description": "All dependent libraries to be installed in the layer",
           "items": {

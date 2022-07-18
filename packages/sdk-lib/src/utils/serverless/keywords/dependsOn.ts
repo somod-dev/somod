@@ -1,11 +1,11 @@
 import {
-  KeywordSLPDependsOn,
+  KeywordSOMODDependsOn,
   SAMTemplate,
   ServerlessTemplate,
-  SLPDependsOn,
+  SOMODDependsOn,
   SLPTemplate
 } from "../types";
-import { getSAMResourceLogicalId, getSLPKeyword } from "../utils";
+import { getSAMResourceLogicalId, getSOMODKeyword } from "../utils";
 import { checkAccess } from "./access";
 
 export const validate = (
@@ -13,13 +13,13 @@ export const validate = (
   serverlessTemplate: ServerlessTemplate
 ): Error[] => {
   const errors: Error[] = [];
-  slpTemplate.keywordPaths[KeywordSLPDependsOn].forEach(
+  slpTemplate.keywordPaths[KeywordSOMODDependsOn].forEach(
     dependsOnKeywordPath => {
       const resourceId = dependsOnKeywordPath[dependsOnKeywordPath.length - 1];
-      const dependsOn = getSLPKeyword<SLPDependsOn>(
+      const dependsOn = getSOMODKeyword<SOMODDependsOn>(
         slpTemplate,
         dependsOnKeywordPath
-      )[KeywordSLPDependsOn];
+      )[KeywordSOMODDependsOn];
       dependsOn.forEach(_dependsOn => {
         if (!_dependsOn.module) {
           _dependsOn.module = slpTemplate.module;
@@ -53,12 +53,13 @@ export const validate = (
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPDependsOn].forEach(dependsOnPath => {
+    slpTemplate.keywordPaths[KeywordSOMODDependsOn].forEach(dependsOnPath => {
       const resourceId = dependsOnPath[0]; // dependsOn is always applied as Resource Property
 
-      const dependsOn = getSLPKeyword<SLPDependsOn>(slpTemplate, dependsOnPath)[
-        KeywordSLPDependsOn
-      ];
+      const dependsOn = getSOMODKeyword<SOMODDependsOn>(
+        slpTemplate,
+        dependsOnPath
+      )[KeywordSOMODDependsOn];
 
       const dependsOnValue = dependsOn.map(_dependsOn =>
         getSAMResourceLogicalId(
@@ -70,7 +71,7 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
       (
         slpTemplate.Resources[resourceId] as SAMTemplate["Resources"][string]
       ).DependsOn = dependsOnValue;
-      delete slpTemplate.Resources[resourceId][KeywordSLPDependsOn];
+      delete slpTemplate.Resources[resourceId][KeywordSOMODDependsOn];
     });
   });
 };

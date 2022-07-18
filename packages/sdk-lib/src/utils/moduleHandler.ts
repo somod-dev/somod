@@ -1,13 +1,12 @@
 import { readJsonFileStore } from "@solib/cli-base";
-import { createHash } from "crypto";
 import { existsSync } from "fs";
 import { intersection, uniq } from "lodash";
 import { dirname, join, normalize } from "path";
-import { file_packageJson, path_nodeModules } from "./constants";
+import { file_packageJson, key_somod, path_nodeModules } from "./constants";
 import { Node, bfs } from "@solib/graph";
 
 export type Module = {
-  type: string;
+  type: string; // TODO: type is not required , since only somod is the only module type
   name: string;
   version: string;
   packageLocation: string;
@@ -25,7 +24,6 @@ export type ModuleNode = {
 
 export class ModuleHandler {
   private rootDir: string;
-  private moduleTypes: string[];
 
   private moduleLoadJobs: Record<string, Promise<ModuleNode>> = {};
 
@@ -37,28 +35,19 @@ export class ModuleHandler {
 
   private moduleNodesInBFSOrder: ModuleNode[];
 
-  private constructor(rootDir: string, moduleTypes: string[]) {
+  private constructor(rootDir: string) {
     this.rootDir = rootDir;
-    this.moduleTypes = moduleTypes;
   }
 
   /* MODULE LOAD FACTORY - START */
 
   private static moduleHandlerMap: Record<string, ModuleHandler> = {};
 
-  static getModuleHandler(rootDir: string, moduleTypes: string[]) {
-    const key = JSON.stringify({
-      rootDir: normalize(rootDir),
-      moduleTypes: [...moduleTypes].sort()
-    });
-
-    const keyHash = createHash("sha256").update(key).digest("hex");
+  static getModuleHandler(rootDir: string) {
+    const keyHash = normalize(rootDir);
 
     if (!ModuleHandler.moduleHandlerMap[keyHash]) {
-      ModuleHandler.moduleHandlerMap[keyHash] = new ModuleHandler(
-        rootDir,
-        moduleTypes
-      );
+      ModuleHandler.moduleHandlerMap[keyHash] = new ModuleHandler(rootDir);
     }
 
     return ModuleHandler.moduleHandlerMap[keyHash];
@@ -98,15 +87,11 @@ export class ModuleHandler {
           join(packageLocation, file_packageJson)
         );
 
-        const matchedModuleTypes = this.moduleTypes.filter(
-          moduleType => packageJson[moduleType] !== undefined
-        );
-
-        if (matchedModuleTypes.length == 0) {
+        if (packageJson[key_somod] === undefined) {
           throw new Error("Not a module");
         } else {
           const module: Module = {
-            type: matchedModuleTypes[0],
+            type: key_somod,
             name: packageJson.name as string,
             version: packageJson.version as string,
             packageLocation,
@@ -252,15 +237,9 @@ export class ModuleHandler {
     return this.moduleNodesInBFSOrder;
   }
 
-  private async loadNamespaces(loaders: Record<string, NamespaceLoader>) {
+  private async loadNamespaces(loader: NamespaceLoader) {
     await Promise.all(
       this.moduleNodesInBFSOrder.map(async moduleNode => {
-        const loader = loaders[moduleNode.module.type];
-        if (!loader) {
-          throw new Error(
-            `NamespaceLoader not found for ${moduleNode.module.type} module type`
-          );
-        }
         await loader(moduleNode.module);
       })
     );
@@ -380,12 +359,12 @@ export class ModuleHandler {
 
   /**
    * load and resolve the namespaces
-   * @param loaders map of moduleType to NamespaceLoader , namespaceLoader must make sure that namespaces are not repeated in same module
+   * @param loader NamespaceLoader , namespaceLoader must make sure that namespaces are not repeated in same module
    * @returns Map of NamespaceKey to (Map of namespace to moduleName)
    */
-  async getNamespaces(loaders: Record<string, NamespaceLoader>) {
+  async getNamespaces(loader: NamespaceLoader) {
     await this.load();
-    await this.loadNamespaces(loaders);
+    await this.loadNamespaces(loader);
     return this.resolveNamespaces();
   }
 }

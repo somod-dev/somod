@@ -1,11 +1,11 @@
 import { merge } from "lodash";
 import {
-  KeywordSLPExtend,
+  KeywordSOMODExtend,
   ServerlessTemplate,
-  SLPExtend,
+  SOMODExtend,
   SLPTemplate
 } from "../types";
-import { getSLPKeyword } from "../utils";
+import { getSOMODKeyword } from "../utils";
 import { checkAccess } from "./access";
 
 export const validate = (
@@ -13,10 +13,10 @@ export const validate = (
   serverlessTemplate: ServerlessTemplate
 ): Error[] => {
   const errors: Error[] = [];
-  slpTemplate.keywordPaths[KeywordSLPExtend].forEach(extendKeywordPath => {
+  slpTemplate.keywordPaths[KeywordSOMODExtend].forEach(extendKeywordPath => {
     const resourceId = extendKeywordPath[extendKeywordPath.length - 1];
-    const extend = getSLPKeyword<SLPExtend>(slpTemplate, extendKeywordPath)[
-      KeywordSLPExtend
+    const extend = getSOMODKeyword<SOMODExtend>(slpTemplate, extendKeywordPath)[
+      KeywordSOMODExtend
     ];
     if (!serverlessTemplate[extend.module]?.Resources[extend.resource]) {
       errors.push(
@@ -41,21 +41,21 @@ export const validate = (
 
 export const apply = (serverlessTemplate: ServerlessTemplate): void => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPExtend].forEach(extendKeywordPath => {
-      const resourceId = extendKeywordPath[0]; // SLP::Extend is used as Resource attribute only
+    slpTemplate.keywordPaths[KeywordSOMODExtend].forEach(extendKeywordPath => {
+      const resourceId = extendKeywordPath[0]; // SOMOD::Extend is used as Resource attribute only
       const extendedResource = slpTemplate.Resources[resourceId];
 
-      let extend = extendedResource[KeywordSLPExtend];
-      delete extendedResource[KeywordSLPExtend];
+      let extend = extendedResource[KeywordSOMODExtend];
+      delete extendedResource[KeywordSOMODExtend];
 
       while (
         serverlessTemplate[extend.module].original.Resources[extend.resource][
-          KeywordSLPExtend
+          KeywordSOMODExtend
         ]
       ) {
         extend =
           serverlessTemplate[extend.module].original.Resources[extend.resource][
-            KeywordSLPExtend
+            KeywordSOMODExtend
           ];
       }
 

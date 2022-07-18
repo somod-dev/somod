@@ -48,18 +48,11 @@ export const loadPublicAssetNamespaces = async (module: Module) => {
   }
 };
 
-export const listAllPublicAssets = async (
-  dir: string,
-  moduleIndicators: string[]
-) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+export const listAllPublicAssets = async (dir: string) => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
   const publicAssetToModuleMap = (
-    await moduleHandler.getNamespaces(
-      Object.fromEntries(
-        moduleIndicators.map(mt => [mt, loadPublicAssetNamespaces])
-      )
-    )
+    await moduleHandler.getNamespaces(loadPublicAssetNamespaces)
   )[namespace_public];
 
   return publicAssetToModuleMap;

@@ -15,12 +15,11 @@ import {
   doublePackageJson,
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
 
-describe("Test keyword SLP::Function", () => {
+describe("Test keyword SOMOD::Function", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -34,7 +33,7 @@ describe("Test keyword SLP::Function", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::Function name only", async () => {
+  test("with SOMOD::Function name only", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -42,7 +41,7 @@ describe("Test keyword SLP::Function", () => {
           Properties: {
             Architectures: functionDefaults.Architectures,
             CodeUri: {
-              "SLP::Function": { name: "Resource1" }
+              "SOMOD::Function": { name: "Resource1" }
             }
           }
         }
@@ -54,9 +53,7 @@ describe("Test keyword SLP::Function", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
@@ -79,7 +76,7 @@ describe("Test keyword SLP::Function", () => {
     );
   });
 
-  test("with SLP::Function with wrong function name", async () => {
+  test("with SOMOD::Function with wrong function name", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -87,7 +84,7 @@ describe("Test keyword SLP::Function", () => {
           Properties: {
             Architectures: functionDefaults.Architectures,
             CodeUri: {
-              "SLP::Function": { name: "Resource1" }
+              "SOMOD::Function": { name: "Resource1" }
             }
           }
         }
@@ -98,16 +95,14 @@ describe("Test keyword SLP::Function", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module function {@my-scope/sample, Resource1} not found. Looked for file "${dir}/serverless/functions/Resource1.ts". Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/CodeUri"`
       )
     });
   });
 
-  test("with SLP::Function with extra excludes", async () => {
+  test("with SOMOD::Function with extra excludes", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -115,7 +110,7 @@ describe("Test keyword SLP::Function", () => {
           Properties: {
             Architectures: functionDefaults.Architectures,
             CodeUri: {
-              "SLP::Function": { name: "Resource1", exclude: ["smallest"] }
+              "SOMOD::Function": { name: "Resource1", exclude: ["smallest"] }
             }
           }
         }
@@ -127,9 +122,7 @@ describe("Test keyword SLP::Function", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
@@ -152,7 +145,7 @@ describe("Test keyword SLP::Function", () => {
     );
   });
 
-  test("with customResource SLP::Function and no customResources", async () => {
+  test("with customResource SOMOD::Function and no customResources", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -160,7 +153,7 @@ describe("Test keyword SLP::Function", () => {
           Properties: {
             Architectures: functionDefaults.Architectures,
             CodeUri: {
-              "SLP::Function": {
+              "SOMOD::Function": {
                 name: "Resource1",
                 exclude: ["smallest"],
                 customResources: {
@@ -187,27 +180,25 @@ describe("Test keyword SLP::Function", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with customResource SLP::Function and one bad customResource", async () => {
+  test("with customResource SOMOD::Function and one bad customResource", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: ["Arn"]
           },
           Properties: {
             Architectures: functionDefaults.Architectures,
             CodeUri: {
-              "SLP::Function": {
+              "SOMOD::Function": {
                 name: "Resource1",
                 exclude: ["smallest"],
                 customResources: {
@@ -235,7 +226,7 @@ describe("Test keyword SLP::Function", () => {
           Type: "Custom::MyCustomResource",
           Properties: {
             ServiceToken: {
-              "SLP::Ref": {
+              "SOMOD::Ref": {
                 resource: "Resource1",
                 attribute: "Arn"
               }
@@ -250,7 +241,7 @@ describe("Test keyword SLP::Function", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
           `Custom Resource Resource2 has following errors\n Properties must have required property 'attr1'`
@@ -260,19 +251,19 @@ describe("Test keyword SLP::Function", () => {
     expect(existsSync(buildTemplateJsonPath)).not.toBeTruthy();
   });
 
-  test("with customResource SLP::Function and one customResource refering to non existing schema", async () => {
+  test("with customResource SOMOD::Function and one customResource refering to non existing schema", async () => {
     const template = {
       Resources: {
         Resource1: {
           Type: "AWS::Serverless::Function",
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: ["Arn"]
           },
           Properties: {
             Architectures: functionDefaults.Architectures,
             CodeUri: {
-              "SLP::Function": {
+              "SOMOD::Function": {
                 name: "Resource1",
                 exclude: ["smallest"],
                 customResources: {
@@ -300,7 +291,7 @@ describe("Test keyword SLP::Function", () => {
           Type: "Custom::MyCustomResource1",
           Properties: {
             ServiceToken: {
-              "SLP::Ref": {
+              "SOMOD::Ref": {
                 resource: "Resource1",
                 attribute: "Arn"
               }
@@ -315,24 +306,24 @@ describe("Test keyword SLP::Function", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir, moduleIndicators)).rejects.toEqual(
+    await expect(buildTemplateYaml(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
-          `Schema not found for CustomResource Resource2. Looked at 'Properties.CodeUri.SLP::Function.customResources.MyCustomResource1' in {@my-scope/sample, Resource1}`
+          `Schema not found for CustomResource Resource2. Looked at 'Properties.CodeUri.SOMOD::Function.customResources.MyCustomResource1' in {@my-scope/sample, Resource1}`
         )
       ])
     );
     expect(existsSync(buildTemplateJsonPath)).not.toBeTruthy();
   });
 
-  test("with customResource SLP::Function in dependency module and one good customResource in root module", async () => {
+  test("with customResource SOMOD::Function in dependency module and one good customResource in root module", async () => {
     const template = {
       Resources: {
         Resource2: {
           Type: "Custom::MyCustomResource",
           Properties: {
             ServiceToken: {
-              "SLP::Ref": {
+              "SOMOD::Ref": {
                 module: "@my-scope/sample2",
                 resource: "Resource1",
                 attribute: "Arn"
@@ -352,14 +343,14 @@ describe("Test keyword SLP::Function", () => {
             Resources: {
               Resource1: {
                 Type: "AWS::Serverless::Function",
-                "SLP::Output": {
+                "SOMOD::Output": {
                   default: true,
                   attributes: ["Arn"]
                 },
                 Properties: {
                   Architectures: functionDefaults.Architectures,
                   CodeUri: {
-                    "SLP::Function": {
+                    "SOMOD::Function": {
                       name: "Resource1",
                       exclude: ["smallest"],
                       customResources: {
@@ -391,9 +382,7 @@ describe("Test keyword SLP::Function", () => {
       ...doublePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));

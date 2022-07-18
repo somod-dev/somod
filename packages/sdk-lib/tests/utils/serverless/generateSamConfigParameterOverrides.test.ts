@@ -29,25 +29,25 @@ describe("test util serverless.generateSamConfigParameterOverrides", () => {
               Environmental: {
                 Variables: {
                   MY_VAR1: {
-                    "SLP::Parameter": "p1.string"
+                    "SOMOD::Parameter": "p1.string"
                   },
                   MY_VAR2: {
-                    "SLP::Parameter": "p1.integer"
+                    "SOMOD::Parameter": "p1.integer"
                   },
                   MY_VAR3: {
-                    "SLP::Parameter": "p1.number"
+                    "SOMOD::Parameter": "p1.number"
                   },
                   MY_VAR4: {
-                    "SLP::Parameter": "p2.boolean"
+                    "SOMOD::Parameter": "p2.boolean"
                   },
                   MY_VAR5: {
-                    "SLP::Parameter": "p2.null"
+                    "SOMOD::Parameter": "p2.null"
                   },
                   MY_VAR6: {
-                    "SLP::Parameter": "p3.array"
+                    "SOMOD::Parameter": "p3.array"
                   },
                   MY_VAR7: {
-                    "SLP::Parameter": "p3.object.content"
+                    "SOMOD::Parameter": "p3.object.content"
                   }
                 }
               }
@@ -74,9 +74,7 @@ describe("test util serverless.generateSamConfigParameterOverrides", () => {
       })
     });
 
-    await expect(
-      generateSamConfigParameterOverrides(dir, ["somod"])
-    ).resolves.toEqual({
+    await expect(generateSamConfigParameterOverrides(dir)).resolves.toEqual({
       p1: '{"string":"this is a string","integer":123,"number":100.02}',
       p2: '{"boolean":true,"null":null}',
       p3: '{"array":["this is a string",123,100.02,true,null],"object.content":{"string":"this is a string conatining quotes (\\")","integer":123,"number":100.02,"boolean":false,"null":null,"array":["this is a string",123,100.02,true,null],"object":{}}}'

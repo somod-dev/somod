@@ -8,17 +8,17 @@ import { ModuleHandler } from "../../moduleHandler";
 import { loadExportParameterNamespaces } from "../namespace";
 import { loadOriginalSlpTemplate } from "../slpTemplate";
 import {
-  KeywordSLPOutput,
+  KeywordSOMODOutput,
   OriginalSLPTemplate,
   SAMTemplate,
   ServerlessTemplate,
-  SLPOutput,
+  SOMODOutput,
   SLPTemplate
 } from "../types";
 import {
   getSAMOutputName,
   getSAMResourceLogicalId,
-  getSLPKeyword
+  getSOMODKeyword
 } from "../utils";
 
 export const validate = (
@@ -28,9 +28,9 @@ export const validate = (
   const errors: Error[] = [];
 
   const missingParameters: string[] = [];
-  slpTemplate.keywordPaths[KeywordSLPOutput].forEach(outputKeywordPath => {
-    const output = getSLPKeyword<SLPOutput>(slpTemplate, outputKeywordPath)[
-      KeywordSLPOutput
+  slpTemplate.keywordPaths[KeywordSOMODOutput].forEach(outputKeywordPath => {
+    const output = getSOMODKeyword<SOMODOutput>(slpTemplate, outputKeywordPath)[
+      KeywordSOMODOutput
     ];
 
     Object.values(output.export || {}).forEach(exportParameter => {
@@ -55,24 +55,19 @@ export const validate = (
 
 export const apply = (serverlessTemplate: ServerlessTemplate) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSLPOutput].forEach(outputPath => {
+    slpTemplate.keywordPaths[KeywordSOMODOutput].forEach(outputPath => {
       const resourceId = outputPath[0];
-      delete slpTemplate.Resources[resourceId][KeywordSLPOutput];
+      delete slpTemplate.Resources[resourceId][KeywordSOMODOutput];
     });
   });
 };
 
 export const getSAMOutputs = async (
-  dir: string,
-  moduleIndicators: string[]
+  dir: string
 ): Promise<SAMTemplate["Outputs"]> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir, moduleIndicators);
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
   const exportParameterNamespaces = (
-    await moduleHandler.getNamespaces(
-      Object.fromEntries(
-        moduleIndicators.map(mt => [mt, loadExportParameterNamespaces])
-      )
-    )
+    await moduleHandler.getNamespaces(loadExportParameterNamespaces)
   )[namespace_export_parameter];
 
   const moduleNames = uniq(Object.values(exportParameterNamespaces));
@@ -99,13 +94,13 @@ export const getSAMOutputs = async (
 
     for (const resourceId in slpTemplate.Resources) {
       if (
-        slpTemplate.Resources[resourceId][KeywordSLPOutput] &&
+        slpTemplate.Resources[resourceId][KeywordSOMODOutput] &&
         Object.values(
-          slpTemplate.Resources[resourceId][KeywordSLPOutput].export || {}
+          slpTemplate.Resources[resourceId][KeywordSOMODOutput].export || {}
         ).includes(exportParameter)
       ) {
         const attributeName = invert(
-          slpTemplate.Resources[resourceId][KeywordSLPOutput].export
+          slpTemplate.Resources[resourceId][KeywordSOMODOutput].export
         )[exportParameter];
 
         outputs[getSAMOutputName(exportParameter)] = {

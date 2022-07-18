@@ -8,12 +8,11 @@ import {
   doublePackageJson,
   functionDefaults,
   installSchemaInTempDir,
-  moduleIndicators,
   singlePackageJson,
   StringifyTemplate
 } from "../utils";
 
-describe("test keyword SLP::RefResourceName", () => {
+describe("test keyword SOMOD::RefResourceName", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -27,7 +26,7 @@ describe("test keyword SLP::RefResourceName", () => {
     deleteDir(dir);
   });
 
-  test("with SLP::RefResourceName without module", async () => {
+  test("with SOMOD::RefResourceName without module", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -39,7 +38,7 @@ describe("test keyword SLP::RefResourceName", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::RefResourceName": {
+                    "SOMOD::RefResourceName": {
                       module: "@my-scope/sample1",
                       resource: "Resource2",
                       property: "Name"
@@ -57,16 +56,14 @@ describe("test keyword SLP::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module resource name {@my-scope/sample1, Resource2, Name} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
     });
   });
 
-  test("with SLP::RefResourceName without resource", async () => {
+  test("with SOMOD::RefResourceName without resource", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -78,7 +75,7 @@ describe("test keyword SLP::RefResourceName", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::RefResourceName": {
+                    "SOMOD::RefResourceName": {
                       resource: "Resource2",
                       property: "Name"
                     }
@@ -95,16 +92,14 @@ describe("test keyword SLP::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module resource name {@my-scope/sample, Resource2, Name} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
     });
   });
 
-  test("with SLP::RefResourceName without property", async () => {
+  test("with SOMOD::RefResourceName without property", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -116,7 +111,7 @@ describe("test keyword SLP::RefResourceName", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::RefResourceName": {
+                    "SOMOD::RefResourceName": {
                       resource: "Resource2",
                       property: "Name"
                     }
@@ -129,7 +124,7 @@ describe("test keyword SLP::RefResourceName", () => {
         Resource2: {
           Type: "AWS::Serverless::Api",
           Properties: {},
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: ["Name"]
           }
@@ -141,16 +136,14 @@ describe("test keyword SLP::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         `Referenced module resource name {@my-scope/sample, Resource2, Name} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
     });
   });
 
-  test("with SLP::RefResourceName with wrong property", async () => {
+  test("with SOMOD::RefResourceName with wrong property", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -162,7 +155,7 @@ describe("test keyword SLP::RefResourceName", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::RefResourceName": {
+                    "SOMOD::RefResourceName": {
                       resource: "Resource2",
                       property: "StageName"
                     }
@@ -175,7 +168,7 @@ describe("test keyword SLP::RefResourceName", () => {
         Resource2: {
           Type: "AWS::Serverless::Api",
           Properties: { StageName: "Prod" },
-          "SLP::Output": {
+          "SOMOD::Output": {
             default: true,
             attributes: ["Name"]
           }
@@ -187,16 +180,14 @@ describe("test keyword SLP::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).rejects.toMatchObject({
+    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
-        `Referenced module resource name property {@my-scope/sample, Resource2, StageName} is not a valid SLP::ResourceName. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
+        `Referenced module resource name property {@my-scope/sample, Resource2, StageName} is not a valid SOMOD::ResourceName. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Description/Fn::Sub/1/restApiName"`
       )
     });
   });
 
-  test("with SLP::RefResourceName with valid local", async () => {
+  test("with SOMOD::RefResourceName with valid local", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -208,7 +199,7 @@ describe("test keyword SLP::RefResourceName", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::RefResourceName": {
+                    "SOMOD::RefResourceName": {
                       resource: "Resource2",
                       property: "Name"
                     }
@@ -220,8 +211,8 @@ describe("test keyword SLP::RefResourceName", () => {
         },
         Resource2: {
           Type: "AWS::Serverless::Api",
-          Properties: { Name: { "SLP::ResourceName": "restapi" } },
-          "SLP::Output": {
+          Properties: { Name: { "SOMOD::ResourceName": "restapi" } },
+          "SOMOD::Output": {
             default: true,
             attributes: ["Name"]
           }
@@ -233,15 +224,13 @@ describe("test keyword SLP::RefResourceName", () => {
       ...singlePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
   });
 
-  test("with SLP::RefResourceName with valid dependent module", async () => {
+  test("with SOMOD::RefResourceName with valid dependent module", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -253,7 +242,7 @@ describe("test keyword SLP::RefResourceName", () => {
                 "Invoked from ${restApiName}",
                 {
                   restApiName: {
-                    "SLP::RefResourceName": {
+                    "SOMOD::RefResourceName": {
                       module: "@my-scope/sample2",
                       resource: "Resource2",
                       property: "Name"
@@ -273,8 +262,8 @@ describe("test keyword SLP::RefResourceName", () => {
           Resources: {
             Resource2: {
               Type: "AWS::Serverless::Api",
-              Properties: { Name: { "SLP::ResourceName": "restapi" } },
-              "SLP::Output": {
+              Properties: { Name: { "SOMOD::ResourceName": "restapi" } },
+              "SOMOD::Output": {
                 default: true,
                 attributes: ["Name"]
               }
@@ -284,9 +273,7 @@ describe("test keyword SLP::RefResourceName", () => {
       ...doublePackageJson
     });
     await validateSchema(dir); // make sure schema is right
-    await expect(
-      buildTemplateYaml(dir, moduleIndicators)
-    ).resolves.toBeUndefined();
+    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));

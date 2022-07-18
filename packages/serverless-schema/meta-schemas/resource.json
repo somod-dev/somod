@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/meta-schemas/resource.json",
-  "title": "JSON Meta Schema for Resource in SLP and EMP packages",
+  "title": "JSON Meta Schema for Resource in serverless/template.yaml in SOMOD packages",
   "type": "object",
   "required": [
     "$schema",
@@ -30,9 +30,9 @@
       "minItems": 2,
       "additionalItems": {
         "enum": [
-          "SLP::Extend",
-          "SLP::DependsOn",
-          "SLP::Output",
+          "SOMOD::Extend",
+          "SOMOD::DependsOn",
+          "SOMOD::Output",
           "DeletionPolicy",
           "UpdateReplacePolicy",
           "Metadata"
@@ -44,7 +44,7 @@
     "properties": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["Type", "SLP::Extend", "SLP::DependsOn", "Properties"],
+      "required": ["Type", "SOMOD::Extend", "SOMOD::DependsOn", "Properties"],
       "properties": {
         "Type": {
           "oneOf": [
@@ -63,40 +63,40 @@
             }
           ]
         },
-        "SLP::Access": {
+        "SOMOD::Access": {
           "type": "object",
           "additionalProperties": false,
           "required": ["$ref"],
           "properties": {
             "$ref": {
               "type": "string",
-              "pattern": "\\/resource-properties.json#\\/definitions\\/SLP::Access$"
+              "pattern": "\\/resource-properties.json#\\/definitions\\/SOMOD::Access$"
             }
           }
         },
-        "SLP::Extend": {
+        "SOMOD::Extend": {
           "type": "object",
           "additionalProperties": false,
           "required": ["$ref"],
           "properties": {
             "$ref": {
               "type": "string",
-              "pattern": "\\/resource-properties.json#\\/definitions\\/SLP::Extend$"
+              "pattern": "\\/resource-properties.json#\\/definitions\\/SOMOD::Extend$"
             }
           }
         },
-        "SLP::DependsOn": {
+        "SOMOD::DependsOn": {
           "type": "object",
           "additionalProperties": false,
           "required": ["$ref"],
           "properties": {
             "$ref": {
               "type": "string",
-              "pattern": "\\/resource-properties.json#\\/definitions\\/SLP::DependsOn$"
+              "pattern": "\\/resource-properties.json#\\/definitions\\/SOMOD::DependsOn$"
             }
           }
         },
-        "SLP::Output": {
+        "SOMOD::Output": {
           "type": "object",
           "additionalProperties": false,
           "required": [

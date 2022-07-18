@@ -2,9 +2,6 @@
 
 exports[`Test Task validatePackageJson with empty 1`] = `
 "package.json has following errors
- must have required property 'njp'
- must have required property 'slp'
- must have required property 'somod'
  must have required property 'name'
  must have required property 'version'
  must have required property 'description'
@@ -12,33 +9,21 @@ exports[`Test Task validatePackageJson with empty 1`] = `
  must have required property 'typings'
  must have required property 'files'
  must have required property 'sideEffects'
- exactly one of njp, slp, somod must be present"
-`;
-
-exports[`Test Task validatePackageJson with njp and somod 1`] = `
-"package.json has following errors
- must have required property 'slp'
- exactly one of njp, slp, somod must be present"
+ must have required property 'somod'"
 `;
 
 exports[`Test Task validatePackageJson with no sodaru module key 1`] = `
 "package.json has following errors
- must have required property 'njp'
- must have required property 'slp'
- must have required property 'somod'
- exactly one of njp, slp, somod must be present"
+ must have required property 'somod'"
 `;
 
 exports[`Test Task validatePackageJson with normal 1`] = `
 "package.json has following errors
- must have required property 'njp'
- must have required property 'slp'
- must have required property 'somod'
  must have required property 'module'
  must have required property 'typings'
  must have required property 'files'
  must have required property 'sideEffects'
- exactly one of njp, slp, somod must be present"
+ must have required property 'somod'"
 `;
 
 exports[`Test Task validatePackageJson with not-allowed keys 1`] = `
@@ -48,12 +33,7 @@ exports[`Test Task validatePackageJson with not-allowed keys 1`] = `
  type must not exist"
 `;
 
-exports[`Test Task validatePackageJson with only njp 1`] = `undefined`;
-
-exports[`Test Task validatePackageJson with only somod set for njp module 1`] = `
-"package.json has following errors
- somod must not exist"
-`;
+exports[`Test Task validatePackageJson with with somod 1`] = `undefined`;
 
 exports[`Test Task validatePackageJson with wrong files 1`] = `
 "package.json has following errors
