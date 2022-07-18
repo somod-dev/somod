@@ -11,6 +11,7 @@ import {
   SLPResource,
   SLPTemplate
 } from "../../types";
+import { getNodeRuntimeVersion } from "../../utils";
 
 export const baseLayerName = "baseLayer";
 
@@ -22,7 +23,7 @@ export const getBaseLayerSLPResource = async (): Promise<SLPResource> => {
       LayerName: { [KeywordSOMODResourceName]: baseLayerName },
       Description: "Set of npm libraries to be required in all Lambda funtions",
       CompatibleArchitectures: ["arm64"],
-      CompatibleRuntimes: ["nodejs14.x"],
+      CompatibleRuntimes: [`nodejs${getNodeRuntimeVersion()}.x`],
       RetentionPolicy: "Delete",
       ContentUri: unixStylePath(join(await getPackageLocation(), "layer"))
     }

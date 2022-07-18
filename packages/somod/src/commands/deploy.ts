@@ -14,9 +14,9 @@ export const DeployAction = async ({
 }: DeployOptions): Promise<void> => {
   const dir = findRootDir();
 
-  await BuildAction({ verbose });
+  await BuildAction({ verbose, ui: false, serverless: true });
 
-  await PrepareAction({ verbose });
+  await PrepareAction({ verbose, ui: false, serverless: true });
 
   await taskRunner(
     `Deploying ${file_templateYaml}`,

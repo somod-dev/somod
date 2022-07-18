@@ -12,77 +12,65 @@ import {
   generateRootParameters,
   generateSAMConfigToml,
   generateSAMTemplate,
-  key_njp,
-  key_slp,
-  key_somod,
   path_pages,
   path_public
 } from "@somod/sdk-lib";
 import { Command } from "commander";
+import {
+  addSOMODCommandTypeOptions,
+  getSOMODCommandTypeOptions,
+  SOMODCommandTypeOptions
+} from "../utils/common";
 
-type PrepareOptions = CommonOptions & {
-  ui: boolean;
-  serverless: boolean;
-};
+type PrepareOptions = CommonOptions & SOMODCommandTypeOptions;
 
 export const PrepareAction = async ({
   verbose,
-  ui,
-  serverless
+  ...options
 }: PrepareOptions): Promise<void> => {
   const dir = findRootDir();
 
-  const prepareUi = !serverless || ui;
-  const prepareServerless = !ui || serverless;
+  const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
-  if (prepareUi) {
-    await taskRunner(`Create /${path_pages}`, createPages, verbose, dir, [
-      key_somod,
-      key_njp,
-      key_slp
-    ]);
+  if (ui) {
+    await taskRunner(`Create /${path_pages}`, createPages, verbose, dir);
     await taskRunner(
       `Create /${path_public}`,
       createPublicAssets,
       verbose,
-      dir,
-      [key_somod, key_njp, key_slp]
+      dir
     );
   }
-  if (prepareServerless) {
+  if (serverless) {
     await taskRunner(
       `Generate /${file_templateYaml}`,
       generateSAMTemplate,
       verbose,
-      dir,
-      [key_somod, key_njp, key_slp]
+      dir
     );
   }
   await taskRunner(
     `Create/Update /${file_parametersJson}`,
     generateRootParameters,
     verbose,
-    dir,
-    [key_somod, key_njp, key_slp]
+    dir
   );
 
-  if (prepareUi) {
+  if (ui) {
     await taskRunner(
       `Gernerate /${file_nextConfigJs} and /${file_dotenv}`,
       generateNextConfig,
       verbose,
-      dir,
-      [key_somod, key_njp, key_slp]
+      dir
     );
   }
 
-  if (prepareServerless) {
+  if (serverless) {
     await taskRunner(
       `Gernerate /${file_samConfig}`,
       generateSAMConfigToml,
       verbose,
-      dir,
-      [key_somod, key_njp, key_slp]
+      dir
     );
   }
 };
@@ -90,8 +78,6 @@ export const PrepareAction = async ({
 const prepareCommand = new Command("prepare");
 
 prepareCommand.action(PrepareAction);
-
-prepareCommand.option("--ui", "prepare only ui");
-prepareCommand.option("--serverless", "prepare only serverless");
+addSOMODCommandTypeOptions(prepareCommand);
 
 export default prepareCommand;

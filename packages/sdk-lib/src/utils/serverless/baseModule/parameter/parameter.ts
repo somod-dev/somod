@@ -1,5 +1,11 @@
 import { resourceType_Function } from "../../../constants";
-import { KeywordSOMODRef, SAMTemplate, SLPResource } from "../../types";
+import {
+  KeywordSOMODAccess,
+  KeywordSOMODOutput,
+  KeywordSOMODRef,
+  SAMTemplate,
+  SLPResource
+} from "../../types";
 import { getParameterSpaceResourceLogicalId } from "../../utils";
 import { baseLayerName } from "../layers/baseLayer";
 import { lambdaCode } from "./getLambdaCode";
@@ -12,8 +18,8 @@ export const getParameterResources = async (
   const resources: Record<string, SLPResource> = {
     [parameterSpaceLambdaId]: {
       Type: resourceType_Function,
-      "SOMOD::Access": "module",
-      "SOMOD::Output": {
+      [KeywordSOMODAccess]: "module",
+      [KeywordSOMODOutput]: {
         default: true,
         attributes: ["Arn"]
       },
@@ -27,14 +33,14 @@ export const getParameterResources = async (
   Object.keys(slpParameters).forEach(parameterSpace => {
     resources[getParameterSpaceResourceLogicalId(parameterSpace)] = {
       Type: parameterSpaceCustomResourceType,
-      "SOMOD::Access": "public",
-      "SOMOD::Output": {
+      [KeywordSOMODAccess]: "public",
+      [KeywordSOMODOutput]: {
         default: false,
         attributes: slpParameters[parameterSpace]
       },
       Properties: {
         ServiceToken: {
-          "SOMOD::Ref": {
+          [KeywordSOMODRef]: {
             resource: parameterSpaceLambdaId,
             attribute: "Arn"
           }

@@ -1,6 +1,7 @@
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
 import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverless/generateSAMTemplate";
+import { getNodeRuntimeVersion } from "../../utils/serverless/utils";
 import {
   saveYamlFileStore,
   updateYamlFileStore
@@ -15,7 +16,7 @@ export const generateSAMTemplate = async (dir: string): Promise<void> => {
       Transform: "AWS::Serverless-2016-10-31",
       Globals: {
         Function: {
-          Runtime: "nodejs16.x",
+          Runtime: `nodejs${getNodeRuntimeVersion()}.x`,
           Handler: "index.default",
           Architectures: ["arm64"]
         }

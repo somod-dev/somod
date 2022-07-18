@@ -23,6 +23,7 @@ import {
   SLPTemplate
 } from "../types";
 import {
+  getNodeRuntimeVersion,
   getSOMODKeyword,
   replaceSOMODKeyword,
   updateKeywordPathsInSLPTemplate
@@ -252,7 +253,7 @@ export const bundle = async (dir: string): Promise<void> => {
           platform: "node",
           external: exclude.external as string[],
           minify: true,
-          target: ["node16"]
+          target: ["node" + getNodeRuntimeVersion()]
         });
       })
     );

@@ -5,17 +5,26 @@ import { loadPublicAssetNamespaces } from "../../utils/nextJs/publicAssets";
 import { loadParameterNamespaces } from "../../utils/parameters/namespace";
 import { loadHttpApiNamespaces } from "../../utils/serverless/namespace";
 
-export const loadAndResolveNamespaces = async (dir: string) => {
+export const loadAndResolveNamespaces = async (
+  dir: string,
+  ui: boolean,
+  serverless: boolean
+) => {
   const moduleHandler = ModuleHandler.getModuleHandler(dir);
 
   const namespaces = await moduleHandler.getNamespaces(async module => {
-    await Promise.all([
-      loadParameterNamespaces(module),
-      loadConfigNamespaces(module),
-      loadPageNamespaces(module),
-      loadPublicAssetNamespaces(module),
-      loadHttpApiNamespaces(module)
-    ]);
+    const loadNamespacePromises: Promise<void>[] = [
+      loadParameterNamespaces(module)
+    ];
+    if (ui) {
+      loadNamespacePromises.push(loadConfigNamespaces(module));
+      loadNamespacePromises.push(loadPageNamespaces(module));
+      loadNamespacePromises.push(loadPublicAssetNamespaces(module));
+    }
+    if (serverless) {
+      loadNamespacePromises.push(loadHttpApiNamespaces(module));
+    }
+    await Promise.all(loadNamespacePromises);
   });
 
   return namespaces;

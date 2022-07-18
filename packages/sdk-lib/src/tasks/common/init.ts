@@ -19,21 +19,40 @@ const download = (url: string): Promise<string> => {
           reject(e);
         });
       } else {
-        reject(`Invalid Response ${res.statusCode}: ${res.statusMessage}`);
+        reject(
+          `Invalid Response ${res.statusCode}: ${res.statusMessage} (${url})`
+        );
       }
     });
     req.on("error", e => reject(e));
   });
 };
 
-export const init = async (dir: string, force = false) => {
+export const init = async (
+  dir: string,
+  ui: boolean,
+  serverless: boolean,
+  force = false
+) => {
   const baseUrl =
     "https://raw.githubusercontent.com/sodaru/somod-init-template/v1/";
-  const filesListStr = await download(baseUrl + "files");
-  const filesList = filesListStr.split("\n").filter(file => !!file);
+  const filesListStr = await download(baseUrl + "files.json");
+  const filesList = JSON.parse(filesListStr) as {
+    common: string[];
+    ui: string[];
+    serverless: string[];
+  };
+
+  const filesToDownload = filesList.common;
+  if (ui) {
+    filesToDownload.push(...filesList.ui);
+  }
+  if (serverless) {
+    filesToDownload.push(...filesList.serverless);
+  }
 
   await Promise.all(
-    filesList.map(async file => {
+    filesToDownload.map(async file => {
       const content = await download(baseUrl + file);
       const fileSavePath = join(dir, file);
 

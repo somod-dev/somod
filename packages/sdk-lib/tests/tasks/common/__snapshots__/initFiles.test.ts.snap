@@ -12,3 +12,28 @@ Array [
   "ui/public/favicon.ico",
 ]
 `;
+
+exports[`Test task initFiles only common 1`] = `
+Array [
+  "lib/index.ts",
+]
+`;
+
+exports[`Test task initFiles only serverless 1`] = `
+Array [
+  "lib/index.ts",
+  "serverless/template.yaml",
+]
+`;
+
+exports[`Test task initFiles only ui 1`] = `
+Array [
+  "lib/index.ts",
+  "parameters.yaml",
+  "tsconfig.json",
+  "ui/config.yaml",
+  "ui/pages/_document.tsx",
+  "ui/pages/index.tsx",
+  "ui/public/favicon.ico",
+]
+`;

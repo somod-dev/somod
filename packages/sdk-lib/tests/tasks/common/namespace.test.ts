@@ -22,7 +22,9 @@ jest.mock("../../../src/utils/moduleHandler", () => {
 
 describe("test Task loadAndResolveNamespaces", () => {
   test("for somod only", async () => {
-    await expect(loadAndResolveNamespaces("")).resolves.toEqual(mockNamespaces);
+    await expect(loadAndResolveNamespaces("", true, true)).resolves.toEqual(
+      mockNamespaces
+    );
     expect(ModuleHandler.getModuleHandler).toHaveBeenCalledTimes(1);
     expect(ModuleHandler.getModuleHandler).toHaveBeenCalledWith("");
 

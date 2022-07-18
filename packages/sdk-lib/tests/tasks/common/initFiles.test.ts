@@ -20,8 +20,32 @@ describe("Test task initFiles", () => {
     deleteDir(dir);
   });
 
+  test("only common", async () => {
+    const result = await initFiles(dir, false, false);
+    expect(result).toBeUndefined();
+    const downloadedFiles = await listFiles(dir);
+    expect(downloadedFiles).toMatchSnapshot();
+    expect(console.warn).toHaveBeenCalledTimes(0);
+  });
+
+  test("only ui", async () => {
+    const result = await initFiles(dir, true, false);
+    expect(result).toBeUndefined();
+    const downloadedFiles = await listFiles(dir);
+    expect(downloadedFiles).toMatchSnapshot();
+    expect(console.warn).toHaveBeenCalledTimes(0);
+  });
+
+  test("only serverless", async () => {
+    const result = await initFiles(dir, false, true);
+    expect(result).toBeUndefined();
+    const downloadedFiles = await listFiles(dir);
+    expect(downloadedFiles).toMatchSnapshot();
+    expect(console.warn).toHaveBeenCalledTimes(0);
+  });
+
   test("for empty dir", async () => {
-    const result = await initFiles(dir);
+    const result = await initFiles(dir, true, true);
     expect(result).toBeUndefined();
     const downloadedFiles = await listFiles(dir);
     expect(downloadedFiles).toMatchSnapshot();
@@ -30,7 +54,7 @@ describe("Test task initFiles", () => {
 
   test("for non-empty dir", async () => {
     createFiles(dir, { "lib/index.ts": "" });
-    const result = await initFiles(dir);
+    const result = await initFiles(dir, true, true);
     expect(result).toBeUndefined();
     expect(console.warn).toHaveBeenCalledTimes(1);
     expect(console.warn).toHaveBeenCalledWith(
@@ -43,7 +67,7 @@ describe("Test task initFiles", () => {
 
   test("for forcing replacement in non-empty dir", async () => {
     createFiles(dir, { "lib/index.ts": "" });
-    const result = await initFiles(dir, true);
+    const result = await initFiles(dir, true, true, true);
     expect(result).toBeUndefined();
     expect(console.warn).toHaveBeenCalledTimes(1);
     expect(console.warn).toHaveBeenCalledWith(

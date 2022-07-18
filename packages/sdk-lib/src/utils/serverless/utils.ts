@@ -28,6 +28,10 @@ export const replaceSOMODKeyword = (
   replaceKeyword(slpTemplate.Resources, path, newValue);
 };
 
+export const getNodeRuntimeVersion = () => {
+  return process.env.SOMOD_SERVERLESS_NODEJS_VERSION || "16";
+};
+
 const hashModuleName = (str: string): string => {
   return createHash("sha256").update(str).digest("hex").substring(0, 8);
 };
