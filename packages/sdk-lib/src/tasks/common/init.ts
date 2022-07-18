@@ -1,8 +1,16 @@
-import { logWarning } from "@solib/cli-base";
+import { logWarning, unixStylePath } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { mkdir, writeFile } from "fs/promises";
 import { get } from "https";
-import { dirname, join } from "path";
+import { dirname, join, normalize, relative } from "path";
+import {
+  file_configYaml,
+  file_parametersYaml,
+  file_templateYaml,
+  path_nodeModules,
+  path_serverless,
+  path_ui
+} from "../../utils/constants";
 
 const download = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -26,6 +34,51 @@ const download = (url: string): Promise<string> => {
     });
     req.on("error", e => reject(e));
   });
+};
+
+const yamlFileToSchemaMap = {
+  [file_parametersYaml]: "@somod/parameters-schema",
+  [`${path_ui}/${file_configYaml}`]: "@somod/ui-config-schema",
+  [`${path_serverless}/${file_templateYaml}`]: "@somod/serverless-schema"
+};
+
+const getSchemaLocation = (dir: string, file: string) => {
+  const schemaModule = yamlFileToSchemaMap[file];
+  let schemaModuleContainer = __dirname;
+  while (
+    !existsSync(join(schemaModuleContainer, path_nodeModules, schemaModule))
+  ) {
+    const parentDir = dirname(schemaModuleContainer);
+    if (parentDir == schemaModuleContainer) {
+      throw new Error(`Unable to find ${schemaModule}`);
+    }
+    schemaModuleContainer = parentDir;
+  }
+  const yamlFile = normalize(join(dir, file));
+  const relativeSchemaPath = unixStylePath(
+    relative(
+      dirname(yamlFile),
+      join(
+        schemaModuleContainer,
+        path_nodeModules,
+        schemaModule,
+        "schemas/index.json"
+      )
+    )
+  );
+
+  return relativeSchemaPath;
+};
+
+const updateSchemaLocation = (dir: string, file: string, content: string) => {
+  if (yamlFileToSchemaMap[file] !== undefined) {
+    const schemaLocation = getSchemaLocation(dir, file);
+    const contentLines = content.split("\n");
+    contentLines[0] = `# yaml-language-server: $schema=${schemaLocation}`;
+    return contentLines.join("\n");
+  } else {
+    return content;
+  }
 };
 
 export const init = async (
@@ -58,7 +111,7 @@ export const init = async (
 
       const saveFile = async () => {
         await mkdir(dirname(fileSavePath), { recursive: true });
-        await writeFile(fileSavePath, content);
+        await writeFile(fileSavePath, updateSchemaLocation(dir, file, content));
       };
 
       if (existsSync(fileSavePath)) {
