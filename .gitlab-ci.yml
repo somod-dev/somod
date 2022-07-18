@@ -3,6 +3,7 @@ image: registry.gitlab.com/sodaru/container/sodaru/ci-nodejs
 stages:
   - test
   - publish
+  - update-public
 
 cache:
   key: "$CI_COMMIT_REF_SLUG"
@@ -25,6 +26,27 @@ publish:
   cache: []
   script:
     - npm test
-    - git describe --exact-match | grep ^v && npx mono-repo publish -v
-  only:
-    - tags
+    - npx mono-repo publish -v
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+
+update-public:
+  stage: update-public
+  cache: []
+  script:
+    - mkdir ~/.ssh && chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+    - cd /tmp
+    - eval $(ssh-agent -s)
+    - echo "$SOMOD_PUBLIC_SSH_KEY" | tr -d '\r' | ssh-add -
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - git config --global user.name "$GITLAB_USER_NAME"
+    - git clone "$SOMOD_PUBLIC_REPO" somod
+    - cd somod
+    - node $CI_PROJECT_DIR/ci-scripts/update-public-version.js ./package.json "$CI_COMMIT_TITLE"
+    - git add -A
+    - git commit -m "$CI_COMMIT_TITLE"
+    - git tag -a $CI_COMMIT_TAG -m "$CI_COMMIT_TITLE"
+    - git push --follow-tags
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*/
