@@ -1,7 +1,8 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { unixStylePath } from "@solib/cli-base";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
-import { join } from "path";
+import { join, relative } from "path";
 import { generateNextConfig } from "../../../src";
 import { Config } from "../../../src/utils/nextJs/config";
 
@@ -69,13 +70,22 @@ MY_ENV4=true`
     await expect(readFile(join(dir, "next.config.js"), { encoding: "utf8" }))
       .resolves.toEqual(`/* eslint-disable */
 
-module.exports = {
+const config = {
   images: {
     domains: ["sodaru.com", "this.is.string"]
   },
   publicRuntimeConfig: {"prc1":true,"prc2":false,"prc3":{"m3":"p1"}},
   serverRuntimeConfig: {"src1":["m3p2"],"src2":["m3","p3"],"src3":"m3p4"}
 };
+
+const withBaseConfig = require("${unixStylePath(
+      relative(
+        dir,
+        join(__dirname, "../../../src/tasks/scripts/withBaseConfig.js")
+      )
+    )}");
+
+module.exports = withBaseConfig(__dirname, config);
 `);
   });
 });
