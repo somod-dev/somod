@@ -51,6 +51,13 @@ const generateNextConfigJs = async (
 
   const relativePath = unixStylePath(relative(dir, withBaseConfigPath));
 
+  const withBaseConfigRelativePath =
+    relativePath.startsWith("../") || // already relative path
+    relativePath.startsWith("/") || // absolute path in UNIX or IOS
+    /^[A-Z]:\//.test(relativePath) // absolute path in Win
+      ? relativePath
+      : "./" + relativePath;
+
   const nextConfigJsContent = `/* eslint-disable */
 
 const config = {
@@ -61,7 +68,7 @@ const config = {
   serverRuntimeConfig: ${JSON.stringify(config.serverRuntimeConfig)}
 };
 
-const withBaseConfig = require("${relativePath}");
+const withBaseConfig = require("${withBaseConfigRelativePath}");
 
 module.exports = withBaseConfig(__dirname, config);
 `;
