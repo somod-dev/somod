@@ -42,7 +42,7 @@ describe("Test Task validateUiConfigYaml", () => {
         join(dir, "ui/config.yaml") + " has following errors\n must be object"
       )
     );
-  });
+  }, 20000);
 
   test("For config.yaml with only env", async () => {
     await installSchemaInTempDir(dir);
@@ -54,5 +54,5 @@ env:
 `
     });
     await expect(validateUiConfigYaml(dir)).resolves.toBeUndefined();
-  });
+  }, 20000);
 });
