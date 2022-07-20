@@ -19,7 +19,8 @@
   },
   "files": [
     "bin",
-    "dist"
+    "dist",
+    "scripts"
   ],
   "repository": {
     "type": "git",

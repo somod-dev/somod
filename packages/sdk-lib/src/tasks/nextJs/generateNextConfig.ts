@@ -1,6 +1,6 @@
-import { readJsonFileStore } from "@solib/cli-base";
+import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
 import { writeFile } from "fs/promises";
-import { join } from "path";
+import { join, relative } from "path";
 import {
   file_dotenv,
   file_nextConfigJs,
@@ -33,15 +33,37 @@ const generateNextConfigJs = async (
   dir: string,
   config: Config
 ): Promise<void> => {
+  /**
+   * NOTE: This code will be part of somod cli (dist/index.js)
+   * Assumed structure of somod
+   * ```
+   *    bin
+   *      - somod.js
+   *    dist
+   *      - index.js
+   *    scripts
+   *      - withBaseConfig.js
+   * ```
+   *
+   * So the withBaseConfigPath is calculated in relative to dist/index.js
+   */
+  const withBaseConfigPath = join(__dirname, "../scripts/withBaseConfig.js");
+
+  const relativePath = unixStylePath(relative(dir, withBaseConfigPath));
+
   const nextConfigJsContent = `/* eslint-disable */
 
-module.exports = {
+const config = {
   images: {
     domains: [${config.imageDomains.map(d => `"${d}"`).join(", ")}]
   },
   publicRuntimeConfig: ${JSON.stringify(config.publicRuntimeConfig)},
   serverRuntimeConfig: ${JSON.stringify(config.serverRuntimeConfig)}
 };
+
+const withBaseConfig = require("${relativePath}");
+
+module.exports = withBaseConfig(__dirname, config);
 `;
 
   await writeFile(join(dir, file_nextConfigJs), nextConfigJsContent);
