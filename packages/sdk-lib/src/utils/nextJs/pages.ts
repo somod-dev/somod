@@ -39,25 +39,35 @@ export const addPageExtention = (pagePathWithoutExtension: string) => {
 
 export const linkPage = async (
   fromPage: string,
+  fromPageData: string,
   toPage: string
 ): Promise<void> => {
-  const exports = getExports(fromPage);
-
+  getExports(fromPage);
   const relativePagePath = unixStylePath(relative(dirname(toPage), fromPage));
   const relativePageModule = relativePagePath.substring(
     0,
     relativePagePath.lastIndexOf(".")
   );
 
-  const _exports: string[] = [];
-  if (exports.default) {
-    _exports.push("default");
-  }
-  _exports.push(...exports.named);
+  let pageContent = `export { default } from "${relativePageModule}";`;
 
-  const pageContent = `export { ${_exports.join(
-    ", "
-  )} } from "${relativePageModule}";`;
+  if (existsSync(fromPageData)) {
+    const exports = getExports(fromPageData);
+    if (exports.named.length > 0) {
+      const relativePageDataPath = unixStylePath(
+        relative(dirname(toPage), fromPageData)
+      );
+      const relativePageDataModule = relativePageDataPath.substring(
+        0,
+        relativePageDataPath.lastIndexOf(".")
+      );
+
+      pageContent += "\n";
+      pageContent += `export { ${exports.named.join(
+        ", "
+      )} } from "${relativePageDataModule}";`;
+    }
+  }
 
   await mkdir(dirname(toPage), { recursive: true });
   await writeFile(toPage, pageContent);

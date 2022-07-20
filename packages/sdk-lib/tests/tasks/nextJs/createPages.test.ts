@@ -57,35 +57,41 @@ describe("Test Task createPages", () => {
         version: "7.1.7"
       }),
       "ui/pages/home.tsx": "export default function Homepage () {return 'a';}",
+      "ui/pages-data/home.ts": "export const getStaticProps = () => {};",
       "ui/pages/about/us.tsx":
-        "export default function AboutUs () {return 'a';} export const Us='Sodaru';",
+        "export default function AboutUs () {return 'a';}",
       "node_modules/m2/build/ui/pages/about.js":
-        "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
+        "export default function Aboutpage () {return 'a';}",
       "node_modules/m2/build/ui/pages/home.js":
         "export default function Homepage () {return 'a';}",
+      "node_modules/m2/build/ui/pages-data/home.js":
+        "export const getStaticPaths = () => {};",
       "node_modules/m2/node_modules/m5/build/ui/pages/contact.js":
-        "export default function Contactpage () {return 'a';} export const getInitialProps = () => {}; export const Contact = 10;",
+        "export default function Contactpage () {return 'a';}",
+      "node_modules/m2/node_modules/m5/build/ui/pages-data/contact.js":
+        "export const getStaticPaths = () => {};",
       "node_modules/m2/node_modules/m5/build/ui/pages/survey.js":
         "export default function Surveypage () {return 'a';}",
       "node_modules/m3/build/ui/pages/home.js":
-        "export default function Homepage () {return 'a';} export const getInitialProps = () => {}; export const Home = 10;",
+        "export default function Homepage () {return 'a';}",
       "node_modules/m3/build/ui/pages/about/me.js":
-        "export default function AboutMepage () {return 'a';} export const Me = () => {};"
+        "export default function AboutMepage () {return 'a';}"
     });
 
     await expect(createPages(dir)).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "pages"))).toEqual({
-      "home.ts": 'export { default } from "../ui/pages/home";',
-      "about/us.ts": 'export { default, Us } from "../../ui/pages/about/us";',
+      "home.ts":
+        'export { default } from "../ui/pages/home";\nexport { getStaticProps } from "../ui/pages-data/home";',
+      "about/us.ts": 'export { default } from "../../ui/pages/about/us";',
       "about.ts":
-        'export { default, getInitialProps } from "../node_modules/m2/build/ui/pages/about";',
+        'export { default } from "../node_modules/m2/build/ui/pages/about";',
       "contact.ts":
-        'export { default, getInitialProps, Contact } from "../node_modules/m2/node_modules/m5/build/ui/pages/contact";',
+        'export { default } from "../node_modules/m2/node_modules/m5/build/ui/pages/contact";\nexport { getStaticPaths } from "../node_modules/m2/node_modules/m5/build/ui/pages-data/contact";',
       "survey.ts":
         'export { default } from "../node_modules/m2/node_modules/m5/build/ui/pages/survey";',
       "about/me.ts":
-        'export { default, Me } from "../../node_modules/m3/build/ui/pages/about/me";'
+        'export { default } from "../../node_modules/m3/build/ui/pages/about/me";'
     });
   });
 
@@ -113,16 +119,16 @@ describe("Test Task createPages", () => {
       "ui/pages/about.tsx":
         "export default function Aboutpage () {return 'a';}",
       "node_modules/m2/build/ui/pages/about.js":
-        "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
+        "export default function Aboutpage () {return 'a';}",
       "node_modules/m2/build/ui/pages/contact.js":
-        "export default function Contactpage () {return 'a';} export const getInitialProps = () => {}; export const Contact = 10;",
+        "export default function Contactpage () {return 'a';}",
       "node_modules/m2/build/ui/pages/survey.js":
         "export default function Surveypage () {return 'a';}",
 
       "node_modules/m3/build/ui/pages/about.js":
-        "export default function Aboutpage () {return 'a';} export const getInitialProps = () => {};",
+        "export default function Aboutpage () {return 'a';}",
       "node_modules/m3/build/ui/pages/contact.js":
-        "export default function Contactpage () {return 'a';} export const getInitialProps = () => {}; export const Contact = 10;",
+        "export default function Contactpage () {return 'a';}",
       "node_modules/m3/build/ui/pages/about/me.js":
         "export default function AbountMepage () {return 'a';}"
     });

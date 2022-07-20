@@ -3,9 +3,11 @@ import {
   findRootDir,
   nextCommand,
   path_pages,
+  path_pagesData,
   path_public,
   path_ui,
   watchRootModulePages,
+  watchRootModulePagesData,
   watchRootModulePublicAssets
 } from "@somod/sdk-lib";
 import { Command, Option } from "commander";
@@ -30,6 +32,12 @@ export const ServeAction = async ({
     await taskRunner(
       `Watch ${path_ui}/${path_pages}`,
       watchRootModulePages,
+      verbose,
+      dir
+    );
+    await taskRunner(
+      `Watch ${path_ui}/${path_pagesData}`,
+      watchRootModulePagesData,
       verbose,
       dir
     );

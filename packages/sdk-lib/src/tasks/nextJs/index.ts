@@ -1,4 +1,5 @@
 export { watchRootModulePages } from "./watchRootModulePages";
+export { watchRootModulePagesData } from "./watchRootModulePagesData";
 export { watchRootModulePublicAssets } from "./watchRootModulePublicAssets";
 export { nextCommand } from "./nextCommand";
 export { vercelCommand } from "./vercelCommand";
@@ -8,4 +9,6 @@ export { validateUiConfigYaml } from "./validateUiConfigYaml";
 export { buildUiConfigYaml } from "./buildUiConfigYaml";
 export { generateNextConfig } from "./generateNextConfig";
 export { buildUiPublic } from "./buildUiPublic";
-export { doesPagesHaveDefaultExport } from "./doesPagesHaveDefaultExport";
+export { validatePageExports } from "./validatePageExports";
+export { validatePageData } from "./validatePageData";
+export { deletePagesAndPublicDir } from "./deletePagesAndPublicDir";

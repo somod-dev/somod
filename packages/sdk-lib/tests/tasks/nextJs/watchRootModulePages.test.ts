@@ -70,25 +70,25 @@ describe("Test Task watchRootModulePages", () => {
     await helper.createDir(join(dir, "ui/pages/b"));
     await helper.createFile(
       join(dir, "ui/pages/b/c.tsx"),
-      "export const A = 10;"
+      "const C = 10; export default C"
     );
     await expect(
       readFile(join(dir, "pages", "b/c.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export { A } from "../../ui/pages/b/c";');
+    ).resolves.toEqual('export { default } from "../../ui/pages/b/c";');
 
     // update file
     await helper.createFile(
       join(dir, "ui/pages/a.tsx"),
-      "export const A = 10; export default A;"
+      "const A = 20; export default A;"
     );
     await expect(
       readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export { default, A } from "../ui/pages/a";');
+    ).resolves.toEqual('export { default } from "../ui/pages/a";');
 
     // update another  deep file
     await helper.createFile(
       join(dir, "ui/pages/b/c.tsx"),
-      "const A = 10; export default A;"
+      "const C = 20; export default C;"
     );
     await expect(
       readFile(join(dir, "pages", "b/c.ts"), { encoding: "utf8" })
@@ -159,8 +159,10 @@ describe("Test Task watchRootModulePages", () => {
 
   test("for pre-existing pages dir", async () => {
     createFiles(dir, {
-      "pages/a.ts": 'export { default } from "m1";',
-      "pages/b/c.ts": 'export { A } from "m2";'
+      "pages/a.ts":
+        'export { default } from "../node_modules/m1/build/ui/pages/a";',
+      "pages/b/c.ts":
+        'export { default } from "../node_modules/m2/build/ui/pages/b/c";'
     });
 
     sleep(100);
@@ -174,11 +176,11 @@ describe("Test Task watchRootModulePages", () => {
     await helper.createDir(join(dir, "ui/pages"));
     await helper.createFile(
       join(dir, "ui/pages/a.tsx"),
-      "export const A = 10; export default A;"
+      "const A = 10; export default A;"
     );
     await expect(
       readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export { default, A } from "../ui/pages/a";');
+    ).resolves.toEqual('export { default } from "../ui/pages/a";');
 
     // create another deep file
     await helper.createDir(join(dir, "ui/pages/b"));
@@ -194,12 +196,16 @@ describe("Test Task watchRootModulePages", () => {
     await helper.deleteFile(join(dir, "ui/pages/a.tsx"));
     await expect(
       readFile(join(dir, "pages", "a.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export { default } from "m1";');
+    ).resolves.toEqual(
+      'export { default } from "../node_modules/m1/build/ui/pages/a";'
+    );
 
     // delete another deep file
     await helper.deleteFile(join(dir, "ui/pages/b/c.tsx"));
     await expect(
       readFile(join(dir, "pages", "b/c.ts"), { encoding: "utf8" })
-    ).resolves.toEqual('export { A } from "m2";');
+    ).resolves.toEqual(
+      'export { default } from "../node_modules/m2/build/ui/pages/b/c";'
+    );
   });
 });

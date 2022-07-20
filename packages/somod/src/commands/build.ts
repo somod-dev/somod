@@ -7,7 +7,8 @@ import {
   bundleFunctions,
   compileTypeScript,
   deleteBuildDir,
-  doesPagesHaveDefaultExport,
+  validatePageData,
+  validatePageExports,
   doesServerlessFunctionsHaveDefaultExport,
   file_configYaml,
   file_packageJson,
@@ -30,7 +31,8 @@ import {
   validatePackageJson,
   validateParametersWithSchema,
   validateServerlessTemplateWithSchema,
-  validateUiConfigYaml
+  validateUiConfigYaml,
+  path_pagesData
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -80,8 +82,14 @@ export const BuildAction = async ({
         dir
       ),
       taskRunner(
-        `Check if ${path_ui}/${path_pages} have default export`,
-        doesPagesHaveDefaultExport,
+        `Validate exports in ${path_ui}/${path_pages}`,
+        validatePageExports,
+        verbose,
+        dir
+      ),
+      taskRunner(
+        `Validate exports in ${path_ui}/${path_pagesData}`,
+        validatePageData,
         verbose,
         dir
       )

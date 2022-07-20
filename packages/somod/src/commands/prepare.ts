@@ -2,6 +2,7 @@ import { CommonOptions, taskRunner } from "@solib/cli-base";
 import {
   createPages,
   createPublicAssets,
+  deletePagesAndPublicDir,
   file_dotenv,
   file_nextConfigJs,
   file_parametersJson,
@@ -33,6 +34,12 @@ export const PrepareAction = async ({
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
   if (ui) {
+    await taskRunner(
+      `Deleting /${path_pages} and /${path_public}`,
+      deletePagesAndPublicDir,
+      verbose,
+      dir
+    );
     await taskRunner(`Create /${path_pages}`, createPages, verbose, dir);
     await taskRunner(
       `Create /${path_public}`,

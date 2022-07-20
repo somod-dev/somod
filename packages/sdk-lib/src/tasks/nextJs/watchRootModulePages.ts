@@ -1,7 +1,7 @@
 import { existsSync, mkdtempSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { path_pages, path_ui } from "../../utils/constants";
+import { path_pages, path_pagesData, path_ui } from "../../utils/constants";
 import { copyDirectory } from "@solib/cli-base";
 import { linkPage, removeExtension } from "../../utils/nextJs/pages";
 import watch from "../../utils/watch";
@@ -28,6 +28,12 @@ export const watchRootModulePages = async (
     (sourcePage, destinationPage) => {
       linkPage(
         join(dir, path_ui, path_pages, sourcePage),
+        join(
+          dir,
+          path_ui,
+          path_pagesData,
+          sourcePage.substring(0, sourcePage.lastIndexOf(".")) + ".ts"
+        ),
         join(dir, path_pages, destinationPage)
       ).catch(err => {
         // eslint-disable-next-line no-console

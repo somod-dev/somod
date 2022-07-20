@@ -36,6 +36,7 @@ export const path_ui = "ui";
 export const path_lib = "lib";
 
 export const path_pages = "pages";
+export const path_pagesData = "pages-data";
 export const path_public = "public";
 
 export const file_index_js = "index.js";

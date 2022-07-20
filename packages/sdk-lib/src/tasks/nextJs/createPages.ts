@@ -1,5 +1,10 @@
 import { join } from "path";
-import { path_build, path_pages, path_ui } from "../../utils/constants";
+import {
+  path_build,
+  path_pages,
+  path_pagesData,
+  path_ui
+} from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
 import {
   addPageExtention,
@@ -28,8 +33,16 @@ export const createPages = async (dir: string): Promise<void> => {
         )
       );
 
+      const sourcePageDataPath = join(
+        packageLocation,
+        moduleNode.module.root ? "" : path_build,
+        path_ui,
+        path_pagesData,
+        page + (moduleNode.module.root ? ".ts" : ".js")
+      );
+
       const pagePath = join(dir, path_pages, page + ".ts");
-      await linkPage(sourcePagePath, pagePath);
+      await linkPage(sourcePagePath, sourcePageDataPath, pagePath);
     })
   );
 };
