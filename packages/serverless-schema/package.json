@@ -1,6 +1,6 @@
 {
   "name": "@somod/serverless-schema",
-  "version": "1.10.2",
+  "version": "1.10.3",
   "description": "Serverless Schema to validate serverless/template.yaml in somod modules",
   "keywords": [
     "schema",

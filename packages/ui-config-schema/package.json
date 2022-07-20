@@ -1,6 +1,6 @@
 {
   "name": "@somod/ui-config-schema",
-  "version": "1.10.2",
+  "version": "1.10.3",
   "description": "JSON Schema for UI Configuration",
   "files": [
     "schemas"
