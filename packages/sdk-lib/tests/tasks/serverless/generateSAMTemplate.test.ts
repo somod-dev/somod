@@ -35,7 +35,6 @@ describe("Test Task generateSAMTemplate", () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
         JSON.stringify({
-          Parameters: {},
           Resources: {
             BaseRestApi: {
               Type: "AWS::Serverless::Api",

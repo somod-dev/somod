@@ -1,18 +1,12 @@
 import { file_templateYaml, path_serverless } from "../../constants";
-import { baseModuleName } from "../baseModule";
-import { separateParameterSpace } from "../parameter";
+import { ParameterValues } from "../../parameters/types";
 import {
   KeywordSOMODParameter,
   ServerlessTemplate,
   SOMODParameter,
   SLPTemplate
 } from "../types";
-import {
-  getParameterSpaceResourceLogicalId,
-  getSAMResourceLogicalId,
-  getSOMODKeyword,
-  replaceSOMODKeyword
-} from "../utils";
+import { getSOMODKeyword, replaceSOMODKeyword } from "../utils";
 
 export const validate = (
   slpTemplate: SLPTemplate,
@@ -47,7 +41,10 @@ export const validate = (
   return errors;
 };
 
-export const apply = (serverlessTemplate: ServerlessTemplate) => {
+export const apply = (
+  serverlessTemplate: ServerlessTemplate,
+  parameterValues: ParameterValues
+) => {
   Object.values(serverlessTemplate).forEach(slpTemplate => {
     slpTemplate.keywordPaths[KeywordSOMODParameter].forEach(parameterPath => {
       const parameter = getSOMODKeyword<SOMODParameter>(
@@ -55,17 +52,12 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         parameterPath
       )[KeywordSOMODParameter];
 
-      const { parameterSpace, param } = separateParameterSpace(parameter);
+      let parameterValue = parameterValues[parameter];
 
-      const parameterValue = {
-        "Fn::GetAtt": [
-          `${getSAMResourceLogicalId(
-            baseModuleName,
-            getParameterSpaceResourceLogicalId(parameterSpace)
-          )}`,
-          param
-        ]
-      };
+      if (parameterValue === undefined) {
+        parameterValue = "";
+      }
+
       replaceSOMODKeyword(slpTemplate, parameterPath, parameterValue);
     });
   });

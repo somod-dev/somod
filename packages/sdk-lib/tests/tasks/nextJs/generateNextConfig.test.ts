@@ -78,14 +78,14 @@ const config = {
   serverRuntimeConfig: {"src1":["m3p2"],"src2":["m3","p3"],"src3":"m3p4"}
 };
 
-const withBaseConfig = require("${unixStylePath(
+const withNextConfigOverride = require("${unixStylePath(
       relative(
         dir,
-        join(__dirname, "../../../src/tasks/scripts/withBaseConfig.js")
+        join(__dirname, "../../../src/tasks/scripts/withNextConfigOverride.js")
       )
     )}");
 
-module.exports = withBaseConfig(__dirname, config);
+module.exports = withNextConfigOverride(__dirname, config);
 `);
   });
 });

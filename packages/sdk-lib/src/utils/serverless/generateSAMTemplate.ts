@@ -1,5 +1,6 @@
 import { ModuleHandler } from "../moduleHandler";
-import { cleanUpBaseModule, getSAMParameters } from "./baseModule";
+import { loadAllParameterValues } from "../parameters/load";
+import { cleanUpBaseModule } from "./baseModule";
 import { getSAMOutputs } from "./keywords/output";
 import { applyKeywords, loadServerlessTemplate } from "./slpTemplate";
 import { KeywordSOMODExtend, SAMTemplate, SLPTemplate } from "./types";
@@ -13,7 +14,9 @@ export const generateSAMTemplate = async (
 
   const serverlessTemplate = await loadServerlessTemplate(allModules);
 
-  applyKeywords(serverlessTemplate);
+  const parameterValues = await loadAllParameterValues(dir);
+
+  applyKeywords(serverlessTemplate, parameterValues);
 
   cleanUpBaseModule(serverlessTemplate);
 
@@ -63,12 +66,6 @@ export const generateSAMTemplate = async (
         }
       });
     });
-
-  const Parameters = getSAMParameters(serverlessTemplate);
-
-  if (Object.keys(Parameters).length > 0) {
-    samTemplate.Parameters = Parameters;
-  }
 
   const Outputs = await getSAMOutputs(dir);
   if (Object.keys(Outputs).length > 0) {

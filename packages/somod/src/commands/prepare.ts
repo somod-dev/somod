@@ -6,12 +6,10 @@ import {
   file_dotenv,
   file_nextConfigJs,
   file_parametersJson,
-  file_samConfig,
   file_templateYaml,
   findRootDir,
   generateNextConfig,
   generateRootParameters,
-  generateSAMConfigToml,
   generateSAMTemplate,
   path_pages,
   path_public
@@ -48,14 +46,6 @@ export const PrepareAction = async ({
       dir
     );
   }
-  if (serverless) {
-    await taskRunner(
-      `Generate /${file_templateYaml}`,
-      generateSAMTemplate,
-      verbose,
-      dir
-    );
-  }
   await taskRunner(
     `Create/Update /${file_parametersJson}`,
     generateRootParameters,
@@ -71,11 +61,10 @@ export const PrepareAction = async ({
       dir
     );
   }
-
   if (serverless) {
     await taskRunner(
-      `Gernerate /${file_samConfig}`,
-      generateSAMConfigToml,
+      `Generate /${file_templateYaml}`,
+      generateSAMTemplate,
       verbose,
       dir
     );

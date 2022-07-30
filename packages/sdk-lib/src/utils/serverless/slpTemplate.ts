@@ -9,6 +9,7 @@ import {
   path_serverless
 } from "../constants";
 import { Module, ModuleNode } from "../moduleHandler";
+import { ParameterValues } from "../parameters/types";
 import { readYamlFileStore } from "../yamlFileStore";
 import { baseModuleName, getBaseModuleOriginalSLPTemplate } from "./baseModule";
 import { apply as applyAccess } from "./keywords/access";
@@ -45,7 +46,6 @@ import {
   validate as validateRefResourceName
 } from "./keywords/refResourceName";
 import { apply as applyResourceName } from "./keywords/resourceName";
-import { listAllSomodParameters } from "./parameter";
 import { OriginalSLPTemplate, ServerlessTemplate, SLPTemplate } from "./types";
 import { updateKeywordPathsInSLPTemplate } from "./utils";
 
@@ -135,11 +135,9 @@ const loadSLPTemplate = async (
   return slpTemplate;
 };
 
-const loadBaseSlpTemplate = async (
-  slpParameters: Record<string, string[]>
-): Promise<SLPTemplate> => {
+const loadBaseSlpTemplate = async (): Promise<SLPTemplate> => {
   const originalSlpTemplate: OriginalSLPTemplate =
-    await getBaseModuleOriginalSLPTemplate(slpParameters);
+    await getBaseModuleOriginalSLPTemplate();
 
   const baseSlpTemplate = {
     ...originalSlpTemplate,
@@ -183,9 +181,7 @@ export const loadServerlessTemplate = async (
     }
   });
 
-  const slpParameters = listAllSomodParameters(serverlessTemplate);
-
-  const baseSlpTemplate = await loadBaseSlpTemplate(slpParameters);
+  const baseSlpTemplate = await loadBaseSlpTemplate();
   serverlessTemplate[baseSlpTemplate.module] = baseSlpTemplate;
 
   return serverlessTemplate;
@@ -230,7 +226,10 @@ export const validateKeywords = async (
   }
 };
 
-export const applyKeywords = (serverlessTemplate: ServerlessTemplate) => {
+export const applyKeywords = (
+  serverlessTemplate: ServerlessTemplate,
+  paramaterValues: ParameterValues
+) => {
   applyModuleName(serverlessTemplate);
   applyAccess(serverlessTemplate);
   applyFnSub(serverlessTemplate);
@@ -238,7 +237,7 @@ export const applyKeywords = (serverlessTemplate: ServerlessTemplate) => {
   applyFunctionLayerLibraries(serverlessTemplate);
   applyResourceName(serverlessTemplate);
   applyRef(serverlessTemplate);
-  applyParameter(serverlessTemplate);
+  applyParameter(serverlessTemplate, paramaterValues);
   applyRefResourceName(serverlessTemplate);
   applyDependsOn(serverlessTemplate);
   applyOutput(serverlessTemplate);

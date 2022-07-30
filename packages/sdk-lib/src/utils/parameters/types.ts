@@ -8,3 +8,5 @@ export type Parameter = {
 export type Parameters = {
   Parameters?: Record<string, Parameter>;
 };
+
+export type ParameterValues = Record<string, unknown>;

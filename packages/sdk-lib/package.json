@@ -20,8 +20,6 @@
     "clean": "npx rimraf dist",
     "typescript": "tsc",
     "build": "npm run clean && npm run typescript",
-    "buildParameterCustomResource": "node ./buildParameterCustomResource.js",
-    "postbuild": "npm run buildParameterCustomResource",
     "pretest": "$CI || npm run build",
     "test": "npx jest"
   },

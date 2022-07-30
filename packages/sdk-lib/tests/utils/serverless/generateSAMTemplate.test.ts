@@ -317,6 +317,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
           "output.var4": { type: "text", default: "1" }
         }
       }),
+      "parameters.json": JSON.stringify({
+        "my.var1": "var1Value",
+        "my.var2": ["var", "2", "value"],
+        "my.var3": { var3: "value" }
+      }),
       "serverless/template.yaml": dump({
         Resources: {
           CorrectRestApi: {
@@ -467,11 +472,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
     const result = await generateSAMTemplate(dir);
 
     expect(result).toEqual({
-      Parameters: {
-        my: {
-          Type: "String"
-        }
-      },
       Resources: {
         r64967c02baseLayer: {
           Properties: {
@@ -501,24 +501,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             }
           },
           Type: "AWS::Serverless::LayerVersion"
-        },
-        r64967c02parameterSpaceCfnLambda: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            InlineCode: "THIS_IS_A_PLACE_HOLDER_FOR_ACTUAL_CODE",
-            Layers: [{ Ref: "r64967c02baseLayer" }]
-          }
-        },
-        r64967c02pmy: {
-          Type: "Custom::ParameterSpace",
-          Properties: {
-            ServiceToken: {
-              "Fn::GetAtt": ["r64967c02parameterSpaceCfnLambda", "Arn"]
-            },
-            parameters: {
-              Ref: "my"
-            }
-          }
         },
         ra046855cBaseRestApi: {
           Type: "AWS::Serverless::Api",
@@ -599,12 +581,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             },
             Environment: {
               Variables: {
-                MY_VAR1: {
-                  "Fn::GetAtt": ["r64967c02pmy", "var1"]
-                },
-                MY_VAR2: {
-                  "Fn::GetAtt": ["r64967c02pmy", "var2"]
-                }
+                MY_VAR1: "var1Value",
+                MY_VAR2: ["var", "2", "value"]
               }
             },
             Layers: [{ Ref: "r64967c02baseLayer" }]

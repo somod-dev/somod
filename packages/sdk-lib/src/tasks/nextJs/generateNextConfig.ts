@@ -42,14 +42,17 @@ const generateNextConfigJs = async (
    *    dist
    *      - index.js
    *    scripts
-   *      - withBaseConfig.js
+   *      - withNextConfigOverride.js
    * ```
    *
-   * So the withBaseConfigPath is calculated in relative to dist/index.js
+   * So the withNextConfigOverridePath is calculated in relative to dist/index.js
    */
-  const withBaseConfigPath = join(__dirname, "../scripts/withBaseConfig.js");
+  const withNextConfigOverridePath = join(
+    __dirname,
+    "../scripts/withNextConfigOverride.js"
+  );
 
-  const relativePath = unixStylePath(relative(dir, withBaseConfigPath));
+  const relativePath = unixStylePath(relative(dir, withNextConfigOverridePath));
 
   const withBaseConfigRelativePath =
     relativePath.startsWith("../") || // already relative path
@@ -68,9 +71,9 @@ const config = {
   serverRuntimeConfig: ${JSON.stringify(config.serverRuntimeConfig)}
 };
 
-const withBaseConfig = require("${withBaseConfigRelativePath}");
+const withNextConfigOverride = require("${withBaseConfigRelativePath}");
 
-module.exports = withBaseConfig(__dirname, config);
+module.exports = withNextConfigOverride(__dirname, config);
 `;
 
   await writeFile(join(dir, file_nextConfigJs), nextConfigJsContent);
