@@ -17,9 +17,11 @@
   "bin": {
     "somod": "./bin/somod.js"
   },
+  "typings": "types/index.d.ts",
   "files": [
     "bin",
     "dist",
+    "types",
     "scripts"
   ],
   "repository": {
