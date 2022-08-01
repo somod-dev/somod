@@ -14,11 +14,13 @@ import {
   file_tsConfigJson,
   findRootDir,
   initFiles,
+  loadPlugins,
   path_nextBuild,
   path_pages,
   path_public,
   path_samBuild,
   path_ui,
+  runPluginInit,
   saveIgnore,
   savePackageJson,
   saveTsConfigBuildJson,
@@ -43,6 +45,8 @@ export const InitAction = async ({
   const dir = findRootDir();
 
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
+
+  const plugins = await loadPlugins(dir);
 
   await taskRunner(`run sodev git`, sodev, verbose, dir, "git");
   await taskRunner(`run sodev prettier`, sodev, verbose, dir, "prettier");
@@ -105,8 +109,8 @@ export const InitAction = async ({
       updateTsConfigBuildJson,
       verbose,
       dir,
-      { jsx: "react" },
-      [path_ui]
+      { jsx: "react", ...plugins.tsconfig.compilerOptions },
+      [path_ui, ...plugins.tsconfig.include]
     ),
 
     taskRunner(
@@ -149,6 +153,21 @@ export const InitAction = async ({
       dir
     )
   ]);
+  await Promise.all(
+    plugins.init.map(plugin =>
+      taskRunner(
+        `Initializing plugin ${plugin.name}`,
+        runPluginInit,
+        verbose,
+        dir,
+        plugin.plugin,
+        {
+          ui,
+          serverless
+        }
+      )
+    )
+  );
 };
 
 const initCommand = new Command("init");

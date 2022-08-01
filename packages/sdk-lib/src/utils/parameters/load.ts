@@ -1,4 +1,5 @@
 import { readJsonFileStore } from "@solib/cli-base";
+import { existsSync } from "fs";
 import { join } from "path";
 import {
   file_parametersJson,
@@ -7,7 +8,7 @@ import {
 } from "../constants";
 import { Module } from "../moduleHandler";
 import { readYamlFileStore } from "../yamlFileStore";
-import { Parameters } from "./types";
+import { Parameters, ParameterValues } from "./types";
 
 export const loadParameters = async (module: Module): Promise<Parameters> => {
   try {
@@ -25,4 +26,13 @@ export const loadParameters = async (module: Module): Promise<Parameters> => {
       throw e;
     }
   }
+};
+
+export const loadAllParameterValues = async (
+  dir: string
+): Promise<ParameterValues> => {
+  const parameterValuesPath = join(dir, file_parametersJson);
+  return existsSync(parameterValuesPath)
+    ? await readJsonFileStore(parameterValuesPath)
+    : {};
 };

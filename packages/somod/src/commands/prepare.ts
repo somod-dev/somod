@@ -6,15 +6,16 @@ import {
   file_dotenv,
   file_nextConfigJs,
   file_parametersJson,
-  file_samConfig,
   file_templateYaml,
   findRootDir,
   generateNextConfig,
   generateRootParameters,
-  generateSAMConfigToml,
   generateSAMTemplate,
+  loadPlugins,
   path_pages,
-  path_public
+  path_public,
+  runPluginPrepare,
+  runPluginPreprepare
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -33,6 +34,24 @@ export const PrepareAction = async ({
 
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
+  const plugins = await loadPlugins(dir);
+
+  await Promise.all(
+    plugins.preprepare.map(plugin =>
+      taskRunner(
+        `PrePrepare plugin ${plugin.name}`,
+        runPluginPreprepare,
+        verbose,
+        dir,
+        plugin.plugin,
+        {
+          ui,
+          serverless
+        }
+      )
+    )
+  );
+
   if (ui) {
     await taskRunner(
       `Deleting /${path_pages} and /${path_public}`,
@@ -44,14 +63,6 @@ export const PrepareAction = async ({
     await taskRunner(
       `Create /${path_public}`,
       createPublicAssets,
-      verbose,
-      dir
-    );
-  }
-  if (serverless) {
-    await taskRunner(
-      `Generate /${file_templateYaml}`,
-      generateSAMTemplate,
       verbose,
       dir
     );
@@ -71,15 +82,30 @@ export const PrepareAction = async ({
       dir
     );
   }
-
   if (serverless) {
     await taskRunner(
-      `Gernerate /${file_samConfig}`,
-      generateSAMConfigToml,
+      `Generate /${file_templateYaml}`,
+      generateSAMTemplate,
       verbose,
       dir
     );
   }
+
+  await Promise.all(
+    plugins.prepare.map(plugin =>
+      taskRunner(
+        `Prepare plugin ${plugin.name}`,
+        runPluginPrepare,
+        verbose,
+        dir,
+        plugin.plugin,
+        {
+          ui,
+          serverless
+        }
+      )
+    )
+  );
 };
 
 const prepareCommand = new Command("prepare");
