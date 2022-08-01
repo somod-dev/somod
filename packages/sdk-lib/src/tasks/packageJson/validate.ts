@@ -9,6 +9,7 @@ import {
   key_module,
   key_sideEffects,
   key_somod,
+  key_somodPlugins,
   key_type,
   key_typings,
   path_build,
@@ -68,6 +69,18 @@ const packageJsonSchema: JSONSchema7 = {
     [key_somod]: {
       type: "string",
       pattern: cli_version_regex.source
+    },
+    [key_somodPlugins]: {
+      type: "array",
+      items: {
+        type: "string",
+        errorMessage: {
+          type: "must be a valid plugin package name"
+        }
+      },
+      errorMessage: {
+        type: "must be array of plugin package names"
+      }
     }
   }
 };

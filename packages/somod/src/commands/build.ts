@@ -32,7 +32,11 @@ import {
   validateParametersWithSchema,
   validateServerlessTemplateWithSchema,
   validateUiConfigYaml,
-  path_pagesData
+  path_pagesData,
+  loadPlugins,
+  loadPluginNamespace,
+  runPluginPrebuild,
+  runPluginBuild
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -50,6 +54,8 @@ export const BuildAction = async ({
   const dir = findRootDir();
 
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
+
+  const plugins = await loadPlugins(dir);
 
   await Promise.all([
     taskRunner(
@@ -122,6 +128,38 @@ export const BuildAction = async ({
     serverless
   );
 
+  await Promise.all(
+    plugins.namespace.map(plugin =>
+      taskRunner(
+        `Resolve Namespaces in plugin ${plugin.name}`,
+        loadPluginNamespace,
+        verbose,
+        dir,
+        plugin.plugin,
+        {
+          ui,
+          serverless
+        }
+      )
+    )
+  );
+
+  await Promise.all(
+    plugins.prebuild.map(plugin =>
+      taskRunner(
+        `PreBuild plugin ${plugin.name}`,
+        runPluginPrebuild,
+        verbose,
+        dir,
+        plugin.plugin,
+        {
+          ui,
+          serverless
+        }
+      )
+    )
+  );
+
   await taskRunner(
     `Delete ${path_build} directory`,
     deleteBuildDir,
@@ -184,6 +222,22 @@ export const BuildAction = async ({
     dir
   );
   await taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir);
+
+  await Promise.all(
+    plugins.build.map(plugin =>
+      taskRunner(
+        `Build plugin ${plugin.name}`,
+        runPluginBuild,
+        verbose,
+        dir,
+        plugin.plugin,
+        {
+          ui,
+          serverless
+        }
+      )
+    )
+  );
 };
 
 const buildCommand = new Command("build");

@@ -11,8 +11,11 @@ import {
   generateNextConfig,
   generateRootParameters,
   generateSAMTemplate,
+  loadPlugins,
   path_pages,
-  path_public
+  path_public,
+  runPluginPrepare,
+  runPluginPreprepare
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -30,6 +33,24 @@ export const PrepareAction = async ({
   const dir = findRootDir();
 
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
+
+  const plugins = await loadPlugins(dir);
+
+  await Promise.all(
+    plugins.preprepare.map(plugin =>
+      taskRunner(
+        `PrePrepare plugin ${plugin.name}`,
+        runPluginPreprepare,
+        verbose,
+        dir,
+        plugin.plugin,
+        {
+          ui,
+          serverless
+        }
+      )
+    )
+  );
 
   if (ui) {
     await taskRunner(
@@ -69,6 +90,22 @@ export const PrepareAction = async ({
       dir
     );
   }
+
+  await Promise.all(
+    plugins.prepare.map(plugin =>
+      taskRunner(
+        `Prepare plugin ${plugin.name}`,
+        runPluginPrepare,
+        verbose,
+        dir,
+        plugin.plugin,
+        {
+          ui,
+          serverless
+        }
+      )
+    )
+  );
 };
 
 const prepareCommand = new Command("prepare");

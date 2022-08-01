@@ -35,6 +35,18 @@ exports[`Test Task validatePackageJson with not-allowed keys 1`] = `
 
 exports[`Test Task validatePackageJson with with somod 1`] = `undefined`;
 
+exports[`Test Task validatePackageJson with with somodPlugins 1`] = `undefined`;
+
+exports[`Test Task validatePackageJson with with wrong somodPlugin name 1`] = `
+"package.json has following errors
+ somodPlugins.0 must be a valid plugin package name"
+`;
+
+exports[`Test Task validatePackageJson with with wrong somodPlugins 1`] = `
+"package.json has following errors
+ somodPlugins must be array of plugin package names"
+`;
+
 exports[`Test Task validatePackageJson with wrong files 1`] = `
 "package.json has following errors
  files must contain build"

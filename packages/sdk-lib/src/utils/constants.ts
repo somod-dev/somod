@@ -28,6 +28,8 @@ export const key_files = "files";
 
 export const key_serverlessSchema = "serverlessSchema";
 
+export const key_somodPlugins = "somodPlugins";
+
 export const path_nodeModules = "node_modules";
 
 export const path_build = "build";

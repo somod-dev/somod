@@ -51,6 +51,30 @@ describe("Test Task validatePackageJson", () => {
       }
     ],
     [
+      "with somodPlugins",
+      {
+        ...allRightPackageJson,
+        ...somod,
+        somodPlugins: ["somod-plugin1"]
+      }
+    ],
+    [
+      "with wrong somodPlugins",
+      {
+        ...allRightPackageJson,
+        ...somod,
+        somodPlugins: "somod-plugin1"
+      }
+    ],
+    [
+      "with wrong somodPlugin name",
+      {
+        ...allRightPackageJson,
+        ...somod,
+        somodPlugins: [{ name: "somod-plugin1" }]
+      }
+    ],
+    [
       "wrong module",
       {
         ...allRightPackageJson,
