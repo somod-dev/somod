@@ -1,4 +1,10 @@
 import { Module, ModuleHandler } from "../moduleHandler";
+import {
+  getNodeRuntimeVersion,
+  getParameterNameFromSAMOutputName,
+  getSAMOutputName,
+  getSAMResourceLogicalId
+} from "../../utils/serverless/utils";
 
 export type Mode = { ui: boolean; serverless: boolean };
 
@@ -32,6 +38,12 @@ export type Plugin = {
   prepare?: (
     dir: string,
     moduleHandler: ModuleHandler,
-    mode: Mode
+    mode: Mode,
+    utils: {
+      getNodeRuntimeVersion: typeof getNodeRuntimeVersion;
+      getParameterNameFromSAMOutputName: typeof getParameterNameFromSAMOutputName;
+      getSAMOutputName: typeof getSAMOutputName;
+      getSAMResourceLogicalId: typeof getSAMResourceLogicalId;
+    }
   ) => Promise<void>;
 };
