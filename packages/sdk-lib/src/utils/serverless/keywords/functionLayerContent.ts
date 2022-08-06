@@ -1,3 +1,4 @@
+import { unixStylePath } from "@solib/cli-base";
 import { mkdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import {
@@ -29,16 +30,6 @@ export const apply = async (serverlessTemplate: ServerlessTemplate) => {
         const layerName =
           functionLayerContent.LayerName[KeywordSOMODResourceName];
 
-        functionLayerContent.ContentUri = `${slpTemplate.packageLocation}/${path_build}/${path_serverless}/${path_functionLayers}/${layerName}`;
-        delete functionLayerContent[KeywordSOMODFunctionLayerLibraries];
-        delete functionLayerContent[KeywordSOMODFunctionLayerContent];
-
-        replaceSOMODKeyword(
-          slpTemplate,
-          functionLayerContentKeywordPath,
-          functionLayerContent
-        );
-
         Object.keys(
           functionLayerContent[KeywordSOMODFunctionLayerContent]
         ).forEach(layerContentPath => {
@@ -56,6 +47,18 @@ export const apply = async (serverlessTemplate: ServerlessTemplate) => {
               layerContentPath
             ];
         });
+
+        functionLayerContent.ContentUri = `${unixStylePath(
+          slpTemplate.packageLocation
+        )}/${path_build}/${path_serverless}/${path_functionLayers}/${layerName}`;
+        delete functionLayerContent[KeywordSOMODFunctionLayerContent];
+        delete functionLayerContent[KeywordSOMODFunctionLayerLibraries];
+
+        replaceSOMODKeyword(
+          slpTemplate,
+          functionLayerContentKeywordPath,
+          functionLayerContent
+        );
       }
     );
   });

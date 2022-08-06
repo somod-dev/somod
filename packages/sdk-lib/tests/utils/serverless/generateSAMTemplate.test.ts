@@ -1,5 +1,6 @@
 import { unixStylePath } from "@solib/cli-base";
 import { existsSync } from "fs";
+import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateSchema } from "../../../src/tasks/serverless/validateSchema";
@@ -97,6 +98,19 @@ const templates = [
         Properties: {
           CodeUri: { "SOMOD::Function": { name: "anotherFunction" } }
         }
+      },
+      BaseApiLayer: {
+        Type: "AWS::Serverless::LayerVersion",
+        Properties: {
+          LayerName: { "SOMOD::ResourceName": "BaseApiLayer" },
+          CompatibleArchitectures: ["arm64"],
+          RetentionPolicy: "Delete",
+          "SOMOD::FunctionLayerContent": {
+            "nodejs/my-module/abcd.json": {
+              "SOMOD::Parameter": "my.var1"
+            }
+          }
+        }
       }
     }
   },
@@ -162,7 +176,12 @@ const templates = [
           },
           RetentionPolicy: "Delete",
           CompatibleArchitectures: ["arm64"],
-          "SOMOD::FunctionLayerLibraries": ["smallest"]
+          "SOMOD::FunctionLayerLibraries": ["smallest"],
+          "SOMOD::FunctionLayerContent": {
+            "nodejs/my-module/xyz.json": {
+              "SOMOD::Parameter": "my.var4"
+            }
+          }
         }
       },
       GetAuthGroupFunction: {
@@ -462,7 +481,8 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       "parameters.json": JSON.stringify({
         "my.var1": "var1Value",
         "my.var2": ["var", "2", "value"],
-        "my.var3": { var3: "value" }
+        "my.var3": { var3: "value" },
+        "my.var4": "var4Value"
       }),
       "serverless/template.yaml": dump(templates[3]),
       "package.json": JSON.stringify({
@@ -506,6 +526,31 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             }
           },
           Type: "AWS::Serverless::LayerVersion"
+        },
+        ra046855cBaseApiLayer: {
+          Type: "AWS::Serverless::LayerVersion",
+          Properties: {
+            CompatibleArchitectures: ["arm64"],
+            RetentionPolicy: "Delete",
+            ContentUri: unixStylePath(
+              join(
+                dir,
+                "node_modules",
+                "@sodaru/baseapi",
+                "build/serverless/functionLayers/BaseApiLayer"
+              )
+            ),
+            LayerName: {
+              "Fn::Sub": [
+                "somod${stackId}${moduleHash}${somodResourceName}",
+                {
+                  moduleHash: "a046855c",
+                  somodResourceName: "BaseApiLayer",
+                  stackId
+                }
+              ]
+            }
+          }
         },
         ra046855cBaseRestApi: {
           Type: "AWS::Serverless::Api",
@@ -680,6 +725,30 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         }
       }
     });
+
+    await expect(
+      readFile(
+        join(
+          dir,
+          "node_modules",
+          "@sodaru/baseapi",
+          "build/serverless/functionLayers/BaseApiLayer",
+          "nodejs/my-module/abcd.json"
+        ),
+        "utf8"
+      )
+    ).resolves.toEqual("var1Value");
+
+    await expect(
+      readFile(
+        join(
+          dir,
+          "build/serverless/functionLayers/SodaruAuthLayer",
+          "nodejs/my-module/xyz.json"
+        ),
+        "utf8"
+      )
+    ).resolves.toEqual("var4Value");
 
     expect(existsSync(join(dir, ".somod"))).not.toBeTruthy();
   });
