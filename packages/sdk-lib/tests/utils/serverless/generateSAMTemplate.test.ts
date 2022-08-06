@@ -2,8 +2,256 @@ import { unixStylePath } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { dump } from "js-yaml";
 import { join } from "path";
+import { validateSchema } from "../../../src/tasks/serverless/validateSchema";
 import { generateSAMTemplate } from "../../../src/utils/serverless/generateSAMTemplate";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
+import { installSchemaInTempDir } from "./utils";
+
+const templates = [
+  {
+    Resources: {
+      GetAuthGroupFunction: {
+        Type: "AWS::Serverless::Function",
+        Properties: {
+          CodeUri: {
+            "SOMOD::Function": {
+              name: "getAuthGroup",
+              exclude: ["@sodaru/restapi-sdk"]
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    Resources: {
+      BaseRestApi: {
+        Type: "AWS::Serverless::Api",
+        Properties: {
+          Name: { "SOMOD::ResourceName": "rootRestApi" }
+        },
+        "SOMOD::Output": {
+          default: true,
+          attributes: ["RootResourceId"]
+        }
+      },
+      BaseRestApiWelcomeFunction: {
+        Type: "AWS::Serverless::Function",
+        Properties: {
+          InlineCode:
+            'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
+          Events: {
+            ApiEvent: {
+              Type: "HttpApi",
+              Properties: {
+                Method: "GET",
+                Path: "/baseModule/welcome",
+                ApiId: { "SOMOD::Ref": { resource: "BaseRestApi" } }
+              }
+            }
+          }
+        }
+      },
+      BaseAnotherFunction: {
+        Type: "AWS::Serverless::Function",
+        Properties: {
+          CodeUri: { "SOMOD::Function": { name: "anotherFunction" } }
+        }
+      }
+    }
+  },
+  {
+    Resources: {
+      BaseRestApi: {
+        Type: "AWS::Serverless::Api",
+        Properties: {
+          Name: { "SOMOD::ResourceName": "rootRestApi" }
+        },
+        "SOMOD::Output": {
+          default: true,
+          attributes: ["RootResourceId"],
+          export: {
+            RootResourceId: "my.var3"
+          }
+        }
+      },
+      BaseRestApiWelcomeFunction: {
+        Type: "AWS::Serverless::Function",
+        Properties: {
+          InlineCode:
+            'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
+          Events: {
+            ApiEvent: {
+              Type: "HttpApi",
+              Properties: {
+                Method: "GET",
+                Path: "/baseModule/welcome",
+                ApiId: { "SOMOD::Ref": { resource: "BaseRestApi" } }
+              }
+            }
+          }
+        }
+      },
+      BaseAnotherFunction: {
+        Type: "AWS::Serverless::Function",
+        Properties: {
+          CodeUri: { "SOMOD::Function": { name: "anotherFunction" } }
+        }
+      }
+    }
+  },
+  {
+    Resources: {
+      CorrectRestApi: {
+        Type: "AWS::Serverless::Api",
+        "SOMOD::Extend": {
+          module: "@sodaru/baseapi",
+          resource: "BaseRestApi"
+        },
+        "SOMOD::DependsOn": [
+          {
+            module: "@sodaru/baseapi",
+            resource: "BaseRestApiWelcomeFunction"
+          }
+        ],
+        Properties: {
+          Description: {
+            "Fn::Sub": [
+              "Extends ${baseApi} in ${SOMOD::ModuleName}",
+              {
+                baseApi: {
+                  "SOMOD::RefResourceName": {
+                    module: "@sodaru/baseapi",
+                    resource: "BaseRestApi",
+                    property: "Name"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      CreateAuthGroupFunction: {
+        Type: "AWS::Serverless::Function",
+        Properties: {
+          CodeUri: {
+            "SOMOD::Function": {
+              name: "createAuthGroup"
+            }
+          },
+          Environment: {
+            Variables: {
+              MY_VAR1: { "SOMOD::Parameter": "my.var1" },
+              MY_VAR2: { "SOMOD::Parameter": "my.var2" }
+            }
+          }
+        }
+      },
+      AuthLayer: {
+        Type: "AWS::Serverless::LayerVersion",
+        "SOMOD::Output": {
+          default: true,
+          attributes: [],
+          export: {
+            default: "output.var4"
+          }
+        },
+        Properties: {
+          LayerName: {
+            "SOMOD::ResourceName": "SodaruAuthLayer"
+          },
+          RetentionPolicy: "Delete",
+          CompatibleArchitectures: ["arm64"],
+          "SOMOD::FunctionLayerLibraries": ["smallest"]
+        }
+      },
+      GetAuthGroupFunction: {
+        Type: "AWS::Serverless::Function",
+        Properties: {
+          Description: {
+            "Fn::Sub": [
+              "Uses layer ${authLayer}",
+              {
+                authLayer: {
+                  "SOMOD::RefResourceName": {
+                    resource: "AuthLayer",
+                    property: "LayerName"
+                  }
+                }
+              }
+            ]
+          },
+          CodeUri: {
+            "SOMOD::Function": {
+              name: "getAuthGroup",
+              exclude: ["@sodaru/restapi-sdk"]
+            }
+          },
+          Layers: [
+            {
+              "SOMOD::Ref": {
+                resource: "AuthLayer"
+              }
+            }
+          ],
+          Events: {
+            ApiEvent: {
+              Type: "HttpApi",
+              Properties: {
+                Method: "GET",
+                Path: "/authGroup/get",
+                ApiId: {
+                  "SOMOD::Ref": {
+                    module: "@sodaru/baseapi",
+                    resource: "BaseRestApi"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      ListAuthGroupsFunction: {
+        Type: "AWS::Serverless::Function",
+        "SOMOD::DependsOn": [{ resource: "GetAuthGroupFunction" }],
+        Properties: {
+          InlineCode: "waw"
+        }
+      },
+      PermissionTable: {
+        Type: "AWS::DynamoDB::Table",
+        DeletionPolicy: "Retain",
+        UpdateReplacePolicy: "Retain",
+        Properties: {}
+      }
+    }
+  }
+];
+
+describe("Validate SOMOD Templates before using them to generate SAM Template", () => {
+  let dir: string;
+
+  beforeEach(async () => {
+    dir = createTempDir();
+    await installSchemaInTempDir(dir);
+  });
+
+  afterEach(() => {
+    deleteDir(dir);
+  });
+
+  test.each(templates)("Testing template $#", async template => {
+    createFiles(dir, {
+      "serverless/template.yaml": dump(template),
+      "package.json": JSON.stringify({
+        name: "@somod/test-template",
+        version: "1.0.0"
+      })
+    });
+
+    await validateSchema(dir);
+  });
+});
 
 const stackId = {
   "Fn::Select": [
@@ -32,24 +280,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
 
   test("for simple template only", async () => {
     createFiles(dir, {
-      "serverless/template.yaml": dump({
-        Resources: {
-          GetAuthGroupFunction: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              FunctionName: {
-                "SOMOD::ResourceName": "GetAuthGroup"
-              },
-              CodeUri: {
-                "SOMOD::Function": {
-                  name: "getAuthGroup",
-                  exclude: ["@sodaru/restapi-sdk"]
-                }
-              }
-            }
-          }
-        }
-      }),
+      "serverless/template.yaml": dump(templates[0]),
       "package.json": JSON.stringify({
         name: "@sodaru/auth-somod",
         version: "1.0.0",
@@ -57,12 +288,13 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
       })
     });
 
+    await validateSchema(dir); // makesure the serverless/template is according to latest schema
+
     await expect(generateSAMTemplate(dir)).resolves.toEqual({
       Resources: {
         r64967c02baseLayer: {
           Properties: {
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs16.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
               join(
@@ -91,16 +323,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         rd7ec150dGetAuthGroupFunction: {
           Type: "AWS::Serverless::Function",
           Properties: {
-            FunctionName: {
-              "Fn::Sub": [
-                "somod${stackId}${moduleHash}${somodResourceName}",
-                {
-                  moduleHash: "d7ec150d",
-                  somodResourceName: "GetAuthGroup",
-                  stackId
-                }
-              ]
-            },
             CodeUri: unixStylePath(
               join(dir, "build/serverless/functions/getAuthGroup")
             ),
@@ -118,45 +340,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
   test("for no root template", async () => {
     createFiles(dir, {
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            BaseRestApi: {
-              Type: "AWS::Serverless::Api",
-              Properties: {
-                Name: { "SOMOD::ResourceName": "rootRestApi" }
-              },
-              "SOMOD::Output": {
-                default: true,
-                attributes: ["RootResourceId"]
-              }
-            },
-            BaseRestApiWelcomeFunction: {
-              Type: "AWS::Serverless::Function",
-              Properties: {
-                InlineCode:
-                  'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
-                Events: {
-                  ApiEvent: {
-                    Type: "Api",
-                    Properties: {
-                      Method: "GET",
-                      Path: {
-                        "SOMOD::ModuleName": "${SOMOD::ModuleName}/"
-                      },
-                      RestApiId: { "SOMOD::Ref": { resource: "BaseRestApi" } }
-                    }
-                  }
-                }
-              }
-            },
-            BaseAnotherFunction: {
-              Type: "AWS::Serverless::Function",
-              Properties: {
-                CodeUri: { "SOMOD::Function": { name: "anotherFunction" } }
-              }
-            }
-          }
-        }),
+        JSON.stringify(templates[1]),
       "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
         name: "@sodaru/baseapi",
         version: "1.0.1",
@@ -180,7 +364,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         r64967c02baseLayer: {
           Properties: {
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs16.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
               join(
@@ -228,11 +411,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
                   Method: "GET",
-                  Path: "@sodaru/baseapi/",
-                  RestApiId: { Ref: "ra046855cBaseRestApi" }
+                  Path: "/baseModule/welcome",
+                  ApiId: { Ref: "ra046855cBaseRestApi" }
                 }
               }
             }
@@ -263,48 +446,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         }
       }),
       "node_modules/@sodaru/baseapi/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            BaseRestApi: {
-              Type: "AWS::Serverless::Api",
-              Properties: {
-                Name: { "SOMOD::ResourceName": "rootRestApi" }
-              },
-              "SOMOD::Output": {
-                default: true,
-                attributes: ["RootResourceId"],
-                export: {
-                  RootResourceId: "my.var3"
-                }
-              }
-            },
-            BaseRestApiWelcomeFunction: {
-              Type: "AWS::Serverless::Function",
-              Properties: {
-                InlineCode:
-                  'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
-                Events: {
-                  ApiEvent: {
-                    Type: "Api",
-                    Properties: {
-                      Method: "GET",
-                      Path: {
-                        "SOMOD::ModuleName": "${SOMOD::ModuleName}/"
-                      },
-                      RestApiId: { "SOMOD::Ref": { resource: "BaseRestApi" } }
-                    }
-                  }
-                }
-              }
-            },
-            BaseAnotherFunction: {
-              Type: "AWS::Serverless::Function",
-              Properties: {
-                CodeUri: { "SOMOD::Function": { name: "anotherFunction" } }
-              }
-            }
-          }
-        }),
+        JSON.stringify(templates[2]),
       "node_modules/@sodaru/baseapi/package.json": JSON.stringify({
         name: "@sodaru/baseapi",
         version: "1.0.1",
@@ -322,143 +464,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         "my.var2": ["var", "2", "value"],
         "my.var3": { var3: "value" }
       }),
-      "serverless/template.yaml": dump({
-        Resources: {
-          CorrectRestApi: {
-            "SOMOD::Extend": {
-              module: "@sodaru/baseapi",
-              resource: "BaseRestApi"
-            },
-            "SOMOD::DependsOn": [
-              {
-                module: "@sodaru/baseapi",
-                resource: "BaseRestApiWelcomeFunction"
-              }
-            ],
-            Properties: {
-              Description: {
-                "Fn::Sub": [
-                  "Extends ${baseApi} in ${SOMOD::ModuleName}",
-                  {
-                    baseApi: {
-                      "SOMOD::RefResourceName": {
-                        module: "@sodaru/baseapi",
-                        resource: "BaseRestApi",
-                        property: "Name"
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          CreateAuthGroupFunction: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              FunctionName: {
-                "SOMOD::ResourceName": "CreateAuthGroup"
-              },
-              CodeUri: {
-                "SOMOD::Function": {
-                  name: "createAuthGroup"
-                }
-              },
-              Environment: {
-                Variables: {
-                  MY_VAR1: { "SOMOD::Parameter": "my.var1" },
-                  MY_VAR2: { "SOMOD::Parameter": "my.var2" }
-                }
-              }
-            }
-          },
-          AuthLayer: {
-            Type: "AWS::Serverless::LayerVersion",
-            "SOMOD::Output": {
-              default: true,
-              attributes: [],
-              export: {
-                default: "output.var4"
-              }
-            },
-            Properties: {
-              LayerName: {
-                "SOMOD::ResourceName": "SodaruAuthLayer"
-              },
-              RetentionPolicy: "Delete",
-              CompatibleArchitectures: ["arm64"],
-              CompatibleRuntimes: ["nodejs16.x"],
-              ContentUri: unixStylePath(
-                join(
-                  dir,
-                  "build",
-                  "serverless",
-                  "functionLayers",
-                  "sodaruAuthLayer"
-                )
-              )
-            }
-          },
-          GetAuthGroupFunction: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              FunctionName: {
-                "SOMOD::ResourceName": "GetAuthGroup"
-              },
-              Description: {
-                "Fn::Sub": [
-                  "Uses layer ${authLayer}",
-                  {
-                    authLayer: {
-                      "SOMOD::RefResourceName": {
-                        resource: "AuthLayer",
-                        property: "LayerName"
-                      }
-                    }
-                  }
-                ]
-              },
-              CodeUri: {
-                "SOMOD::Function": {
-                  name: "getAuthGroup",
-                  exclude: ["@sodaru/restapi-sdk"]
-                }
-              },
-              Layers: [
-                {
-                  "SOMOD::Ref": {
-                    resource: "AuthLayer"
-                  }
-                }
-              ],
-              Events: {
-                ApiEvent: {
-                  Type: "Api",
-                  Properties: {
-                    Method: "GET",
-                    Path: "/auth-group/get",
-                    RestApiId: {
-                      "SOMOD::Ref": {
-                        module: "@sodaru/baseapi",
-                        resource: "BaseRestApi"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          ListAuthGroupsFunction: {
-            Type: "AWS::Serverless::Function",
-            "SOMOD::DependsOn": [{ resource: "GetAuthGroupFunction" }],
-            Properties: {}
-          },
-          PermissionTable: {
-            Type: "AWS::DynamoDB::Table",
-            DeletionPolicy: "Retain",
-            UpdateReplacePolicy: "Retain"
-          }
-        }
-      }),
+      "serverless/template.yaml": dump(templates[3]),
       "package.json": JSON.stringify({
         name: "@sodaru/auth-somod",
         version: "1.0.0",
@@ -476,7 +482,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         r64967c02baseLayer: {
           Properties: {
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs16.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
               join(
@@ -542,11 +547,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               'module.exports.handler = async (event, context) => { return { "body": "Welcome to Entranse Platform APIs", "statusCode": 200 }; }',
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
                   Method: "GET",
-                  Path: "@sodaru/baseapi/",
-                  RestApiId: { Ref: "ra046855cBaseRestApi" }
+                  Path: "/baseModule/welcome",
+                  ApiId: { Ref: "ra046855cBaseRestApi" }
                 }
               }
             }
@@ -569,16 +574,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             CodeUri: unixStylePath(
               join(dir, "build/serverless/functions/createAuthGroup")
             ),
-            FunctionName: {
-              "Fn::Sub": [
-                "somod${stackId}${moduleHash}${somodResourceName}",
-                {
-                  moduleHash: "d7ec150d",
-                  somodResourceName: "CreateAuthGroup",
-                  stackId
-                }
-              ]
-            },
             Environment: {
               Variables: {
                 MY_VAR1: "var1Value",
@@ -603,7 +598,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
               ]
             },
             CompatibleArchitectures: ["arm64"],
-            CompatibleRuntimes: ["nodejs16.x"],
             RetentionPolicy: "Delete",
             ContentUri: unixStylePath(
               join(
@@ -611,7 +605,7 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
                 "build",
                 "serverless",
                 "functionLayers",
-                "sodaruAuthLayer"
+                "SodaruAuthLayer"
               )
             )
           }
@@ -619,16 +613,6 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         rd7ec150dGetAuthGroupFunction: {
           Type: "AWS::Serverless::Function",
           Properties: {
-            FunctionName: {
-              "Fn::Sub": [
-                "somod${stackId}${moduleHash}${somodResourceName}",
-                {
-                  moduleHash: "d7ec150d",
-                  somodResourceName: "GetAuthGroup",
-                  stackId
-                }
-              ]
-            },
             CodeUri: unixStylePath(
               join(dir, "build/serverless/functions/getAuthGroup")
             ),
@@ -657,11 +641,11 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
             ],
             Events: {
               ApiEvent: {
-                Type: "Api",
+                Type: "HttpApi",
                 Properties: {
                   Method: "GET",
-                  Path: "/auth-group/get",
-                  RestApiId: {
+                  Path: "/authGroup/get",
+                  ApiId: {
                     Ref: "ra046855cBaseRestApi"
                   }
                 }
@@ -671,13 +655,14 @@ describe("Test Util serverlessTemplate.generateSAMTemplate", () => {
         },
         rd7ec150dListAuthGroupsFunction: {
           Type: "AWS::Serverless::Function",
-          Properties: {},
+          Properties: { InlineCode: "waw" },
           DependsOn: ["rd7ec150dGetAuthGroupFunction"]
         },
         rd7ec150dPermissionTable: {
           Type: "AWS::DynamoDB::Table",
           DeletionPolicy: "Retain",
-          UpdateReplacePolicy: "Retain"
+          UpdateReplacePolicy: "Retain",
+          Properties: {}
         }
       },
       Outputs: {
