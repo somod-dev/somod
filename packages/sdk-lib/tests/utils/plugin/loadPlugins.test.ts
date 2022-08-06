@@ -128,7 +128,8 @@ describe("Test util loadPlugins", () => {
         prebuild: 500,
         build: 600,
         preprepare: 700,
-        prepare: 800
+        prepare: 800,
+        ignorePatterns: {eslint: ["path1"]}
       }`
     });
 
@@ -155,7 +156,8 @@ describe("Test util loadPlugins", () => {
           prebuild: 500,
           build: 600,
           preprepare: 700,
-          prepare: 800
+          prepare: 800,
+          ignorePatterns: { eslint: ["path1"] }
         }
       }
     ]);

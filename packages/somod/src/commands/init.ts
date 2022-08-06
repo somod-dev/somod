@@ -36,6 +36,10 @@ import {
   SOMODCommandTypeOptions
 } from "../utils/common";
 
+const uniq = <T = unknown>(a: T[]): T[] => {
+  return Array.from(new Set(a));
+};
+
 type InitOptions = CommonOptions & SOMODCommandTypeOptions;
 
 export const InitAction = async ({
@@ -83,7 +87,7 @@ export const InitAction = async ({
       verbose,
       dir,
       file_gitIgnore,
-      somodIgnorePaths
+      uniq([...somodIgnorePaths, ...plugins.ignorePatterns.git])
     ),
 
     taskRunner(
@@ -92,7 +96,11 @@ export const InitAction = async ({
       verbose,
       dir,
       file_prettierIgnore,
-      [...somodIgnorePaths, file_tsConfigBuildJson]
+      uniq([
+        ...somodIgnorePaths,
+        file_tsConfigBuildJson,
+        ...plugins.ignorePatterns.prettier
+      ])
     ),
 
     taskRunner(
@@ -101,7 +109,7 @@ export const InitAction = async ({
       verbose,
       dir,
       file_eslintIgnore,
-      somodIgnorePaths
+      uniq([...somodIgnorePaths, ...plugins.ignorePatterns.eslint])
     ),
 
     taskRunner(

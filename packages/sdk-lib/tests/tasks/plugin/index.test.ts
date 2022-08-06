@@ -23,7 +23,8 @@ describe("Test task loadPlugins", () => {
       build: [],
       preprepare: [],
       prepare: [],
-      tsconfig: { compilerOptions: {}, include: [] }
+      tsconfig: { compilerOptions: {}, include: [] },
+      ignorePatterns: { git: [], eslint: [], prettier: [] }
     });
   });
 
@@ -55,7 +56,8 @@ describe("Test task loadPlugins", () => {
       build: plugins,
       preprepare: plugins,
       prepare: plugins,
-      tsconfig: plugins[0].plugin.tsconfig
+      tsconfig: plugins[0].plugin.tsconfig,
+      ignorePatterns: { git: [], eslint: [], prettier: [] }
     });
   });
 
@@ -72,7 +74,8 @@ describe("Test task loadPlugins", () => {
               lib: ["DOM"]
             },
             include: ["widgets"]
-          }
+          },
+          ignorePatterns: { eslint: ["path1"], prettier: [] }
         }
       },
       {
@@ -98,7 +101,12 @@ describe("Test task loadPlugins", () => {
           prebuild: jest.fn(),
           build: jest.fn(),
           preprepare: jest.fn(),
-          prepare: jest.fn()
+          prepare: jest.fn(),
+          ignorePatterns: {
+            git: ["path1", "path2"],
+            eslint: ["path1"],
+            prettier: ["path1", "pathx"]
+          }
         }
       }
     ];
@@ -115,6 +123,11 @@ describe("Test task loadPlugins", () => {
           lib: ["DOM", "ESNext"]
         },
         include: ["widgets", "schemas"]
+      },
+      ignorePatterns: {
+        git: ["path1", "path2"],
+        eslint: ["path1", "path1"],
+        prettier: ["path1", "pathx"]
       }
     });
   });

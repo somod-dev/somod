@@ -8,6 +8,11 @@ export type Plugin = {
     compilerOptions?: Record<string, unknown>;
     include?: string[];
   };
+  ignorePatterns?: {
+    git?: string[];
+    eslint?: string[];
+    prettier?: string[];
+  };
   namespaceLoader?: (module: Module, mode: Mode) => Promise<void>;
   prebuild?: (
     dir: string,
