@@ -46,11 +46,10 @@
     "Properties": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "LayerName",
-        "CompatibleArchitectures",
-        "SOMOD::FunctionLayerLibraries",
-        "RetentionPolicy"
+      "required": ["LayerName", "CompatibleArchitectures", "RetentionPolicy"],
+      "anyOf": [
+        { "type": "object", "required": ["SOMOD::FunctionLayerLibraries"] },
+        { "type": "object", "required": ["SOMOD::FunctionLayerContent"] }
       ],
       "properties": {
         "LayerName": {
@@ -72,6 +71,18 @@
           },
           "minItems": 1,
           "maxItems": 32
+        },
+        "SOMOD::FunctionLayerContent": {
+          "type": "object",
+          "description": "The Layer Content, map of file-path to file-content",
+          "additionalProperties": false,
+          "patternProperties": {
+            ".*": {
+              "$ref": "../components/expression.json#/definitions/stringLike"
+            }
+          },
+          "minProperties": 1,
+          "maxProperties": 32
         },
         "Description": { "type": "string", "maxLength": 256 }
       }

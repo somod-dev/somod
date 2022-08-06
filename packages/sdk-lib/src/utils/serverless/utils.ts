@@ -23,9 +23,13 @@ export const getSOMODKeyword = <T extends SOMODKeyword>(
 export const replaceSOMODKeyword = (
   slpTemplate: SLPTemplate,
   path: string[],
-  newValue: unknown
+  newValue: unknown,
+  includeOriginal = false
 ): void => {
   replaceKeyword(slpTemplate.Resources, path, newValue);
+  if (includeOriginal) {
+    replaceKeyword(slpTemplate.original.Resources, path, newValue);
+  }
 };
 
 export const getNodeRuntimeVersion = () => {

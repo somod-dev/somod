@@ -58,7 +58,7 @@ export const apply = (
         parameterValue = "";
       }
 
-      replaceSOMODKeyword(slpTemplate, parameterPath, parameterValue);
+      replaceSOMODKeyword(slpTemplate, parameterPath, parameterValue, true);
     });
   });
 };
