@@ -20,7 +20,7 @@ export const buildTemplateYaml = async (dir: string): Promise<void> => {
     const rootSlpTemplate = serverlessTemplate[rootModuleNode.module.name];
     delete serverlessTemplate[rootModuleNode.module.name];
 
-    const allParameters = await listAllParameters(dir);
+    const allParameters = Object.keys(await listAllParameters(dir));
     await validateKeywords(rootSlpTemplate, serverlessTemplate, allParameters);
 
     await buildRootSLPTemplate(rootModuleNode);

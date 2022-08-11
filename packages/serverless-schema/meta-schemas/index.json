@@ -6,29 +6,19 @@
     { "$ref": "http://json-schema.org/draft-07/schema" },
     {
       "type": "object",
-      "required": [
-        "$schema",
-        "$id",
-        "title",
-        "type",
-        "required",
-        "properties",
-        "additionalProperties"
-      ],
+      "required": ["$schema", "$id", "title", "type", "required", "properties"],
       "properties": {
         "$schema": { "type": "string" },
         "$id": { "type": "string", "format": "uri-reference" },
         "title": { "type": "string" },
         "type": { "const": "object" },
-        "required": { "const": ["Resources"] },
+        "required": { "type": "array", "contains": { "const": "Resources" } },
         "properties": {
           "type": "object",
-          "additionalProperties": false,
           "required": ["Resources"],
           "properties": {
             "Resources": {
               "type": "object",
-              "additionalProperties": false,
               "required": ["type", "additionalProperties", "patternProperties"],
               "properties": {
                 "type": { "const": "object" },
@@ -46,10 +36,8 @@
               }
             }
           }
-        },
-        "additionalProperties": { "const": false }
-      },
-      "additionalProperties": false
+        }
+      }
     }
   ]
 }

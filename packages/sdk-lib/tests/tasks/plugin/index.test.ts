@@ -19,11 +19,13 @@ describe("Test task loadPlugins", () => {
     await expect(loadPlugins("")).resolves.toEqual({
       init: [],
       namespace: [],
+      parameterFilters: {},
       prebuild: [],
       build: [],
       preprepare: [],
       prepare: [],
-      tsconfig: { compilerOptions: {}, include: [] }
+      tsconfig: { compilerOptions: {}, include: [] },
+      ignorePatterns: { git: [], eslint: [], prettier: [] }
     });
   });
 
@@ -34,6 +36,7 @@ describe("Test task loadPlugins", () => {
         plugin: {
           init: jest.fn(),
           namespaceLoader: jest.fn(),
+          parameterFilters: { f1: jest.fn() },
           prebuild: jest.fn(),
           build: jest.fn(),
           preprepare: jest.fn(),
@@ -43,6 +46,9 @@ describe("Test task loadPlugins", () => {
               lib: ["DOM"]
             },
             include: ["widgets"]
+          },
+          ignorePatterns: {
+            git: [".vercel"]
           }
         }
       }
@@ -51,11 +57,13 @@ describe("Test task loadPlugins", () => {
     await expect(loadPlugins("")).resolves.toEqual({
       init: plugins,
       namespace: plugins,
+      parameterFilters: plugins[0].plugin.parameterFilters,
       prebuild: plugins,
       build: plugins,
       preprepare: plugins,
       prepare: plugins,
-      tsconfig: plugins[0].plugin.tsconfig
+      tsconfig: plugins[0].plugin.tsconfig,
+      ignorePatterns: { git: [".vercel"], eslint: [], prettier: [] }
     });
   });
 
@@ -72,7 +80,8 @@ describe("Test task loadPlugins", () => {
               lib: ["DOM"]
             },
             include: ["widgets"]
-          }
+          },
+          ignorePatterns: { eslint: ["path1"], prettier: [] }
         }
       },
       {
@@ -80,6 +89,7 @@ describe("Test task loadPlugins", () => {
         plugin: {
           init: jest.fn(),
           namespaceLoader: jest.fn(),
+          parameterFilters: { f1: jest.fn(), f2: jest.fn() },
           prebuild: jest.fn(),
           build: jest.fn(),
           prepare: jest.fn(),
@@ -98,7 +108,12 @@ describe("Test task loadPlugins", () => {
           prebuild: jest.fn(),
           build: jest.fn(),
           preprepare: jest.fn(),
-          prepare: jest.fn()
+          prepare: jest.fn(),
+          ignorePatterns: {
+            git: ["path1", "path2"],
+            eslint: ["path1"],
+            prettier: ["path1", "pathx"]
+          }
         }
       }
     ];
@@ -106,6 +121,7 @@ describe("Test task loadPlugins", () => {
     await expect(loadPlugins("")).resolves.toEqual({
       init: [plugins[1], plugins[2]],
       namespace: [plugins[1]],
+      parameterFilters: plugins[1].plugin.parameterFilters,
       prebuild: [plugins[2], plugins[1], plugins[0]],
       build: [plugins[1], plugins[2]],
       preprepare: [plugins[2], plugins[0]],
@@ -115,6 +131,11 @@ describe("Test task loadPlugins", () => {
           lib: ["DOM", "ESNext"]
         },
         include: ["widgets", "schemas"]
+      },
+      ignorePatterns: {
+        git: ["path1", "path2"],
+        eslint: ["path1", "path1"],
+        prettier: ["path1", "pathx"]
       }
     });
   });

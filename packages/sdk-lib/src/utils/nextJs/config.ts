@@ -81,7 +81,7 @@ const validate = async (dir: string) => {
 
   const config = await loadConfig(rootModuleNode.module);
 
-  const parameters = await listAllParameters(dir);
+  const parameters = Object.keys(await listAllParameters(dir));
 
   const keywordPaths = getKeywordPaths(config, [KeywordSomodParameter]);
 

@@ -2,7 +2,7 @@ import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
 import { build as esbuild } from "esbuild";
 import { existsSync } from "fs";
 import { mkdir, readdir, writeFile } from "fs/promises";
-import { cloneDeep } from "lodash";
+import { cloneDeep, uniq } from "lodash";
 import { dirname, join } from "path";
 import {
   file_index_js,
@@ -218,7 +218,10 @@ export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
         );
         const excludeFileDir = dirname(excludeFilePath);
         await mkdir(excludeFileDir, { recursive: true });
-        await writeFile(excludeFilePath, JSON.stringify({ external }));
+        await writeFile(
+          excludeFilePath,
+          JSON.stringify({ external: uniq(external.sort()) })
+        );
       }
     )
   );

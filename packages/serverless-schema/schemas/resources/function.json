@@ -381,6 +381,21 @@
       }
     }
   },
+  "anyOf": [
+    {
+      "type": "object",
+      "required": ["SOMOD::Extend"]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "Properties": {
+          "type": "object",
+          "oneOf": [{ "required": ["CodeUri"] }, { "required": ["InlineCode"] }]
+        }
+      }
+    }
+  ],
   "properties": {
     "Type": {
       "const": "AWS::Serverless::Function"
@@ -429,7 +444,6 @@
       "type": "object",
       "additionalProperties": false,
       "required": [],
-      "oneOf": [{ "required": ["CodeUri"] }, { "required": ["InlineCode"] }],
       "properties": {
         "Architectures": {
           "type": "array",

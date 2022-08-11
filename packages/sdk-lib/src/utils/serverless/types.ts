@@ -11,6 +11,7 @@ export const KeywordSOMODRefResourceName = "SOMOD::RefResourceName";
 export const KeywordSOMODFunction = "SOMOD::Function";
 export const KeywordSOMODFunctionLayerLibraries =
   "SOMOD::FunctionLayerLibraries";
+export const KeywordSOMODFunctionLayerContent = "SOMOD::FunctionLayerContent";
 export const KeywordSOMODModuleName = "SOMOD::ModuleName";
 export const KeywordFnSub = "Fn::Sub";
 
@@ -25,6 +26,7 @@ export type KeywordAny =
   | typeof KeywordSOMODRefResourceName
   | typeof KeywordSOMODFunction
   | typeof KeywordSOMODFunctionLayerLibraries
+  | typeof KeywordSOMODFunctionLayerContent
   | typeof KeywordSOMODModuleName
   | typeof KeywordFnSub;
 
@@ -39,6 +41,7 @@ export const KeywordAll: KeywordAny[] = [
   KeywordSOMODRefResourceName,
   KeywordSOMODFunction,
   KeywordSOMODFunctionLayerLibraries,
+  KeywordSOMODFunctionLayerContent,
   KeywordSOMODModuleName,
   KeywordFnSub
 ];
@@ -100,6 +103,11 @@ export type SOMODFunctionLayerLibraries = {
   [KeywordSOMODFunctionLayerLibraries]: string[];
 };
 
+export type SOMODFunctionLayerContent = {
+  LayerName: SOMODResourceName;
+  [KeywordSOMODFunctionLayerContent]: Record<string, string>;
+};
+
 export type SOMODModuleName = {
   [KeywordSOMODModuleName]: string;
 };
@@ -118,6 +126,7 @@ export type SOMODKeyword =
   | SOMODRefResourceName
   | SOMODFunction
   | SOMODFunctionLayerLibraries
+  | SOMODFunctionLayerContent
   | SOMODModuleName
   | FnSub;
 

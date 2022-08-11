@@ -87,8 +87,7 @@ export const init = async (
   serverless: boolean,
   force = false
 ) => {
-  const baseUrl =
-    "https://raw.githubusercontent.com/sodaru/somod-init-template/v1/";
+  const baseUrl = "https://v1.init-template.somod.sodaru.com/";
   const filesListStr = await download(baseUrl + "files.json");
   const filesList = JSON.parse(filesListStr) as {
     common: string[];

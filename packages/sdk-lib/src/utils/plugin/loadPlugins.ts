@@ -3,7 +3,6 @@ import { dirname, join } from "path";
 import {
   file_packageJson,
   key_main,
-  key_module,
   key_somodPlugins,
   path_nodeModules
 } from "../constants";
@@ -46,9 +45,7 @@ const getPluginModuleLocation = async (dir: string, moduleName: string) => {
   }
 
   const pluginPackageJson = await read(moduleLocation);
-  const main = (pluginPackageJson[key_module] ||
-    pluginPackageJson[key_main] ||
-    "index.js") as string;
+  const main = (pluginPackageJson[key_main] || "index.js") as string;
 
   return join(moduleLocation, main);
 };

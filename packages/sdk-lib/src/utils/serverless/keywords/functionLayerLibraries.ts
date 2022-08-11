@@ -1,7 +1,8 @@
 import {
   childProcess,
   ChildProcessStreamConfig,
-  readJsonFileStore
+  readJsonFileStore,
+  unixStylePath
 } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { mkdir, readdir, writeFile } from "fs/promises";
@@ -17,7 +18,8 @@ import {
   KeywordSOMODResourceName,
   ServerlessTemplate,
   SOMODFunctionLayerLibraries,
-  SLPTemplate
+  SLPTemplate,
+  KeywordSOMODFunctionLayerContent
 } from "../types";
 import { getSOMODKeyword, replaceSOMODKeyword } from "../utils";
 
@@ -71,8 +73,11 @@ export const apply = (serverlessTemplate: ServerlessTemplate) => {
         const layerName =
           functionLayerLibraries.LayerName[KeywordSOMODResourceName];
 
-        functionLayerLibraries.ContentUri = `${slpTemplate.packageLocation}/${path_build}/${path_serverless}/${path_functionLayers}/${layerName}`;
+        functionLayerLibraries.ContentUri = `${unixStylePath(
+          slpTemplate.packageLocation
+        )}/${path_build}/${path_serverless}/${path_functionLayers}/${layerName}`;
         delete functionLayerLibraries[KeywordSOMODFunctionLayerLibraries];
+        delete functionLayerLibraries[KeywordSOMODFunctionLayerContent];
 
         replaceSOMODKeyword(
           slpTemplate,

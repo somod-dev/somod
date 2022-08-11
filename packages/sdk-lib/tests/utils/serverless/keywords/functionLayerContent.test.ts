@@ -10,8 +10,9 @@ import {
 import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
 import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
 import { installSchemaInTempDir, StringifyTemplate } from "../utils";
+import { existsSync } from "fs";
 
-describe("test keyword SOMOD::FunctionLayerLibraries", () => {
+describe("test keyword SOMOD::FunctionLayerContent", () => {
   let dir: string = null;
   let buildTemplateJsonPath = null;
 
@@ -25,7 +26,7 @@ describe("test keyword SOMOD::FunctionLayerLibraries", () => {
     deleteDir(dir);
   });
 
-  test("with SOMOD::FunctionLayerLibraries", async () => {
+  test("without SOMOD::FunctionLayerContent and SOMOD::FunctionLayerLibraries", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -35,7 +36,6 @@ describe("test keyword SOMOD::FunctionLayerLibraries", () => {
             LayerName: {
               "SOMOD::ResourceName": "mylayer"
             },
-            "SOMOD::FunctionLayerLibraries": ["smallest"],
             RetentionPolicy: "Delete"
           }
         }
@@ -52,41 +52,21 @@ describe("test keyword SOMOD::FunctionLayerLibraries", () => {
         somod: "1.3.2"
       })
     });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(buildTemplateJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(StringifyTemplate(template));
-    await expect(
-      readFile(
-        join(
-          dir,
-          path_build,
-          path_serverless,
-          path_functionLayers,
-          "mylayer",
-          "nodejs",
-          "package.json"
-        ),
-        { encoding: "utf8" }
-      )
-    ).resolves.toEqual(
-      JSON.stringify(
-        {
-          name: "@my-scope/sample-mylayer",
-          version: "1.0.0",
-          description: "Lambda function layer - mylayer",
-          dependencies: {
-            smallest: "^1.0.1"
-          }
-        },
-        null,
-        2
-      )
-    );
+
+    await expect(validateSchema(dir)).rejects.toMatchInlineSnapshot(`
+            [Error: ${join(
+              dir,
+              "serverless/template.yaml"
+            )} has following errors
+             Resources.Resource1.Properties must have required property 'SOMOD::FunctionLayerLibraries'
+             Resources.Resource1.Properties must have required property 'SOMOD::FunctionLayerContent'
+             Resources.Resource1.Properties must match a schema in anyOf
+             Resources.Resource1 must match "then" schema
+             Resources.Resource1 must match "else" schema]
+          `);
   });
 
-  test("along with SOMOD::FunctionLayerContent", async () => {
+  test("with only SOMOD::FunctionLayerContent", async () => {
     const template = {
       Resources: {
         Resource1: {
@@ -96,7 +76,6 @@ describe("test keyword SOMOD::FunctionLayerLibraries", () => {
             LayerName: {
               "SOMOD::ResourceName": "mylayer"
             },
-            "SOMOD::FunctionLayerLibraries": ["smallest"],
             "SOMOD::FunctionLayerContent": {
               "nodejs/dynamic-layer-content": '{"a":1}'
             },
@@ -121,32 +100,10 @@ describe("test keyword SOMOD::FunctionLayerLibraries", () => {
     await expect(
       readFile(buildTemplateJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(StringifyTemplate(template));
-    await expect(
-      readFile(
-        join(
-          dir,
-          path_build,
-          path_serverless,
-          path_functionLayers,
-          "mylayer",
-          "nodejs",
-          "package.json"
-        ),
-        { encoding: "utf8" }
+    expect(
+      existsSync(
+        join(dir, path_build, path_serverless, path_functionLayers, "mylayer")
       )
-    ).resolves.toEqual(
-      JSON.stringify(
-        {
-          name: "@my-scope/sample-mylayer",
-          version: "1.0.0",
-          description: "Lambda function layer - mylayer",
-          dependencies: {
-            smallest: "^1.0.1"
-          }
-        },
-        null,
-        2
-      )
-    );
+    ).not.toBeTruthy();
   });
 });

@@ -31,6 +31,7 @@ import {
   apply as applyFunctionLayerLibraries,
   validate as validateFunctionLayers
 } from "./keywords/functionLayerLibraries";
+import { apply as applyFunctionLayerContent } from "./keywords/functionLayerContent";
 import { apply as applyModuleName } from "./keywords/moduleName";
 import {
   apply as applyOutput,
@@ -226,18 +227,19 @@ export const validateKeywords = async (
   }
 };
 
-export const applyKeywords = (
+export const applyKeywords = async (
   serverlessTemplate: ServerlessTemplate,
   paramaterValues: ParameterValues
 ) => {
+  applyParameter(serverlessTemplate, paramaterValues);
   applyModuleName(serverlessTemplate);
   applyAccess(serverlessTemplate);
   applyFnSub(serverlessTemplate);
   applyFunction(serverlessTemplate);
   applyFunctionLayerLibraries(serverlessTemplate);
+  await applyFunctionLayerContent(serverlessTemplate);
   applyResourceName(serverlessTemplate);
   applyRef(serverlessTemplate);
-  applyParameter(serverlessTemplate, paramaterValues);
   applyRefResourceName(serverlessTemplate);
   applyDependsOn(serverlessTemplate);
   applyOutput(serverlessTemplate);

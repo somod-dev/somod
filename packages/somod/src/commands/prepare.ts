@@ -11,6 +11,7 @@ import {
   generateNextConfig,
   generateRootParameters,
   generateSAMTemplate,
+  loadPluginParameterFilters,
   loadPlugins,
   path_pages,
   path_public,
@@ -50,6 +51,13 @@ export const PrepareAction = async ({
         }
       )
     )
+  );
+
+  await taskRunner(
+    `Register Parameter Filters from plugins`,
+    loadPluginParameterFilters,
+    verbose,
+    plugins.parameterFilters
   );
 
   if (ui) {

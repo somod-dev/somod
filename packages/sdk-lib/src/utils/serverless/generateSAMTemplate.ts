@@ -16,7 +16,7 @@ export const generateSAMTemplate = async (
 
   const parameterValues = await loadAllParameterValues(dir);
 
-  applyKeywords(serverlessTemplate, parameterValues);
+  await applyKeywords(serverlessTemplate, parameterValues);
 
   cleanUpBaseModule(serverlessTemplate);
 

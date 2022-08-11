@@ -1,4 +1,11 @@
 import { Module, ModuleHandler } from "../moduleHandler";
+import {
+  getNodeRuntimeVersion,
+  getParameterNameFromSAMOutputName,
+  getSAMOutputName,
+  getSAMResourceLogicalId
+} from "../../utils/serverless/utils";
+import { FilterFunction } from "../parameters/filters";
 
 export type Mode = { ui: boolean; serverless: boolean };
 
@@ -8,7 +15,13 @@ export type Plugin = {
     compilerOptions?: Record<string, unknown>;
     include?: string[];
   };
+  ignorePatterns?: {
+    git?: string[];
+    eslint?: string[];
+    prettier?: string[];
+  };
   namespaceLoader?: (module: Module, mode: Mode) => Promise<void>;
+  parameterFilters?: Record<string, FilterFunction>;
   prebuild?: (
     dir: string,
     moduleHandler: ModuleHandler,
@@ -27,6 +40,12 @@ export type Plugin = {
   prepare?: (
     dir: string,
     moduleHandler: ModuleHandler,
-    mode: Mode
+    mode: Mode,
+    utils: {
+      getNodeRuntimeVersion: typeof getNodeRuntimeVersion;
+      getParameterNameFromSAMOutputName: typeof getParameterNameFromSAMOutputName;
+      getSAMOutputName: typeof getSAMOutputName;
+      getSAMResourceLogicalId: typeof getSAMResourceLogicalId;
+    }
   ) => Promise<void>;
 };

@@ -25,7 +25,14 @@ describe("Test Util parameters.loadParameterNamespaces", () => {
       packageLocation: dir
     };
     await expect(loadParameterNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({ ...module, namespaces: { Parameter: [] } });
+    expect(module).toEqual({
+      ...module,
+      namespaces: {
+        Parameter: [],
+        "Parameter Group": [],
+        "Parameter Schema": []
+      }
+    });
   });
 
   test("for no file in root module", async () => {
@@ -38,7 +45,14 @@ describe("Test Util parameters.loadParameterNamespaces", () => {
       root: true
     };
     await expect(loadParameterNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({ ...module, namespaces: { Parameter: [] } });
+    expect(module).toEqual({
+      ...module,
+      namespaces: {
+        Parameter: [],
+        "Parameter Group": [],
+        "Parameter Schema": []
+      }
+    });
   });
 
   test("for empty parameters in build", async () => {
@@ -53,7 +67,14 @@ describe("Test Util parameters.loadParameterNamespaces", () => {
       packageLocation: dir
     };
     await expect(loadParameterNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({ ...module, namespaces: { Parameter: [] } });
+    expect(module).toEqual({
+      ...module,
+      namespaces: {
+        Parameter: [],
+        "Parameter Group": [],
+        "Parameter Schema": []
+      }
+    });
   });
 
   test("for parameters in build", async () => {
@@ -61,6 +82,17 @@ describe("Test Util parameters.loadParameterNamespaces", () => {
       Parameters: {
         "my.param": { type: "text", default: "one" },
         "my.param2": { type: "text", default: "two" }
+      },
+      Groups: {
+        my: {
+          label: "My Group"
+        }
+      },
+      Schemas: {
+        "my.schema": {
+          type: "object",
+          required: ["my.param"]
+        }
       }
     };
     createFiles(dir, {
@@ -76,7 +108,11 @@ describe("Test Util parameters.loadParameterNamespaces", () => {
     await expect(loadParameterNamespaces(module)).resolves.toBeUndefined();
     expect(module).toEqual({
       ...module,
-      namespaces: { Parameter: Object.keys(parameters.Parameters) }
+      namespaces: {
+        Parameter: Object.keys(parameters.Parameters),
+        "Parameter Group": Object.keys(parameters.Groups),
+        "Parameter Schema": Object.keys(parameters.Schemas)
+      }
     });
   });
 
@@ -101,7 +137,11 @@ describe("Test Util parameters.loadParameterNamespaces", () => {
     await expect(loadParameterNamespaces(module)).resolves.toBeUndefined();
     expect(module).toEqual({
       ...module,
-      namespaces: { Parameter: Object.keys(parameters.Parameters) }
+      namespaces: {
+        Parameter: Object.keys(parameters.Parameters),
+        "Parameter Group": [],
+        "Parameter Schema": []
+      }
     });
   });
 });
@@ -161,7 +201,7 @@ describe("Test Util parameters.listAllParameters", () => {
         somod: "1.0.0"
       })
     });
-    await expect(listAllParameters(dir)).resolves.toEqual([]);
+    await expect(listAllParameters(dir)).resolves.toEqual({});
   });
 
   test("for only root parameters.yaml", async () => {
@@ -173,15 +213,17 @@ describe("Test Util parameters.listAllParameters", () => {
       }),
       "parameters.yaml": files["parameters.yaml"]
     });
-    await expect(listAllParameters(dir)).resolves.toEqual(["my.param1"]);
+    await expect(listAllParameters(dir)).resolves.toEqual({
+      "my.param1": "my-module"
+    });
   });
 
   test("for parameters in dependency too", async () => {
     createFiles(dir, files);
-    await expect(listAllParameters(dir)).resolves.toEqual([
-      "my.param1",
-      "my1.param1",
-      "my1.param2"
-    ]);
+    await expect(listAllParameters(dir)).resolves.toEqual({
+      "my.param1": "my-module",
+      "my1.param1": "m1",
+      "my1.param2": "m1"
+    });
   });
 });
