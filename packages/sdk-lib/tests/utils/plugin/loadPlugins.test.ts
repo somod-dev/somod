@@ -43,7 +43,7 @@ describe("Test util loadPlugins", () => {
         somodPlugins: ["somod-plugin1", "somod-plugin2"]
       }),
       "node_modules/somod-plugin1/package.json": JSON.stringify({
-        module: "dist/index.js"
+        main: "dist/index.js"
       }),
       "node_modules/somod-plugin1/dist/index.js": `module.exports = {
         init: 10,
@@ -105,7 +105,7 @@ describe("Test util loadPlugins", () => {
         ]
       }),
       "node_modules/somod-plugin1/package.json": JSON.stringify({
-        module: "dist/index.js"
+        main: "dist/index.js"
       }),
       "node_modules/somod-plugin1/dist/index.js": `module.exports = {
         init: 10,
