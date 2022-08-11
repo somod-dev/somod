@@ -72,7 +72,7 @@ describe("Test keyword SOMOD::Function", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","@solib/common-types-schemas","@solib/errors","@solib/json-validator","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http","lodash","tslib","uuid"]}'
+      '{"external":["@solib/common-types-schemas","@solib/errors","@solib/json-validator","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http","aws-sdk","lodash","tslib","uuid"]}'
     );
   });
 
@@ -141,7 +141,7 @@ describe("Test keyword SOMOD::Function", () => {
         }
       )
     ).resolves.toEqual(
-      '{"external":["aws-sdk","smallest","@solib/common-types-schemas","@solib/errors","@solib/json-validator","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http","lodash","tslib","uuid"]}'
+      '{"external":["@solib/common-types-schemas","@solib/errors","@solib/json-validator","@solib/lambda-event-cfn-custom-resource","@solib/lambda-event-http","aws-sdk","lodash","smallest","tslib","uuid"]}'
     );
   });
 

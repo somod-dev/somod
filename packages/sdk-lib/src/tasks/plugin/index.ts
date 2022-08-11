@@ -7,6 +7,7 @@ import {
   getSAMOutputName,
   getSAMResourceLogicalId
 } from "../../utils/serverless/utils";
+import { Filter } from "../../utils/parameters/filters";
 
 export const loadPlugins = async (dir: string) => {
   const plugins = await _loadPlugins(dir);
@@ -16,6 +17,11 @@ export const loadPlugins = async (dir: string) => {
   const build = plugins.filter(p => p.plugin.build);
   const preprepare = plugins.filter(p => p.plugin.preprepare).reverse();
   const prepare = plugins.filter(p => p.plugin.prepare);
+
+  const parameterFilters = plugins.reduce((agg, p) => {
+    agg = { ...agg, ...(p.plugin.parameterFilters || {}) };
+    return agg;
+  }, {} as Plugin["parameterFilters"]);
 
   const compilerOptions = plugins.reduce((agg, p) => {
     return { ...agg, ...p.plugin.tsconfig?.compilerOptions };
@@ -38,6 +44,7 @@ export const loadPlugins = async (dir: string) => {
   return {
     init,
     namespace,
+    parameterFilters,
     prebuild,
     build,
     preprepare,
@@ -54,6 +61,7 @@ export const loadPlugins = async (dir: string) => {
   };
 };
 
+/* istanbul ignore next */
 export const runPluginInit = async (
   dir: string,
   plugin: Plugin,
@@ -62,6 +70,7 @@ export const runPluginInit = async (
   await plugin.init(dir, mode);
 };
 
+/* istanbul ignore next */
 export const loadPluginNamespace = async (
   dir: string,
   plugin: Plugin,
@@ -73,6 +82,17 @@ export const loadPluginNamespace = async (
   });
 };
 
+/* istanbul ignore next */
+export const loadPluginParameterFilters = async (
+  parameterFilters: Plugin["parameterFilters"]
+) => {
+  const filter = Filter.getFilter();
+  Object.keys(parameterFilters).forEach(filterName => {
+    filter.register(filterName, parameterFilters[filterName]);
+  });
+};
+
+/* istanbul ignore next */
 export const runPluginPrebuild = async (
   dir: string,
   plugin: Plugin,
@@ -82,6 +102,7 @@ export const runPluginPrebuild = async (
   await plugin.prebuild(dir, moduleHandler, mode);
 };
 
+/* istanbul ignore next */
 export const runPluginBuild = async (
   dir: string,
   plugin: Plugin,
@@ -91,6 +112,7 @@ export const runPluginBuild = async (
   await plugin.build(dir, moduleHandler, mode);
 };
 
+/* istanbul ignore next */
 export const runPluginPreprepare = async (
   dir: string,
   plugin: Plugin,
@@ -100,6 +122,7 @@ export const runPluginPreprepare = async (
   await plugin.preprepare(dir, moduleHandler, mode);
 };
 
+/* istanbul ignore next */
 export const runPluginPrepare = async (
   dir: string,
   plugin: Plugin,

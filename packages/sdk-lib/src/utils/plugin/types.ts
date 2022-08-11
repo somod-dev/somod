@@ -5,6 +5,7 @@ import {
   getSAMOutputName,
   getSAMResourceLogicalId
 } from "../../utils/serverless/utils";
+import { FilterFunction } from "../parameters/filters";
 
 export type Mode = { ui: boolean; serverless: boolean };
 
@@ -20,6 +21,7 @@ export type Plugin = {
     prettier?: string[];
   };
   namespaceLoader?: (module: Module, mode: Mode) => Promise<void>;
+  parameterFilters?: Record<string, FilterFunction>;
   prebuild?: (
     dir: string,
     moduleHandler: ModuleHandler,

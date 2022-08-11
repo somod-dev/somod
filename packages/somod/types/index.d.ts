@@ -68,7 +68,16 @@ export declare type Plugin = {
     compilerOptions?: Record<string, unknown>;
     include?: string[];
   };
+  ignorePatterns?: {
+    git?: string[];
+    eslint?: string[];
+    prettier?: string[];
+  };
   namespaceLoader?: (module: Module, mode: Mode) => Promise<void>;
+  parameterFilters?: Record<
+    string,
+    (ip: unknown) => unknown | Promise<unknown>
+  >;
   prebuild?: (
     dir: string,
     moduleHandler: ModuleHandler,
@@ -87,6 +96,15 @@ export declare type Plugin = {
   prepare?: (
     dir: string,
     moduleHandler: ModuleHandler,
-    mode: Mode
+    mode: Mode,
+    utils: {
+      getNodeRuntimeVersion: () => string;
+      getParameterNameFromSAMOutputName: (samOutputName: string) => string;
+      getSAMOutputName: (exportParameterName: string) => string;
+      getSAMResourceLogicalId: (
+        moduleName: string,
+        somodResourceId: string
+      ) => string;
+    }
   ) => Promise<void>;
 };
