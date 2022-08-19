@@ -1,7 +1,7 @@
 {
   "$schema": "../meta-schemas/resource.json",
   "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/resource.json",
-  "title": "Basic Schema for Resource in Serverless Template by SOdaru technologies",
+  "title": "Basic Schema for Resource in Serverless Template by Sodaru technologies",
   "type": "object",
   "required": ["Type", "Properties"],
   "properties": {
@@ -16,43 +16,10 @@
       "$ref": "./components/resource-properties.json#/definitions/SOMOD::DependsOn"
     },
     "SOMOD::Output": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["default", "attributes"],
-      "properties": {
-        "default": { "type": "boolean", "description": "" },
-        "attributes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "export": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "attributes to be exported to parameters after deployment. map of attribute/'default' to parameter name",
-          "patternProperties": {
-            "^[a-zA-Z0-9]+$": {
-              "type": "string",
-              "description": "Parameter name"
-            }
-          }
-        }
-      }
+      "$ref": "./components/resource-properties.json#/definitions/SOMOD::Output"
     },
-    "DeletionPolicy": {
-      "const": "Retain"
-    },
-    "UpdateReplacePolicy": {
-      "const": "Retain"
-    },
-    "Metadata": { "type": "object" },
     "Properties": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": [],
-      "properties": {}
+      "type": "object"
     }
-  },
-  "additionalProperties": false
+  }
 }

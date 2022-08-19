@@ -26,6 +26,6 @@
     "somod"
   ],
   "devDependencies": {
-    "@solib/schema-manager": "^1.0.4"
+    "@solib/schema-manager": "^1.0.5"
   }
 }

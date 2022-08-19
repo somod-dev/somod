@@ -7,40 +7,38 @@
   "properties": {
     "Resources": {
       "type": "object",
-      "additionalProperties": false,
-      "patternProperties": {
-        "^[a-zA-Z0-9]{1,64}$": {
+      "additionalProperties": {
+        "if": {
+          "type": "object",
+          "properties": {
+            "Type": { "const": "AWS::Serverless::Function" }
+          }
+        },
+        "then": { "$ref": "./resources/function.json" },
+        "else": {
           "if": {
             "type": "object",
             "properties": {
-              "Type": { "const": "AWS::Serverless::Function" }
+              "Type": { "const": "AWS::Serverless::LayerVersion" }
             }
           },
-          "then": { "$ref": "./resources/function.json" },
+          "then": { "$ref": "./resources/function-layer.json" },
           "else": {
             "if": {
               "type": "object",
               "properties": {
-                "Type": { "const": "AWS::Serverless::LayerVersion" }
+                "Type": {
+                  "type": "string",
+                  "pattern": "^Custom::[A-Z][a-zA-Z0-9]{0,63}$"
+                }
               }
             },
-            "then": { "$ref": "./resources/function-layer.json" },
-            "else": {
-              "if": {
-                "type": "object",
-                "properties": {
-                  "Type": {
-                    "type": "string",
-                    "pattern": "^Custom::[A-Z][a-zA-Z0-9]{0,63}$"
-                  }
-                }
-              },
-              "then": { "$ref": "./resources/custom-resource.json" },
-              "else": { "$ref": "./resource.json" }
-            }
+            "then": { "$ref": "./resources/custom-resource.json" },
+            "else": { "$ref": "./resource.json" }
           }
         }
-      }
+      },
+      "propertyNames": { "type": "string", "pattern": "^[a-zA-Z0-9]{1,64}$" }
     }
   },
   "additionalProperties": false

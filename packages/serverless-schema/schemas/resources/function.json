@@ -5,376 +5,74 @@
   "type": "object",
   "required": ["Type", "Properties"],
   "definitions": {
-    "Environment": {
+    "EventSource": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["Type", "Properties"],
       "properties": {
-        "Variables": {
-          "type": "object",
-          "additionalProperties": false,
-          "patternProperties": {
-            "^[a-zA-Z0-9_]+$": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            }
-          }
-        }
-      }
-    },
-    "MemorySize": {
-      "type": "integer",
-      "description": "The amount of memory available to the function at runtime. Increasing the function memory also increases its CPU allocation. The default value is 128 MB. The value can be any multiple of 1 MB.",
-      "minimum": 128,
-      "maximum": 10240
-    },
-    "Timeout": {
-      "description": "The maximum time in seconds that the function can run before it is stopped",
-      "$ref": "../components/expression.json#/definitions/numberLike"
-    },
-    "EventInvokeDestinationConfiguration": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "Type": { "enum": ["SQS", "SNS", "Lambda", "EventBridge"] },
-        "Destination": {
-          "$ref": "../components/expression.json#/definitions/stringLike"
+        "Type": {
+          "type": "string"
+        },
+        "Properties": {
+          "type": "object"
         }
       },
       "if": {
+        "type": "object",
         "properties": {
-          "Type": { "enum": ["Lambda", "EventBridge"] }
+          "Type": { "enum": ["HttpApi", "Api"] }
         }
       },
       "then": {
-        "required": ["Destination"]
-      }
-    },
-    "EventInvokeConfig": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "DestinationConfig": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "OnFailure": {
-              "$ref": "#/definitions/EventInvokeDestinationConfiguration"
-            },
-            "OnSuccess": {
-              "$ref": "#/definitions/EventInvokeDestinationConfiguration"
-            }
-          }
-        },
-        "MaximumEventAgeInSeconds": {
-          "$ref": "../components/expression.json#/definitions/numberLike"
-        },
-        "MaximumRetryAttempts": {
-          "$ref": "../components/expression.json#/definitions/numberLike"
-        }
-      }
-    },
-    "EventSourceHttpApi": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["Type", "Properties"],
-      "properties": {
-        "Type": { "const": "HttpApi" },
-        "Properties": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["ApiId", "Method", "Path"],
-          "properties": {
-            "Auth": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "AuthorizationScopes": {
-                  "type": "array",
-                  "items": { "type": "string" },
-                  "maxItems": 20
-                },
-                "Authorizer": {
-                  "type": "string",
-                  "description": "Want to make a specific Function public, override by setting Authorizer to NONE."
-                }
-              }
-            },
-            "Method": {
-              "enum": ["GET", "POST", "PUT", "DELETE", "ANY"]
-            },
-            "Path": {
-              "type": "string",
-              "description": "Path must be of format '/<resourceType>/<action>[/{id}]'",
-              "pattern": "^\\/[a-zA-Z0-9]+\\/[a-zA-Z0-9]+(\\/\\{id\\}){0,1}$"
-            },
-            "ApiId": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            "RouteSettings": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "DetailedMetricsEnabled": { "type": "boolean" },
-                "ThrottlingBurstLimit": { "type": "integer" },
-                "ThrottlingRateLimit": { "type": "number" }
-              }
-            },
-            "TimeoutInMillis": {
-              "type": "integer",
-              "description": "Custom timeout between 50 and 29,000 milliseconds",
-              "minimum": 50,
-              "maximum": 29000
-            }
-          }
-        }
-      }
-    },
-    "EventSourceCognito": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["Type", "Properties"],
-      "properties": {
-        "Type": { "const": "Cognito" },
-        "Properties": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["UserPool", "Trigger"],
-          "properties": {
-            "UserPool": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            "Trigger": {
-              "type": "array",
-              "items": {
-                "oneOf": [
-                  { "const": "CreateAuthChallenge" },
-                  { "const": "DefineAuthChallenge" },
-                  { "const": "VerifyAuthChallengeResponse" },
-                  { "const": "CustomMessage" },
-                  { "const": "PostAuthentication" },
-                  { "const": "PostConfirmation" },
-                  { "const": "PreAuthentication" },
-                  { "const": "PreSignUp" },
-                  { "const": "PreTokenGeneration" },
-                  { "const": "UserMigration" }
+        "type": "object",
+        "properties": {
+          "Properties": {
+            "type": "object",
+            "required": ["Method", "Path"],
+            "properties": {
+              "Method": {
+                "anyOf": [
+                  { "enum": ["GET", "POST", "PUT", "DELETE", "ANY"] },
+                  { "type": "string", "pattern": "^[A-Z]+$" }
                 ]
               },
-              "minItems": 1,
-              "uniqueItems": true
-            }
-          }
-        }
-      }
-    },
-    "EventSourceDynamoDB": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["Type", "Properties"],
-      "properties": {
-        "Type": { "const": "DynamoDB" },
-        "Properties": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["Stream", "StartingPosition"],
-          "properties": {
-            "Stream": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            "StartingPosition": {
-              "oneOf": [{ "const": "TRIM_HORIZON" }, { "const": "LATEST" }]
-            },
-            "BatchSize": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 1000
-            },
-            "BisectBatchOnFunctionError": {
-              "$ref": "../components/expression.json#/definitions/booleanLike"
-            },
-            "DestinationConfig": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "OnFailure": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "Destination": {
-                      "$ref": "../components/expression.json#/definitions/stringLike"
-                    }
-                  }
-                }
+              "Path": {
+                "type": "string"
               }
-            },
-            "FunctionResponseTypes": {
-              "type": "array",
-              "items": { "type": "string" }
-            },
-            "MaximumBatchingWindowInSeconds": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 300
-            },
-            "MaximumRecordAgeInSeconds": {
-              "type": "integer",
-              "minimum": -1,
-              "maximum": 604800
-            },
-            "MaximumRetryAttempts": {
-              "type": "integer",
-              "minimum": -1,
-              "maximum": 604800
-            },
-            "ParallelizationFactor": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 10
-            },
-            "TumblingWindowInSeconds": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 900
             }
           }
-        }
-      }
-    },
-    "EventSourceSchedule": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["Type", "Properties"],
-      "properties": {
-        "Type": { "const": "Schedule" },
-        "Properties": {
+        },
+        "if": {
           "type": "object",
-          "additionalProperties": false,
-          "required": ["Schedule"],
           "properties": {
-            "Schedule": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            "DeadLetterConfig": {
-              "oneOf": [
-                {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "Arn": {
-                      "$ref": "../components/expression.json#/definitions/stringLike"
-                    }
-                  }
-                },
-                {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "Type": { "const": "SQS" },
-                    "QueueLogicalId": {
-                      "$ref": "../components/expression.json#/definitions/stringLike"
-                    }
-                  }
-                }
-              ]
-            },
-            "Description": {
-              "type": "string",
-              "maxLength": 512
-            },
-            "Input": {
-              "type": "string"
-            },
-            "Name": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            "RetryPolicy": {
+            "Type": { "const": "HttpApi" }
+          }
+        },
+        "then": {
+          "type": "object",
+          "properties": {
+            "Properties": {
               "type": "object",
-              "additionalProperties": false,
+              "required": ["ApiId"],
               "properties": {
-                "MaximumEventAgeInSeconds": {
-                  "type": "integer",
-                  "minimum": 60,
-                  "maximum": 86400
-                },
-                "MaximumRetryAttempts": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 185
+                "ApiId": {
+                  "$ref": "../components/expression.json#/definitions/stringLike"
                 }
               }
             }
           }
-        }
-      }
-    },
-    "EventSourceSNS": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["Type", "Properties"],
-      "properties": {
-        "Type": { "const": "SNS" },
-        "Properties": {
+        },
+        "else": {
           "type": "object",
-          "additionalProperties": false,
-          "required": ["Topic"],
           "properties": {
-            "Topic": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            "FilterPolicy": {
-              "type": "object"
-            },
-            "SqsSubscription": {
-              "oneOf": [
-                { "const": true },
-                {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": ["QueueArn", "QueueUrl"],
-                  "properties": {
-                    "BatchSize": {
-                      "type": "integer",
-                      "minimum": 1,
-                      "maximum": 1000
-                    },
-                    "QueuePolicyLogicalId": {
-                      "$ref": "../components/expression.json#/definitions/stringLike"
-                    },
-                    "QueueArn": {
-                      "$ref": "../components/expression.json#/definitions/stringLike"
-                    },
-                    "QueueUrl": {
-                      "$ref": "../components/expression.json#/definitions/stringLike"
-                    }
-                  }
+            "Properties": {
+              "type": "object",
+              "required": ["RestApiId"],
+              "properties": {
+                "RestApiId": {
+                  "$ref": "../components/expression.json#/definitions/stringLike"
                 }
-              ]
-            }
-          }
-        }
-      }
-    },
-    "EventSourceSQS": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["Type", "Properties"],
-      "properties": {
-        "Type": { "const": "SQS" },
-        "Properties": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["Queue"],
-          "properties": {
-            "Queue": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            "MaximumBatchingWindowInSeconds": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 300
-            },
-            "BatchSize": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 1000
+              }
             }
           }
         }
@@ -396,6 +94,9 @@
       }
     }
   ],
+  "errorMessage": {
+    "anyOf": "When not extended, Properties must have either CodeUri or InlineCode"
+  },
   "properties": {
     "Type": {
       "const": "AWS::Serverless::Function"
@@ -410,48 +111,11 @@
       "$ref": "../components/resource-properties.json#/definitions/SOMOD::DependsOn"
     },
     "SOMOD::Output": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["default", "attributes"],
-      "properties": {
-        "default": {
-          "type": "boolean",
-          "description": "Function Name"
-        },
-        "attributes": {
-          "type": "array",
-          "items": { "enum": ["Arn"] },
-          "uniqueItems": true
-        },
-        "export": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "attributes to be exported to parameters after deployment. map of attribute/'default' to parameter name",
-          "properties": {
-            "default": {
-              "type": "string",
-              "description": "Parameter name"
-            },
-            "Arn": {
-              "type": "string",
-              "description": "Parameter name"
-            }
-          }
-        }
-      }
+      "$ref": "../components/resource-properties.json#/definitions/SOMOD::Output"
     },
     "Properties": {
       "type": "object",
-      "additionalProperties": false,
-      "required": [],
       "properties": {
-        "Architectures": {
-          "type": "array",
-          "items": { "enum": ["x86_64", "arm64"] },
-          "minItems": 1,
-          "uniqueItems": true,
-          "maxItems": 1
-        },
         "CodeUri": {
           "type": "object",
           "additionalProperties": false,
@@ -502,76 +166,16 @@
           "maxItems": 4,
           "uniqueItems": true
         },
-        "DeadLetterQueue": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "Type": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            "TargetArn": {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            }
-          }
-        },
-        "Description": {
-          "$ref": "../components/expression.json#/definitions/stringLike"
-        },
-        "Environment": {
-          "$ref": "#/definitions/Environment"
-        },
-        "EventInvokeConfig": {
-          "$ref": "#/definitions/EventInvokeConfig"
-        },
         "Events": {
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
             "^[a-zA-Z0-9]+$": {
-              "oneOf": [
-                { "$ref": "#/definitions/EventSourceHttpApi" },
-                { "$ref": "#/definitions/EventSourceCognito" },
-                { "$ref": "#/definitions/EventSourceDynamoDB" },
-                { "$ref": "#/definitions/EventSourceSchedule" },
-                { "$ref": "#/definitions/EventSourceSNS" },
-                { "$ref": "#/definitions/EventSourceSQS" }
-              ]
+              "$ref": "#/definitions/EventSource"
             }
           }
-        },
-        "Policies": {
-          "oneOf": [
-            {
-              "$ref": "../components/expression.json#/definitions/stringLike"
-            },
-            {
-              "type": "array",
-              "items": {
-                "oneOf": [
-                  {
-                    "$ref": "../components/expression.json#/definitions/stringLike"
-                  },
-                  {
-                    "$ref": "../components/policy.json"
-                  }
-                ]
-              },
-              "minItems": 1,
-              "maxItems": 10
-            }
-          ]
-        },
-        "Tags": {
-          "$ref": "../components/tags.json#/definitions/tagsMap"
-        },
-        "MemorySize": {
-          "$ref": "#/definitions/MemorySize"
-        },
-        "Timeout": {
-          "$ref": "#/definitions/Timeout"
         }
       }
     }
-  },
-  "additionalProperties": false
+  }
 }

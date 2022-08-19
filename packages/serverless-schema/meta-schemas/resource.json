@@ -6,68 +6,45 @@
     { "$ref": "http://json-schema.org/draft-07/schema" },
     {
       "type": "object",
-      "required": [
-        "$schema",
-        "$id",
-        "title",
-        "type",
-        "required",
-        "properties",
-        "additionalProperties"
-      ],
+      "required": ["$schema", "$id", "title", "type", "required", "properties"],
       "properties": {
-        "$schema": { "type": "string" },
-        "$id": { "type": "string", "format": "uri-reference" },
-        "title": { "type": "string" },
         "type": { "const": "object" },
-        "definitions": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "https://json-schema.org/draft-07/schema"
-          },
-          "default": {}
-        },
         "required": {
           "type": "array",
           "items": [{ "const": "Type" }, { "const": "Properties" }],
           "minItems": 2,
           "additionalItems": {
-            "enum": [
-              "SOMOD::Extend",
-              "SOMOD::DependsOn",
-              "SOMOD::Output",
-              "DeletionPolicy",
-              "UpdateReplacePolicy",
-              "Metadata"
+            "anyOf": [
+              {
+                "enum": ["SOMOD::Extend", "SOMOD::DependsOn", "SOMOD::Output"]
+              },
+              { "type": "string" }
             ]
           },
-          "maxItems": 8,
           "uniqueItems": true
         },
         "properties": {
           "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "Type",
-            "SOMOD::Extend",
-            "SOMOD::DependsOn",
-            "Properties"
-          ],
+          "required": ["Type", "Properties"],
           "properties": {
             "Type": {
-              "oneOf": [
+              "allOf": [
                 {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": ["const"],
-                  "properties": { "const": { "type": "string" } }
+                  "$ref": "http://json-schema.org/draft-07/schema"
                 },
-                { "const": { "type": "string" } },
                 {
-                  "const": {
-                    "type": "string",
-                    "pattern": "^Custom::[A-Z][a-zA-Z0-9]{0,63}$"
-                  }
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": ["type"],
+                      "properties": { "type": { "const": "string" } }
+                    },
+                    {
+                      "type": "object",
+                      "required": ["const"],
+                      "properties": { "const": { "type": "string" } }
+                    }
+                  ]
                 }
               ]
             },
@@ -107,106 +84,30 @@
             "SOMOD::Output": {
               "type": "object",
               "additionalProperties": false,
-              "required": [
-                "type",
-                "additionalProperties",
-                "required",
-                "properties"
-              ],
+              "required": ["$ref"],
               "properties": {
-                "type": { "const": "object" },
-                "additionalProperties": { "const": false },
-                "required": { "const": ["default", "attributes"] },
-                "properties": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": ["default", "attributes"],
-                  "properties": {
-                    "default": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": ["type", "description"],
-                      "properties": {
-                        "type": { "const": "boolean" },
-                        "description": { "type": "string" }
-                      }
-                    },
-                    "attributes": {
-                      "oneOf": [
-                        {
-                          "type": "object",
-                          "additionalProperties": false,
-                          "required": ["type", "items"],
-                          "properties": {
-                            "type": { "const": "array" },
-                            "items": { "const": { "type": "string" } },
-                            "maxItems": { "const": 0 }
-                          }
-                        },
-                        {
-                          "type": "object",
-                          "additionalProperties": false,
-                          "required": ["type", "items", "uniqueItems"],
-                          "properties": {
-                            "type": { "const": "array" },
-                            "items": {
-                              "type": "object",
-                              "additionalProperties": false,
-                              "required": ["enum"],
-                              "properties": {
-                                "enum": {
-                                  "type": "array",
-                                  "items": { "type": "string" }
-                                }
-                              }
-                            },
-                            "uniqueItems": { "const": true }
-                          }
-                        }
-                      ]
-                    },
-                    "export": true
-                  }
+                "$ref": {
+                  "type": "string",
+                  "pattern": "\\/resource-properties.json#\\/definitions\\/SOMOD::Output$"
                 }
               }
             },
-            "DeletionPolicy": { "const": { "const": "Retain" } },
-            "UpdateReplacePolicy": { "const": { "const": "Retain" } },
-            "Metadata": { "$ref": "https://json-schema.org/draft-07/schema" },
             "Properties": {
               "allOf": [
                 {
-                  "type": "object",
-                  "required": [
-                    "type",
-                    "additionalProperties",
-                    "required",
-                    "properties"
-                  ],
-                  "properties": {
-                    "type": { "const": "object" },
-                    "additionalProperties": { "type": "boolean" },
-                    "required": {
-                      "type": "array",
-                      "items": { "type": "string" }
-                    },
-                    "properties": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "$ref": "https://json-schema.org/draft-07/schema"
-                      },
-                      "default": {}
-                    }
-                  }
+                  "$ref": "http://json-schema.org/draft-07/schema"
                 },
                 {
-                  "$ref": "https://json-schema.org/draft-07/schema"
+                  "type": "object",
+                  "required": ["type"],
+                  "properties": {
+                    "type": { "const": "object" }
+                  }
                 }
               ]
             }
           }
-        },
-        "additionalProperties": { "const": false }
+        }
       }
     }
   ]

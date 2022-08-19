@@ -4,7 +4,28 @@
   "title": "JSON Schema for Layer Version Resource in Serverless Template by Sodaru Technologies",
   "type": "object",
   "required": ["Type", "Properties"],
-  "additionalProperties": false,
+  "anyOf": [
+    {
+      "type": "object",
+      "required": ["SOMOD::Extend"]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "Properties": {
+          "type": "object",
+          "required": ["LayerName", "RetentionPolicy"],
+          "anyOf": [
+            { "type": "object", "required": ["SOMOD::FunctionLayerLibraries"] },
+            { "type": "object", "required": ["SOMOD::FunctionLayerContent"] }
+          ]
+        }
+      }
+    }
+  ],
+  "errorMessage": {
+    "anyOf": "When not extended, Properties must have LayerName, RetentionPolicy and either of SOMOD::FunctionLayerLibraries or SOMOD::FunctionLayerContent"
+  },
   "properties": {
     "Type": { "const": "AWS::Serverless::LayerVersion" },
     "SOMOD::Access": {
@@ -17,49 +38,13 @@
       "$ref": "../components/resource-properties.json#/definitions/SOMOD::DependsOn"
     },
     "SOMOD::Output": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["default", "attributes"],
-      "properties": {
-        "default": {
-          "type": "boolean",
-          "description": "ARN of the Lambda Layer Version"
-        },
-        "attributes": {
-          "type": "array",
-          "items": { "type": "string" },
-          "maxItems": 0
-        },
-        "export": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "attributes to be exported to parameters after deployment. map of attribute/'default' to parameter name",
-          "properties": {
-            "default": {
-              "type": "string",
-              "description": "Parameter name"
-            }
-          }
-        }
-      }
+      "$ref": "../components/resource-properties.json#/definitions/SOMOD::Output"
     },
     "Properties": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["LayerName", "CompatibleArchitectures", "RetentionPolicy"],
-      "anyOf": [
-        { "type": "object", "required": ["SOMOD::FunctionLayerLibraries"] },
-        { "type": "object", "required": ["SOMOD::FunctionLayerContent"] }
-      ],
       "properties": {
         "LayerName": {
           "$ref": "../components/expression.json#/definitions/somodResourceName"
-        },
-        "CompatibleArchitectures": {
-          "type": "array",
-          "items": { "const": "arm64" },
-          "minItems": 1,
-          "maxItems": 1
         },
         "RetentionPolicy": { "const": "Delete" },
         "SOMOD::FunctionLayerLibraries": {
@@ -84,7 +69,10 @@
           "minProperties": 1,
           "maxProperties": 32
         },
-        "Description": { "type": "string", "maxLength": 256 }
+        "ContentUri": false
+      },
+      "errorMessage": {
+        "properties": { "ContentUri": "ContentUri must not exist" }
       }
     }
   }

@@ -8,9 +8,6 @@
       "type": "object",
       "required": ["$schema", "$id", "title", "type", "required", "properties"],
       "properties": {
-        "$schema": { "type": "string" },
-        "$id": { "type": "string", "format": "uri-reference" },
-        "title": { "type": "string" },
         "type": { "const": "object" },
         "required": { "type": "array", "contains": { "const": "Resources" } },
         "properties": {
@@ -18,22 +15,27 @@
           "required": ["Resources"],
           "properties": {
             "Resources": {
-              "type": "object",
-              "required": ["type", "additionalProperties", "patternProperties"],
-              "properties": {
-                "type": { "const": "object" },
-                "additionalProperties": { "const": false },
-                "patternProperties": {
+              "allOf": [
+                { "$ref": "http://json-schema.org/draft-07/schema" },
+                {
                   "type": "object",
-                  "additionalProperties": false,
-                  "required": ["^[a-zA-Z0-9]{1,64}$"],
+                  "required": ["type", "additionalProperties", "propertyNames"],
                   "properties": {
-                    "^[a-zA-Z0-9]{1,64}$": {
+                    "type": { "const": "object" },
+                    "additionalProperties": {
                       "$ref": "http://json-schema.org/draft-07/schema"
+                    },
+                    "propertyNames": {
+                      "type": "object",
+                      "required": ["type", "pattern"],
+                      "properties": {
+                        "type": { "const": "string" },
+                        "pattern": { "const": "^[a-zA-Z0-9]{1,64}$" }
+                      }
                     }
                   }
                 }
-              }
+              ]
             }
           }
         }

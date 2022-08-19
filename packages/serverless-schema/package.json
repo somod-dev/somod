@@ -28,6 +28,6 @@
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },
   "devDependencies": {
-    "@solib/schema-manager": "^1.0.4"
+    "@solib/schema-manager": "^1.0.5"
   }
 }

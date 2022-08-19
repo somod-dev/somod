@@ -58,11 +58,7 @@ describe("test keyword SOMOD::FunctionLayerContent", () => {
               dir,
               "serverless/template.yaml"
             )} has following errors
-             Resources.Resource1.Properties must have required property 'SOMOD::FunctionLayerLibraries'
-             Resources.Resource1.Properties must have required property 'SOMOD::FunctionLayerContent'
-             Resources.Resource1.Properties must match a schema in anyOf
-             Resources.Resource1 must match "then" schema
-             Resources.Resource1 must match "else" schema]
+             Resources.Resource1 When not extended, Properties must have LayerName, RetentionPolicy and either of SOMOD::FunctionLayerLibraries or SOMOD::FunctionLayerContent]
           `);
   });
 
