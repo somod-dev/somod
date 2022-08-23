@@ -1,0 +1,349 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test util jsonTemplate.parseJson for boolean 1`] = `
+Object {
+  "parent": undefined,
+  "type": "primitive",
+  "value": false,
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for empty array 1`] = `
+Object {
+  "items": Array [],
+  "parent": undefined,
+  "type": "array",
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for empty object 1`] = `
+Object {
+  "parent": undefined,
+  "properties": Object {},
+  "type": "object",
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for nested array 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "parent": Object {
+        "key": 0,
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": "sample",
+    },
+    Object {
+      "parent": Object {
+        "key": 1,
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": 123,
+    },
+    Object {
+      "parent": Object {
+        "key": 2,
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": true,
+    },
+    Object {
+      "parent": Object {
+        "key": 3,
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": null,
+    },
+    Object {
+      "items": Array [
+        Object {
+          "parent": Object {
+            "key": 0,
+            "node": [Circular],
+          },
+          "type": "primitive",
+          "value": "nested",
+        },
+        Object {
+          "items": Array [
+            Object {
+              "parent": Object {
+                "key": 0,
+                "node": [Circular],
+              },
+              "type": "primitive",
+              "value": "level2",
+            },
+          ],
+          "parent": Object {
+            "key": 1,
+            "node": [Circular],
+          },
+          "type": "array",
+        },
+        Object {
+          "parent": Object {
+            "key": 2,
+            "node": [Circular],
+          },
+          "properties": Object {
+            "a": Object {
+              "parent": Object {
+                "key": "a",
+                "node": [Circular],
+              },
+              "type": "primitive",
+              "value": 10,
+            },
+          },
+          "type": "object",
+        },
+      ],
+      "parent": Object {
+        "key": 4,
+        "node": [Circular],
+      },
+      "type": "array",
+    },
+  ],
+  "parent": undefined,
+  "type": "array",
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for nested object 1`] = `
+Object {
+  "parent": undefined,
+  "properties": Object {
+    "arr": Object {
+      "items": Array [
+        Object {
+          "parent": Object {
+            "key": 0,
+            "node": [Circular],
+          },
+          "type": "primitive",
+          "value": "sample",
+        },
+      ],
+      "parent": Object {
+        "key": "arr",
+        "node": [Circular],
+      },
+      "type": "array",
+    },
+    "bool": Object {
+      "parent": Object {
+        "key": "bool",
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": true,
+    },
+    "null": Object {
+      "parent": Object {
+        "key": "null",
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": null,
+    },
+    "num": Object {
+      "parent": Object {
+        "key": "num",
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": 123,
+    },
+    "obj": Object {
+      "parent": Object {
+        "key": "obj",
+        "node": [Circular],
+      },
+      "properties": Object {
+        "a": Object {
+          "parent": Object {
+            "key": "a",
+            "node": [Circular],
+          },
+          "properties": Object {
+            "b": Object {
+              "parent": Object {
+                "key": "b",
+                "node": [Circular],
+              },
+              "type": "primitive",
+              "value": 10,
+            },
+          },
+          "type": "object",
+        },
+        "p": Object {
+          "parent": Object {
+            "key": "p",
+            "node": [Circular],
+          },
+          "type": "primitive",
+          "value": false,
+        },
+        "x": Object {
+          "items": Array [
+            Object {
+              "parent": Object {
+                "key": 0,
+                "node": [Circular],
+              },
+              "type": "primitive",
+              "value": 100,
+            },
+          ],
+          "parent": Object {
+            "key": "x",
+            "node": [Circular],
+          },
+          "type": "array",
+        },
+      },
+      "type": "object",
+    },
+    "str": Object {
+      "parent": Object {
+        "key": "str",
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": "sample",
+    },
+  },
+  "type": "object",
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for null 1`] = `
+Object {
+  "parent": undefined,
+  "type": "primitive",
+  "value": null,
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for number 1`] = `
+Object {
+  "parent": undefined,
+  "type": "primitive",
+  "value": 123,
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for simple array 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "parent": Object {
+        "key": 0,
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": "sample",
+    },
+    Object {
+      "parent": Object {
+        "key": 1,
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": 123,
+    },
+    Object {
+      "parent": Object {
+        "key": 2,
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": true,
+    },
+    Object {
+      "parent": Object {
+        "key": 3,
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": null,
+    },
+  ],
+  "parent": undefined,
+  "type": "array",
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for simple object 1`] = `
+Object {
+  "parent": undefined,
+  "properties": Object {
+    "arr": Object {
+      "items": Array [
+        Object {
+          "parent": Object {
+            "key": 0,
+            "node": [Circular],
+          },
+          "type": "primitive",
+          "value": "sample",
+        },
+      ],
+      "parent": Object {
+        "key": "arr",
+        "node": [Circular],
+      },
+      "type": "array",
+    },
+    "bool": Object {
+      "parent": Object {
+        "key": "bool",
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": true,
+    },
+    "null": Object {
+      "parent": Object {
+        "key": "null",
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": null,
+    },
+    "num": Object {
+      "parent": Object {
+        "key": "num",
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": 123,
+    },
+    "str": Object {
+      "parent": Object {
+        "key": "str",
+        "node": [Circular],
+      },
+      "type": "primitive",
+      "value": "sample",
+    },
+  },
+  "type": "object",
+}
+`;
+
+exports[`Test util jsonTemplate.parseJson for string 1`] = `
+Object {
+  "parent": undefined,
+  "type": "primitive",
+  "value": "sample",
+}
+`;
