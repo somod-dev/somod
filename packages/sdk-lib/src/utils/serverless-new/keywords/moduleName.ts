@@ -14,8 +14,7 @@ export const keywordModuleName: KeywordDefinition<boolean, ServerlessTemplate> =
             `Object with ${keyword} must not have additional properties`
           )
         );
-      }
-      if (value !== true) {
+      } else if (value !== true) {
         errors.push(new Error(`${keyword} value must equal to true`));
       }
 

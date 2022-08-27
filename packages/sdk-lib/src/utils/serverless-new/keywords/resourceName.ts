@@ -14,8 +14,7 @@ export const keywordResourceName: KeywordDefinition<string> = {
       errors.push(
         new Error(`Object with ${keyword} must not have additional properties`)
       );
-    }
-    if (typeof value != "string") {
+    } else if (typeof value != "string") {
       errors.push(new Error(`${keyword} value must be string`));
     }
 

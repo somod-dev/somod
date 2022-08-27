@@ -21,27 +21,27 @@ export const keywordDependsOn: KeywordDefinition<
         errors.push(
           new Error(`${keyword} is allowed only as Resource Property`)
         );
-      }
+      } else {
+        //NOTE: structure of the value is validated by serverless-schema
 
-      //NOTE: structure of the value is validated by serverless-schema
-
-      value.forEach(v => {
-        const targetModuleName = v.module || moduleName;
-        if (!moduleContentMap[targetModuleName]?.json.Resources[v.resource]) {
+        value.forEach(v => {
+          const targetModuleName = v.module || moduleName;
+          if (!moduleContentMap[targetModuleName]?.json.Resources[v.resource]) {
+            errors.push(
+              new Error(
+                `Dependent module resource {${targetModuleName}, ${v.resource}} not found.`
+              )
+            );
+          }
           errors.push(
-            new Error(
-              `Dependent module resource {${targetModuleName}, ${v.resource}} not found.`
+            ...checkAccess(
+              moduleName,
+              moduleContentMap[targetModuleName],
+              v.resource
             )
           );
-        }
-        errors.push(
-          ...checkAccess(
-            moduleName,
-            moduleContentMap[targetModuleName],
-            v.resource
-          )
-        );
-      });
+        });
+      }
 
       return errors;
     };

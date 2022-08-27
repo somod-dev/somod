@@ -73,9 +73,9 @@ describe("Test util jsonTemplate.parseJson", () => {
 
 describe("Test util jsonTemplate.validateKeywords", () => {
   const validators: Record<string, KeywordValidator> = {
-    key1: jest.fn(),
-    key2: jest.fn(),
-    key3: jest.fn()
+    key1: jest.fn().mockReturnValue([]),
+    key2: jest.fn().mockReturnValue([]),
+    key3: jest.fn().mockReturnValue([])
   };
 
   const json = {

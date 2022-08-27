@@ -2,7 +2,9 @@ import { getPath } from "../../jsonTemplate";
 import { KeywordDefinition, ModuleContent } from "../../keywords/types";
 import { ServerlessTemplate } from "../types";
 
-export const keywordAccess: KeywordDefinition = {
+type Access = "module" | "scope" | "public";
+
+export const keywordAccess: KeywordDefinition<Access> = {
   keyword: "SOMOD::Access",
 
   getValidator: async () => (keyword, node) => {
@@ -31,9 +33,9 @@ export const checkAccess = (
 ): Error[] => {
   const errors: Error[] = [];
 
-  const access =
-    targetTemplate.json.Resources[targetResource][keywordAccess.keyword] ||
-    "scope";
+  const access = (targetTemplate.json.Resources[targetResource][
+    keywordAccess.keyword
+  ] || "scope") as Access;
 
   if (access == "module" && sourceModule != targetTemplate.moduleName) {
     errors.push(

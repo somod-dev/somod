@@ -108,6 +108,7 @@ export const getPath = (jsonNode: JSONNode): (string | number)[] => {
     if (currentNode.parent) {
       const key = currentNode.parent.key;
       path.unshift(key);
+      currentNode = currentNode.parent.node;
     } else {
       currentNode = null;
     }

@@ -62,16 +62,16 @@ export const keywordFunction: KeywordDefinition<
             `${keyword} is allowed only as value of CodeUri property of ${resourceType_Function} resource`
           )
         );
-      }
+      } else {
+        //NOTE: structure of the value is validated by serverless-schema
 
-      //NOTE: structure of the value is validated by serverless-schema
-
-      if (!definedFunctions.includes(value.name)) {
-        errors.push(
-          new Error(
-            `Function ${value.name} not found. define under ${path_serverless}/${path_functions}`
-          )
-        );
+        if (!definedFunctions.includes(value.name)) {
+          errors.push(
+            new Error(
+              `Function ${value.name} not found. define under ${path_serverless}/${path_functions}`
+            )
+          );
+        }
       }
 
       return errors;
