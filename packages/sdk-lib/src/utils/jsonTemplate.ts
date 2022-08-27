@@ -101,6 +101,20 @@ export const parseJson = (json: JSONType): JSONNode => {
   return navigator(json);
 };
 
+export const getPath = (jsonNode: JSONNode): (string | number)[] => {
+  const path: (string | number)[] = [];
+  let currentNode = jsonNode;
+  while (currentNode) {
+    if (currentNode.parent) {
+      const key = currentNode.parent.key;
+      path.unshift(key);
+    } else {
+      currentNode = null;
+    }
+  }
+  return path;
+};
+
 export const constructJson = (jsonNode: JSONNode): JSONType => {
   if (jsonNode.type == "primitive") {
     return jsonNode.value;
@@ -116,17 +130,43 @@ export const constructJson = (jsonNode: JSONNode): JSONType => {
   }
 };
 
-export type KeywordValidator = (
+export class JSONTemplateError extends Error {
+  private _node: JSONNode;
+  private _error: Error;
+
+  constructor(node: JSONNode, error: Error) {
+    super(error.message);
+    this._node = node;
+    this._error = error;
+
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  get path() {
+    return getPath(this._node);
+  }
+
+  get node() {
+    return this._node;
+  }
+
+  get error() {
+    return this._error;
+  }
+}
+
+export type KeywordValidator<T extends JSONType = JSONType> = (
   keyword: string,
   node: JSONObjectNode,
-  value: JSONType
+  value: T
 ) => Error[];
 
 export const validateKeywords = (
   jsonNode: JSONNode,
   keywordValidators: Record<string, KeywordValidator>
-): Error[] => {
-  const errors: Error[] = [];
+): JSONTemplateError[] => {
+  const errors: JSONTemplateError[] = [];
   const keywords = Object.keys(keywordValidators);
   const navigator = (jsonNode: JSONNode) => {
     if (jsonNode.type == "array") {
@@ -147,7 +187,9 @@ export const validateKeywords = (
           jsonNode,
           constructJson(jsonNode.properties[keyword])
         );
-        errors.push(...keywordErrors);
+        errors.push(
+          ...keywordErrors.map(e => new JSONTemplateError(jsonNode, e))
+        );
       });
     }
   };
@@ -169,10 +211,10 @@ export type KeywordReplacement =
   | KeywordObjectReplacement
   | KeywordKeywordReplacement;
 
-export type KeywordProcessor = (
+export type KeywordProcessor<T extends JSONType = JSONType> = (
   keyword: string,
   node: JSONObjectNode,
-  value: JSONType
+  value: T
 ) => KeywordReplacement;
 
 export const processKeywords = (
@@ -185,7 +227,6 @@ export const processKeywords = (
       return jsonNode.value;
     } else if (jsonNode.type == "array") {
       const jsonArray = jsonNode.items.map(item => navigator(item));
-      Object.freeze(jsonArray);
       return jsonArray;
     } else if (jsonNode.type == "object") {
       const properties = Object.keys(jsonNode.properties);
@@ -199,12 +240,16 @@ export const processKeywords = (
       // replacement
       const keywordsInThisObject = intersection(properties, keywords);
       const keywordReplacements = keywordsInThisObject.map(keyword => {
-        const replacer = keywordProcessors[keyword](
-          keyword,
-          jsonNode,
-          jsonObject[keyword]
-        );
-        return { ...replacer, keyword };
+        try {
+          const replacer = keywordProcessors[keyword](
+            keyword,
+            jsonNode,
+            jsonObject[keyword]
+          );
+          return { ...replacer, keyword };
+        } catch (e) {
+          throw new JSONTemplateError(jsonNode, e);
+        }
       });
       const keywordObjectReplacements = keywordReplacements.filter(
         r => r.type == "object"
@@ -230,7 +275,6 @@ export const processKeywords = (
           }
         });
       }
-      Object.freeze(resultObject);
       return resultObject;
     }
   };

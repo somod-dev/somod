@@ -91,6 +91,9 @@ export const namespace_parameterSchema = "Parameter Schema";
 export const namespace_parameterGroup = "Parameter Group";
 
 export const resourceType_Function = "AWS::Serverless::Function";
+export const resourceType_FunctionLayer = "AWS::Serverless::LayerVersion";
+
+export const custom_resource_prefix = "Custom::";
 
 export const file_parametersYaml = "parameters.yaml";
 
