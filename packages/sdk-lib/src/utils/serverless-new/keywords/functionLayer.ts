@@ -1,6 +1,6 @@
 import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
-import { writeFileSync } from "fs";
-import { join } from "path";
+import { mkdirSync, writeFileSync } from "fs";
+import { dirname, join } from "path";
 import {
   file_packageJson,
   path_build,
@@ -78,17 +78,11 @@ export const keywordFunctionLayer: KeywordDefinition<
         value.name
       );
 
-      Object.keys(value.content || {}).forEach(layerContentPath => {
-        const functionLayerContentPath = join(
-          functionLayerPath,
-          layerContentPath
-        );
-
-        writeFileSync(
-          functionLayerContentPath,
-          value.content[layerContentPath]
-        );
-      });
+      overrideLayerContent(
+        moduleContentMap[moduleName].location,
+        value.name,
+        value.content || {}
+      );
 
       return {
         type: "object",
@@ -113,4 +107,25 @@ export const getFunctionLayerLibraries = (
     }
   });
   return libraries;
+};
+
+export const overrideLayerContent = (
+  moduleLocation: string,
+  layerName: string,
+  content: Record<string, string>
+) => {
+  const functionLayerPath = join(
+    moduleLocation,
+    path_build,
+    path_serverless,
+    path_functionLayers,
+    layerName
+  );
+
+  Object.keys(content).forEach(contentPath => {
+    const contentFullPath = join(functionLayerPath, contentPath);
+
+    mkdirSync(dirname(contentFullPath), { recursive: true });
+    writeFileSync(contentFullPath, content[contentPath]);
+  });
 };

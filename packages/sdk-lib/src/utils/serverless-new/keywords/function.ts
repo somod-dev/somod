@@ -1,4 +1,5 @@
 import { listFiles, unixStylePath } from "@solib/cli-base";
+import { DataValidationError } from "@solib/errors";
 import { JSONSchema7, validate } from "@solib/json-validator";
 import { basename, extname, join } from "path";
 import {
@@ -140,7 +141,7 @@ export const checkCustomResourceSchema = (
     if (customResourceSchema === undefined) {
       errors.push(
         new Error(
-          `Unable to find the schema for the custom resource. Define the schema in Custom resource function.`
+          `Unable to find the schema for the custom resource ${_customResourceType}. The custom resource function ${targetResource} must define the schema for the custom resource.`
         )
       );
     } else {
@@ -151,7 +152,20 @@ export const checkCustomResourceSchema = (
           customResource.Properties
         );
       } catch (e) {
-        errors.push(e);
+        const violations = (e as DataValidationError).violations || [];
+        if (violations.length > 0) {
+          errors.push(
+            new Error(
+              `Custom Resource ${
+                path[1]
+              } has following validation errors\n${violations
+                .map(v => `${v.path} ${v.message}`.trim())
+                .join("\n")}`
+            )
+          );
+        } else {
+          errors.push(e);
+        }
       }
     }
   }

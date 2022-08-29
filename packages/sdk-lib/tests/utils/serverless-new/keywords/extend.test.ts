@@ -210,7 +210,7 @@ describe("Test extend keyword", () => {
     ]);
   });
 
-  test("the validator with non existing dependency", async () => {
+  test("the validator with extending non existing resource", async () => {
     const allModules = {
       m0: {
         moduleName: "m0",

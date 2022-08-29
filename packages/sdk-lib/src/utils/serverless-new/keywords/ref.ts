@@ -1,4 +1,5 @@
-import { difference } from "lodash";
+import { JSONSchema7, validate } from "@solib/json-validator";
+import { DataValidationError } from "@solib/errors";
 import { KeywordDefinition } from "../../keywords/types";
 import { getSAMResourceLogicalId } from "../../serverless/utils";
 import { ServerlessTemplate } from "../types";
@@ -29,69 +30,69 @@ export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
         );
       }
 
-      if (value.resource === undefined) {
-        errors.push(new Error(`${keyword} must have "resource" property`));
+      const valueSchema: JSONSchema7 = {
+        type: "object",
+        additionalProperties: false,
+        required: ["resource"],
+        properties: {
+          module: { type: "string" },
+          resource: { type: "string" },
+          attribute: { type: "string" }
+        }
+      };
+
+      try {
+        validate(valueSchema, value);
+      } catch (e) {
+        const violations = (e as DataValidationError).violations;
+        if (violations) {
+          errors.push(
+            new Error(
+              `Has following errors\n${violations
+                .map(v => `${v.path} ${v.message}`.trim())
+                .join("\n")}`
+            )
+          );
+        } else {
+          errors.push(e);
+        }
       }
 
-      const additionalProperties = difference(Object.keys(value), [
-        "module",
-        "resource",
-        "attribute"
-      ]);
-      if (additionalProperties.length > 0) {
-        errors.push(
-          new Error(
-            `${keyword} must not have additional properties (${additionalProperties
-              .map(p => `"${p}"`)
-              .join(", ")})`
-          )
-        );
+      if (errors.length == 0) {
+        const targetModule = value.module || moduleName;
+
+        if (!moduleContentMap[targetModule]?.json.Resources[value.resource]) {
+          errors.push(
+            new Error(
+              `Referenced module resource {${targetModule}, ${value.resource}} not found.`
+            )
+          );
+        } else {
+          errors.push(
+            ...checkAccess(
+              moduleName,
+              moduleContentMap[targetModule],
+              value.resource
+            )
+          );
+
+          errors.push(
+            ...checkOutput(
+              moduleContentMap[targetModule],
+              value.resource,
+              value.attribute
+            )
+          );
+
+          errors.push(
+            ...checkCustomResourceSchema(
+              node,
+              moduleContentMap[targetModule],
+              value.resource
+            )
+          );
+        }
       }
-
-      if (typeof value.resource != "string") {
-        errors.push(new Error(`${keyword}.resource must be string`));
-      }
-
-      if (value.module !== undefined && typeof value.module != "string") {
-        errors.push(new Error(`${keyword}.module must be string`));
-      }
-      if (value.attribute !== undefined && typeof value.attribute != "string") {
-        errors.push(new Error(`${keyword}.attribute must be string`));
-      }
-
-      const targetModule = value.module || moduleName;
-
-      if (!moduleContentMap[targetModule]?.json.Resources[value.resource]) {
-        errors.push(
-          new Error(
-            `Referenced module resource {${targetModule}, ${value.resource}} not found.`
-          )
-        );
-      }
-
-      errors.push(
-        ...checkAccess(
-          moduleName,
-          moduleContentMap[targetModule],
-          value.resource
-        )
-      );
-
-      errors.push(
-        ...checkOutput(
-          moduleContentMap[targetModule],
-          value.resource,
-          value.attribute
-        )
-      );
-
-      errors.push(
-        ...checkCustomResourceSchema(
-          node,
-          moduleContentMap[targetModule],
-          value.resource
-        )
-      );
 
       return errors;
     };
