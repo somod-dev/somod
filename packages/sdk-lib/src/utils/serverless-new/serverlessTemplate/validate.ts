@@ -8,6 +8,11 @@ import {
 import { ModuleServerlessTemplateMap } from "../types";
 import { getKeywords, getModuleContentMap } from "./serverlessTemplate";
 
+/**
+ * Validate the `serverless/template.yaml` at the root module.
+ *
+ * Assumption is that `serverless/template.yaml` is present in root module
+ */
 export const validateServerlessTemplate = async (
   dir: string,
   rootModuleName: string,

@@ -1,6 +1,4 @@
-import { existsSync } from "fs";
-import { readdir } from "fs/promises";
-import { basename, extname, join } from "path";
+import { join } from "path";
 import {
   file_index_js,
   path_build,
@@ -10,14 +8,17 @@ import {
 import { build as esbuild } from "esbuild";
 import { getNodeRuntimeVersion } from "../serverless/utils";
 import { ModuleServerlessTemplate } from "./types";
-import { getFunctionExcludes } from "./keywords/function";
+import { getDeclaredFunctions } from "./keywords/function";
 import { listLayerLibraries } from "../serverless/baseModule/layers/baseLayer";
 
-export const bundle = async (
+export const bundleFunctions = async (
   dir: string,
-  rootServerlessTemplate: ModuleServerlessTemplate
+  rootServerlessTemplate: ModuleServerlessTemplate,
+  verbose = false
 ): Promise<void> => {
-  const functionExcludes = getFunctionExcludes(rootServerlessTemplate.template);
+  const declaredFunctions = getDeclaredFunctions(
+    rootServerlessTemplate.template
+  );
   const commonExcludes = ["aws-sdk"];
   const baseLayerLibraries = await listLayerLibraries();
   commonExcludes.push(...baseLayerLibraries);
@@ -29,32 +30,29 @@ export const bundle = async (
     path_serverless,
     path_functions
   );
-  if (existsSync(srcFunctionsPath)) {
-    const functions = await readdir(srcFunctionsPath);
-    await Promise.all(
-      functions.map(async functionFileName => {
-        const functionName = basename(
-          functionFileName,
-          extname(functionFileName)
-        );
 
-        try {
-          await esbuild({
-            entryPoints: [join(srcFunctionsPath, functionFileName)],
-            bundle: true,
-            outfile: join(buildFunctionsPath, functionName, file_index_js),
-            sourcemap: false,
-            platform: "node",
-            external: [...commonExcludes, ...functionExcludes[functionName]],
-            minify: true,
-            target: ["node" + getNodeRuntimeVersion()]
-          });
-        } catch (e) {
-          throw new Error(
-            `bundle function failed for ${functionFileName}: ${e.message}`
-          );
-        }
-      })
-    );
-  }
+  await Promise.all(
+    declaredFunctions.map(async _function => {
+      const functionName = _function.name;
+      const functionFileName = functionName + ".ts";
+
+      try {
+        await esbuild({
+          entryPoints: [join(srcFunctionsPath, functionFileName)],
+          bundle: true,
+          outfile: join(buildFunctionsPath, functionName, file_index_js),
+          sourcemap: false,
+          platform: "node",
+          external: [...commonExcludes, ..._function.exclude],
+          minify: true,
+          target: ["node" + getNodeRuntimeVersion()],
+          logLevel: verbose ? "verbose" : "silent"
+        });
+      } catch (e) {
+        throw new Error(
+          `bundle function failed for ${functionFileName}: ${e.message}`
+        );
+      }
+    })
+  );
 };

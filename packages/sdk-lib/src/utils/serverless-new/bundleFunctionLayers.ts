@@ -14,7 +14,7 @@ import { ModuleServerlessTemplate } from "./types";
 
 const path_layerNodeJs = "nodejs";
 
-export const bundle = async (
+export const bundleFunctionLayers = async (
   dir: string,
   rootServerlessTemplate: ModuleServerlessTemplate,
   verbose = false

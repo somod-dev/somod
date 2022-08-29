@@ -30,7 +30,7 @@ export const attachBaseLayer = async (samTemplate: SAMTemplate) => {
     });
 
     samTemplate.Resources = {
-      baseLayerSAMResourceId: {
+      [baseLayerSAMResourceId]: {
         Type: resourceType_FunctionLayer,
         Properties: {
           Description:

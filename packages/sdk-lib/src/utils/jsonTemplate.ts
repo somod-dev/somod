@@ -136,7 +136,8 @@ export class JSONTemplateError extends Error {
   private _error: Error;
 
   constructor(node: JSONNode, error: Error) {
-    super(error.message);
+    const message = `Error at ${getPath(node).join(".")} : ${error.message}`;
+    super(message);
     this._node = node;
     this._error = error;
 

@@ -25,7 +25,7 @@ type FunctionType = {
   customResources?: JSONObjectType;
 };
 
-export const getDefinedFunctions = async (dir: string) => {
+const getDefinedFunctions = async (dir: string) => {
   const functionsDir = join(dir, path_serverless, path_functions);
   const files = await listFiles(functionsDir);
   const functions = files
@@ -173,8 +173,10 @@ export const checkCustomResourceSchema = (
   return errors;
 };
 
-export const getFunctionExcludes = (serverlessTemplate: ServerlessTemplate) => {
-  const functionExcludes: Record<string, string[]> = {};
+export const getDeclaredFunctions = (
+  serverlessTemplate: ServerlessTemplate
+) => {
+  const functionExcludes: { name: string; exclude: string[] }[] = [];
   Object.values(serverlessTemplate.Resources).forEach(resource => {
     if (resource.Type == resourceType_Function) {
       const fun = resource.Properties.CodeUri?.[
@@ -183,7 +185,7 @@ export const getFunctionExcludes = (serverlessTemplate: ServerlessTemplate) => {
       const functionName = fun?.name;
       if (functionName) {
         const exclude = fun?.exclude || [];
-        functionExcludes[functionName] = exclude;
+        functionExcludes.push({ name: functionName, exclude });
       }
     }
   });

@@ -5,7 +5,8 @@ import {
   KeywordProcessor,
   parseJson,
   validateKeywords,
-  processKeywords
+  processKeywords,
+  JSONTemplateError
 } from "../../src/utils/jsonTemplate";
 
 describe("Test util jsonTemplate.parseJson", () => {
@@ -139,9 +140,10 @@ describe("Test util jsonTemplate.validateKeywords", () => {
   test("for one validator with errors", () => {
     const errors = [new Error("Mocked Error 1")];
     mockedFunction(validators.key1).mockReturnValueOnce(errors);
-    expect(validateKeywords(jsonNode, { key1: validators.key1 })).toEqual(
-      errors
-    );
+    const actualErrors = validateKeywords(jsonNode, { key1: validators.key1 });
+    expect(actualErrors).toEqual([
+      new JSONTemplateError(jsonNode["properties"]["a"], errors[0])
+    ]);
     expect(validators.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith();
     expect(validators.key2).toBeCalledTimes(0);
@@ -157,7 +159,10 @@ describe("Test util jsonTemplate.validateKeywords", () => {
         key1: validators.key1,
         key2: validators.key2
       })
-    ).toEqual(errors);
+    ).toEqual([
+      new JSONTemplateError(jsonNode["properties"]["a"], errors[0]),
+      new JSONTemplateError(jsonNode, errors[1])
+    ]);
     expect(validators.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith();
     expect(validators.key2).toBeCalledTimes(1);

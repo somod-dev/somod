@@ -7,6 +7,11 @@ import {
 } from "../../constants";
 import { ServerlessTemplate } from "../types";
 
+/**
+ * Creates `build/serverless/template.json` from `serverless/template.yaml`.
+ *
+ * Assumption is that `serverless/template.yaml` is present in root module
+ */
 export const buildServerlessTemplate = async (
   dir: string,
   rootServerlessTemplate: ServerlessTemplate

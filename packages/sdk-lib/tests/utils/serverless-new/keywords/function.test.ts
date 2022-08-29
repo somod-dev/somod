@@ -8,7 +8,7 @@ import {
 import { listFiles } from "@solib/cli-base";
 import {
   checkCustomResourceSchema,
-  getFunctionExcludes,
+  getDeclaredFunctions,
   keywordFunction
 } from "../../../../src/utils/serverless-new/keywords/function";
 import { keywordRef } from "../../../../src/utils/serverless-new/keywords/ref";
@@ -228,10 +228,10 @@ describe("Test function keyword", () => {
   });
 });
 
-describe("Test util getFunctionExcludes in keyword function", () => {
+describe("Test util getDeclaredFunctions in keyword function", () => {
   test("for a complete template", () => {
     expect(
-      getFunctionExcludes({
+      getDeclaredFunctions({
         Resources: {
           R1: {
             Type: "AWS::Serverless::Function",
@@ -278,12 +278,12 @@ describe("Test util getFunctionExcludes in keyword function", () => {
           }
         }
       })
-    ).toEqual({
-      func1: [],
-      func2: [],
-      func3: ["l1", "l2", "l3"],
-      func4: ["l3", "l4"]
-    });
+    ).toEqual([
+      { name: "func1", exclude: [] },
+      { name: "func2", exclude: [] },
+      { name: "func3", exclude: ["l1", "l2", "l3"] },
+      { name: "func4", exclude: ["l3", "l4"] }
+    ]);
   });
 });
 

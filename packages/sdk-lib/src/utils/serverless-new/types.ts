@@ -12,8 +12,8 @@ export type ServerlessTemplate = {
 export type ModuleServerlessTemplate = Readonly<{
   module: string;
   packageLocation: string;
-  root: boolean;
   template: ServerlessTemplate;
+  root?: boolean;
 }>;
 
 export type ModuleServerlessTemplateMap = Readonly<
