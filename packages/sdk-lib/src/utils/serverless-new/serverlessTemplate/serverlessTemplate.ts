@@ -34,6 +34,7 @@ import {
   ModuleServerlessTemplateMap,
   ServerlessTemplate
 } from "../types";
+import { keywordCreateIf } from "../keywords/createIf";
 
 const loadBuiltServerlessTemplate = async (
   module: Module
@@ -139,6 +140,7 @@ export const getKeywords = () => {
     keywordOr,
     keywordParameter,
     keywordAccess,
+    keywordCreateIf,
     keywordDependsOn,
     keywordExtend,
     keywordFunction,
