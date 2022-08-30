@@ -42,19 +42,11 @@
         "attributes": {
           "type": "array",
           "items": { "type": "string", "pattern": "^[a-zA-Z0-9]+$" }
-        },
-        "export": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "attributes to be exported to parameters after deployment. map of attribute/'default' to parameter name",
-          "patternProperties": {
-            "^[a-zA-Z0-9]+$": {
-              "type": "string",
-              "description": "Parameter name"
-            }
-          }
         }
       }
+    },
+    "SOMOD::CreateIf": {
+      "$ref": "./expression.json#/definitions/booleanLike"
     }
   }
 }
