@@ -225,6 +225,6 @@ describe("Test util serverlessTemplate", () => {
 
   test("getKeywords", () => {
     const keywords = getKeywords();
-    expect(keywords.length).toEqual(19);
+    expect(keywords.length).toEqual(20);
   });
 });

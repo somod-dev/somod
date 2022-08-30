@@ -20,7 +20,8 @@ export const prepareSamTemplate = async (
   const keywords = getKeywords();
 
   const samTemplate: SAMTemplate = {
-    Resources: {}
+    Resources: {},
+    Outputs: {}
   };
 
   const _moduleNames = [...moduleNames].reverse();
@@ -35,7 +36,6 @@ export const prepareSamTemplate = async (
             const processor = await keyword.getProcessor(
               dir,
               moduleName,
-              // @ts-expect-error the type error in the next line is expected
               moduleContentMap
             );
 
@@ -52,9 +52,18 @@ export const prepareSamTemplate = async (
           ...samTemplate.Resources,
           ...processedTemplate.Resources
         };
+
+        samTemplate.Outputs = {
+          ...samTemplate.Outputs,
+          ...processedTemplate.Outputs
+        };
       }
     })
   );
+
+  if (Object.keys(samTemplate.Outputs).length == 0) {
+    delete samTemplate.Outputs;
+  }
 
   extendResources(samTemplate);
   await attachBaseLayer(samTemplate);

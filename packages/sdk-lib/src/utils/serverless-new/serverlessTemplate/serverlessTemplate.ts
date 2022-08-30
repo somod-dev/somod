@@ -35,6 +35,7 @@ import {
   ServerlessTemplate
 } from "../types";
 import { keywordCreateIf } from "../keywords/createIf";
+import { keywordTemplateOutputs } from "../keywords/templateOutputs";
 
 const loadBuiltServerlessTemplate = async (
   module: Module
@@ -148,7 +149,8 @@ export const getKeywords = () => {
     keywordModuleName,
     keywordOutput,
     keywordRef,
-    keywordResourceName
+    keywordResourceName,
+    keywordTemplateOutputs
   ];
   return keywords;
 };

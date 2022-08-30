@@ -56,6 +56,11 @@ describe("test util serverlessTemplate.prepare", () => {
             Type: "",
             Properties: {}
           }
+        },
+        Outputs: {
+          p1: {
+            Ref: "R0"
+          }
         }
       }
     },
@@ -83,6 +88,14 @@ describe("test util serverlessTemplate.prepare", () => {
           R3: {
             Type: "",
             Properties: {}
+          }
+        },
+        Outputs: {
+          p2: {
+            Ref: "R3"
+          },
+          p3: {
+            Ref: "AWS::AccountId"
           }
         }
       }
@@ -114,6 +127,10 @@ describe("test util serverlessTemplate.prepare", () => {
         ...moduleServerlessTemplateMap.m3.template.Resources,
         ...moduleServerlessTemplateMap.m2.template.Resources,
         ...moduleServerlessTemplateMap.m0.template.Resources
+      },
+      Outputs: {
+        ...moduleServerlessTemplateMap.m3.template.Outputs,
+        ...moduleServerlessTemplateMap.m0.template.Outputs
       }
     };
 

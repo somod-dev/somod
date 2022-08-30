@@ -18,7 +18,7 @@ jest.mock("../../../src/utils/parameters/load", () => {
   };
 });
 
-describe("Test or keyword", () => {
+describe("Test parameter keyword", () => {
   beforeEach(() => {
     mockedFunction(listAllParameters).mockReset();
     mockedFunction(listAllParameters).mockResolvedValue({

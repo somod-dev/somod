@@ -1,12 +1,15 @@
+import { JSONType } from "../jsonTemplate";
+
 export type ServerlessResource = Readonly<
   {
     Type: string;
-    Properties: Record<string, unknown>;
-  } & Record<string, unknown>
+    Properties: Record<string, JSONType>;
+  } & Record<string, JSONType>
 >;
 
 export type ServerlessTemplate = {
   readonly Resources: Readonly<Record<string, ServerlessResource>>;
+  readonly Outputs?: Readonly<Record<string, JSONType>>;
 };
 
 export type ModuleServerlessTemplate = Readonly<{
@@ -22,4 +25,5 @@ export type ModuleServerlessTemplateMap = Readonly<
 
 export type SAMTemplate = {
   Resources: Record<string, ServerlessResource>;
+  Outputs?: Record<string, { Description: string; Value: JSONType }>;
 };

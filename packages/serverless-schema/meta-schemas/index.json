@@ -15,27 +15,29 @@
           "required": ["Resources"],
           "properties": {
             "Resources": {
-              "allOf": [
-                { "$ref": "http://json-schema.org/draft-07/schema" },
-                {
+              "type": "object",
+              "required": ["type", "additionalProperties", "propertyNames"],
+              "properties": {
+                "type": { "const": "object" },
+                "additionalProperties": true,
+                "propertyNames": {
                   "type": "object",
-                  "required": ["type", "additionalProperties", "propertyNames"],
+                  "required": ["type", "pattern"],
                   "properties": {
-                    "type": { "const": "object" },
-                    "additionalProperties": {
-                      "$ref": "http://json-schema.org/draft-07/schema"
-                    },
-                    "propertyNames": {
-                      "type": "object",
-                      "required": ["type", "pattern"],
-                      "properties": {
-                        "type": { "const": "string" },
-                        "pattern": { "const": "^[a-zA-Z0-9]{1,64}$" }
-                      }
-                    }
+                    "type": { "const": "string" },
+                    "pattern": { "const": "^[a-zA-Z0-9]{1,64}$" }
                   }
                 }
-              ]
+              }
+            },
+            "Outputs": {
+              "type": "object",
+              "required": ["type", "additionalProperties", "propertyNames"],
+              "properties": {
+                "type": { "const": "object" },
+                "additionalProperties": true,
+                "propertyNames": true
+              }
             }
           }
         }

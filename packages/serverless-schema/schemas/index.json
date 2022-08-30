@@ -39,6 +39,15 @@
         }
       },
       "propertyNames": { "type": "string", "pattern": "^[a-zA-Z0-9]{1,64}$" }
+    },
+    "Outputs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "./components/expression.json#/definitions/stringLike"
+      },
+      "propertyNames": {
+        "$ref": "./components/expression.json#/definitions/somodParameter/properties/SOMOD::Parameter"
+      }
     }
   },
   "additionalProperties": false
