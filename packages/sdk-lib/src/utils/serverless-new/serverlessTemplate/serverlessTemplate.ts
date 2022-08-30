@@ -36,6 +36,7 @@ import {
 } from "../types";
 import { keywordCreateIf } from "../keywords/createIf";
 import { keywordTemplateOutputs } from "../keywords/templateOutputs";
+import { keywordTemplateResources } from "../keywords/templateResources";
 
 const loadBuiltServerlessTemplate = async (
   module: Module
@@ -74,7 +75,7 @@ const loadSourceServerlessTemplate = async (
   }
 };
 
-const loadServerlessTemplate = async (
+export const loadServerlessTemplate = async (
   module: Module
 ): Promise<ModuleServerlessTemplate | undefined> => {
   const template = module.root
@@ -150,7 +151,8 @@ export const getKeywords = () => {
     keywordOutput,
     keywordRef,
     keywordResourceName,
-    keywordTemplateOutputs
+    keywordTemplateOutputs,
+    keywordTemplateResources
   ];
   return keywords;
 };

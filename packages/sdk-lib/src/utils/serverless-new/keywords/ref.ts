@@ -1,11 +1,12 @@
 import { JSONSchema7, validate } from "@solib/json-validator";
 import { DataValidationError } from "@solib/errors";
 import { KeywordDefinition } from "../../keywords/types";
-import { getSAMResourceLogicalId } from "../../serverless/utils";
+import { getSAMResourceLogicalId } from "../utils";
 import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
 import { checkCustomResourceSchema } from "./function";
 import { checkOutput } from "./output";
+import { keywordExtend } from "./extend";
 
 export const keyword = "SOMOD::Ref";
 
@@ -68,6 +69,17 @@ export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
             )
           );
         } else {
+          if (
+            moduleContentMap[targetModule].json.Resources[value.resource][
+              keywordExtend.keyword
+            ] !== undefined
+          ) {
+            errors.push(
+              new Error(
+                `Can not reference an extended resource {${targetModule}, ${value.resource}}.`
+              )
+            );
+          }
           errors.push(
             ...checkAccess(
               moduleName,

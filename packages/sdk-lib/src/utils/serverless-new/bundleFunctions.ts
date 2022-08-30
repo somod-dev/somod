@@ -6,10 +6,10 @@ import {
   path_serverless
 } from "../constants";
 import { build as esbuild } from "esbuild";
-import { getNodeRuntimeVersion } from "../serverless/utils";
+import { getNodeRuntimeVersion } from "./utils";
 import { ModuleServerlessTemplate } from "./types";
 import { getDeclaredFunctions } from "./keywords/function";
-import { listLayerLibraries } from "../serverless/baseModule/layers/baseLayer";
+import { listLibraries } from "@somod/lambda-base-layer";
 
 export const bundleFunctions = async (
   dir: string,
@@ -20,7 +20,7 @@ export const bundleFunctions = async (
     rootServerlessTemplate.template
   );
   const commonExcludes = ["aws-sdk"];
-  const baseLayerLibraries = await listLayerLibraries();
+  const baseLayerLibraries = await listLibraries();
   commonExcludes.push(...baseLayerLibraries);
 
   const srcFunctionsPath = join(dir, path_serverless, path_functions);

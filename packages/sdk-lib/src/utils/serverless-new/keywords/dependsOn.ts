@@ -1,6 +1,6 @@
 import { getPath } from "../../jsonTemplate";
 import { KeywordDefinition } from "../../keywords/types";
-import { getSAMResourceLogicalId } from "../../serverless/utils";
+import { getSAMResourceLogicalId } from "../utils";
 import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
 

@@ -5,7 +5,7 @@ import {
   resourceType_Function,
   resourceType_FunctionLayer
 } from "../../constants";
-import { getSAMResourceLogicalId } from "../../serverless/utils";
+import { getSAMResourceLogicalId } from "../utils";
 import { SAMTemplate } from "../types";
 
 const baseModuleName = "@somod/somod";

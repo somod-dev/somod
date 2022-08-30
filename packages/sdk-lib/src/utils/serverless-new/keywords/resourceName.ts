@@ -1,6 +1,6 @@
 import { JSONType } from "../../jsonTemplate";
 import { KeywordDefinition } from "../../keywords/types";
-import { getSAMResourceName } from "../../serverless/utils";
+import { getSAMResourceName } from "../utils";
 
 export const keyword = "SOMOD::ResourceName";
 

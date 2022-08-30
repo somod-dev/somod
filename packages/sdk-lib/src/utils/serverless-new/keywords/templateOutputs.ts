@@ -2,13 +2,13 @@ import { file_parametersYaml } from "../../constants";
 import { getPath, JSONType } from "../../jsonTemplate";
 import { KeywordDefinition } from "../../keywords/types";
 import { listAllParameters } from "../../parameters/namespace";
-import { getSAMOutputName } from "../../serverless/utils";
+import { getSAMOutputName } from "../utils";
 import { ServerlessTemplate } from "../types";
 
-type Output = Record<string, JSONType>;
+type Outputs = Record<string, JSONType>;
 
 export const keywordTemplateOutputs: KeywordDefinition<
-  Output,
+  Outputs,
   ServerlessTemplate
 > = {
   keyword: "Outputs",

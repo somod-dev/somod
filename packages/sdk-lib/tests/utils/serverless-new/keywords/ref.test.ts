@@ -4,6 +4,7 @@ import { checkOutput } from "../../../../src/utils/serverless-new/keywords/outpu
 import { checkAccess } from "../../../../src/utils/serverless-new/keywords/access";
 import { checkCustomResourceSchema } from "../../../../src/utils/serverless-new/keywords/function";
 import { mockedFunction } from "@sodev/test-utils";
+import { keywordExtend } from "../../../../src/utils/serverless-new/keywords/extend";
 
 jest.mock("../../../../src/utils/serverless-new/keywords/output", () => {
   return {
@@ -42,6 +43,13 @@ describe("Test ref keyword", () => {
         Resources: {
           TargetResource: {
             Type: "MyResourceType",
+            Properties: {}
+          },
+          ExtendedTargetResource: {
+            Type: "MyResourceType",
+            [keywordExtend.keyword]: {
+              resource: "TargetResource"
+            },
             Properties: {}
           }
         }
@@ -161,6 +169,28 @@ describe("Test ref keyword", () => {
       )
     ).toEqual([
       new Error("Referenced module resource {m1, TargetResource2} not found.")
+    ]);
+  });
+
+  test("the validator with reference to extended resource", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: {
+        resource: "ExtendedTargetResource"
+      }
+    };
+
+    expect(
+      validator(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword] as unknown as RefType
+      )
+    ).toEqual([
+      new Error(
+        "Can not reference an extended resource {m1, ExtendedTargetResource}."
+      )
     ]);
   });
 
