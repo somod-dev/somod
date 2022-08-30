@@ -2,10 +2,10 @@ import { existsSync } from "fs";
 import { join } from "path";
 import { file_templateYaml, path_serverless } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
-import { bundleFunctions as _bundleFunctions } from "../../utils/serverless/bundleFunctions";
+import { bundleFunctionLayers as _bundleFunctionLayers } from "../../utils/serverless/bundleFunctionLayers";
 import { loadServerlessTemplate } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
 
-export const bundleFunctions = async (dir: string, verbose = false) => {
+export const bundleFunctionLayers = async (dir: string, verbose = false) => {
   const templateYamlPath = join(dir, path_serverless, file_templateYaml);
   if (existsSync(templateYamlPath)) {
     const moduleHandler = ModuleHandler.getModuleHandler(dir);
@@ -13,6 +13,6 @@ export const bundleFunctions = async (dir: string, verbose = false) => {
     const rootModuleTemplate = await loadServerlessTemplate(
       rootModuleNode.module
     );
-    await _bundleFunctions(dir, rootModuleTemplate, verbose);
+    await _bundleFunctionLayers(dir, rootModuleTemplate, verbose);
   }
 };

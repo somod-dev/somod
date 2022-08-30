@@ -10,7 +10,7 @@ import {
   findRootDir,
   generateNextConfig,
   generateRootParameters,
-  generateSAMTemplate,
+  prepareSAMTemplate,
   loadPluginParameterFilters,
   loadPlugins,
   path_pages,
@@ -93,7 +93,7 @@ export const PrepareAction = async ({
   if (serverless) {
     await taskRunner(
       `Generate /${file_templateYaml}`,
-      generateSAMTemplate,
+      prepareSAMTemplate,
       verbose,
       dir
     );

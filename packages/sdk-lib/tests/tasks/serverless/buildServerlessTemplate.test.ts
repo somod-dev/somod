@@ -4,7 +4,6 @@ import { dump } from "js-yaml";
 import { join } from "path";
 import { buildServerlessTemplate } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { StringifyTemplate } from "../../utils/serverless/utils";
 describe("Test Task buildServerlessTemplate", () => {
   let dir: string = null;
 
@@ -86,6 +85,6 @@ describe("Test Task buildServerlessTemplate", () => {
       readFile(join(dir, "build", "serverless", "template.json"), {
         encoding: "utf8"
       })
-    ).resolves.toEqual(StringifyTemplate(template));
+    ).resolves.toEqual(JSON.stringify(template));
   });
 });

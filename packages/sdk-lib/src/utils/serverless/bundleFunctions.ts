@@ -10,6 +10,7 @@ import { getNodeRuntimeVersion } from "./utils";
 import { ModuleServerlessTemplate } from "./types";
 import { getDeclaredFunctions } from "./keywords/function";
 import { listLibraries } from "@somod/lambda-base-layer";
+import { get as getExports } from "../exports";
 
 export const bundleFunctions = async (
   dir: string,
@@ -36,9 +37,15 @@ export const bundleFunctions = async (
       const functionName = _function.name;
       const functionFileName = functionName + ".ts";
 
+      const functionFilePath = join(srcFunctionsPath, functionFileName);
+      const exports = getExports(functionFilePath);
+      if (!exports.default) {
+        throw new Error(`${functionFilePath} must have a default export`);
+      }
+
       try {
         await esbuild({
-          entryPoints: [join(srcFunctionsPath, functionFileName)],
+          entryPoints: [functionFilePath],
           bundle: true,
           outfile: join(buildFunctionsPath, functionName, file_index_js),
           sourcemap: false,

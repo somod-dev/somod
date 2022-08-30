@@ -1,14 +1,26 @@
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
-import { generateSAMTemplate as _generateSAMTemplate } from "../../utils/serverless/generateSAMTemplate";
+import { ModuleHandler } from "../../utils/moduleHandler";
+import { prepareSamTemplate } from "../../utils/serverless/serverlessTemplate/prepare";
+import { loadServerlessTemplateMap } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
 import { getNodeRuntimeVersion } from "../../utils/serverless/utils";
 import {
   saveYamlFileStore,
   updateYamlFileStore
 } from "../../utils/yamlFileStore";
 
-export const generateSAMTemplate = async (dir: string): Promise<void> => {
-  const samTemplate = await _generateSAMTemplate(dir);
+export const prepareSAMTemplate = async (dir: string): Promise<void> => {
+  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleNodes = await moduleHandler.listModules();
+  const moduleTemplateMap = await loadServerlessTemplateMap(
+    moduleNodes.map(m => m.module)
+  );
+
+  const samTemplate = await prepareSamTemplate(
+    dir,
+    moduleNodes.map(m => m.module.name),
+    moduleTemplateMap
+  );
 
   if (samTemplate.Resources && Object.keys(samTemplate.Resources).length > 0) {
     const completeSamTemplate = {

@@ -29,7 +29,6 @@ export const validateServerlessTemplate = async (
       const validator = await keyword.getValidator(
         dir,
         rootModuleName,
-        // @ts-expect-error the type error in the next line is expected
         moduleContentMap
       );
 

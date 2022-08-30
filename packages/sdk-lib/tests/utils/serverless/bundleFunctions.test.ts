@@ -43,8 +43,7 @@ describe("Test util bundleFunctions", () => {
 
   test("with functions having unresolved dependencies", async () => {
     createFiles(dir, {
-      "serverless/functions/f1.ts":
-        'export {default as fetch} from "node-fetch"'
+      "serverless/functions/f1.ts": 'export {default} from "node-fetch"'
     });
     await expect(
       bundleFunctions(dir, {
@@ -74,7 +73,8 @@ describe("Test util bundleFunctions", () => {
 
   test("with functions having dependency on default excludes", async () => {
     createFiles(dir, {
-      "serverless/functions/f1.ts": 'export {difference} from "lodash"'
+      "serverless/functions/f1.ts":
+        'export {difference as default} from "lodash"'
     });
     await expect(
       bundleFunctions(dir, {
@@ -100,14 +100,14 @@ describe("Test util bundleFunctions", () => {
     await expect(
       readFile(join(dir, "build/serverless/functions/f1/index.js"), "utf8")
     ).resolves.toMatchInlineSnapshot(`
-            "var c=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var n=Object.getOwnPropertyNames;var p=Object.prototype.hasOwnProperty;var t=f=>c(f,\\"__esModule\\",{value:!0});var x=(f,e)=>{for(var r in e)c(f,r,{get:e[r],enumerable:!0})},a=(f,e,r,d)=>{if(e&&typeof e==\\"object\\"||typeof e==\\"function\\")for(let o of n(e))!p.call(f,o)&&(r||o!==\\"default\\")&&c(f,o,{get:()=>e[o],enumerable:!(d=m(e,o))||d.enumerable});return f};var b=(f=>(e,r)=>f&&f.get(e)||(r=a(t({}),e,1),f&&f.set(e,r),r))(typeof WeakMap!=\\"undefined\\"?new WeakMap:0);var g={};x(g,{difference:()=>i.difference});var i=require(\\"lodash\\");module.exports=b(g);0&&(module.exports={difference});
+            "var d=Object.defineProperty;var c=Object.getOwnPropertyDescriptor;var i=Object.getOwnPropertyNames;var l=Object.prototype.hasOwnProperty;var m=f=>d(f,\\"__esModule\\",{value:!0});var n=(f,e)=>{for(var r in e)d(f,r,{get:e[r],enumerable:!0})},p=(f,e,r,o)=>{if(e&&typeof e==\\"object\\"||typeof e==\\"function\\")for(let a of i(e))!l.call(f,a)&&(r||a!==\\"default\\")&&d(f,a,{get:()=>e[a],enumerable:!(o=c(e,a))||o.enumerable});return f};var s=(f=>(e,r)=>f&&f.get(e)||(r=p(m({}),e,1),f&&f.set(e,r),r))(typeof WeakMap!=\\"undefined\\"?new WeakMap:0);var u={};n(u,{default:()=>t.difference});var t=require(\\"lodash\\");module.exports=s(u);0&&(module.exports={});
             "
           `);
   });
 
   test("with function excludes in template", async () => {
     createFiles(dir, {
-      "serverless/functions/f1.ts": "export const a = 10;",
+      "serverless/functions/f1.ts": "const a = 10; export default a;",
       "serverless/functions/f2.ts":
         'import {difference} from "lodash"; export {default as fetch} from "node-fetch"; const diff = (a:string[], b:string[]):string[] => {return difference(a,b);}; export default diff;',
       "package.json": JSON.stringify({ name: "waw", devDependencies: {} })
@@ -152,7 +152,7 @@ describe("Test util bundleFunctions", () => {
     await expect(
       readFile(join(dir, "build/serverless/functions/f1/index.js"), "utf8")
     ).resolves.toMatchInlineSnapshot(`
-            "var e=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var r=Object.getOwnPropertyNames;var s=Object.prototype.hasOwnProperty;var x=t=>e(t,\\"__esModule\\",{value:!0});var b=(t,o)=>{for(var a in o)e(t,a,{get:o[a],enumerable:!0})},d=(t,o,a,n)=>{if(o&&typeof o==\\"object\\"||typeof o==\\"function\\")for(let c of r(o))!s.call(t,c)&&(a||c!==\\"default\\")&&e(t,c,{get:()=>o[c],enumerable:!(n=p(o,c))||n.enumerable});return t};var f=(t=>(o,a)=>t&&t.get(o)||(a=d(x({}),o,1),t&&t.set(o,a),a))(typeof WeakMap!=\\"undefined\\"?new WeakMap:0);var h={};b(h,{a:()=>g});var g=10;module.exports=f(h);0&&(module.exports={a});
+            "var c=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var l=Object.getOwnPropertyNames;var n=Object.prototype.hasOwnProperty;var p=t=>c(t,\\"__esModule\\",{value:!0});var r=(t,a)=>{for(var e in a)c(t,e,{get:a[e],enumerable:!0})},s=(t,a,e,d)=>{if(a&&typeof a==\\"object\\"||typeof a==\\"function\\")for(let o of l(a))!n.call(t,o)&&(e||o!==\\"default\\")&&c(t,o,{get:()=>a[o],enumerable:!(d=f(a,o))||d.enumerable});return t};var u=(t=>(a,e)=>t&&t.get(a)||(e=s(p({}),a,1),t&&t.set(a,e),e))(typeof WeakMap!=\\"undefined\\"?new WeakMap:0);var b={};r(b,{default:()=>x});var x=10;module.exports=u(b);0&&(module.exports={});
             "
           `);
     await expect(

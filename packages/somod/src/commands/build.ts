@@ -9,19 +9,17 @@ import {
   deleteBuildDir,
   validatePageData,
   validatePageExports,
-  doesServerlessFunctionsHaveDefaultExport,
   file_configYaml,
   file_packageJson,
   file_parametersYaml,
   file_templateYaml,
   file_tsConfigBuildJson,
   findRootDir,
-  installLayerDependencies,
+  bundleFunctionLayers,
   isValidTsConfigBuildJson,
   key_somod,
   loadAndResolveNamespaces,
   path_build,
-  path_functions,
   path_pages,
   path_public,
   path_serverless,
@@ -36,7 +34,8 @@ import {
   loadPlugins,
   loadPluginNamespace,
   runPluginPrebuild,
-  runPluginBuild
+  runPluginBuild,
+  validateServerlessTemplate
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -103,20 +102,18 @@ export const BuildAction = async ({
   }
 
   if (serverless) {
-    await Promise.all([
-      taskRunner(
-        `Validate ${path_serverless}/${file_templateYaml} with schema`,
-        validateServerlessTemplateWithSchema,
+    await taskRunner(
+      `Validate ${path_serverless}/${file_templateYaml} with schema`,
+      validateServerlessTemplateWithSchema,
+      verbose,
+      dir
+    ),
+      await taskRunner(
+        `Validate ${path_serverless}/${file_templateYaml}`,
+        validateServerlessTemplate,
         verbose,
         dir
-      ),
-      taskRunner(
-        `Check if ${path_serverless}/${path_functions} have default export`,
-        doesServerlessFunctionsHaveDefaultExport,
-        verbose,
-        dir
-      )
-    ]);
+      );
   }
 
   await taskRunner(
@@ -200,8 +197,8 @@ export const BuildAction = async ({
     );
 
     await taskRunner(
-      `Install libraries of Serverless FunctionLayers`,
-      installLayerDependencies,
+      `Bundle Serverless FunctionLayers`,
+      bundleFunctionLayers,
       verbose,
       dir,
       verbose
