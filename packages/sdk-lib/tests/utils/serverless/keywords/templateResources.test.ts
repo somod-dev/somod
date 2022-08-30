@@ -1,4 +1,4 @@
-import { keywordTemplateResources } from "../../../../src/utils/serverless-new/keywords/templateResources";
+import { keywordTemplateResources } from "../../../../src/utils/serverless/keywords/templateResources";
 import {
   JSONObjectNode,
   JSONType,

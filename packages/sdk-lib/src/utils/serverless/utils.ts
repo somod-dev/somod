@@ -1,36 +1,4 @@
 import { createHash } from "crypto";
-import { getKeyword, getKeywordPaths, replaceKeyword } from "../keywords";
-import { KeywordAll, SOMODKeyword, SLPTemplate } from "./types";
-
-export const updateKeywordPathsInSLPTemplate = (
-  slpTemplate: SLPTemplate
-): void => {
-  const somodKeywords = getKeywordPaths(
-    slpTemplate.original.Resources,
-    KeywordAll
-  );
-  slpTemplate.keywordPaths = somodKeywords;
-};
-
-export const getSOMODKeyword = <T extends SOMODKeyword>(
-  slpTemplate: SLPTemplate,
-  path: string[]
-): T => {
-  // always return the keyword value from original
-  return getKeyword(slpTemplate.original.Resources, path) as T;
-};
-
-export const replaceSOMODKeyword = (
-  slpTemplate: SLPTemplate,
-  path: string[],
-  newValue: unknown,
-  includeOriginal = false
-): void => {
-  replaceKeyword(slpTemplate.Resources, path, newValue);
-  if (includeOriginal) {
-    replaceKeyword(slpTemplate.original.Resources, path, newValue);
-  }
-};
 
 export const getNodeRuntimeVersion = () => {
   return process.env.SOMOD_SERVERLESS_NODEJS_VERSION || "16";

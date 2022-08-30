@@ -1,7 +1,7 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
 import { dump } from "js-yaml";
-import { ServerlessTemplate } from "../../../../src/utils/serverless-new/types";
-import { buildServerlessTemplate } from "../../../../src/utils/serverless-new/serverlessTemplate/build";
+import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
+import { buildServerlessTemplate } from "../../../../src/utils/serverless/serverlessTemplate/build";
 import { readFile } from "fs/promises";
 import { join } from "path";
 

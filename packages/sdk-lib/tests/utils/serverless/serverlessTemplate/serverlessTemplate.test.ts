@@ -1,11 +1,11 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
 import { dump } from "js-yaml";
-import { ServerlessTemplate } from "../../../../src/utils/serverless-new/types";
+import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import {
   getKeywords,
   getModuleContentMap,
   loadServerlessTemplateMap
-} from "../../../../src/utils/serverless-new/serverlessTemplate/serverlessTemplate";
+} from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { join } from "path";
 
 describe("Test util serverlessTemplate", () => {

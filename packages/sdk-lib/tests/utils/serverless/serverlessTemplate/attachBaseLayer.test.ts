@@ -1,6 +1,6 @@
 import { cloneDeep } from "lodash";
-import { attachBaseLayer } from "../../../../src/utils/serverless-new/serverlessTemplate/attachBaseLayer";
-import { SAMTemplate } from "../../../../src/utils/serverless-new/types";
+import { attachBaseLayer } from "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer";
+import { SAMTemplate } from "../../../../src/utils/serverless/types";
 import { getPackageLocation } from "@somod/lambda-base-layer";
 import { unixStylePath } from "@solib/cli-base";
 import { join } from "path";

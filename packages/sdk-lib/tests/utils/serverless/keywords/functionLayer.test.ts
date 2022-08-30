@@ -13,10 +13,10 @@ import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
 import {
   getFunctionLayerLibraries,
   keywordFunctionLayer
-} from "../../../../src/utils/serverless-new/keywords/functionLayer";
+} from "../../../../src/utils/serverless/keywords/functionLayer";
 import { join } from "path";
 import { ModuleContentMap } from "../../../../src/utils/keywords/types";
-import { ServerlessTemplate } from "../../../../src/utils/serverless-new/types";
+import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import { readdir, readFile } from "fs/promises";
 
 jest.mock("@solib/cli-base", () => {

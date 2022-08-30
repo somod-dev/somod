@@ -1,85 +1,210 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { readFile } from "fs/promises";
-import { dump } from "js-yaml";
-import { join } from "path";
-import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
+import { JSONObjectNode, parseJson } from "../../../../src/utils/jsonTemplate";
 import {
-  functionDefaults,
-  installSchemaInTempDir,
-  singlePackageJson,
-  StringifyTemplate
-} from "../utils";
+  checkOutput,
+  keywordOutput
+} from "../../../../src/utils/serverless/keywords/output";
 
-describe("test keyword SOMOD::Output", () => {
-  let dir: string = null;
-  let buildTemplateJsonPath = null;
+type OutputType = {
+  default: boolean;
+  attributes: string[];
+};
 
-  beforeEach(async () => {
-    dir = createTempDir();
-    buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
-    await installSchemaInTempDir(dir);
+describe("Test output keyword", () => {
+  const getValidator = () => keywordOutput.getValidator("", "", {});
+  const getProcessor = () => keywordOutput.getProcessor("", "", {});
+
+  test("the keyword name", () => {
+    expect(keywordOutput.keyword).toEqual("SOMOD::Output");
   });
 
-  afterEach(() => {
-    deleteDir(dir);
+  test("the validator with keyword at top object", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordOutput.keyword]: {}
+    };
+
+    expect(
+      validator(
+        keywordOutput.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordOutput.keyword] as unknown as OutputType
+      )
+    ).toEqual([
+      new Error("SOMOD::Output is allowed only as Resource Property")
+    ]);
   });
 
-  test("with SOMOD::Output", async () => {
-    const template = {
+  test("the validator with keyword at deep inside a Resource object", async () => {
+    const validator = await getValidator();
+
+    const obj = {
       Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: { ...functionDefaults },
-          "SOMOD::Output": {
-            default: true,
-            attributes: []
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          Properties: {
+            [keywordOutput.keyword]: {}
           }
         }
       }
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...singlePackageJson
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(buildTemplateJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(StringifyTemplate(template));
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordOutput.keyword,
+        (
+          (objNode.properties["Resources"] as JSONObjectNode).properties[
+            "MyResource1"
+          ] as JSONObjectNode
+        ).properties["Properties"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties[
+          keywordOutput.keyword
+        ] as unknown as OutputType
+      )
+    ).toEqual([
+      new Error("SOMOD::Output is allowed only as Resource Property")
+    ]);
   });
 
-  test("with missing export parameter", async () => {
-    const template = {
+  test("the validator with keyword as a Resource Property", async () => {
+    const validator = await getValidator();
+
+    const obj = {
       Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: { ...functionDefaults },
-          "SOMOD::Output": {
-            default: true,
-            attributes: ["Arn"],
-            export: {
-              default: "my.resource1.name",
-              Arn: "my.var1"
-            }
-          }
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordOutput.keyword]: { default: true, attributes: ["Arn"] },
+          Properties: {}
         }
       }
     };
-    createFiles(dir, {
-      "parameters.yaml": dump({
-        Parameters: {
-          "my.var1": { type: "text", default: "1" },
-          "my.var3": { type: "text", default: "3" }
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordOutput.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        obj.Resources.MyResource1[
+          keywordOutput.keyword
+        ] as unknown as OutputType
+      )
+    ).toEqual([]);
+  });
+
+  test("the processor", async () => {
+    const processor = await getProcessor();
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordOutput.keyword]: { default: true, attributes: ["Arn"] },
+          Properties: {}
         }
-      }),
-      "serverless/template.yaml": dump(template),
-      ...singlePackageJson
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toEqual(
-      new Error(`Following export parameters referenced from 'serverless/template.yaml' are not found
- - my.resource1.name`)
-    );
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      processor(
+        keywordOutput.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        obj.Resources.MyResource1[keywordOutput.keyword] as OutputType
+      )
+    ).toEqual({ type: "keyword", value: {} });
+  });
+});
+
+describe("Test util checkOutput from output keyword for", () => {
+  const usecases: [
+    string,
+    string | undefined,
+    OutputType | undefined,
+    Error[]
+  ][] = [
+    // no keyword
+    [
+      "expecting default with out keyword",
+      undefined,
+      null,
+      [
+        new Error(
+          "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
+        )
+      ]
+    ],
+    [
+      "expecting attribute with out keyword",
+      "x",
+      null,
+      [
+        new Error(
+          "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
+        )
+      ]
+    ],
+
+    // default = false
+    [
+      "expecting default with default = false",
+      undefined,
+      { default: false, attributes: [] },
+      [
+        new Error(
+          "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
+        )
+      ]
+    ],
+    [
+      "expecting default with default = true",
+      undefined,
+      { default: true, attributes: [] },
+      []
+    ],
+
+    // attributes
+    [
+      "expecting non existing attribute",
+      "x",
+      { default: false, attributes: ["y"] },
+      [
+        new Error(
+          "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
+        )
+      ]
+    ],
+    [
+      "expecting existing attribute",
+      "x",
+      { default: false, attributes: ["x", "y"] },
+      []
+    ]
+  ];
+
+  test.each(usecases)("%s", (title, attribute, outputValue, expectedErrors) => {
+    const resource = { Type: "", Properties: {} };
+    if (outputValue) {
+      resource[keywordOutput.keyword] = outputValue;
+    }
+    expect(
+      checkOutput(
+        {
+          moduleName: "@s1/m1",
+          location: "/a/b/c/z",
+          path: "",
+          json: { Resources: { MyResource1: resource } }
+        },
+        "MyResource1",
+        attribute
+      )
+    ).toEqual(expectedErrors);
   });
 });

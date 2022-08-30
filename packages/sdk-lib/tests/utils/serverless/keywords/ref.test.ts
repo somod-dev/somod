@@ -1,438 +1,290 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { readFile } from "fs/promises";
-import { dump } from "js-yaml";
-import { join } from "path";
-import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
-import {
-  doublePackageJson,
-  functionDefaults,
-  installSchemaInTempDir,
-  singlePackageJson,
-  StringifyTemplate
-} from "../utils";
+import { JSONObjectNode, parseJson } from "../../../../src/utils/jsonTemplate";
+import { keywordRef } from "../../../../src/utils/serverless/keywords/ref";
+import { checkOutput } from "../../../../src/utils/serverless/keywords/output";
+import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
+import { checkCustomResourceSchema } from "../../../../src/utils/serverless/keywords/function";
+import { mockedFunction } from "@sodev/test-utils";
+import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";
 
-describe("test keyword SOMOD::Ref", () => {
-  let dir: string = null;
-  let buildTemplateJsonPath = null;
+jest.mock("../../../../src/utils/serverless/keywords/output", () => {
+  return {
+    __esModule: true,
+    checkOutput: jest.fn().mockReturnValue([])
+  };
+});
 
-  beforeEach(async () => {
-    dir = createTempDir();
-    buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
-    await installSchemaInTempDir(dir);
-  });
+jest.mock("../../../../src/utils/serverless/keywords/access", () => {
+  return {
+    __esModule: true,
+    checkAccess: jest.fn().mockReturnValue([])
+  };
+});
 
-  afterEach(() => {
-    deleteDir(dir);
-  });
+jest.mock("../../../../src/utils/serverless/keywords/function", () => {
+  return {
+    __esModule: true,
+    checkCustomResourceSchema: jest.fn().mockReturnValue([])
+  };
+});
 
-  test("with SOMOD::Ref without module", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults,
-            Events: {
-              ApiEvent: {
-                Type: "HttpApi",
-                Properties: {
-                  ApiId: {
-                    "SOMOD::Ref": {
-                      module: "@my-scope/sample2",
-                      resource: "Resource2"
-                    }
-                  },
-                  Method: "GET",
-                  Path: "/m/r"
-                }
-              }
-            }
-          }
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...singlePackageJson
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample2, Resource2} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
-      )
-    });
-  });
+type RefType = {
+  module?: string;
+  resource: string;
+  attribute?: string;
+};
 
-  test("with SOMOD::Ref and with module but no Resource", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults,
-            Events: {
-              ApiEvent: {
-                Type: "HttpApi",
-                Properties: {
-                  ApiId: {
-                    "SOMOD::Ref": {
-                      module: "@my-scope/sample2",
-                      resource: "Resource2"
-                    }
-                  },
-                  Method: "GET",
-                  Path: "/m/r"
-                }
-              }
-            }
-          }
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource3: {
-              Type: "AWS::Serverless::Function",
-              Properties: { ...functionDefaults }
-            }
-          }
-        })
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample2, Resource2} not found. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
-      )
-    });
-  });
-
-  test("with SOMOD::Ref and with module with Extended Resource", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults,
-            Events: {
-              ApiEvent: {
-                Type: "HttpApi",
-                Properties: {
-                  ApiId: {
-                    "SOMOD::Ref": {
-                      resource: "Resource2"
-                    }
-                  },
-                  Method: "GET",
-                  Path: "/m/r"
-                }
-              }
-            }
-          }
-        },
-        Resource2: {
-          Type: "AWS::Serverless::Api",
-          "SOMOD::Extend": {
-            module: "@my-scope/sample2",
-            resource: "Resource3"
+describe("Test ref keyword", () => {
+  const allModules = {
+    m1: {
+      moduleName: "m1",
+      location: "",
+      path: "",
+      json: {
+        Resources: {
+          TargetResource: {
+            Type: "MyResourceType",
+            Properties: {}
           },
-          Properties: {}
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource3: {
-              Type: "AWS::Serverless::Api",
-              Properties: {}
-            }
-          }
-        })
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample, Resource2} must not have SOMOD::Extend. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
-      )
-    });
-  });
-
-  test("with SOMOD::Ref and with module with Resource but no output", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults,
-            Events: {
-              ApiEvent: {
-                Type: "HttpApi",
-                Properties: {
-                  ApiId: {
-                    "SOMOD::Ref": {
-                      module: "@my-scope/sample2",
-                      resource: "Resource2"
-                    }
-                  },
-                  Method: "GET",
-                  Path: "/m/r"
-                }
-              }
-            }
-          }
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource2: {
-              Type: "AWS::Serverless::Api",
-              Properties: {}
-            }
-          }
-        })
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample2, Resource2} does not have SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
-      )
-    });
-  });
-
-  test("with SOMOD::Ref and with module with Resource but target output default is false", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults,
-            Events: {
-              ApiEvent: {
-                Type: "HttpApi",
-                Properties: {
-                  ApiId: {
-                    "SOMOD::Ref": {
-                      module: "@my-scope/sample2",
-                      resource: "Resource2"
-                    }
-                  },
-                  Method: "GET",
-                  Path: "/m/r"
-                }
-              }
-            }
-          }
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource2: {
-              Type: "AWS::Serverless::Api",
-              Properties: {},
-              "SOMOD::Output": {
-                default: false
-              }
-            }
-          }
-        })
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample2, Resource2} does not have default set to true in SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
-      )
-    });
-  });
-
-  test("with SOMOD::Ref and with module with Resource but target output attributes does not include", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults,
-            Events: {
-              ApiEvent: {
-                Type: "HttpApi",
-                Properties: {
-                  ApiId: {
-                    "SOMOD::Ref": {
-                      module: "@my-scope/sample2",
-                      resource: "Resource2",
-                      attribute: "Id"
-                    }
-                  },
-                  Method: "GET",
-                  Path: "/m/r"
-                }
-              }
-            }
-          }
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource2: {
-              Type: "AWS::Serverless::Api",
-              Properties: {},
-              "SOMOD::Output": {
-                default: true,
-                attributes: ["Name"]
-              }
-            }
-          }
-        })
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Referenced module resource {@my-scope/sample2, Resource2} does not have attribute Id in SOMOD::Output. Referenced in "@my-scope/sample" at "Resources/Resource1/Properties/Events/ApiEvent/Properties/ApiId"'
-      )
-    });
-  });
-
-  test("with SOMOD::Ref with a valid reference", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults,
-            Description: {
-              "Fn::Sub": [
-                "Invoked from ${restApiName}",
-                {
-                  restApiName: {
-                    "SOMOD::Ref": {
-                      module: "@my-scope/sample2",
-                      resource: "Resource2",
-                      attribute: "Name"
-                    }
-                  }
-                }
-              ]
+          ExtendedTargetResource: {
+            Type: "MyResourceType",
+            [keywordExtend.keyword]: {
+              resource: "TargetResource"
             },
-            Events: {
-              ApiEvent: {
-                Type: "HttpApi",
-                Properties: {
-                  ApiId: {
-                    "SOMOD::Ref": {
-                      module: "@my-scope/sample2",
-                      resource: "Resource2"
-                    }
-                  },
-                  Method: "GET",
-                  Path: "/m/r"
-                }
-              }
-            }
+            Properties: {}
           }
         }
       }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource2: {
-              Type: "AWS::Serverless::Api",
-              Properties: {},
-              "SOMOD::Output": {
-                default: true,
-                attributes: ["Name"]
-              }
-            }
-          }
-        })
-    });
+    }
+  };
+  const getValidator = (currentModule = "m1") =>
+    keywordRef.getValidator("", currentModule, allModules);
+  const getProcessor = () => keywordRef.getProcessor("", "m1", {});
 
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(buildTemplateJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(StringifyTemplate(template));
+  beforeEach(() => {
+    mockedFunction(checkAccess).mockReset();
+    mockedFunction(checkAccess).mockReturnValue([]);
+    mockedFunction(checkOutput).mockReset();
+    mockedFunction(checkOutput).mockReturnValue([]);
+    mockedFunction(checkCustomResourceSchema).mockReset();
+    mockedFunction(checkCustomResourceSchema).mockReturnValue([]);
   });
 
-  test("with SOMOD::Ref with a valid local reference", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults,
-            Description: {
-              "Fn::Sub": [
-                "Invoked from ${restApiName}",
-                {
-                  restApiName: {
-                    "SOMOD::Ref": {
-                      resource: "Resource2",
-                      attribute: "Name"
-                    }
-                  }
-                }
-              ]
-            },
-            Events: {
-              ApiEvent: {
-                Type: "HttpApi",
-                Properties: {
-                  ApiId: {
-                    "SOMOD::Ref": {
-                      resource: "Resource2"
-                    }
-                  },
-                  Method: "GET",
-                  Path: "/m/r"
-                }
-              }
-            }
-          }
-        },
-        Resource2: {
-          Type: "AWS::Serverless::Api",
-          Properties: {},
-          "SOMOD::Output": {
-            default: true,
-            attributes: ["Name"]
-          }
-        }
+  test("the keyword name", () => {
+    expect(keywordRef.keyword).toEqual("SOMOD::Ref");
+  });
+
+  test("the validator with additional properties", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: { resource: "TargetResource" },
+      additionalProp: "abcd"
+    };
+
+    expect(
+      validator(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword] as RefType
+      )
+    ).toEqual([
+      new Error("Object with SOMOD::Ref must not have additional properties")
+    ]);
+  });
+
+  test("the validator with valid value", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: { resource: "TargetResource" } as RefType
+    };
+
+    expect(
+      validator(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword]
+      )
+    ).toEqual([]);
+  });
+
+  test("the validator with invalid value", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: {
+        resource: { join: ["Target", "Resource"] },
+        m: "m1"
       }
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...singlePackageJson
+
+    expect(
+      validator(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword] as unknown as RefType
+      )
+    ).toEqual([
+      new Error(
+        "Has following errors\nmust NOT have additional properties\nresource must be string"
+      )
+    ]);
+  });
+
+  test("the validator with non existing reference", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: {
+        resource: "TargetResource2"
+      }
+    };
+
+    expect(
+      validator(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword] as unknown as RefType
+      )
+    ).toEqual([
+      new Error("Referenced module resource {m1, TargetResource2} not found.")
+    ]);
+  });
+
+  test("the validator with non existing reference in another module", async () => {
+    const validator = await getValidator("m2");
+
+    const obj = {
+      [keywordRef.keyword]: {
+        resource: "TargetResource2",
+        module: "m1"
+      }
+    };
+
+    expect(
+      validator(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword] as unknown as RefType
+      )
+    ).toEqual([
+      new Error("Referenced module resource {m1, TargetResource2} not found.")
+    ]);
+  });
+
+  test("the validator with reference to extended resource", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: {
+        resource: "ExtendedTargetResource"
+      }
+    };
+
+    expect(
+      validator(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword] as unknown as RefType
+      )
+    ).toEqual([
+      new Error(
+        "Can not reference an extended resource {m1, ExtendedTargetResource}."
+      )
+    ]);
+  });
+
+  test("the validator calling check access, check output and checkCustomResourceSchema", async () => {
+    mockedFunction(checkAccess).mockReturnValue([
+      new Error("error from checkAccess")
+    ]);
+    mockedFunction(checkOutput).mockReturnValue([
+      new Error("error from checkOutput")
+    ]);
+    mockedFunction(checkCustomResourceSchema).mockReturnValue([
+      new Error("error from checkCustomResourceSchema")
+    ]);
+
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: {
+        resource: "TargetResource"
+      }
+    };
+
+    const node = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(keywordRef.keyword, node, obj[keywordRef.keyword])
+    ).toEqual([
+      new Error("error from checkAccess"),
+      new Error("error from checkOutput"),
+      new Error("error from checkCustomResourceSchema")
+    ]);
+
+    expect(checkAccess).toHaveBeenCalledTimes(1);
+    expect(checkAccess).toHaveBeenNthCalledWith(
+      1,
+      "m1",
+      allModules.m1,
+      "TargetResource"
+    );
+    expect(checkOutput).toHaveBeenCalledTimes(1);
+    expect(checkOutput).toHaveBeenNthCalledWith(
+      1,
+      allModules.m1,
+      "TargetResource",
+      undefined
+    );
+    expect(checkCustomResourceSchema).toHaveBeenCalledTimes(1);
+    expect(checkCustomResourceSchema).toHaveBeenNthCalledWith(
+      1,
+      node,
+      allModules.m1,
+      "TargetResource"
+    );
+  });
+
+  test("the processor without attribute", async () => {
+    const processor = await getProcessor();
+
+    const obj = {
+      [keywordRef.keyword]: { resource: "TargetResource" }
+    };
+
+    expect(
+      processor(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword]
+      )
+    ).toEqual({
+      type: "object",
+      value: {
+        Ref: "rca0df2c9TargetResource"
+      }
     });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(buildTemplateJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(StringifyTemplate(template));
+  });
+
+  test("the processor with attribute", async () => {
+    const processor = await getProcessor();
+
+    const obj = {
+      [keywordRef.keyword]: { resource: "TargetResource", attribute: "a1" }
+    };
+
+    expect(
+      processor(
+        keywordRef.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordRef.keyword]
+      )
+    ).toEqual({
+      type: "object",
+      value: {
+        "Fn::GetAtt": ["rca0df2c9TargetResource", "a1"]
+      }
+    });
   });
 });

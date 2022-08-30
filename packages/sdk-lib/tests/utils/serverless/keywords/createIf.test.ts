@@ -1,5 +1,5 @@
 import { JSONObjectNode, parseJson } from "../../../../src/utils/jsonTemplate";
-import { keywordCreateIf } from "../../../../src/utils/serverless-new/keywords/createIf";
+import { keywordCreateIf } from "../../../../src/utils/serverless/keywords/createIf";
 
 describe("Test createIf keyword", () => {
   const getValidator = () => keywordCreateIf.getValidator("", "", {});

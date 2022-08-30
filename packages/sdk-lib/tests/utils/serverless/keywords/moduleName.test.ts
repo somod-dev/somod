@@ -1,5 +1,5 @@
 import { JSONObjectNode, parseJson } from "../../../../src/utils/jsonTemplate";
-import { keywordModuleName } from "../../../../src/utils/serverless-new/keywords/moduleName";
+import { keywordModuleName } from "../../../../src/utils/serverless/keywords/moduleName";
 
 describe("Test moduleName keyword", () => {
   const getValidator = () => keywordModuleName.getValidator("", "", {});

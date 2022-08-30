@@ -1,12 +1,7 @@
 import { countBy } from "lodash";
-import {
-  namespace_export_parameter,
-  namespace_http_api,
-  resourceType_Function
-} from "../constants";
+import { namespace_http_api, resourceType_Function } from "../constants";
 import { Module } from "../moduleHandler";
-import { loadOriginalSlpTemplate, NoSLPTemplateError } from "./slpTemplate";
-import { KeywordSOMODOutput } from "./types";
+import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
 
 const detectDuplicateNamespaces = (
   namespaces: string[],
@@ -46,10 +41,12 @@ type FunctionResourceProperties = Record<string, unknown> & {
 export const loadHttpApiNamespaces = async (module: Module) => {
   if (!module.namespaces[namespace_http_api]) {
     const namespaces = [];
-    try {
-      const originalSlpTemplate = await loadOriginalSlpTemplate(module);
+    const moduleServerlessTemplate = await loadServerlessTemplate(module);
 
-      Object.values(originalSlpTemplate.Resources).forEach(resource => {
+    if (moduleServerlessTemplate) {
+      const serverlessTemplate = moduleServerlessTemplate.template;
+
+      Object.values(serverlessTemplate.Resources).forEach(resource => {
         if (resource.Type == resourceType_Function) {
           const resourceProperties =
             resource.Properties as FunctionResourceProperties;
@@ -64,42 +61,8 @@ export const loadHttpApiNamespaces = async (module: Module) => {
       });
 
       detectDuplicateNamespaces(namespaces, namespace_http_api, module.name);
-    } catch (e) {
-      if (!(e instanceof NoSLPTemplateError)) {
-        throw e;
-      }
     }
+
     module.namespaces[namespace_http_api] = namespaces;
-  }
-};
-
-export const loadExportParameterNamespaces = async (module: Module) => {
-  if (!module.namespaces[namespace_export_parameter]) {
-    const namespaces = [];
-    try {
-      const originalSlpTemplate = await loadOriginalSlpTemplate(module);
-
-      Object.values(originalSlpTemplate.Resources).forEach(resource => {
-        if (
-          resource[KeywordSOMODOutput] &&
-          resource[KeywordSOMODOutput].export
-        ) {
-          namespaces.push(
-            ...Object.values(resource[KeywordSOMODOutput].export)
-          );
-        }
-      });
-
-      detectDuplicateNamespaces(
-        namespaces,
-        namespace_export_parameter,
-        module.name
-      );
-    } catch (e) {
-      if (!(e instanceof NoSLPTemplateError)) {
-        throw e;
-      }
-    }
-    module.namespaces[namespace_export_parameter] = namespaces;
   }
 };

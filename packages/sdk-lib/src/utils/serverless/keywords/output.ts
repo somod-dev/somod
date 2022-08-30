@@ -1,127 +1,68 @@
-import { invert, uniq } from "lodash";
-import {
-  file_templateYaml,
-  namespace_export_parameter,
-  path_serverless
-} from "../../constants";
-import { ModuleHandler } from "../../moduleHandler";
-import { loadExportParameterNamespaces } from "../namespace";
-import { loadOriginalSlpTemplate } from "../slpTemplate";
-import {
-  KeywordSOMODOutput,
-  OriginalSLPTemplate,
-  SAMTemplate,
-  ServerlessTemplate,
-  SOMODOutput,
-  SLPTemplate
-} from "../types";
-import {
-  getSAMOutputName,
-  getSAMResourceLogicalId,
-  getSOMODKeyword
-} from "../utils";
+import { getPath } from "../../jsonTemplate";
+import { KeywordDefinition, ModuleContent } from "../../keywords/types";
+import { ServerlessTemplate } from "../types";
 
-export const validate = (
-  slpTemplate: SLPTemplate,
-  parameters: string[]
+type Output = {
+  default: boolean;
+  attributes: string[];
+};
+
+export const keywordOutput: KeywordDefinition<Output, ServerlessTemplate> = {
+  keyword: "SOMOD::Output",
+
+  getValidator: async () => {
+    return (keyword, node) => {
+      const errors: Error[] = [];
+
+      const path = getPath(node);
+      if (!(path.length == 2 && path[0] == "Resources")) {
+        errors.push(
+          new Error(`${keyword} is allowed only as Resource Property`)
+        );
+      }
+
+      //NOTE: structure of the value is validated by serverless-schema
+
+      return errors;
+    };
+  },
+
+  getProcessor: async () => () => {
+    return {
+      type: "keyword",
+      value: {}
+    };
+  }
+};
+
+export const checkOutput = (
+  targetTemplate: ModuleContent<ServerlessTemplate>,
+  targetResource: string,
+  attribute?: string
 ): Error[] => {
   const errors: Error[] = [];
 
-  const missingParameters: string[] = [];
-  slpTemplate.keywordPaths[KeywordSOMODOutput].forEach(outputKeywordPath => {
-    const output = getSOMODKeyword<SOMODOutput>(slpTemplate, outputKeywordPath)[
-      KeywordSOMODOutput
-    ];
+  const outputDefinitionInTargetResource = targetTemplate.json.Resources[
+    targetResource
+  ]?.[keywordOutput.keyword] as Output;
 
-    Object.values(output.export || {}).forEach(exportParameter => {
-      if (!parameters.includes(exportParameter)) {
-        missingParameters.push(exportParameter);
-      }
-    });
-  });
-
-  if (missingParameters.length > 0) {
+  if (attribute === undefined) {
+    if (!outputDefinitionInTargetResource?.default) {
+      errors.push(
+        new Error(
+          `default must be true in ${keywordOutput.keyword} of ${targetResource} resource in ${targetTemplate.moduleName}.`
+        )
+      );
+    }
+  } else if (
+    !outputDefinitionInTargetResource?.attributes.includes(attribute)
+  ) {
     errors.push(
       new Error(
-        `Following export parameters referenced from '${path_serverless}/${file_templateYaml}' are not found\n${missingParameters
-          .map(p => " - " + p)
-          .join("\n")}`
+        `attributes must have ${attribute} in ${keywordOutput.keyword} of ${targetResource} resource in ${targetTemplate.moduleName}.`
       )
     );
   }
 
   return errors;
-};
-
-export const apply = (serverlessTemplate: ServerlessTemplate) => {
-  Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSOMODOutput].forEach(outputPath => {
-      const resourceId = outputPath[0];
-      delete slpTemplate.Resources[resourceId][KeywordSOMODOutput];
-    });
-  });
-};
-
-export const getSAMOutputs = async (
-  dir: string
-): Promise<SAMTemplate["Outputs"]> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
-  const exportParameterNamespaces = (
-    await moduleHandler.getNamespaces(loadExportParameterNamespaces)
-  )[namespace_export_parameter];
-
-  const moduleNames = uniq(Object.values(exportParameterNamespaces));
-
-  const moduleNameToSlpTemplate: Record<string, OriginalSLPTemplate> = {};
-
-  await Promise.all(
-    moduleNames.map(async moduleName => {
-      const moduleNode = await moduleHandler.getModule(moduleName);
-
-      const originalSLPTemplate = await loadOriginalSlpTemplate(
-        moduleNode.module
-      );
-
-      moduleNameToSlpTemplate[moduleName] = originalSLPTemplate;
-    })
-  );
-
-  const outputs: SAMTemplate["Outputs"] = {};
-
-  Object.keys(exportParameterNamespaces).forEach(exportParameter => {
-    const moduleName = exportParameterNamespaces[exportParameter];
-    const slpTemplate = moduleNameToSlpTemplate[moduleName];
-
-    for (const resourceId in slpTemplate.Resources) {
-      if (
-        slpTemplate.Resources[resourceId][KeywordSOMODOutput] &&
-        Object.values(
-          slpTemplate.Resources[resourceId][KeywordSOMODOutput].export || {}
-        ).includes(exportParameter)
-      ) {
-        const attributeName = invert(
-          slpTemplate.Resources[resourceId][KeywordSOMODOutput].export
-        )[exportParameter];
-
-        outputs[getSAMOutputName(exportParameter)] = {
-          Description: exportParameter,
-          Value:
-            attributeName == "default"
-              ? {
-                  Ref: getSAMResourceLogicalId(moduleName, resourceId)
-                }
-              : {
-                  "Fn::GetAtt": [
-                    getSAMResourceLogicalId(moduleName, resourceId),
-                    attributeName
-                  ]
-                }
-        };
-
-        break;
-      }
-    }
-  });
-
-  return outputs;
 };

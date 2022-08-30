@@ -1,6 +1,6 @@
-import { keywordExtend } from "../../../../src/utils/serverless-new/keywords/extend";
-import { extendResources } from "../../../../src/utils/serverless-new/serverlessTemplate/extendResources";
-import { SAMTemplate } from "../../../../src/utils/serverless-new/types";
+import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";
+import { extendResources } from "../../../../src/utils/serverless/serverlessTemplate/extendResources";
+import { SAMTemplate } from "../../../../src/utils/serverless/types";
 
 describe("test util serverlessTemplate.extendResources", () => {
   test("usecase 1", () => {

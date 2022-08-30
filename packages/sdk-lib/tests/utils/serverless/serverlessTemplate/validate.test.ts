@@ -5,14 +5,14 @@ import {
   parseJson,
   validateKeywords
 } from "../../../../src/utils/jsonTemplate";
-import { getKeywords } from "../../../../src/utils/serverless-new/serverlessTemplate/serverlessTemplate";
-import { validateServerlessTemplate } from "../../../../src/utils/serverless-new/serverlessTemplate/validate";
+import { getKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
+import { validateServerlessTemplate } from "../../../../src/utils/serverless/serverlessTemplate/validate";
 
 jest.mock(
-  "../../../../src/utils/serverless-new/serverlessTemplate/serverlessTemplate",
+  "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
   () => {
     const original = jest.requireActual(
-      "../../../../src/utils/serverless-new/serverlessTemplate/serverlessTemplate"
+      "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate"
     );
     return { __esModule: true, ...original, getKeywords: jest.fn() };
   }

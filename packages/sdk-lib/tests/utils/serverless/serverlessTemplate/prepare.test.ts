@@ -4,16 +4,16 @@ import {
   parseJson,
   processKeywords
 } from "../../../../src/utils/jsonTemplate";
-import { getKeywords } from "../../../../src/utils/serverless-new/serverlessTemplate/serverlessTemplate";
-import { prepareSamTemplate } from "../../../../src/utils/serverless-new/serverlessTemplate/prepare";
-import { attachBaseLayer } from "../../../../src/utils/serverless-new/serverlessTemplate/attachBaseLayer";
-import { extendResources } from "../../../../src/utils/serverless-new/serverlessTemplate/extendResources";
+import { getKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
+import { prepareSamTemplate } from "../../../../src/utils/serverless/serverlessTemplate/prepare";
+import { attachBaseLayer } from "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer";
+import { extendResources } from "../../../../src/utils/serverless/serverlessTemplate/extendResources";
 
 jest.mock(
-  "../../../../src/utils/serverless-new/serverlessTemplate/serverlessTemplate",
+  "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
   () => {
     const original = jest.requireActual(
-      "../../../../src/utils/serverless-new/serverlessTemplate/serverlessTemplate"
+      "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate"
     );
     return { __esModule: true, ...original, getKeywords: jest.fn() };
   }
@@ -25,20 +25,20 @@ jest.mock("../../../../src/utils/jsonTemplate", () => {
 });
 
 jest.mock(
-  "../../../../src/utils/serverless-new/serverlessTemplate/attachBaseLayer",
+  "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer",
   () => {
     const original = jest.requireActual(
-      "../../../../src/utils/serverless-new/serverlessTemplate/attachBaseLayer"
+      "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer"
     );
     return { __esModule: true, ...original, attachBaseLayer: jest.fn() };
   }
 );
 
 jest.mock(
-  "../../../../src/utils/serverless-new/serverlessTemplate/extendResources",
+  "../../../../src/utils/serverless/serverlessTemplate/extendResources",
   () => {
     const original = jest.requireActual(
-      "../../../../src/utils/serverless-new/serverlessTemplate/extendResources"
+      "../../../../src/utils/serverless/serverlessTemplate/extendResources"
     );
     return { __esModule: true, ...original, extendResources: jest.fn() };
   }

@@ -1,5 +1,5 @@
 import { listAllParameters } from "../../../../src/utils/parameters/namespace";
-import { keywordTemplateOutputs } from "../../../../src/utils/serverless-new/keywords/templateOutputs";
+import { keywordTemplateOutputs } from "../../../../src/utils/serverless/keywords/templateOutputs";
 import { mockedFunction } from "@sodev/test-utils";
 import {
   JSONObjectNode,

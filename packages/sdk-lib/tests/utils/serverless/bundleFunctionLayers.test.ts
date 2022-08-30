@@ -1,8 +1,8 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
 import { existsSync } from "fs";
 import { join } from "path";
-import { bundleFunctionLayers } from "../../../src/utils/serverless-new/bundleFunctionLayers";
-import { keywordFunctionLayer } from "../../../src/utils/serverless-new/keywords/functionLayer";
+import { bundleFunctionLayers } from "../../../src/utils/serverless/bundleFunctionLayers";
+import { keywordFunctionLayer } from "../../../src/utils/serverless/keywords/functionLayer";
 
 describe("Test Task bundleFunctionLayers", () => {
   let dir: string;
