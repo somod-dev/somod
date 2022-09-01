@@ -19,7 +19,7 @@ export type Plugin = {
     eslint?: string[];
     prettier?: string[];
   };
-  namespaceLoader?: (mode: Mode) => NamespaceLoader;
+  namespaceLoader?: NamespaceLoader;
   prebuild?: (
     dir: string,
     moduleHandler: ModuleHandler,

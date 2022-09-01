@@ -18,7 +18,7 @@ describe("Test task loadPlugins", () => {
     mockedFunction(loadPluginsUtil).mockResolvedValue([]);
     await expect(loadPlugins("")).resolves.toEqual({
       init: [],
-      namespace: [],
+      namespaceLoaders: [],
       prebuild: [],
       build: [],
       preprepare: [],
@@ -54,7 +54,7 @@ describe("Test task loadPlugins", () => {
     mockedFunction(loadPluginsUtil).mockResolvedValue(plugins);
     await expect(loadPlugins("")).resolves.toEqual({
       init: plugins,
-      namespace: plugins,
+      namespaceLoaders: plugins.map(p => p.plugin.namespaceLoader),
       prebuild: plugins,
       build: plugins,
       preprepare: plugins,
@@ -116,7 +116,7 @@ describe("Test task loadPlugins", () => {
     mockedFunction(loadPluginsUtil).mockResolvedValue(plugins);
     await expect(loadPlugins("")).resolves.toEqual({
       init: [plugins[1], plugins[2]],
-      namespace: [plugins[1]],
+      namespaceLoaders: [plugins[1].plugin.namespaceLoader],
       prebuild: [plugins[2], plugins[1], plugins[0]],
       build: [plugins[1], plugins[2]],
       preprepare: [plugins[2], plugins[0]],

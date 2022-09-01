@@ -18,7 +18,6 @@ import {
   bundleFunctionLayers,
   isValidTsConfigBuildJson,
   key_somod,
-  loadAndResolveNamespaces,
   path_build,
   path_pages,
   path_public,
@@ -32,10 +31,10 @@ import {
   validateUiConfigYaml,
   path_pagesData,
   loadPlugins,
-  loadPluginNamespace,
   runPluginPrebuild,
   runPluginBuild,
-  validateServerlessTemplate
+  validateServerlessTemplate,
+  initializeModuleHandler
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -55,6 +54,14 @@ export const BuildAction = async ({
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
   const plugins = await loadPlugins(dir);
+
+  await taskRunner(
+    `Initialize ModuleHandler`,
+    initializeModuleHandler,
+    verbose,
+    dir,
+    plugins.namespaceLoaders
+  );
 
   await Promise.all([
     taskRunner(
@@ -115,31 +122,6 @@ export const BuildAction = async ({
         dir
       );
   }
-
-  await taskRunner(
-    `Resolve Namespaces`,
-    loadAndResolveNamespaces,
-    verbose,
-    dir,
-    ui,
-    serverless
-  );
-
-  await Promise.all(
-    plugins.namespace.map(plugin =>
-      taskRunner(
-        `Resolve Namespaces in plugin ${plugin.name}`,
-        loadPluginNamespace,
-        verbose,
-        dir,
-        plugin.plugin,
-        {
-          ui,
-          serverless
-        }
-      )
-    )
-  );
 
   await Promise.all(
     plugins.prebuild.map(plugin =>

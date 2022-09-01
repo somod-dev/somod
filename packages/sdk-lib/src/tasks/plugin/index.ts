@@ -11,7 +11,9 @@ import {
 export const loadPlugins = async (dir: string) => {
   const plugins = await _loadPlugins(dir);
   const init = plugins.filter(p => p.plugin.init);
-  const namespace = plugins.filter(p => p.plugin.namespaceLoader);
+  const namespaceLoaders = plugins
+    .filter(p => p.plugin.namespaceLoader)
+    .map(p => p.plugin.namespaceLoader);
   const prebuild = plugins.filter(p => p.plugin.prebuild).reverse();
   const build = plugins.filter(p => p.plugin.build);
   const preprepare = plugins.filter(p => p.plugin.preprepare).reverse();
@@ -37,7 +39,7 @@ export const loadPlugins = async (dir: string) => {
 
   return {
     init,
-    namespace,
+    namespaceLoaders,
     prebuild,
     build,
     preprepare,
@@ -61,14 +63,6 @@ export const runPluginInit = async (
   mode: Mode
 ) => {
   await plugin.init(dir, mode);
-};
-
-/* istanbul ignore next */
-export const getPluginNamespaceLoaders = async (
-  plugins: Plugin[],
-  mode: Mode
-) => {
-  return plugins.map(plugin => plugin.namespaceLoader(mode));
 };
 
 /* istanbul ignore next */
