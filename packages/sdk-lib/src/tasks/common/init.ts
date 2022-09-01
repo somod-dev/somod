@@ -37,20 +37,20 @@ const download = (url: string): Promise<string> => {
 };
 
 const yamlFileToSchemaMap = {
-  [file_parametersYaml]: "@somod/parameters-schema",
-  [`${path_ui}/${file_configYaml}`]: "@somod/ui-config-schema",
-  [`${path_serverless}/${file_templateYaml}`]: "@somod/serverless-schema"
+  [file_parametersYaml]: "parameters",
+  [`${path_ui}/${file_configYaml}`]: "ui-config",
+  [`${path_serverless}/${file_templateYaml}`]: "serverless"
 };
 
 const getSchemaLocation = (dir: string, file: string) => {
-  const schemaModule = yamlFileToSchemaMap[file];
+  const schemaPath = yamlFileToSchemaMap[file];
   let schemaModuleContainer = __dirname;
   while (
-    !existsSync(join(schemaModuleContainer, path_nodeModules, schemaModule))
+    !existsSync(join(schemaModuleContainer, path_nodeModules, "@somod/schema"))
   ) {
     const parentDir = dirname(schemaModuleContainer);
     if (parentDir == schemaModuleContainer) {
-      throw new Error(`Unable to find ${schemaModule}`);
+      throw new Error(`Unable to find @somod/schema`);
     }
     schemaModuleContainer = parentDir;
   }
@@ -61,7 +61,8 @@ const getSchemaLocation = (dir: string, file: string) => {
       join(
         schemaModuleContainer,
         path_nodeModules,
-        schemaModule,
+        "@somod/schema",
+        schemaPath,
         "schemas/index.json"
       )
     )

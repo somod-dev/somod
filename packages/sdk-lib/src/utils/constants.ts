@@ -64,13 +64,13 @@ export const path_vercel = ".vercel";
 export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
 
 export const defaultServerlessTemplateSchema =
-  "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/index.json";
+  "https://json-schema.sodaru.com/@somod/schema/serverless/schemas/index.json";
 
 export const defaultUiConfigSchema =
-  "https://json-schema.sodaru.com/@somod/ui-config-schema/schemas/index.json";
+  "https://json-schema.sodaru.com/@somod/schema/ui-config/schemas/index.json";
 
 export const defaultParametersSchema =
-  "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json";
+  "https://json-schema.sodaru.com/@somod/schema/parameters/schemas/index.json";
 
 export const namespace_page = "UI Page";
 

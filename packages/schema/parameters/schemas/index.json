@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json",
+  "$id": "https://json-schema.sodaru.com/@somod/schema/parameters/schemas/index.json",
   "type": "object",
   "additionalProperties": false,
   "properties": {

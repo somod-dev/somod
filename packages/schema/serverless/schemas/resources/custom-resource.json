@@ -1,6 +1,6 @@
 {
-  "$schema": "../../meta-schemas/resource.json",
-  "$id": "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/resources/custom-resource.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/@somod/schema/serverless/schemas/resources/custom-resource.json",
   "title": "Basic Schema for Resource in Serverless Template by Sodaru technologies",
   "type": "object",
   "required": ["Type", "Properties"],

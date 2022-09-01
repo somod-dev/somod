@@ -52,8 +52,6 @@
     "@types/semver": "^7.3.9",
     "jest-summarizing-reporter": "^1.1.4",
     "typescript": "^4.5.5",
-    "@somod/serverless-schema": "^1.12.0",
-    "@somod/ui-config-schema": "^1.12.0",
-    "@somod/parameters-schema": "^1.12.0"
+    "@somod/schema": "^1.12.0"
   }
 }
