@@ -1,4 +1,4 @@
-import { Module, ModuleHandler } from "../moduleHandler";
+import { ModuleHandler, NamespaceLoader } from "../moduleHandler";
 import {
   getNodeRuntimeVersion,
   getParameterNameFromSAMOutputName,
@@ -20,7 +20,7 @@ export type Plugin = {
     eslint?: string[];
     prettier?: string[];
   };
-  namespaceLoader?: (module: Module, mode: Mode) => Promise<void>;
+  namespaceLoader?: (mode: Mode) => NamespaceLoader;
   parameterFilters?: Record<string, FilterFunction>;
   prebuild?: (
     dir: string,

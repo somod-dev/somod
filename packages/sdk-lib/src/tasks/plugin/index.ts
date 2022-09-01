@@ -81,6 +81,14 @@ export const loadPluginParameterFilters = async (
 };
 
 /* istanbul ignore next */
+export const getPluginNamespaceLoaders = async (
+  plugins: Plugin[],
+  mode: Mode
+) => {
+  return plugins.map(plugin => plugin.namespaceLoader(mode));
+};
+
+/* istanbul ignore next */
 export const runPluginPrebuild = async (
   dir: string,
   plugin: Plugin,
