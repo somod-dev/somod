@@ -1,5 +1,9 @@
 import { countBy } from "lodash";
-import { namespace_http_api, resourceType_Function } from "../constants";
+import {
+  namespace_http_api,
+  namespace_output,
+  resourceType_Function
+} from "../constants";
 import { NamespaceLoader } from "../moduleHandler";
 import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
 
@@ -63,4 +67,17 @@ export const loadHttpApiNamespaces: NamespaceLoader = async module => {
   }
 
   return { [namespace_http_api]: namespaces };
+};
+
+export const loadOutputNamespaces: NamespaceLoader = async module => {
+  const namespaces = [];
+  const moduleServerlessTemplate = await loadServerlessTemplate(module);
+
+  if (moduleServerlessTemplate) {
+    const serverlessTemplate = moduleServerlessTemplate.template;
+
+    namespaces.push(...Object.keys(serverlessTemplate.Outputs || {}));
+  }
+
+  return { [namespace_output]: namespaces };
 };

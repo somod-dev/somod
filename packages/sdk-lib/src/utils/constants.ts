@@ -88,6 +88,8 @@ export const namespace_parameter = "Parameter";
 export const namespace_parameterSchema = "Parameter Schema";
 export const namespace_parameterGroup = "Parameter Group";
 
+export const namespace_output = "Serverless Output";
+
 export const resourceType_Function = "AWS::Serverless::Function";
 export const resourceType_FunctionLayer = "AWS::Serverless::LayerVersion";
 

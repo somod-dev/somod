@@ -3,7 +3,10 @@ import { loadConfigNamespaces } from "../../utils/nextJs/config";
 import { loadPageNamespaces } from "../../utils/nextJs/pages";
 import { loadPublicAssetNamespaces } from "../../utils/nextJs/publicAssets";
 import { loadParameterNamespaces } from "../../utils/parameters/namespace";
-import { loadHttpApiNamespaces } from "../../utils/serverless/namespace";
+import {
+  loadHttpApiNamespaces,
+  loadOutputNamespaces
+} from "../../utils/serverless/namespace";
 
 export const initializeModuleHandler = async (
   dir: string,
@@ -15,6 +18,7 @@ export const initializeModuleHandler = async (
     loadConfigNamespaces,
     loadHttpApiNamespaces,
     loadParameterNamespaces,
+    loadOutputNamespaces,
     ...pluginNamespaceLoaders
   ];
   ModuleHandler.initialize(dir, namespaceLoaders);
