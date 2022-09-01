@@ -7,7 +7,6 @@ export type Parameter = {
 
 export type Parameters = {
   Parameters?: Record<string, Parameter>;
-  Filters?: Record<string, string[]>;
   Schemas?: Record<string, unknown>;
   Groups?: Record<string, unknown>;
 };

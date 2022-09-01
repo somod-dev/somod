@@ -17,18 +17,6 @@
         "additionalProperties": "Parameter Name must contain only alphaNumerics, dot(.), hyphen(-), and underscore(_). must start with alphabet, Must contain atleast one dot"
       }
     },
-    "Filters": {
-      "type": "object",
-      "additionalProperties": false,
-      "description": "List of functions to apply for parameters. filter functions are applied to parameters before using the value",
-      "patternProperties": {
-        "^[a-zA-Z][a-zA-Z0-9-_]*(\\.[a-zA-Z0-9-_]+)+$": {
-          "type": "array",
-          "items": { "type": "string" },
-          "maxItems": 5
-        }
-      }
-    },
     "Schemas": {
       "type": "object",
       "additionalProperties": false,

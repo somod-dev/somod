@@ -143,36 +143,4 @@ describe("Test Util parameters.loadAllParameterValues", () => {
       ])
     );
   });
-
-  test("with valid data and filters", async () => {
-    createFiles(dir, {
-      "parameters.yaml": dump({
-        Parameters: {
-          "my.param": { type: "text", default: "one" },
-          "my.param2": { type: "text", default: "two" }
-        },
-        Schemas: {
-          "require-param": {
-            type: "object",
-            required: ["my.param"]
-          }
-        },
-        Filters: { "my.param2": ["jsonStringify"] }
-      } as Parameters),
-      "parameters.json": JSON.stringify({
-        "my.param": "one",
-        "my.param2": "two"
-      }),
-      "package.json": JSON.stringify({
-        name: "my-module",
-        version: "1.0.0",
-        somod: "1.0.0"
-      })
-    });
-
-    await expect(loadAllParameterValues(dir)).resolves.toEqual({
-      "my.param": "one",
-      "my.param2": '"two"'
-    });
-  });
 });
