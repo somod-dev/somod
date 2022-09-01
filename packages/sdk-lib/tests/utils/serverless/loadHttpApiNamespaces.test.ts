@@ -4,6 +4,7 @@ import { loadHttpApiNamespaces } from "../../../src/utils/serverless/namespace";
 import { Module } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
 import { dump } from "js-yaml";
+import { namespace_http_api } from "../../../src";
 
 describe("Test util serverless.loadHttpApiNamespaces", () => {
   let dir: string = null;
@@ -17,7 +18,6 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
   });
 
   const getModuleTemplate = (directory: string): Module => ({
-    type: "somod",
     name: "my-module",
     version: "1.0.0",
     packageLocation: directory,
@@ -28,10 +28,8 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     createFiles(dir, { "build/": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadHttpApiNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: { "Serverless Http Api": [] }
+    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
+      [namespace_http_api]: []
     });
   });
 
@@ -39,10 +37,8 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     createFiles(dir, { "build/serverless/": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadHttpApiNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: { "Serverless Http Api": [] }
+    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
+      [namespace_http_api]: []
     });
   });
 
@@ -52,10 +48,8 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadHttpApiNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: { "Serverless Http Api": [] }
+    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
+      [namespace_http_api]: []
     });
   });
 
@@ -83,10 +77,8 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadHttpApiNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: { "Serverless Http Api": ["GET my-resourceType/getresource"] }
+    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
+      [namespace_http_api]: ["GET my-resourceType/getresource"]
     });
   });
 
@@ -136,16 +128,12 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadHttpApiNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: {
-        "Serverless Http Api": [
-          "GET my-resourceType/getresource",
-          "POST my-resourceType/postresource",
-          "POST my-another-resourceType/post"
-        ]
-      }
+    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
+      [namespace_http_api]: [
+        "GET my-resourceType/getresource",
+        "POST my-resourceType/postresource",
+        "POST my-another-resourceType/post"
+      ]
     });
   });
 
@@ -205,17 +193,14 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
       })
     });
     const moduleTemplate = getModuleTemplate(dir);
+    //@ts-expect-error this is fine during test
     moduleTemplate.root = true;
     const module = cloneDeep(moduleTemplate);
-    await loadHttpApiNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: {
-        "Serverless Http Api": [
-          "GET my-resourceType/getresource",
-          "POST my-resourceType/postresource"
-        ]
-      }
+    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
+      [namespace_http_api]: [
+        "GET my-resourceType/getresource",
+        "POST my-resourceType/postresource"
+      ]
     });
   });
 
@@ -264,6 +249,7 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
       })
     });
     const moduleTemplate = getModuleTemplate(dir);
+    //@ts-expect-error this is fine during test
     moduleTemplate.root = true;
     const module = cloneDeep(moduleTemplate);
     await expect(loadHttpApiNamespaces(module)).rejects.toEqual(

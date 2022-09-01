@@ -84,8 +84,6 @@ export const namespace_server_runtime_config = "UI Server Runtime Config";
 
 export const namespace_http_api = "Serverless Http Api";
 
-export const namespace_export_parameter = "Serverless Export Parameter";
-
 export const namespace_parameter = "Parameter";
 export const namespace_parameterSchema = "Parameter Schema";
 export const namespace_parameterGroup = "Parameter Group";

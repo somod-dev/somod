@@ -10,7 +10,7 @@ import {
 } from "../../utils/yamlFileStore";
 
 export const prepareSAMTemplate = async (dir: string): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   const moduleNodes = await moduleHandler.listModules();
   const moduleTemplateMap = await loadServerlessTemplateMap(
     moduleNodes.map(m => m.module)

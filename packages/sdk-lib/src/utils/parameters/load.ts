@@ -33,11 +33,10 @@ export const loadParameters = async (module: Module): Promise<Parameters> => {
 };
 
 export const validateParameterValues = async (
-  dir: string,
   parameterValues: ParameterValues
 ) => {
-  const schemaToModuleMap = await listAllParameterSchemas(dir);
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const schemaToModuleMap = await listAllParameterSchemas();
+  const moduleHandler = ModuleHandler.getModuleHandler();
 
   const moduleNames = uniq(Object.values(schemaToModuleMap));
   const moduleParameters: Record<string, Parameters> = {};
@@ -60,11 +59,10 @@ export const validateParameterValues = async (
 };
 
 export const applyFiltersToParameterValues = async (
-  dir: string,
   parameterValues: ParameterValues
 ) => {
-  const parameterToModuleMap = await listAllParameters(dir);
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const parameterToModuleMap = await listAllParameters();
+  const moduleHandler = ModuleHandler.getModuleHandler();
 
   const moduleNames = uniq(Object.values(parameterToModuleMap));
   const moduleParameters: Record<string, Parameters> = {};
@@ -108,7 +106,7 @@ export const loadAllParameterValues = async (
   const parameterValues = existsSync(parameterValuesPath)
     ? await readJsonFileStore(parameterValuesPath)
     : {};
-  await validateParameterValues(dir, parameterValues);
-  await applyFiltersToParameterValues(dir, parameterValues);
+  await validateParameterValues(parameterValues);
+  await applyFiltersToParameterValues(parameterValues);
   return parameterValues;
 };

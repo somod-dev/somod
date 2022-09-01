@@ -2,7 +2,9 @@ import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { generate } from "../../../src/utils/parameters/generate";
+import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 
 const files = {
   "package.json": JSON.stringify({
@@ -44,6 +46,7 @@ describe("Test Util parameters.generate", () => {
 
   beforeEach(async () => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {

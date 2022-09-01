@@ -8,7 +8,7 @@ import { loadServerlessTemplate } from "../../utils/serverless/serverlessTemplat
 export const bundleFunctions = async (dir: string, verbose = false) => {
   const templateYamlPath = join(dir, path_serverless, file_templateYaml);
   if (existsSync(templateYamlPath)) {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir);
+    const moduleHandler = ModuleHandler.getModuleHandler();
     const rootModuleNode = await moduleHandler.getRoodModuleNode();
     const rootModuleTemplate = await loadServerlessTemplate(
       rootModuleNode.module

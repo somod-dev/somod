@@ -71,18 +71,6 @@ export const runPluginInit = async (
 };
 
 /* istanbul ignore next */
-export const loadPluginNamespace = async (
-  dir: string,
-  plugin: Plugin,
-  mode: Mode
-) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
-  await moduleHandler.getNamespaces(async module => {
-    plugin.namespaceLoader(module, mode);
-  });
-};
-
-/* istanbul ignore next */
 export const loadPluginParameterFilters = async (
   parameterFilters: Plugin["parameterFilters"]
 ) => {
@@ -98,7 +86,7 @@ export const runPluginPrebuild = async (
   plugin: Plugin,
   mode: Mode
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.prebuild(dir, moduleHandler, mode);
 };
 
@@ -108,7 +96,7 @@ export const runPluginBuild = async (
   plugin: Plugin,
   mode: Mode
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.build(dir, moduleHandler, mode);
 };
 
@@ -118,7 +106,7 @@ export const runPluginPreprepare = async (
   plugin: Plugin,
   mode: Mode
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.preprepare(dir, moduleHandler, mode);
 };
 
@@ -128,7 +116,7 @@ export const runPluginPrepare = async (
   plugin: Plugin,
   mode: Mode
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.prepare(dir, moduleHandler, mode, {
     getNodeRuntimeVersion,
     getParameterNameFromSAMOutputName,

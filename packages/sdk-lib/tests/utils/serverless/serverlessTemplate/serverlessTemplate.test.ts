@@ -62,7 +62,6 @@ describe("Test util serverlessTemplate", () => {
       {
         name: "m0",
         namespaces: {},
-        type: "somod",
         version: "1.0.0",
         packageLocation: dir,
         root: true
@@ -70,21 +69,18 @@ describe("Test util serverlessTemplate", () => {
       {
         name: "m1",
         namespaces: {},
-        type: "somod",
         version: "1.0.0",
         packageLocation: join(dir, "node_modules/m1")
       },
       {
         name: "m2",
         namespaces: {},
-        type: "somod",
         version: "1.0.0",
         packageLocation: join(dir, "node_modules/m2")
       },
       {
         name: "m3",
         namespaces: {},
-        type: "somod",
         version: "1.0.0",
         packageLocation: join(dir, "node_modules/m3")
       }

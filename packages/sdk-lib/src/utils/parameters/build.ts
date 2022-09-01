@@ -33,7 +33,7 @@ const validate = async (moduleNode: ModuleNode): Promise<void> => {
 };
 
 export const build = async (dir: string): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
 
   const rootModuleNode = await moduleHandler.getRoodModuleNode();
 

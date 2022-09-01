@@ -7,8 +7,8 @@ import { KeywordDefinition } from "./types";
 export const keywordParameter: KeywordDefinition<string> = {
   keyword: "SOMOD::Parameter",
 
-  getValidator: async rootDir => {
-    const parameters = Object.keys(await listAllParameters(rootDir));
+  getValidator: async () => {
+    const parameters = Object.keys(await listAllParameters());
     return (keyword, node, value) => {
       const errors: Error[] = [];
       if (Object.keys(node.properties).length > 1) {

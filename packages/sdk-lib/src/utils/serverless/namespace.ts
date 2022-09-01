@@ -1,6 +1,6 @@
 import { countBy } from "lodash";
 import { namespace_http_api, resourceType_Function } from "../constants";
-import { Module } from "../moduleHandler";
+import { NamespaceLoader } from "../moduleHandler";
 import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
 
 const detectDuplicateNamespaces = (
@@ -38,31 +38,29 @@ type FunctionResourceProperties = Record<string, unknown> & {
   >;
 };
 
-export const loadHttpApiNamespaces = async (module: Module) => {
-  if (!module.namespaces[namespace_http_api]) {
-    const namespaces = [];
-    const moduleServerlessTemplate = await loadServerlessTemplate(module);
+export const loadHttpApiNamespaces: NamespaceLoader = async module => {
+  const namespaces = [];
+  const moduleServerlessTemplate = await loadServerlessTemplate(module);
 
-    if (moduleServerlessTemplate) {
-      const serverlessTemplate = moduleServerlessTemplate.template;
+  if (moduleServerlessTemplate) {
+    const serverlessTemplate = moduleServerlessTemplate.template;
 
-      Object.values(serverlessTemplate.Resources).forEach(resource => {
-        if (resource.Type == resourceType_Function) {
-          const resourceProperties =
-            resource.Properties as FunctionResourceProperties;
-          Object.values(resourceProperties.Events || {}).forEach(event => {
-            if (event.Type == "HttpApi") {
-              namespaces.push(
-                `${event.Properties.Method} ${event.Properties.Path}`
-              );
-            }
-          });
-        }
-      });
+    Object.values(serverlessTemplate.Resources).forEach(resource => {
+      if (resource.Type == resourceType_Function) {
+        const resourceProperties =
+          resource.Properties as FunctionResourceProperties;
+        Object.values(resourceProperties.Events || {}).forEach(event => {
+          if (event.Type == "HttpApi") {
+            namespaces.push(
+              `${event.Properties.Method} ${event.Properties.Path}`
+            );
+          }
+        });
+      }
+    });
 
-      detectDuplicateNamespaces(namespaces, namespace_http_api, module.name);
-    }
-
-    module.namespaces[namespace_http_api] = namespaces;
+    detectDuplicateNamespaces(namespaces, namespace_http_api, module.name);
   }
+
+  return { [namespace_http_api]: namespaces };
 };

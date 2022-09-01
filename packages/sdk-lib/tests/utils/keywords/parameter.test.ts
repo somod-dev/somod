@@ -38,7 +38,7 @@ describe("Test parameter keyword", () => {
   test("the getValidator calls listAllParameters", async () => {
     await keywordParameter.getValidator("dir1", "m1", {});
     expect(listAllParameters).toHaveBeenCalledTimes(1);
-    expect(listAllParameters).toHaveBeenNthCalledWith(1, "dir1");
+    expect(listAllParameters).toHaveBeenNthCalledWith(1);
   });
 
   test("the validator with additional properties", async () => {

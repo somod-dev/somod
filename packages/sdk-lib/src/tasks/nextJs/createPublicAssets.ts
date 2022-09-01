@@ -7,9 +7,9 @@ import {
 } from "../../utils/nextJs/publicAssets";
 
 export const createPublicAssets = async (dir: string): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
 
-  const allPublicAssets = await listAllPublicAssets(dir);
+  const allPublicAssets = await listAllPublicAssets();
 
   await Promise.all(
     Object.keys(allPublicAssets).map(async publicAsset => {

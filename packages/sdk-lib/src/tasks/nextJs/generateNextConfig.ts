@@ -80,7 +80,7 @@ module.exports = withNextConfigOverride(__dirname, config);
 };
 
 export const generateNextConfig = async (dir: string): Promise<void> => {
-  const config = await generateCombinedConfig(dir);
+  const config = await generateCombinedConfig();
 
   const somodParameterPaths = getKeywordPaths(config, [KeywordSomodParameter])[
     KeywordSomodParameter

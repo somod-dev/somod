@@ -13,8 +13,8 @@ export const keywordTemplateOutputs: KeywordDefinition<
 > = {
   keyword: "Outputs",
 
-  getValidator: async rootDir => {
-    const parameters = Object.keys(await listAllParameters(rootDir));
+  getValidator: async () => {
+    const parameters = Object.keys(await listAllParameters());
     return (keyword, node, value) => {
       const errors: Error[] = [];
 

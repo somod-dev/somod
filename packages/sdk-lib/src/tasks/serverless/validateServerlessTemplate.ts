@@ -10,7 +10,7 @@ export const validateServerlessTemplate = async (
 ): Promise<void> => {
   const templateYamlPath = join(dir, path_serverless, file_templateYaml);
   if (existsSync(templateYamlPath)) {
-    const moduleHandler = ModuleHandler.getModuleHandler(dir);
+    const moduleHandler = ModuleHandler.getModuleHandler();
     const moduleNodes = await moduleHandler.listModules();
     const rootModuleName = moduleNodes[0].module.name;
     const moduleTemplateMap = await loadServerlessTemplateMap(

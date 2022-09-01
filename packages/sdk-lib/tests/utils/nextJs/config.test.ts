@@ -4,12 +4,19 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import {
+  namespace_env_config,
+  namespace_public_runtime_config,
+  namespace_server_runtime_config
+} from "../../../src";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
+import {
   Config,
   loadConfig,
   loadConfigNamespaces,
   buildConfig,
   generateCombinedConfig
 } from "../../../src/utils/nextJs/config";
+import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 
 describe("Test Util nextjs.loadConfig", () => {
   let dir: string = null;
@@ -26,7 +33,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -38,7 +44,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir,
@@ -55,7 +60,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -73,7 +77,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -91,7 +94,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir,
@@ -113,7 +115,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -141,14 +142,11 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       namespaces: {},
       packageLocation: dir
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": [],
-        "UI Public Runtime Config": [],
-        "UI Server Runtime Config": []
-      }
+
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: [],
+      [namespace_public_runtime_config]: [],
+      [namespace_server_runtime_config]: []
     });
   });
 
@@ -161,14 +159,10 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       packageLocation: dir,
       root: true
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": [],
-        "UI Public Runtime Config": [],
-        "UI Server Runtime Config": []
-      }
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: [],
+      [namespace_public_runtime_config]: [],
+      [namespace_server_runtime_config]: []
     });
   });
 
@@ -183,14 +177,10 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       namespaces: {},
       packageLocation: dir
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": [],
-        "UI Public Runtime Config": [],
-        "UI Server Runtime Config": []
-      }
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: [],
+      [namespace_public_runtime_config]: [],
+      [namespace_server_runtime_config]: []
     });
   });
 
@@ -211,14 +201,13 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       namespaces: {},
       packageLocation: dir
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": Object.keys(config.env),
-        "UI Public Runtime Config": Object.keys(config.publicRuntimeConfig),
-        "UI Server Runtime Config": Object.keys(config.serverRuntimeConfig)
-      }
+
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: Object.keys(config.env),
+      [namespace_public_runtime_config]: Object.keys(
+        config.publicRuntimeConfig
+      ),
+      [namespace_server_runtime_config]: Object.keys(config.serverRuntimeConfig)
     });
   });
 
@@ -240,14 +229,12 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       packageLocation: dir,
       root: true
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": Object.keys(config.env),
-        "UI Public Runtime Config": Object.keys(config.publicRuntimeConfig),
-        "UI Server Runtime Config": Object.keys(config.serverRuntimeConfig)
-      }
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: Object.keys(config.env),
+      [namespace_public_runtime_config]: Object.keys(
+        config.publicRuntimeConfig
+      ),
+      [namespace_server_runtime_config]: Object.keys(config.serverRuntimeConfig)
     });
   });
 });
@@ -257,6 +244,10 @@ describe("Test Util nextJs.buildConfig", () => {
 
   beforeEach(async () => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [
+      loadConfigNamespaces,
+      loadParameterNamespaces
+    ]);
     createFiles(dir, {
       "package.json": JSON.stringify({
         name: "my-module",
@@ -340,6 +331,10 @@ describe("test util nextJs.generateCombinedConfig", () => {
 
   beforeEach(async () => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [
+      loadConfigNamespaces,
+      loadParameterNamespaces
+    ]);
   });
 
   afterEach(() => {
@@ -430,7 +425,7 @@ describe("test util nextJs.generateCombinedConfig", () => {
       })
     });
 
-    const result = await generateCombinedConfig(dir);
+    const result = await generateCombinedConfig();
     expect(result).toEqual({
       env: {
         MY_ENV1: { "SOMOD::Parameter": "m1.p1" },

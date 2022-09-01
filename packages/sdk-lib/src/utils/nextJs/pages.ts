@@ -2,7 +2,7 @@ import { existsSync } from "fs";
 import { mkdir, readdir, stat, writeFile } from "fs/promises";
 import { dirname, join, relative } from "path";
 import { namespace_page, path_build, path_pages, path_ui } from "../constants";
-import { Module, ModuleHandler } from "../moduleHandler";
+import { ModuleHandler, NamespaceLoader } from "../moduleHandler";
 import { get as getExports } from "../exports";
 import { unixStylePath } from "@solib/cli-base";
 
@@ -73,47 +73,45 @@ export const linkPage = async (
   await writeFile(toPage, pageContent);
 };
 
-export const loadPageNamespaces = async (module: Module) => {
-  if (!module.namespaces[namespace_page]) {
-    const baseDir = join(
-      module.packageLocation,
-      module.root ? "" : path_build,
-      path_ui,
-      path_pages
-    );
-    const pages: string[] = [];
+export const loadPageNamespaces: NamespaceLoader = async module => {
+  const baseDir = join(
+    module.packageLocation,
+    module.root ? "" : path_build,
+    path_ui,
+    path_pages
+  );
+  const pages: string[] = [];
 
-    if (existsSync(baseDir)) {
-      const queue: string[] = [""];
+  if (existsSync(baseDir)) {
+    const queue: string[] = [""];
 
-      while (queue.length > 0) {
-        const dirToParse = queue.shift();
-        const children = await readdir(join(baseDir, dirToParse));
-        await Promise.all(
-          children.map(async child => {
-            const stats = await stat(join(baseDir, dirToParse, child));
-            if (stats.isDirectory()) {
-              queue.push(dirToParse + "/" + child);
-            } else if (child.endsWith(".js") || child.endsWith(".tsx")) {
-              pages.push(removeExtension(dirToParse + "/" + child));
-            }
-          })
-        );
-      }
+    while (queue.length > 0) {
+      const dirToParse = queue.shift();
+      const children = await readdir(join(baseDir, dirToParse));
+      await Promise.all(
+        children.map(async child => {
+          const stats = await stat(join(baseDir, dirToParse, child));
+          if (stats.isDirectory()) {
+            queue.push(dirToParse + "/" + child);
+          } else if (child.endsWith(".js") || child.endsWith(".tsx")) {
+            pages.push(removeExtension(dirToParse + "/" + child));
+          }
+        })
+      );
     }
-
-    module.namespaces[namespace_page] = pages.map(page =>
-      page.startsWith("/") ? page.substring(1) : page
-    );
   }
+
+  return {
+    [namespace_page]: pages.map(page =>
+      page.startsWith("/") ? page.substring(1) : page
+    )
+  };
 };
 
-export const listAllPages = async (dir: string) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+export const listAllPages = async () => {
+  const moduleHandler = ModuleHandler.getModuleHandler();
 
-  const pageToModuleMap = (
-    await moduleHandler.getNamespaces(loadPageNamespaces)
-  )[namespace_page];
+  const pageToModuleMap = (await moduleHandler.getNamespaces())[namespace_page];
 
   return pageToModuleMap;
 };

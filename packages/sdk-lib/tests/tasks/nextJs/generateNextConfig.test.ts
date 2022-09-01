@@ -4,13 +4,15 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join, relative } from "path";
 import { generateNextConfig } from "../../../src";
-import { Config } from "../../../src/utils/nextJs/config";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
+import { Config, loadConfigNamespaces } from "../../../src/utils/nextJs/config";
 
 describe("test Task generateNextConfig", () => {
   let dir: string;
 
   beforeEach(() => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [loadConfigNamespaces]);
   });
 
   afterEach(() => {
