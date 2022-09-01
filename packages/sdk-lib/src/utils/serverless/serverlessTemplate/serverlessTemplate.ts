@@ -130,29 +130,26 @@ export const getModuleContentMap = (
   return freeze(moduleContentMap);
 };
 
-export const getKeywords = () => {
-  const keywords = [
-    keywordAjvCompile,
-    keywordAnd,
-    keywordEquals,
-    keywordIf,
-    keywordJsonParse,
-    keywordJsonStringify,
-    keywordKey,
-    keywordOr,
-    keywordParameter,
-    keywordAccess,
-    keywordCreateIf,
-    keywordDependsOn,
-    keywordExtend,
-    keywordFunction,
-    keywordFunctionLayer,
-    keywordModuleName,
-    keywordOutput,
-    keywordRef,
-    keywordResourceName,
-    keywordTemplateOutputs,
-    keywordTemplateResources
-  ];
-  return keywords;
-};
+export const getBaseKeywords = () => [
+  keywordAjvCompile,
+  keywordAnd,
+  keywordEquals,
+  keywordIf,
+  keywordJsonParse,
+  keywordJsonStringify,
+  keywordKey,
+  keywordOr,
+  keywordParameter,
+  keywordAccess,
+  keywordCreateIf,
+  keywordDependsOn,
+  keywordExtend,
+  keywordFunction,
+  keywordFunctionLayer,
+  keywordModuleName,
+  keywordOutput,
+  keywordRef,
+  keywordResourceName,
+  keywordTemplateOutputs,
+  keywordTemplateResources
+];

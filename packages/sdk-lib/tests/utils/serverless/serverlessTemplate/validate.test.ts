@@ -5,7 +5,7 @@ import {
   parseJson,
   validateKeywords
 } from "../../../../src/utils/jsonTemplate";
-import { getKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
+import { getBaseKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { validateServerlessTemplate } from "../../../../src/utils/serverless/serverlessTemplate/validate";
 
 jest.mock(
@@ -14,7 +14,7 @@ jest.mock(
     const original = jest.requireActual(
       "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate"
     );
-    return { __esModule: true, ...original, getKeywords: jest.fn() };
+    return { __esModule: true, ...original, getBaseKeywords: jest.fn() };
   }
 );
 
@@ -72,8 +72,8 @@ describe("test util serverlessTemplate.validate", () => {
   const processor = jest.fn();
 
   beforeEach(() => {
-    mockedFunction(getKeywords).mockReset();
-    mockedFunction(getKeywords).mockReturnValue([
+    mockedFunction(getBaseKeywords).mockReset();
+    mockedFunction(getBaseKeywords).mockReturnValue([
       {
         keyword: "k1",
         getValidator: async () => validator,
@@ -90,7 +90,7 @@ describe("test util serverlessTemplate.validate", () => {
       validateServerlessTemplate("/a", "m0", moduleServerlessTemplateMap)
     ).resolves.toBeUndefined();
 
-    expect(getKeywords).toHaveBeenCalledTimes(1);
+    expect(getBaseKeywords).toHaveBeenCalledTimes(1);
     expect(validateKeywords).toHaveBeenCalledTimes(1);
     expect(validateKeywords).toHaveBeenNthCalledWith(
       1,
@@ -114,7 +114,7 @@ describe("test util serverlessTemplate.validate", () => {
       new ErrorSet([new Error("Error at  : There is an error in template")])
     );
 
-    expect(getKeywords).toHaveBeenCalledTimes(1);
+    expect(getBaseKeywords).toHaveBeenCalledTimes(1);
     expect(validateKeywords).toHaveBeenCalledTimes(1);
     expect(validateKeywords).toHaveBeenNthCalledWith(1, jsonNode, {
       k1: validator

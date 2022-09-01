@@ -119,7 +119,8 @@ export const BuildAction = async ({
         `Validate ${path_serverless}/${file_templateYaml}`,
         validateServerlessTemplate,
         verbose,
-        dir
+        dir,
+        plugins.serverlessKeywords
       );
   }
 

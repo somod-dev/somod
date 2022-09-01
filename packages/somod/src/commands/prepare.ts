@@ -96,7 +96,8 @@ export const PrepareAction = async ({
       `Generate /${file_templateYaml}`,
       prepareSAMTemplate,
       verbose,
-      dir
+      dir,
+      plugins.serverlessKeywords
     );
   }
 

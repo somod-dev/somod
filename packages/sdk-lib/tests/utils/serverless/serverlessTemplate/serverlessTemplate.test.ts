@@ -2,7 +2,7 @@ import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
 import { dump } from "js-yaml";
 import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import {
-  getKeywords,
+  getBaseKeywords,
   getModuleContentMap,
   loadServerlessTemplateMap
 } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
@@ -219,8 +219,8 @@ describe("Test util serverlessTemplate", () => {
     });
   });
 
-  test("getKeywords", () => {
-    const keywords = getKeywords();
+  test("getBaseKeywords", () => {
+    const keywords = getBaseKeywords();
     expect(keywords.length).toEqual(21);
   });
 });

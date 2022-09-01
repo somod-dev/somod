@@ -4,7 +4,7 @@ import {
   parseJson,
   processKeywords
 } from "../../../../src/utils/jsonTemplate";
-import { getKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
+import { getBaseKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { prepareSamTemplate } from "../../../../src/utils/serverless/serverlessTemplate/prepare";
 import { attachBaseLayer } from "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer";
 import { extendResources } from "../../../../src/utils/serverless/serverlessTemplate/extendResources";
@@ -16,7 +16,7 @@ jest.mock(
     const original = jest.requireActual(
       "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate"
     );
-    return { __esModule: true, ...original, getKeywords: jest.fn() };
+    return { __esModule: true, ...original, getBaseKeywords: jest.fn() };
   }
 );
 
@@ -122,8 +122,8 @@ describe("test util serverlessTemplate.prepare", () => {
   const processor = jest.fn();
 
   beforeEach(() => {
-    mockedFunction(getKeywords).mockReset();
-    mockedFunction(getKeywords).mockReturnValue([
+    mockedFunction(getBaseKeywords).mockReset();
+    mockedFunction(getBaseKeywords).mockReturnValue([
       {
         keyword: "k1",
         getValidator: async () => validator,
@@ -164,7 +164,7 @@ describe("test util serverlessTemplate.prepare", () => {
       )
     ).resolves.toEqual(expectedSamTemplate);
 
-    expect(getKeywords).toHaveBeenCalledTimes(1);
+    expect(getBaseKeywords).toHaveBeenCalledTimes(1);
     expect(processKeywords).toHaveBeenCalledTimes(3);
     expect(processKeywords).toHaveBeenNthCalledWith(
       1,

@@ -1,5 +1,6 @@
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
+import { KeywordDefinition } from "../../utils/keywords/types";
 import { ModuleHandler } from "../../utils/moduleHandler";
 import { prepareSamTemplate } from "../../utils/serverless/serverlessTemplate/prepare";
 import { loadServerlessTemplateMap } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
@@ -9,7 +10,10 @@ import {
   updateYamlFileStore
 } from "../../utils/yamlFileStore";
 
-export const prepareSAMTemplate = async (dir: string): Promise<void> => {
+export const prepareSAMTemplate = async (
+  dir: string,
+  pluginKeywords: KeywordDefinition[] = []
+): Promise<void> => {
   const moduleHandler = ModuleHandler.getModuleHandler();
   const moduleNodes = await moduleHandler.listModules();
   const moduleTemplateMap = await loadServerlessTemplateMap(
@@ -19,7 +23,8 @@ export const prepareSAMTemplate = async (dir: string): Promise<void> => {
   const samTemplate = await prepareSamTemplate(
     dir,
     moduleNodes.map(m => m.module.name),
-    moduleTemplateMap
+    moduleTemplateMap,
+    pluginKeywords
   );
 
   if (samTemplate.Resources && Object.keys(samTemplate.Resources).length > 0) {

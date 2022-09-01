@@ -5,8 +5,9 @@ import {
   parseJson,
   validateKeywords
 } from "../../jsonTemplate";
+import { KeywordDefinition } from "../../keywords/types";
 import { ModuleServerlessTemplateMap } from "../types";
-import { getKeywords, getModuleContentMap } from "./serverlessTemplate";
+import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
 
 /**
  * Validate the `serverless/template.yaml` at the root module.
@@ -16,11 +17,12 @@ import { getKeywords, getModuleContentMap } from "./serverlessTemplate";
 export const validateServerlessTemplate = async (
   dir: string,
   rootModuleName: string,
-  moduleTemplateMap: ModuleServerlessTemplateMap
+  moduleTemplateMap: ModuleServerlessTemplateMap,
+  pluginKeywords: KeywordDefinition[] = []
 ) => {
   const moduleContentMap = getModuleContentMap(moduleTemplateMap);
 
-  const keywords = getKeywords();
+  const keywords = [...getBaseKeywords(), ...pluginKeywords];
 
   const keywordValidators: Record<string, KeywordValidator> = {};
 

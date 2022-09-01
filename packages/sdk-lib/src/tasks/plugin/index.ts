@@ -7,6 +7,7 @@ import {
   getSAMOutputName,
   getSAMResourceLogicalId
 } from "../../utils/serverless/utils";
+import { KeywordDefinition } from "../../utils/keywords/types";
 
 export const loadPlugins = async (dir: string) => {
   const plugins = await _loadPlugins(dir);
@@ -18,6 +19,18 @@ export const loadPlugins = async (dir: string) => {
   const build = plugins.filter(p => p.plugin.build);
   const preprepare = plugins.filter(p => p.plugin.preprepare).reverse();
   const prepare = plugins.filter(p => p.plugin.prepare);
+
+  const uiKeywords: KeywordDefinition[] = [];
+  const serverlessKeywords: KeywordDefinition[] = [];
+
+  plugins.forEach(p => {
+    if (p.plugin.keywords?.uiConfig) {
+      uiKeywords.push(...p.plugin.keywords.uiConfig);
+    }
+    if (p.plugin.keywords?.serverless) {
+      serverlessKeywords.push(...p.plugin.keywords.serverless);
+    }
+  });
 
   const compilerOptions = plugins.reduce((agg, p) => {
     return { ...agg, ...p.plugin.tsconfig?.compilerOptions };
@@ -40,6 +53,8 @@ export const loadPlugins = async (dir: string) => {
   return {
     init,
     namespaceLoaders,
+    uiKeywords,
+    serverlessKeywords,
     prebuild,
     build,
     preprepare,

@@ -4,6 +4,7 @@ import {
   parseJson,
   processKeywords
 } from "../../jsonTemplate";
+import { KeywordDefinition } from "../../keywords/types";
 import { listAllOutputs } from "../namespace";
 
 import {
@@ -13,17 +14,18 @@ import {
 } from "../types";
 import { attachBaseLayer } from "./attachBaseLayer";
 import { extendResources } from "./extendResources";
-import { getKeywords, getModuleContentMap } from "./serverlessTemplate";
+import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
 
 export const prepareSamTemplate = async (
   dir: string,
   moduleNames: string[],
-  moduleTemplateMap: ModuleServerlessTemplateMap
+  moduleTemplateMap: ModuleServerlessTemplateMap,
+  pluginKeywords: KeywordDefinition[] = []
 ) => {
   const moduleContentMap = getModuleContentMap(moduleTemplateMap);
   const processedTemplateMap: Record<string, ServerlessTemplate> = {};
 
-  const keywords = getKeywords();
+  const keywords = [...getBaseKeywords(), ...pluginKeywords];
 
   const samTemplate: SAMTemplate = {
     Resources: {}

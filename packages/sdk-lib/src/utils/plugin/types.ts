@@ -5,6 +5,7 @@ import {
   getSAMOutputName,
   getSAMResourceLogicalId
 } from "../../utils/serverless/utils";
+import { KeywordDefinition } from "../keywords/types";
 
 export type Mode = { ui: boolean; serverless: boolean };
 
@@ -20,6 +21,10 @@ export type Plugin = {
     prettier?: string[];
   };
   namespaceLoader?: NamespaceLoader;
+  keywords?: {
+    uiConfig?: KeywordDefinition[];
+    serverless?: KeywordDefinition[];
+  };
   prebuild?: (
     dir: string,
     moduleHandler: ModuleHandler,
