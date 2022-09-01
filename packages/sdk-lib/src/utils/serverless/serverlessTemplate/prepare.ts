@@ -4,8 +4,13 @@ import {
   parseJson,
   processKeywords
 } from "../../jsonTemplate";
+import { listAllOutputs } from "../namespace";
 
-import { ModuleServerlessTemplateMap, SAMTemplate } from "../types";
+import {
+  ModuleServerlessTemplateMap,
+  SAMTemplate,
+  ServerlessTemplate
+} from "../types";
 import { attachBaseLayer } from "./attachBaseLayer";
 import { extendResources } from "./extendResources";
 import { getKeywords, getModuleContentMap } from "./serverlessTemplate";
@@ -16,12 +21,12 @@ export const prepareSamTemplate = async (
   moduleTemplateMap: ModuleServerlessTemplateMap
 ) => {
   const moduleContentMap = getModuleContentMap(moduleTemplateMap);
+  const processedTemplateMap: Record<string, ServerlessTemplate> = {};
 
   const keywords = getKeywords();
 
   const samTemplate: SAMTemplate = {
-    Resources: {},
-    Outputs: {}
+    Resources: {}
   };
 
   const _moduleNames = [...moduleNames].reverse();
@@ -53,13 +58,23 @@ export const prepareSamTemplate = async (
           ...processedTemplate.Resources
         };
 
-        samTemplate.Outputs = {
-          ...samTemplate.Outputs,
-          ...processedTemplate.Outputs
-        };
+        processedTemplateMap[moduleName] = processedTemplate;
       }
     })
   );
+
+  const outputToModuleMap = await listAllOutputs();
+  const outputNames = Object.keys(outputToModuleMap);
+  if (outputNames.length > 0) {
+    samTemplate.Outputs = {};
+    outputNames.forEach(outputName => {
+      const moduleName = outputToModuleMap[outputName];
+      const output = processedTemplateMap[moduleName].Outputs[
+        outputName
+      ] as SAMTemplate["Outputs"][string];
+      samTemplate.Outputs[outputName] = output;
+    });
+  }
 
   if (Object.keys(samTemplate.Outputs).length == 0) {
     delete samTemplate.Outputs;

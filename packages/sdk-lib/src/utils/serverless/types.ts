@@ -25,5 +25,5 @@ export type ModuleServerlessTemplateMap = Readonly<
 
 export type SAMTemplate = {
   Resources: Record<string, ServerlessResource>;
-  Outputs?: Record<string, { Description: string; Value: JSONType }>;
+  Outputs?: Record<string, { Value: JSONType }>;
 };

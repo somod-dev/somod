@@ -8,6 +8,7 @@ import { getKeywords } from "../../../../src/utils/serverless/serverlessTemplate
 import { prepareSamTemplate } from "../../../../src/utils/serverless/serverlessTemplate/prepare";
 import { attachBaseLayer } from "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer";
 import { extendResources } from "../../../../src/utils/serverless/serverlessTemplate/extendResources";
+import { listAllOutputs } from "../../../../src/utils/serverless/namespace";
 
 jest.mock(
   "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
@@ -44,6 +45,13 @@ jest.mock(
   }
 );
 
+jest.mock("../../../../src/utils/serverless/namespace", () => {
+  const original = jest.requireActual(
+    "../../../../src/utils/serverless/namespace"
+  );
+  return { __esModule: true, ...original, listAllOutputs: jest.fn() };
+});
+
 describe("test util serverlessTemplate.prepare", () => {
   const moduleServerlessTemplateMap = {
     m0: {
@@ -75,6 +83,11 @@ describe("test util serverlessTemplate.prepare", () => {
             Type: "",
             Properties: {}
           }
+        },
+        Outputs: {
+          p1: {
+            Ref: "R2"
+          }
         }
       }
     },
@@ -91,6 +104,9 @@ describe("test util serverlessTemplate.prepare", () => {
           }
         },
         Outputs: {
+          p1: {
+            "Fn::GetAtt": ["R3", "Arn"]
+          },
           p2: {
             Ref: "R3"
           },
@@ -115,6 +131,12 @@ describe("test util serverlessTemplate.prepare", () => {
       }
     ]);
     mockedFunction(processKeywords).mockReset();
+    mockedFunction(listAllOutputs).mockReset();
+    mockedFunction(listAllOutputs).mockResolvedValue({
+      p1: "m0",
+      p2: "m3",
+      p3: "m3"
+    });
   });
 
   test("without errors", async () => {

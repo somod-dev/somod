@@ -4,7 +4,7 @@ import {
   namespace_output,
   resourceType_Function
 } from "../constants";
-import { NamespaceLoader } from "../moduleHandler";
+import { ModuleHandler, NamespaceLoader } from "../moduleHandler";
 import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
 
 const detectDuplicateNamespaces = (
@@ -80,4 +80,10 @@ export const loadOutputNamespaces: NamespaceLoader = async module => {
   }
 
   return { [namespace_output]: namespaces };
+};
+
+export const listAllOutputs = async () => {
+  const moduleHandler = ModuleHandler.getModuleHandler();
+  const namespaces = await moduleHandler.getNamespaces();
+  return namespaces[namespace_output] || {};
 };
