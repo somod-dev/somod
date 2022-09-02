@@ -11,7 +11,6 @@ import { KeywordDefinition } from "../../utils/keywords/types";
 
 export const loadPlugins = async (dir: string) => {
   const plugins = await _loadPlugins(dir);
-  const init = plugins.filter(p => p.plugin.init);
   const namespaceLoaders = plugins
     .filter(p => p.plugin.namespaceLoader)
     .map(p => p.plugin.namespaceLoader);
@@ -51,7 +50,6 @@ export const loadPlugins = async (dir: string) => {
   }, []) as string[];
 
   return {
-    init,
     namespaceLoaders,
     uiKeywords,
     serverlessKeywords,
@@ -69,15 +67,6 @@ export const loadPlugins = async (dir: string) => {
       prettier: prettierIgnore
     }
   };
-};
-
-/* istanbul ignore next */
-export const runPluginInit = async (
-  dir: string,
-  plugin: Plugin,
-  mode: Mode
-) => {
-  await plugin.init(dir, mode);
 };
 
 /* istanbul ignore next */

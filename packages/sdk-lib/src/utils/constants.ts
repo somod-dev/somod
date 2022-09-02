@@ -1,16 +1,10 @@
 export const file_packageJson = "package.json";
 export const file_packageLockJson = "package-lock.json";
 
-export const file_gitIgnore = ".gitignore";
-export const file_eslintIgnore = ".eslintignore";
-export const file_prettierIgnore = ".prettierignore";
-
 export const file_dotenv = ".env";
 
-export const file_tsConfigJson = "tsconfig.json";
 export const file_tsConfigSomodJson = "tsconfig.somod.json";
 
-export const file_nextEnvDTs = "next-env.d.ts";
 export const file_nextConfigJs = "next.config.js";
 
 export const key_somod = "somod";
@@ -45,7 +39,6 @@ export const file_index_js = "index.js";
 export const file_index_dts = "index.d.ts";
 
 export const path_git = ".git";
-export const path_nextBuild = ".next";
 
 export const file_configYaml = "config.yaml";
 export const file_configJson = "config.json";
@@ -56,7 +49,6 @@ export const path_functionLayers = "functionLayers";
 export const file_templateYaml = "template.yaml";
 export const file_templateJson = "template.json";
 
-export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
 
 export const path_vercel = ".vercel";

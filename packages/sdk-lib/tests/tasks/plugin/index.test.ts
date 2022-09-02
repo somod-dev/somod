@@ -17,7 +17,6 @@ describe("Test task loadPlugins", () => {
   test("empty plugins", async () => {
     mockedFunction(loadPluginsUtil).mockResolvedValue([]);
     await expect(loadPlugins("")).resolves.toEqual({
-      init: [],
       namespaceLoaders: [],
       uiKeywords: [],
       serverlessKeywords: [],
@@ -35,7 +34,6 @@ describe("Test task loadPlugins", () => {
       {
         name: "somod-plugin1",
         plugin: {
-          init: jest.fn(),
           namespaceLoader: jest.fn(),
           keywords: {
             uiConfig: [
@@ -71,7 +69,6 @@ describe("Test task loadPlugins", () => {
     ];
     mockedFunction(loadPluginsUtil).mockResolvedValue(plugins);
     await expect(loadPlugins("")).resolves.toEqual({
-      init: plugins,
       namespaceLoaders: plugins.map(p => p.plugin.namespaceLoader),
       uiKeywords: [plugins[0].plugin.keywords.uiConfig[0]],
       serverlessKeywords: [plugins[0].plugin.keywords.serverless[0]],
@@ -113,7 +110,6 @@ describe("Test task loadPlugins", () => {
       {
         name: "somod-plugin2",
         plugin: {
-          init: jest.fn(),
           namespaceLoader: jest.fn(),
           prebuild: jest.fn(),
           build: jest.fn(),
@@ -129,7 +125,6 @@ describe("Test task loadPlugins", () => {
       {
         name: "somod-plugin3",
         plugin: {
-          init: jest.fn(),
           keywords: {
             uiConfig: [
               {
@@ -160,7 +155,6 @@ describe("Test task loadPlugins", () => {
     ];
     mockedFunction(loadPluginsUtil).mockResolvedValue(plugins);
     await expect(loadPlugins("")).resolves.toEqual({
-      init: [plugins[1], plugins[2]],
       namespaceLoaders: [plugins[1].plugin.namespaceLoader],
       uiKeywords: [
         plugins[0].plugin.keywords.uiConfig[0],

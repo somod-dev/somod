@@ -10,7 +10,6 @@ import { KeywordDefinition } from "../keywords/types";
 export type Mode = { ui: boolean; serverless: boolean };
 
 export type Plugin = {
-  init?: (dir: string, mode: Mode) => Promise<void>;
   tsconfig?: {
     compilerOptions?: Record<string, unknown>;
     include?: string[];
