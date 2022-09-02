@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import { ModuleHandler, NamespaceLoader } from "../../utils/moduleHandler";
 import { loadConfigNamespaces } from "../../utils/nextJs/config";
 import { loadPageNamespaces } from "../../utils/nextJs/pages";
