@@ -1,10 +1,11 @@
 import { countBy } from "lodash";
 import {
-  namespace_http_api,
+  namespace_api_gateway,
   namespace_output,
   resourceType_Function
 } from "../constants";
 import { ModuleHandler, NamespaceLoader } from "../moduleHandler";
+import { keywordRef } from "./keywords/ref";
 import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
 
 const detectDuplicateNamespaces = (
@@ -21,7 +22,7 @@ const detectDuplicateNamespaces = (
   }
   if (repeatedNamespaces.length > 0) {
     throw new Error(
-      `Following ${namespaceType} are repeated in ${moduleName}\n${repeatedNamespaces
+      `Following routes for ${namespaceType} are repeated in ${moduleName}\n${repeatedNamespaces
         .map(a => " - " + a)
         .join("\n")}`
     );
@@ -32,18 +33,37 @@ const detectDuplicateNamespaces = (
 type FunctionResourceProperties = Record<string, unknown> & {
   Events?: Record<
     string,
-    {
-      Type: string;
-      Properties: Record<string, unknown> & {
-        Method: string;
-        Path: string;
-      };
-    }
+    | {
+        Type: "Api";
+        Properties: Record<string, unknown> & {
+          Method: string;
+          Path: string;
+          RestApiId: {
+            "SOMOD::Ref": {
+              module?: string;
+              resource: string;
+            };
+          };
+        };
+      }
+    | {
+        Type: "HttpApi";
+        Properties: Record<string, unknown> & {
+          Method: string;
+          Path: string;
+          ApiId: {
+            "SOMOD::Ref": {
+              module?: string;
+              resource: string;
+            };
+          };
+        };
+      }
   >;
 };
 
-export const loadHttpApiNamespaces: NamespaceLoader = async module => {
-  const namespaces = [];
+export const loadApiRouteNamespaces: NamespaceLoader = async module => {
+  const namespaces: Record<string, string[]> = {};
   const moduleServerlessTemplate = await loadServerlessTemplate(module);
 
   if (moduleServerlessTemplate) {
@@ -54,8 +74,24 @@ export const loadHttpApiNamespaces: NamespaceLoader = async module => {
         const resourceProperties =
           resource.Properties as FunctionResourceProperties;
         Object.values(resourceProperties.Events || {}).forEach(event => {
+          let apiRef: {
+            module?: string;
+            resource: string;
+          };
           if (event.Type == "HttpApi") {
-            namespaces.push(
+            apiRef = event.Properties.ApiId[keywordRef.keyword];
+          } else if (event.Type == "Api") {
+            apiRef = event.Properties.RestApiId[keywordRef.keyword];
+          }
+
+          if (apiRef) {
+            const apiNamespaceName = `${namespace_api_gateway} ${
+              apiRef.module || module.name
+            } ${apiRef.resource}`;
+            if (!namespaces[apiNamespaceName]) {
+              namespaces[apiNamespaceName] = [];
+            }
+            namespaces[apiNamespaceName].push(
               `${event.Properties.Method} ${event.Properties.Path}`
             );
           }
@@ -63,10 +99,16 @@ export const loadHttpApiNamespaces: NamespaceLoader = async module => {
       }
     });
 
-    detectDuplicateNamespaces(namespaces, namespace_http_api, module.name);
+    Object.keys(namespaces).forEach(apiNamespaceName => {
+      detectDuplicateNamespaces(
+        namespaces[apiNamespaceName],
+        apiNamespaceName,
+        module.name
+      );
+    });
   }
 
-  return { [namespace_http_api]: namespaces };
+  return namespaces;
 };
 
 export const loadOutputNamespaces: NamespaceLoader = async module => {

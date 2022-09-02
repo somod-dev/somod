@@ -4,7 +4,7 @@ import { loadPageNamespaces } from "../../utils/nextJs/pages";
 import { loadPublicAssetNamespaces } from "../../utils/nextJs/publicAssets";
 import { loadParameterNamespaces } from "../../utils/parameters/namespace";
 import {
-  loadHttpApiNamespaces,
+  loadApiRouteNamespaces,
   loadOutputNamespaces
 } from "../../utils/serverless/namespace";
 
@@ -16,7 +16,7 @@ export const initializeModuleHandler = async (
     loadPageNamespaces,
     loadPublicAssetNamespaces,
     loadConfigNamespaces,
-    loadHttpApiNamespaces,
+    loadApiRouteNamespaces,
     loadParameterNamespaces,
     loadOutputNamespaces,
     ...pluginNamespaceLoaders

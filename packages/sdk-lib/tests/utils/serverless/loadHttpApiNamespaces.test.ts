@@ -1,12 +1,13 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
-import { loadHttpApiNamespaces } from "../../../src/utils/serverless/namespace";
+import { loadApiRouteNamespaces } from "../../../src/utils/serverless/namespace";
 import { Module } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
 import { dump } from "js-yaml";
-import { namespace_http_api } from "../../../src";
+import { namespace_api_gateway } from "../../../src";
+import { keywordRef } from "../../../src/utils/serverless/keywords/ref";
 
-describe("Test util serverless.loadHttpApiNamespaces", () => {
+describe("Test util serverless.loadApiRouteNamespaces", () => {
   let dir: string = null;
 
   beforeEach(() => {
@@ -28,18 +29,14 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     createFiles(dir, { "build/": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
-      [namespace_http_api]: []
-    });
+    await expect(loadApiRouteNamespaces(module)).resolves.toEqual({});
   });
 
   test("with empty serverless directory", async () => {
     createFiles(dir, { "build/serverless/": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
-      [namespace_http_api]: []
-    });
+    await expect(loadApiRouteNamespaces(module)).resolves.toEqual({});
   });
 
   test("with no http Api", async () => {
@@ -48,9 +45,7 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
-      [namespace_http_api]: []
-    });
+    await expect(loadApiRouteNamespaces(module)).resolves.toEqual({});
   });
 
   test("with one http Api", async () => {
@@ -66,7 +61,12 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
                   Type: "HttpApi",
                   Properties: {
                     Method: "GET",
-                    Path: "my-resourceType/getresource"
+                    Path: "my-resourceType/getresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 }
               }
@@ -77,8 +77,10 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
-      [namespace_http_api]: ["GET my-resourceType/getresource"]
+    await expect(loadApiRouteNamespaces(module)).resolves.toEqual({
+      [`${namespace_api_gateway} my-module MyApi1`]: [
+        "GET my-resourceType/getresource"
+      ]
     });
   });
 
@@ -95,14 +97,24 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
                   Type: "HttpApi",
                   Properties: {
                     Method: "GET",
-                    Path: "my-resourceType/getresource"
+                    Path: "my-resourceType/getresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 },
                 Post: {
                   Type: "HttpApi",
                   Properties: {
                     Method: "POST",
-                    Path: "my-resourceType/postresource"
+                    Path: "my-resourceType/postresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 }
               }
@@ -117,7 +129,13 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
                   Type: "HttpApi",
                   Properties: {
                     Method: "POST",
-                    Path: "my-another-resourceType/post"
+                    Path: "my-another-resourceType/post",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        module: "my-another-module",
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 }
               }
@@ -128,10 +146,87 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
-      [namespace_http_api]: [
+    await expect(loadApiRouteNamespaces(module)).resolves.toEqual({
+      [`${namespace_api_gateway} my-module MyApi1`]: [
         "GET my-resourceType/getresource",
-        "POST my-resourceType/postresource",
+        "POST my-resourceType/postresource"
+      ],
+      [`${namespace_api_gateway} my-another-module MyApi1`]: [
+        "POST my-another-resourceType/post"
+      ]
+    });
+  });
+
+  test("with multiple http and rest apis", async () => {
+    createFiles(dir, {
+      "build/serverless/template.json": JSON.stringify({
+        Resources: {
+          MyLambda: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              CodeUri: "",
+              Events: {
+                Get: {
+                  Type: "Api",
+                  Properties: {
+                    Method: "GET",
+                    Path: "my-resourceType/getresource",
+                    RestApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyRestApi1"
+                      }
+                    }
+                  }
+                },
+                Post: {
+                  Type: "HttpApi",
+                  Properties: {
+                    Method: "POST",
+                    Path: "my-resourceType/postresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          MyAnotherLambda: {
+            Type: "AWS::Serverless::Function",
+            Properties: {
+              CodeUri: "",
+              Events: {
+                Post: {
+                  Type: "Api",
+                  Properties: {
+                    Method: "POST",
+                    Path: "my-another-resourceType/post",
+                    RestApiId: {
+                      [keywordRef.keyword]: {
+                        module: "my-another-module",
+                        resource: "MyRestApi1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      })
+    });
+    const moduleTemplate = getModuleTemplate(dir);
+    const module = cloneDeep(moduleTemplate);
+    await expect(loadApiRouteNamespaces(module)).resolves.toEqual({
+      [`${namespace_api_gateway} my-module MyRestApi1`]: [
+        "GET my-resourceType/getresource"
+      ],
+      [`${namespace_api_gateway} my-module MyApi1`]: [
+        "POST my-resourceType/postresource"
+      ],
+      [`${namespace_api_gateway} my-another-module MyRestApi1`]: [
         "POST my-another-resourceType/post"
       ]
     });
@@ -150,14 +245,24 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
                   Type: "HttpApi",
                   Properties: {
                     Method: "GET",
-                    Path: "my-resourceType/getresource"
+                    Path: "my-resourceType/getresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 },
                 Post: {
                   Type: "HttpApi",
                   Properties: {
                     Method: "POST",
-                    Path: "my-resourceType/postresource"
+                    Path: "my-resourceType/postresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 }
               }
@@ -176,14 +281,24 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
                   Type: "HttpApi",
                   Properties: {
                     Method: "GET",
-                    Path: "my-resourceType/get"
+                    Path: "my-resourceType/get",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 },
                 Put: {
                   Type: "HttpApi",
                   Properties: {
                     Method: "PUT",
-                    Path: "my-resourceType/put"
+                    Path: "my-resourceType/put",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 }
               }
@@ -196,8 +311,8 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     //@ts-expect-error this is fine during test
     moduleTemplate.root = true;
     const module = cloneDeep(moduleTemplate);
-    await expect(loadHttpApiNamespaces(module)).resolves.toEqual({
-      [namespace_http_api]: [
+    await expect(loadApiRouteNamespaces(module)).resolves.toEqual({
+      [`${namespace_api_gateway} my-module MyApi1`]: [
         "GET my-resourceType/getresource",
         "POST my-resourceType/postresource"
       ]
@@ -217,14 +332,24 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
                   Type: "HttpApi",
                   Properties: {
                     Method: "GET",
-                    Path: "my-resourceType/getresource"
+                    Path: "my-resourceType/getresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 },
                 Post: {
                   Type: "HttpApi",
                   Properties: {
                     Method: "POST",
-                    Path: "my-resourceType/postresource"
+                    Path: "my-resourceType/postresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 }
               }
@@ -239,7 +364,12 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
                   Type: "HttpApi",
                   Properties: {
                     Method: "POST",
-                    Path: "my-resourceType/postresource"
+                    Path: "my-resourceType/postresource",
+                    ApiId: {
+                      [keywordRef.keyword]: {
+                        resource: "MyApi1"
+                      }
+                    }
                   }
                 }
               }
@@ -252,8 +382,8 @@ describe("Test util serverless.loadHttpApiNamespaces", () => {
     //@ts-expect-error this is fine during test
     moduleTemplate.root = true;
     const module = cloneDeep(moduleTemplate);
-    await expect(loadHttpApiNamespaces(module)).rejects.toEqual(
-      new Error(`Following Serverless Http Api are repeated in my-module
+    await expect(loadApiRouteNamespaces(module)).rejects.toEqual(
+      new Error(`Following routes for Serverless Api Gateway my-module MyApi1 are repeated in my-module
  - POST my-resourceType/postresource`)
     );
   });
