@@ -6,13 +6,17 @@ import { join, relative } from "path";
 import { generateNextConfig } from "../../../src";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { Config, loadConfigNamespaces } from "../../../src/utils/nextJs/config";
+import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 
 describe("test Task generateNextConfig", () => {
   let dir: string;
 
   beforeEach(() => {
     dir = createTempDir();
-    ModuleHandler.initialize(dir, [loadConfigNamespaces]);
+    ModuleHandler.initialize(dir, [
+      loadConfigNamespaces,
+      loadParameterNamespaces
+    ]);
   });
 
   afterEach(() => {

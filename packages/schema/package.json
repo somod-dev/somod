@@ -16,7 +16,11 @@
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/serverless-schema#readme",
   "license": "UNLICENSED",
   "scripts": {
-    "test": "npx schema-manager load serverless && npx schema-manager load ui-config && npx schema-manager load parameters"
+    "load:common": "npx schema-manager load common",
+    "load:ui-config": "npx schema-manager load ui-config",
+    "load:serverless": "npx schema-manager load serverless",
+    "load:parameters": "npx schema-manager load parameters",
+    "test": "npm run load:common && npm run load:serverless && npm run load:ui-config && npm run load:parameters"
   },
   "repository": {
     "type": "git",

@@ -18,6 +18,9 @@
     "SOMOD::Output": {
       "$ref": "./components/resource-properties.json#/definitions/SOMOD::Output"
     },
+    "SOMOD::CreateIf": {
+      "$ref": "./components/resource-properties.json#/definitions/SOMOD::CreateIf"
+    },
     "Properties": {
       "type": "object"
     }

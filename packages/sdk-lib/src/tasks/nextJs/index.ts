@@ -6,6 +6,7 @@ export { vercelCommand } from "./vercelCommand";
 export { createPages } from "./createPages";
 export { createPublicAssets } from "./createPublicAssets";
 export { validateUiConfigYaml } from "./validateUiConfigYaml";
+export { validateUiConfigYamlWithSchema } from "./validateUiConfigYamlWithSchema";
 export { buildUiConfigYaml } from "./buildUiConfigYaml";
 export { generateNextConfig } from "./generateNextConfig";
 export { buildUiPublic } from "./buildUiPublic";

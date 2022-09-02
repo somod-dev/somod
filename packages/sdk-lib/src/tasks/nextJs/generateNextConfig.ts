@@ -1,22 +1,9 @@
-import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
+import { unixStylePath } from "@solib/cli-base";
 import { writeFile } from "fs/promises";
 import { join, relative } from "path";
-import {
-  file_dotenv,
-  file_nextConfigJs,
-  file_parametersJson
-} from "../../utils/constants";
-import {
-  getKeyword,
-  getKeywordPaths,
-  replaceKeyword
-} from "../../utils/keywords";
-import {
-  Config,
-  generateCombinedConfig,
-  KeywordSomodParameter,
-  SomodParameter
-} from "../../utils/nextJs/config";
+import { file_dotenv, file_nextConfigJs } from "../../utils/constants";
+import { KeywordDefinition } from "../../utils/keywords/types";
+import { Config, generateCombinedConfig } from "../../utils/nextJs/config";
 
 const generateDotEnvFile = async (
   dir: string,
@@ -79,23 +66,11 @@ module.exports = withNextConfigOverride(__dirname, config);
   await writeFile(join(dir, file_nextConfigJs), nextConfigJsContent);
 };
 
-export const generateNextConfig = async (dir: string): Promise<void> => {
-  const config = await generateCombinedConfig();
-
-  const somodParameterPaths = getKeywordPaths(config, [KeywordSomodParameter])[
-    KeywordSomodParameter
-  ];
-
-  const parameterValues = await readJsonFileStore(
-    join(dir, file_parametersJson)
-  );
-
-  somodParameterPaths.forEach(somodParameterPath => {
-    const parameterName = (
-      getKeyword(config, somodParameterPath) as SomodParameter
-    )[KeywordSomodParameter];
-    replaceKeyword(config, somodParameterPath, parameterValues[parameterName]);
-  });
+export const generateNextConfig = async (
+  dir: string,
+  pluginKeywords: KeywordDefinition[] = []
+): Promise<void> => {
+  const config = await generateCombinedConfig(dir, pluginKeywords);
 
   await generateDotEnvFile(dir, config);
   await generateNextConfigJs(dir, config);

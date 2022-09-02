@@ -46,7 +46,7 @@
         "$ref": "./components/expression.json#/definitions/stringLike"
       },
       "propertyNames": {
-        "$ref": "./components/expression.json#/definitions/somodParameter/properties/SOMOD::Parameter"
+        "$ref": "../../common/expression.json#/definitions/somodParameter/properties/SOMOD::Parameter"
       }
     }
   },

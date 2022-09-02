@@ -88,7 +88,8 @@ export const PrepareAction = async ({
       `Gernerate /${file_nextConfigJs} and /${file_dotenv}`,
       generateNextConfig,
       verbose,
-      dir
+      dir,
+      plugins.uiKeywords
     );
   }
   if (serverless) {

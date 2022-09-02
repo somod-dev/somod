@@ -34,7 +34,8 @@ import {
   runPluginPrebuild,
   runPluginBuild,
   validateServerlessTemplate,
-  initializeModuleHandler
+  initializeModuleHandler,
+  validateUiConfigYamlWithSchema
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -89,9 +90,16 @@ export const BuildAction = async ({
     await Promise.all([
       taskRunner(
         `Validate ${path_ui}/${file_configYaml} with schema`,
-        validateUiConfigYaml,
+        validateUiConfigYamlWithSchema,
         verbose,
         dir
+      ),
+      taskRunner(
+        `Validate ${path_ui}/${file_configYaml}`,
+        validateUiConfigYaml,
+        verbose,
+        dir,
+        plugins.uiKeywords
       ),
       taskRunner(
         `Validate exports in ${path_ui}/${path_pages}`,

@@ -1,4 +1,4 @@
-import { readJsonFileStore } from "@solib/cli-base";
+import { ErrorSet, readJsonFileStore } from "@solib/cli-base";
 import { existsSync } from "fs";
 import { mkdir, writeFile } from "fs/promises";
 import { isString, sortBy, uniqBy } from "lodash";
@@ -12,23 +12,50 @@ import {
   path_build,
   path_ui
 } from "../constants";
-import { getKeyword, getKeywordPaths } from "../keywords";
+import { freeze } from "../freeze";
+import {
+  JSONType,
+  KeywordProcessor,
+  KeywordValidator,
+  parseJson,
+  processKeywords,
+  validateKeywords
+} from "../jsonTemplate";
+import { keywordAjvCompile } from "../keywords/ajv-compile";
+import { keywordAnd } from "../keywords/and";
+import { keywordEquals } from "../keywords/equals";
+import { keywordIf } from "../keywords/if";
+import { keywordJsonParse } from "../keywords/json-parse";
+import { keywordJsonStringify } from "../keywords/json-stringify";
+import { keywordKey } from "../keywords/key";
+import { keywordOr } from "../keywords/or";
+import { keywordParameter } from "../keywords/parameter";
+import {
+  KeywordDefinition,
+  ModuleContent,
+  ModuleContentMap
+} from "../keywords/types";
 import { Module, ModuleHandler, NamespaceLoader } from "../moduleHandler";
-import { listAllParameters } from "../parameters/namespace";
 import { readYamlFileStore } from "../yamlFileStore";
 
-export const KeywordSomodParameter = "SOMOD::Parameter";
-
-export type SomodParameter = {
-  [KeywordSomodParameter]: string;
-};
+const getBaseKeywords = () => [
+  keywordAjvCompile,
+  keywordAnd,
+  keywordEquals,
+  keywordIf,
+  keywordJsonParse,
+  keywordJsonStringify,
+  keywordKey,
+  keywordOr,
+  keywordParameter
+];
 
 // this must match the @somod/ui-config-schema/schemas/index.json
 export type Config = {
-  env?: Record<string, SomodParameter>;
-  imageDomains?: (string | SomodParameter)[];
-  publicRuntimeConfig?: Record<string, SomodParameter>;
-  serverRuntimeConfig?: Record<string, SomodParameter>;
+  env?: Record<string, JSONType>;
+  imageDomains?: (string | JSONType)[];
+  publicRuntimeConfig?: Record<string, JSONType>;
+  serverRuntimeConfig?: Record<string, JSONType>;
 };
 
 export const loadConfig = async (module: Module): Promise<Config> => {
@@ -60,7 +87,67 @@ export const loadConfigNamespaces: NamespaceLoader = async module => {
   };
 };
 
-const buildConfigYaml = async (dir: string): Promise<void> => {
+export const getModuleContentMap = async (
+  modules: Module[]
+): Promise<ModuleContentMap<Config>> => {
+  const moduleContentMap: Record<string, ModuleContent<Config>> = {};
+
+  await Promise.all(
+    modules.map(async module => {
+      const config = await loadConfig(module);
+      moduleContentMap[module.name] = {
+        moduleName: module.name,
+        location: module.packageLocation,
+        path: module.root
+          ? `${path_ui}/${file_configYaml}`
+          : `${path_build}/${path_ui}/${file_configJson}`,
+        json: config
+      };
+    })
+  );
+
+  return freeze(moduleContentMap);
+};
+
+export const validate = async (
+  dir: string,
+  pluginKeywords: KeywordDefinition[] = []
+) => {
+  const moduleHandler = ModuleHandler.getModuleHandler();
+
+  const moduleNodes = await moduleHandler.listModules();
+  const moduleContentMap = await getModuleContentMap(
+    moduleNodes.map(m => m.module)
+  );
+  const rootModuleName = (await moduleHandler.getRoodModuleNode()).module.name;
+
+  const keywords = [...getBaseKeywords(), ...pluginKeywords];
+
+  const keywordValidators: Record<string, KeywordValidator> = {};
+
+  await Promise.all(
+    keywords.map(async keyword => {
+      const validator = await keyword.getValidator(
+        dir,
+        rootModuleName,
+        moduleContentMap
+      );
+
+      keywordValidators[keyword.keyword] = validator;
+    })
+  );
+
+  const errors = validateKeywords(
+    parseJson(moduleContentMap[rootModuleName].json),
+    keywordValidators
+  );
+
+  if (errors.length > 0) {
+    throw new ErrorSet(errors);
+  }
+};
+
+export const build = async (dir: string): Promise<void> => {
   const configYamlPath = join(dir, path_ui, file_configYaml);
   const yamlContentAsJson = (await readYamlFileStore(configYamlPath)) || {};
 
@@ -70,67 +157,56 @@ const buildConfigYaml = async (dir: string): Promise<void> => {
   await writeFile(configJsonPath, JSON.stringify(yamlContentAsJson));
 };
 
-const validate = async () => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-  const rootModuleNode = await moduleHandler.getRoodModuleNode();
-
-  const config = await loadConfig(rootModuleNode.module);
-
-  const parameters = Object.keys(await listAllParameters());
-
-  const keywordPaths = getKeywordPaths(config, [KeywordSomodParameter]);
-
-  const missingParameters: string[] = [];
-  keywordPaths[KeywordSomodParameter].forEach(somodParameterPath => {
-    const somodParameter = getKeyword(
-      config,
-      somodParameterPath
-    ) as SomodParameter;
-
-    const parameter = somodParameter[KeywordSomodParameter];
-    if (!parameters.includes(parameter)) {
-      missingParameters.push(parameter);
-    }
-  });
-
-  if (missingParameters.length > 0) {
-    throw new Error(
-      `Following parameters referenced from '${path_ui}/${file_configYaml}' are not found\n${missingParameters
-        .map(p => " - " + p)
-        .join("\n")}`
-    );
-  }
-};
-
-export const buildConfig = async (dir: string) => {
-  await validate();
-  await buildConfigYaml(dir);
-};
-
-export const generateCombinedConfig = async (): Promise<Config> => {
+export const generateCombinedConfig = async (
+  dir: string,
+  pluginKeywords: KeywordDefinition[] = []
+): Promise<Config> => {
   const moduleHandler = ModuleHandler.getModuleHandler();
   const allModules = await moduleHandler.listModules();
 
-  const moduleNameToConfigMap: Record<string, Config> = {};
+  const moduleContentMap = await getModuleContentMap(
+    allModules.map(m => m.module)
+  );
+  const rootModuleName = (await moduleHandler.getRoodModuleNode()).module.name;
+
+  const keywords = [...getBaseKeywords(), ...pluginKeywords];
+
+  const keywordProcessors: Record<string, KeywordProcessor> = {};
+
   await Promise.all(
-    allModules.map(async moduleNode => {
-      moduleNameToConfigMap[moduleNode.module.name] = await loadConfig(
-        moduleNode.module
+    keywords.map(async keyword => {
+      const processor = await keyword.getProcessor(
+        dir,
+        rootModuleName,
+        moduleContentMap
       );
+
+      keywordProcessors[keyword.keyword] = processor;
     })
   );
+
+  const processsedMap: Record<string, Config> = {};
+
+  allModules.reverse();
+  allModules.forEach(moduleNode => {
+    const moduleName = moduleNode.module.name;
+    processsedMap[moduleName] = processKeywords(
+      parseJson(moduleContentMap[moduleName].json),
+      keywordProcessors
+    ) as Config;
+  });
 
   const namespaces = await moduleHandler.getNamespaces();
 
   const combinedImageDomains: Config["imageDomains"] = [];
-  Object.values(moduleNameToConfigMap).forEach(config => {
+  Object.values(processsedMap).forEach(config => {
     combinedImageDomains.push(...config.imageDomains);
   });
 
   const combinedEnv: Config["env"] = {};
   Object.keys(namespaces[namespace_env_config]).forEach(envName => {
     const moduleName = namespaces[namespace_env_config][envName];
-    combinedEnv[envName] = moduleNameToConfigMap[moduleName].env[envName];
+    combinedEnv[envName] = processsedMap[moduleName].env[envName];
   });
 
   const combinedPublicRuntimeConfig: Config["publicRuntimeConfig"] = {};
@@ -139,7 +215,7 @@ export const generateCombinedConfig = async (): Promise<Config> => {
       const moduleName =
         namespaces[namespace_public_runtime_config][configName];
       combinedPublicRuntimeConfig[configName] =
-        moduleNameToConfigMap[moduleName].publicRuntimeConfig[configName];
+        processsedMap[moduleName].publicRuntimeConfig[configName];
     }
   );
 
@@ -149,7 +225,7 @@ export const generateCombinedConfig = async (): Promise<Config> => {
       const moduleName =
         namespaces[namespace_server_runtime_config][configName];
       combinedServerRuntimeConfig[configName] =
-        moduleNameToConfigMap[moduleName].serverRuntimeConfig[configName];
+        processsedMap[moduleName].serverRuntimeConfig[configName];
     }
   );
 
