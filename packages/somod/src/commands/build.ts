@@ -13,10 +13,10 @@ import {
   file_packageJson,
   file_parametersYaml,
   file_templateYaml,
-  file_tsConfigBuildJson,
+  file_tsConfigSomodJson,
   findRootDir,
   bundleFunctionLayers,
-  isValidTsConfigBuildJson,
+  isValidTsConfigSomodJson,
   key_somod,
   path_build,
   path_pages,
@@ -72,8 +72,8 @@ export const BuildAction = async ({
       dir
     ),
     taskRunner(
-      `Validate ${file_tsConfigBuildJson}`,
-      isValidTsConfigBuildJson,
+      `Validate ${file_tsConfigSomodJson}`,
+      isValidTsConfigSomodJson,
       verbose,
       dir,
       ui ? { jsx: "react" } : {},

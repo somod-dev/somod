@@ -1,10 +1,10 @@
 import { cloneDeep } from "lodash";
 import { join } from "path";
-import { updateTsConfigBuildJson } from "../../../src";
+import { updateTsConfigSomodJson } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { readJsonFileStore } from "@solib/cli-base";
 
-describe("Test task updateTsConfigBuildJson", () => {
+describe("Test task updateTsConfigSomodJson", () => {
   let dir: string = null;
 
   beforeEach(() => {
@@ -33,27 +33,27 @@ describe("Test task updateTsConfigBuildJson", () => {
   };
 
   test("for no existing file", async () => {
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(validTsConfig);
   });
 
   test("for invalid file", async () => {
-    createFiles(dir, { "tsconfig.build.json": "" });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    createFiles(dir, { "tsconfig.somod.json": "" });
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(validTsConfig);
   });
 
   test("for valid file", async () => {
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(validTsConfig)
+      "tsconfig.somod.json": JSON.stringify(validTsConfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(validTsConfig);
   });
 
@@ -61,11 +61,11 @@ describe("Test task updateTsConfigBuildJson", () => {
     const tsconfig = cloneDeep(validTsConfig);
     tsconfig.exclude = ["ui/temp"];
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(tsconfig);
   });
 
@@ -73,11 +73,11 @@ describe("Test task updateTsConfigBuildJson", () => {
     const tsconfig = cloneDeep(validTsConfig);
     (tsconfig.compilerOptions as Record<string, unknown>).jsx = "react";
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(tsconfig);
   });
 
@@ -85,22 +85,22 @@ describe("Test task updateTsConfigBuildJson", () => {
     const tsconfig = cloneDeep(validTsConfig);
     (tsconfig.include as string[]).push("src");
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(tsconfig);
   });
 
   test("for empty object", async () => {
     const tsconfig = {};
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(validTsConfig);
   });
 
@@ -108,11 +108,11 @@ describe("Test task updateTsConfigBuildJson", () => {
     const tsconfig = cloneDeep({ include: validTsConfig.include });
 
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(validTsConfig);
   });
 
@@ -121,11 +121,11 @@ describe("Test task updateTsConfigBuildJson", () => {
       compilerOptions: validTsConfig.compilerOptions
     });
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(validTsConfig);
   });
 
@@ -134,11 +134,11 @@ describe("Test task updateTsConfigBuildJson", () => {
     delete (tsconfig.compilerOptions as Record<string, unknown>).outDir;
 
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(validTsConfig);
   });
 
@@ -147,11 +147,11 @@ describe("Test task updateTsConfigBuildJson", () => {
     tsconfig.include = [];
 
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
-    await expect(updateTsConfigBuildJson(dir)).resolves.toBeUndefined();
+    await expect(updateTsConfigSomodJson(dir)).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(validTsConfig);
   });
 
@@ -159,15 +159,15 @@ describe("Test task updateTsConfigBuildJson", () => {
     const tsconfig = cloneDeep(validTsConfig);
 
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
     await expect(
-      updateTsConfigBuildJson(dir, { jsx: "react" })
+      updateTsConfigSomodJson(dir, { jsx: "react" })
     ).resolves.toBeUndefined();
     const expectedtsconfig = cloneDeep(validTsConfig);
     (expectedtsconfig.compilerOptions as Record<string, unknown>).jsx = "react";
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(expectedtsconfig);
   });
 
@@ -175,15 +175,15 @@ describe("Test task updateTsConfigBuildJson", () => {
     const tsconfig = cloneDeep(validTsConfig);
 
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
     await expect(
-      updateTsConfigBuildJson(dir, {}, ["ui"])
+      updateTsConfigSomodJson(dir, {}, ["ui"])
     ).resolves.toBeUndefined();
     const expectedtsconfig = cloneDeep(validTsConfig);
     (expectedtsconfig.include as string[]).push("ui");
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(expectedtsconfig);
   });
 
@@ -192,13 +192,13 @@ describe("Test task updateTsConfigBuildJson", () => {
     (tsconfig.compilerOptions as Record<string, unknown>).jsx = "react";
 
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
     await expect(
-      updateTsConfigBuildJson(dir, { jsx: "react" })
+      updateTsConfigSomodJson(dir, { jsx: "react" })
     ).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(tsconfig);
   });
 
@@ -207,13 +207,13 @@ describe("Test task updateTsConfigBuildJson", () => {
     (tsconfig.include as string[]).push("ui");
 
     createFiles(dir, {
-      "tsconfig.build.json": JSON.stringify(tsconfig)
+      "tsconfig.somod.json": JSON.stringify(tsconfig)
     });
     await expect(
-      updateTsConfigBuildJson(dir, {}, ["ui"])
+      updateTsConfigSomodJson(dir, {}, ["ui"])
     ).resolves.toBeUndefined();
     await expect(
-      readJsonFileStore(join(dir, "tsconfig.build.json"))
+      readJsonFileStore(join(dir, "tsconfig.somod.json"))
     ).resolves.toEqual(tsconfig);
   });
 });

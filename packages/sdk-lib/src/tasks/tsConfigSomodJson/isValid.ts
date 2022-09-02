@@ -1,4 +1,4 @@
-import { validate } from "../../utils/tsConfigBuildJson";
+import { validate } from "../../utils/tsConfigSomodJson";
 
 export const isValid = async (
   dir: string,

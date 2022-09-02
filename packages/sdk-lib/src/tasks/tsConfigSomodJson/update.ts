@@ -1,4 +1,4 @@
-import { update as updateTsConfig } from "../../utils/tsConfigBuildJson";
+import { update as updateTsConfig } from "../../utils/tsConfigSomodJson";
 
 export const update = async (
   dir: string,

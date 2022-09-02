@@ -7,7 +7,7 @@ import {
   union
 } from "lodash";
 import { normalize, join } from "path";
-import { file_tsConfigBuildJson, path_build, path_lib } from "./constants";
+import { file_tsConfigSomodJson, path_build, path_lib } from "./constants";
 import {
   readJsonFileStore,
   updateJsonFileStore,
@@ -36,7 +36,7 @@ export const validate = async (
   compilerOptions: Record<string, unknown>,
   include: string[]
 ): Promise<void> => {
-  const tsConfigPath = normalize(join(dir, file_tsConfigBuildJson));
+  const tsConfigPath = normalize(join(dir, file_tsConfigSomodJson));
   const unixStyleTsConfigPath = unixStylePath(tsConfigPath);
   const tsConfig = await readJsonFileStore(tsConfigPath);
 
@@ -97,7 +97,7 @@ export const update = async (
   compilerOptions: Record<string, unknown>,
   include: string[]
 ): Promise<void> => {
-  const tsConfigPath = normalize(join(dir, file_tsConfigBuildJson));
+  const tsConfigPath = normalize(join(dir, file_tsConfigSomodJson));
 
   type TsConfigType = {
     compilerOptions: Record<string, unknown>;

@@ -10,7 +10,7 @@ import {
   file_prettierIgnore,
   file_samConfig,
   file_templateYaml,
-  file_tsConfigBuildJson,
+  file_tsConfigSomodJson,
   file_tsConfigJson,
   findRootDir,
   initFiles,
@@ -23,11 +23,11 @@ import {
   runPluginInit,
   saveIgnore,
   savePackageJson,
-  saveTsConfigBuildJson,
+  saveTsConfigSomodJson,
   sodev,
   updateIgnore,
   updatePackageJson,
-  updateTsConfigBuildJson
+  updateTsConfigSomodJson
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -98,7 +98,7 @@ export const InitAction = async ({
       file_prettierIgnore,
       uniq([
         ...somodIgnorePaths,
-        file_tsConfigBuildJson,
+        file_tsConfigSomodJson,
         ...plugins.ignorePatterns.prettier
       ])
     ),
@@ -113,8 +113,8 @@ export const InitAction = async ({
     ),
 
     taskRunner(
-      `Intitalize ${file_tsConfigBuildJson}`,
-      updateTsConfigBuildJson,
+      `Intitalize ${file_tsConfigSomodJson}`,
+      updateTsConfigSomodJson,
       verbose,
       dir,
       { jsx: "react", ...plugins.tsconfig.compilerOptions },
@@ -155,8 +155,8 @@ export const InitAction = async ({
       file_eslintIgnore
     ),
     taskRunner(
-      `Save ${file_tsConfigBuildJson}`,
-      saveTsConfigBuildJson,
+      `Save ${file_tsConfigSomodJson}`,
+      saveTsConfigSomodJson,
       verbose,
       dir
     )

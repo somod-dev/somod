@@ -8,7 +8,7 @@ export const file_prettierIgnore = ".prettierignore";
 export const file_dotenv = ".env";
 
 export const file_tsConfigJson = "tsconfig.json";
-export const file_tsConfigBuildJson = "tsconfig.build.json";
+export const file_tsConfigSomodJson = "tsconfig.somod.json";
 
 export const file_nextEnvDTs = "next-env.d.ts";
 export const file_nextConfigJs = "next.config.js";

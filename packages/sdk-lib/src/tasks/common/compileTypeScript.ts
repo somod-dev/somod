@@ -1,11 +1,11 @@
 import { childProcess, ChildProcessError } from "@solib/cli-base";
-import { file_tsConfigBuildJson } from "../../utils/constants";
+import { file_tsConfigSomodJson } from "../../utils/constants";
 
 export const compileTypeScript = async (
   dir: string,
   noEmit = false
 ): Promise<void> => {
-  const args = ["tsc", "--project", file_tsConfigBuildJson];
+  const args = ["tsc", "--project", file_tsConfigSomodJson];
   if (noEmit) {
     args.push("--noEmit");
   }
