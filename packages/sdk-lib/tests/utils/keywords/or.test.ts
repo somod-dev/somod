@@ -1,8 +1,5 @@
-import {
-  JSONArrayType,
-  JSONObjectNode,
-  parseJson
-} from "../../../src/utils/jsonTemplate";
+import { JSONArrayType, JSONObjectNode } from "@somod/types";
+import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordOr } from "../../../src/utils/keywords/or";
 
 describe("Test or keyword", () => {

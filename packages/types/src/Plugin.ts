@@ -1,11 +1,12 @@
-import { ModuleHandler, NamespaceLoader } from "../moduleHandler";
+import { ModuleHandler, NamespaceLoader } from "./ModuleHandler";
+import { KeywordDefinition } from "./ModuleJsonTemplate";
 import {
-  getNodeRuntimeVersion,
-  getParameterNameFromSAMOutputName,
-  getSAMOutputName,
-  getSAMResourceLogicalId
-} from "../../utils/serverless/utils";
-import { KeywordDefinition } from "../keywords/types";
+  GetNodeRuntimeVersionType,
+  GetParameterNameFromSAMOutputNameType,
+  GetSAMOutputNameType,
+  GetSAMResourceLogicalIdType,
+  GetSAMResourceNameType
+} from "./ServerlessUtils";
 
 export type Mode = { ui: boolean; serverless: boolean };
 
@@ -43,11 +44,12 @@ export type Plugin = {
     dir: string,
     moduleHandler: ModuleHandler,
     mode: Mode,
-    utils: {
-      getNodeRuntimeVersion: typeof getNodeRuntimeVersion;
-      getParameterNameFromSAMOutputName: typeof getParameterNameFromSAMOutputName;
-      getSAMOutputName: typeof getSAMOutputName;
-      getSAMResourceLogicalId: typeof getSAMResourceLogicalId;
+    serverlessUtils: {
+      getNodeRuntimeVersion: GetNodeRuntimeVersionType;
+      getSAMResourceLogicalId: GetSAMResourceLogicalIdType;
+      getSAMResourceName: GetSAMResourceNameType;
+      getSAMOutputName: GetSAMOutputNameType;
+      getParameterNameFromSAMOutputName: GetParameterNameFromSAMOutputNameType;
     }
   ) => Promise<void>;
 };

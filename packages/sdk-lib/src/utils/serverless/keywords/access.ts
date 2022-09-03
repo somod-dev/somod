@@ -1,5 +1,5 @@
+import { KeywordDefinition, ModuleTemplate } from "@somod/types";
 import { getPath } from "../../jsonTemplate";
-import { KeywordDefinition, ModuleContent } from "../../keywords/types";
 import { ServerlessTemplate } from "../types";
 
 type Access = "module" | "scope" | "public";
@@ -28,7 +28,7 @@ export const keywordAccess: KeywordDefinition<Access> = {
 
 export const checkAccess = (
   sourceModule: string,
-  targetTemplate: ModuleContent<ServerlessTemplate>,
+  targetTemplate: ModuleTemplate<ServerlessTemplate>,
   targetResource: string
 ): Error[] => {
   const errors: Error[] = [];

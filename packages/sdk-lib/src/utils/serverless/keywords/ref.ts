@@ -1,12 +1,12 @@
 import { JSONSchema7, validate } from "@solib/json-validator";
 import { DataValidationError } from "@solib/errors";
-import { KeywordDefinition } from "../../keywords/types";
 import { getSAMResourceLogicalId } from "../utils";
 import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
 import { checkCustomResourceSchema } from "./function";
 import { checkOutput } from "./output";
 import { keywordExtend } from "./extend";
+import { KeywordDefinition } from "@somod/types";
 
 export const keyword = "SOMOD::Ref";
 

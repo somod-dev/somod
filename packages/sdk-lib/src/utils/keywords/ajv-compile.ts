@@ -1,6 +1,5 @@
 import { getCompiledValidator } from "@solib/json-validator";
-import { JSONObjectType } from "../jsonTemplate";
-import { KeywordDefinition } from "./types";
+import { JSONObjectType, KeywordDefinition } from "@somod/types";
 
 export const keywordAjvCompile: KeywordDefinition<JSONObjectType> = {
   keyword: "SOMOD::AjvCompile",

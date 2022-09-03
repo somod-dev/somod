@@ -4,20 +4,16 @@ import {
   deleteDir,
   mockedFunction
 } from "@sodev/test-utils";
-import {
-  JSONObjectNode,
-  JSONType,
-  parseJson
-} from "../../../../src/utils/jsonTemplate";
+import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
 import {
   getFunctionLayerLibraries,
   keywordFunctionLayer
 } from "../../../../src/utils/serverless/keywords/functionLayer";
 import { join } from "path";
-import { ModuleContentMap } from "../../../../src/utils/keywords/types";
 import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import { readdir, readFile } from "fs/promises";
+import { JSONObjectNode, JSONType, ModuleTemplateMap } from "@somod/types";
 
 jest.mock("@solib/cli-base", () => {
   const original = jest.requireActual("@solib/cli-base");
@@ -310,7 +306,7 @@ describe("Test util processor of functionLayer keyword with overriding content",
     const processor = await keywordFunctionLayer.getProcessor(
       dir,
       "m1",
-      allModules as ModuleContentMap<ServerlessTemplate>
+      allModules as ModuleTemplateMap<ServerlessTemplate>
     );
 
     expect(
@@ -337,7 +333,7 @@ describe("Test util processor of functionLayer keyword with overriding content",
     const processor = await keywordFunctionLayer.getProcessor(
       dir,
       "m1",
-      allModules as ModuleContentMap<ServerlessTemplate>
+      allModules as ModuleTemplateMap<ServerlessTemplate>
     );
 
     expect(
@@ -375,7 +371,7 @@ describe("Test util processor of functionLayer keyword with overriding content",
     const processor = await keywordFunctionLayer.getProcessor(
       dir,
       "m1",
-      allModules as ModuleContentMap<ServerlessTemplate>
+      allModules as ModuleTemplateMap<ServerlessTemplate>
     );
 
     expect(

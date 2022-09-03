@@ -7,43 +7,13 @@ import {
   isPlainObject,
   isString
 } from "lodash";
-
-export type JSONBaseNode = Readonly<{
-  parent?: {
-    key: number | string;
-    node: JSONArrayNode | JSONObjectNode;
-  };
-}>;
-
-export type JSONPrimitiveNode = Readonly<{
-  type: "primitive";
-  value: JSONPrimitiveType;
-}> &
-  JSONBaseNode;
-
-export type JSONArrayNode = Readonly<{
-  type: "array";
-  items: JSONNode[];
-}> &
-  JSONBaseNode;
-
-export type JSONObjectNode = Readonly<{
-  type: "object";
-  properties: Record<string, JSONNode>;
-}> &
-  JSONBaseNode;
-
-export type JSONNode = JSONPrimitiveNode | JSONArrayNode | JSONObjectNode;
-
-export type JSONPrimitiveType = string | boolean | number | null;
-
-export type JSONArrayType = JSONType[];
-
-export type JSONObjectType = {
-  [property: string]: JSONType;
-};
-
-export type JSONType = JSONPrimitiveType | JSONArrayType | JSONObjectType;
+import {
+  JSONType,
+  JSONNode,
+  JSONObjectType,
+  KeywordValidator,
+  KeywordProcessor
+} from "@somod/types";
 
 export const parseJson = (json: JSONType): JSONNode => {
   const navigator = (json: JSONType, parent?: JSONNode["parent"]): JSONNode => {
@@ -158,12 +128,6 @@ export class JSONTemplateError extends Error {
   }
 }
 
-export type KeywordValidator<T extends JSONType = JSONType> = (
-  keyword: string,
-  node: JSONObjectNode,
-  value: T
-) => Error[];
-
 export const validateKeywords = (
   jsonNode: JSONNode,
   keywordValidators: Record<string, KeywordValidator>
@@ -198,26 +162,6 @@ export const validateKeywords = (
   navigator(jsonNode);
   return errors;
 };
-
-export type KeywordObjectReplacement = {
-  type: "object";
-  value: JSONType;
-};
-
-export type KeywordKeywordReplacement = {
-  type: "keyword";
-  value: JSONObjectType;
-};
-
-export type KeywordReplacement =
-  | KeywordObjectReplacement
-  | KeywordKeywordReplacement;
-
-export type KeywordProcessor<T extends JSONType = JSONType> = (
-  keyword: string,
-  node: JSONObjectNode,
-  value: T
-) => KeywordReplacement;
 
 export const processKeywords = (
   jsonNode: JSONNode,

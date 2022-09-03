@@ -1,13 +1,13 @@
 import { ModuleHandler } from "../../utils/moduleHandler";
-import { Mode, Plugin } from "../../utils/plugin/types";
 import { loadPlugins as _loadPlugins } from "../../utils/plugin/loadPlugins";
+import { KeywordDefinition, Mode, Plugin } from "@somod/types";
 import {
   getNodeRuntimeVersion,
-  getParameterNameFromSAMOutputName,
+  getSAMResourceLogicalId,
+  getSAMResourceName,
   getSAMOutputName,
-  getSAMResourceLogicalId
+  getParameterNameFromSAMOutputName
 } from "../../utils/serverless/utils";
-import { KeywordDefinition } from "../../utils/keywords/types";
 
 export const loadPlugins = async (dir: string) => {
   const plugins = await _loadPlugins(dir);
@@ -108,8 +108,9 @@ export const runPluginPrepare = async (
   const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.prepare(dir, moduleHandler, mode, {
     getNodeRuntimeVersion,
-    getParameterNameFromSAMOutputName,
+    getSAMResourceLogicalId,
+    getSAMResourceName,
     getSAMOutputName,
-    getSAMResourceLogicalId
+    getParameterNameFromSAMOutputName
   });
 };

@@ -1,6 +1,6 @@
+import { KeywordDefinition } from "@somod/types";
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
-import { KeywordDefinition } from "../../utils/keywords/types";
 import { ModuleHandler } from "../../utils/moduleHandler";
 import { prepareSamTemplate } from "../../utils/serverless/serverlessTemplate/prepare";
 import { loadServerlessTemplateMap } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";

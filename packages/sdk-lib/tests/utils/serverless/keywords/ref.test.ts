@@ -1,10 +1,11 @@
-import { JSONObjectNode, parseJson } from "../../../../src/utils/jsonTemplate";
+import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { keywordRef } from "../../../../src/utils/serverless/keywords/ref";
 import { checkOutput } from "../../../../src/utils/serverless/keywords/output";
 import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
 import { checkCustomResourceSchema } from "../../../../src/utils/serverless/keywords/function";
 import { mockedFunction } from "@sodev/test-utils";
 import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";
+import { JSONObjectNode } from "@somod/types";
 
 jest.mock("../../../../src/utils/serverless/keywords/output", () => {
   return {

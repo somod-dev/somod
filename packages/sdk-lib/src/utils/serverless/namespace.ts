@@ -1,10 +1,11 @@
+import { NamespaceLoader } from "@somod/types";
 import { countBy } from "lodash";
 import {
   namespace_api_gateway,
   namespace_output,
   resourceType_Function
 } from "../constants";
-import { ModuleHandler, NamespaceLoader } from "../moduleHandler";
+import { ModuleHandler } from "../moduleHandler";
 import { keywordRef } from "./keywords/ref";
 import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
 

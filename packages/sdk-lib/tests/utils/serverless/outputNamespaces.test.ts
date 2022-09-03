@@ -4,10 +4,11 @@ import {
   listAllOutputs,
   loadOutputNamespaces
 } from "../../../src/utils/serverless/namespace";
-import { Module, ModuleHandler } from "../../../src/utils/moduleHandler";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
 import { dump } from "js-yaml";
 import { namespace_output } from "../../../src";
+import { Module } from "@somod/types";
 
 describe("Test util serverless.loadOutputNamespaces", () => {
   let dir: string = null;

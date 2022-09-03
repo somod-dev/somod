@@ -1,8 +1,8 @@
 import { getPath } from "../../jsonTemplate";
-import { KeywordDefinition } from "../../keywords/types";
 import { getSAMResourceLogicalId } from "../utils";
 import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
+import { KeywordDefinition } from "@somod/types";
 
 type DependsOn = { module?: string; resource: string }[];
 

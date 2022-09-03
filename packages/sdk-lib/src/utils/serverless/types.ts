@@ -1,4 +1,4 @@
-import { JSONType } from "../jsonTemplate";
+import { JSONType } from "@somod/types";
 
 export type ServerlessResource = Readonly<
   {

@@ -1,7 +1,5 @@
 /* eslint-disable */
 
-const { exit } = require("process");
-
 const [p, f, packageJsonFile, version] = process.argv;
 
 const update = async () => {
@@ -16,7 +14,6 @@ const update = async () => {
 
   packageJson.version = version;
   packageJson.dependencies["@somod/somod"] = version;
-  packageJson.dependencies["@sodev/sodev"] = "1.3.1"; // TODO: this must match the @sodev/sodev in peerDependency of @somod/somod
 
   await require("fs/promises").writeFile(
     packageJsonFile,

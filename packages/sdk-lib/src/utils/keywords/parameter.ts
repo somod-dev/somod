@@ -1,8 +1,7 @@
+import { KeywordDefinition, KeywordObjectReplacement } from "@somod/types";
 import { file_parametersYaml } from "../constants";
-import { KeywordObjectReplacement } from "../jsonTemplate";
 import { loadAllParameterValues } from "../parameters/load";
 import { listAllParameters } from "../parameters/namespace";
-import { KeywordDefinition } from "./types";
 
 export const keywordParameter: KeywordDefinition<string> = {
   keyword: "SOMOD::Parameter",

@@ -1,4 +1,9 @@
 import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
+import {
+  JSONObjectNode,
+  JSONPrimitiveNode,
+  KeywordDefinition
+} from "@somod/types";
 import { mkdirSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import {
@@ -8,8 +13,7 @@ import {
   path_serverless,
   resourceType_FunctionLayer
 } from "../../constants";
-import { getPath, JSONObjectNode, JSONPrimitiveNode } from "../../jsonTemplate";
-import { KeywordDefinition } from "../../keywords/types";
+import { getPath } from "../../jsonTemplate";
 import { ServerlessTemplate } from "../types";
 
 type FunctionLayerType = {

@@ -1,5 +1,5 @@
+import { KeywordDefinition, ModuleTemplate } from "@somod/types";
 import { getPath } from "../../jsonTemplate";
-import { KeywordDefinition, ModuleContent } from "../../keywords/types";
 import { ServerlessTemplate } from "../types";
 
 type Output = {
@@ -36,7 +36,7 @@ export const keywordOutput: KeywordDefinition<Output, ServerlessTemplate> = {
 };
 
 export const checkOutput = (
-  targetTemplate: ModuleContent<ServerlessTemplate>,
+  targetTemplate: ModuleTemplate<ServerlessTemplate>,
   targetResource: string,
   attribute?: string
 ): Error[] => {

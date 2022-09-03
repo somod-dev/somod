@@ -1,9 +1,10 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 import { loadPageNamespaces } from "../../../src/utils/nextJs/pages";
-import { Module, ModuleHandler } from "../../../src/utils/moduleHandler";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
 import { namespace_page } from "../../../src";
+import { Module } from "@somod/types";
 
 describe("Test util page.loadPageNamespaces", () => {
   let dir: string = null;

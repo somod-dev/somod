@@ -1,6 +1,13 @@
 import { listFiles, unixStylePath } from "@solib/cli-base";
 import { DataValidationError } from "@solib/errors";
 import { JSONSchema7, validate } from "@solib/json-validator";
+import {
+  JSONObjectNode,
+  JSONObjectType,
+  JSONPrimitiveNode,
+  KeywordDefinition,
+  ModuleTemplate
+} from "@somod/types";
 import { basename, extname, join } from "path";
 import {
   custom_resource_prefix,
@@ -9,14 +16,7 @@ import {
   path_serverless,
   resourceType_Function
 } from "../../constants";
-import {
-  constructJson,
-  getPath,
-  JSONObjectNode,
-  JSONObjectType,
-  JSONPrimitiveNode
-} from "../../jsonTemplate";
-import { KeywordDefinition, ModuleContent } from "../../keywords/types";
+import { constructJson, getPath } from "../../jsonTemplate";
 import { ServerlessTemplate } from "../types";
 
 type FunctionType = {
@@ -98,7 +98,7 @@ export const keywordFunction: KeywordDefinition<
 
 export const checkCustomResourceSchema = (
   refNode: JSONObjectNode,
-  targetTemplate: ModuleContent<ServerlessTemplate>,
+  targetTemplate: ModuleTemplate<ServerlessTemplate>,
   targetResource: string
 ): Error[] => {
   const errors: Error[] = [];

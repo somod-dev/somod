@@ -1,9 +1,9 @@
 import { file_parametersYaml } from "../../constants";
-import { getPath, JSONType } from "../../jsonTemplate";
-import { KeywordDefinition } from "../../keywords/types";
+import { getPath } from "../../jsonTemplate";
 import { listAllParameters } from "../../parameters/namespace";
 import { getSAMOutputName } from "../utils";
 import { ServerlessTemplate } from "../types";
+import { JSONType, KeywordDefinition } from "@somod/types";
 
 type Outputs = Record<string, JSONType>;
 

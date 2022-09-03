@@ -1,6 +1,5 @@
+import { JSONArrayType, JSONObjectType, KeywordDefinition } from "@somod/types";
 import { isArray } from "lodash";
-import { JSONArrayType, JSONObjectType } from "../jsonTemplate";
-import { KeywordDefinition } from "./types";
 
 export const keywordKey: KeywordDefinition<
   [JSONObjectType | JSONArrayType, string | number]

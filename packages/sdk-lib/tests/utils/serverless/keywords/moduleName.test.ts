@@ -1,4 +1,5 @@
-import { JSONObjectNode, parseJson } from "../../../../src/utils/jsonTemplate";
+import { JSONObjectNode } from "@somod/types";
+import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { keywordModuleName } from "../../../../src/utils/serverless/keywords/moduleName";
 
 describe("Test moduleName keyword", () => {

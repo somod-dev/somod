@@ -1,4 +1,5 @@
-import { JSONObjectNode, parseJson } from "../../../src/utils/jsonTemplate";
+import { JSONObjectNode } from "@somod/types";
+import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordJsonStringify } from "../../../src/utils/keywords/json-stringify";
 
 describe("Test json-stringify keyword", () => {

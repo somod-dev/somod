@@ -1,9 +1,5 @@
-import {
-  JSONArrayType,
-  JSONObjectNode,
-  JSONObjectType,
-  parseJson
-} from "../../../src/utils/jsonTemplate";
+import { JSONArrayType, JSONObjectNode, JSONObjectType } from "@somod/types";
+import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordKey } from "../../../src/utils/keywords/key";
 
 type ValueType = [JSONObjectType | JSONArrayType, string | number];

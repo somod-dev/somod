@@ -2,9 +2,10 @@ import { existsSync } from "fs";
 import { mkdir, readdir, stat, writeFile } from "fs/promises";
 import { dirname, join, relative } from "path";
 import { namespace_page, path_build, path_pages, path_ui } from "../constants";
-import { ModuleHandler, NamespaceLoader } from "../moduleHandler";
+import { ModuleHandler } from "../moduleHandler";
 import { get as getExports } from "../exports";
 import { unixStylePath } from "@solib/cli-base";
+import { NamespaceLoader } from "@somod/types";
 
 export const removeExtension = (pagePathWithExtension: string) => {
   let extension = "";

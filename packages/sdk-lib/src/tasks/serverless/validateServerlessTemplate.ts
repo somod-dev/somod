@@ -1,7 +1,7 @@
+import { KeywordDefinition } from "@somod/types";
 import { existsSync } from "fs";
 import { join } from "path";
 import { file_templateYaml, path_serverless } from "../../utils/constants";
-import { KeywordDefinition } from "../../utils/keywords/types";
 import { ModuleHandler } from "../../utils/moduleHandler";
 import { loadServerlessTemplateMap } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
 import { validateServerlessTemplate as _validateServerlessTemplate } from "../../utils/serverless/serverlessTemplate/validate";

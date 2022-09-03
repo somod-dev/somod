@@ -1,10 +1,7 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { Module, ModuleNode } from "@somod/types";
 import { join, normalize } from "path";
-import {
-  Module,
-  ModuleHandler,
-  ModuleNode
-} from "../../../src/utils/moduleHandler";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 
 const getRootModuleNode = async (dir: string) => {
   ModuleHandler.initialize(dir, []);

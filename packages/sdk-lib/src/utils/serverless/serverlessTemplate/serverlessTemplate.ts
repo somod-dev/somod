@@ -26,8 +26,6 @@ import { keywordModuleName } from "../keywords/moduleName";
 import { keywordOutput } from "../keywords/output";
 import { keywordRef } from "../keywords/ref";
 import { keywordResourceName } from "../keywords/resourceName";
-import { ModuleContent, ModuleContentMap } from "../../keywords/types";
-import { Module } from "../../moduleHandler";
 import { readYamlFileStore } from "../../yamlFileStore";
 import {
   ModuleServerlessTemplate,
@@ -37,6 +35,7 @@ import {
 import { keywordCreateIf } from "../keywords/createIf";
 import { keywordTemplateOutputs } from "../keywords/templateOutputs";
 import { keywordTemplateResources } from "../keywords/templateResources";
+import { Module, ModuleTemplate, ModuleTemplateMap } from "@somod/types";
 
 const loadBuiltServerlessTemplate = async (
   module: Module
@@ -109,10 +108,10 @@ export const loadServerlessTemplateMap = async (
 
 export const getModuleContentMap = (
   moduleServerlessTemplateMap: ModuleServerlessTemplateMap
-): ModuleContentMap<ServerlessTemplate> => {
+): ModuleTemplateMap<ServerlessTemplate> => {
   const moduleContentMap: Record<
     string,
-    ModuleContent<ServerlessTemplate>
+    ModuleTemplate<ServerlessTemplate>
   > = {};
 
   Object.keys(moduleServerlessTemplateMap).forEach(moduleName => {

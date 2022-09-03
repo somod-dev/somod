@@ -1,5 +1,6 @@
 import { readJsonFileStore } from "@solib/cli-base";
 import { JSONSchema7, validate } from "@solib/json-validator";
+import { Module } from "@somod/types";
 import { existsSync } from "fs";
 import { uniq } from "lodash";
 import { join } from "path";
@@ -8,7 +9,7 @@ import {
   file_parametersYaml,
   path_build
 } from "../constants";
-import { Module, ModuleHandler } from "../moduleHandler";
+import { ModuleHandler } from "../moduleHandler";
 import { readYamlFileStore } from "../yamlFileStore";
 import { listAllParameterSchemas } from "./namespace";
 import { Parameters, ParameterValues } from "./types";

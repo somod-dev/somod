@@ -1,4 +1,14 @@
 import { ErrorSet, readJsonFileStore } from "@solib/cli-base";
+import {
+  JSONType,
+  KeywordDefinition,
+  KeywordProcessor,
+  KeywordValidator,
+  Module,
+  ModuleTemplate,
+  ModuleTemplateMap,
+  NamespaceLoader
+} from "@somod/types";
 import { existsSync } from "fs";
 import { mkdir, writeFile } from "fs/promises";
 import { isString, sortBy, uniqBy } from "lodash";
@@ -13,14 +23,7 @@ import {
   path_ui
 } from "../constants";
 import { freeze } from "../freeze";
-import {
-  JSONType,
-  KeywordProcessor,
-  KeywordValidator,
-  parseJson,
-  processKeywords,
-  validateKeywords
-} from "../jsonTemplate";
+import { parseJson, processKeywords, validateKeywords } from "../jsonTemplate";
 import { keywordAjvCompile } from "../keywords/ajv-compile";
 import { keywordAnd } from "../keywords/and";
 import { keywordEquals } from "../keywords/equals";
@@ -30,12 +33,7 @@ import { keywordJsonStringify } from "../keywords/json-stringify";
 import { keywordKey } from "../keywords/key";
 import { keywordOr } from "../keywords/or";
 import { keywordParameter } from "../keywords/parameter";
-import {
-  KeywordDefinition,
-  ModuleContent,
-  ModuleContentMap
-} from "../keywords/types";
-import { Module, ModuleHandler, NamespaceLoader } from "../moduleHandler";
+import { ModuleHandler } from "../moduleHandler";
 import { readYamlFileStore } from "../yamlFileStore";
 
 const getBaseKeywords = () => [
@@ -89,8 +87,8 @@ export const loadConfigNamespaces: NamespaceLoader = async module => {
 
 export const getModuleContentMap = async (
   modules: Module[]
-): Promise<ModuleContentMap<Config>> => {
-  const moduleContentMap: Record<string, ModuleContent<Config>> = {};
+): Promise<ModuleTemplateMap<Config>> => {
+  const moduleContentMap: Record<string, ModuleTemplate<Config>> = {};
 
   await Promise.all(
     modules.map(async module => {

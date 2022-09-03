@@ -1,3 +1,4 @@
+import { NamespaceLoader } from "@somod/types";
 import { existsSync } from "fs";
 import { readdir, stat, mkdir, copyFile } from "fs/promises";
 import { dirname, join } from "path";
@@ -7,7 +8,7 @@ import {
   path_public,
   path_ui
 } from "../constants";
-import { ModuleHandler, NamespaceLoader } from "../moduleHandler";
+import { ModuleHandler } from "../moduleHandler";
 
 export const linkAsset = async (from: string, to: string) => {
   await mkdir(dirname(to), { recursive: true });

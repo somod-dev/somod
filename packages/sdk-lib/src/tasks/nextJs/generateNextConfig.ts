@@ -1,8 +1,8 @@
 import { unixStylePath } from "@solib/cli-base";
+import { KeywordDefinition } from "@somod/types";
 import { writeFile } from "fs/promises";
 import { join, relative } from "path";
 import { file_dotenv, file_nextConfigJs } from "../../utils/constants";
-import { KeywordDefinition } from "../../utils/keywords/types";
 import { Config, generateCombinedConfig } from "../../utils/nextJs/config";
 
 const generateDotEnvFile = async (

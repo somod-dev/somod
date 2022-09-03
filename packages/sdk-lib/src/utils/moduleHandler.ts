@@ -5,31 +5,19 @@ import { dirname, join, normalize } from "path";
 import { file_packageJson, key_somod, path_nodeModules } from "./constants";
 import { Node, bfs } from "@solib/graph";
 import { freeze } from "./freeze";
-
-export type Module = Readonly<{
-  name: string;
-  version: string;
-  packageLocation: string;
-  namespaces: Readonly<Record<string, string[]>>;
-  root?: boolean;
-}>;
-
-export type NamespaceLoader = (
-  module: Module
-) => Promise<Record<string, string[]>>;
-
-export type ModuleNode = Readonly<{
-  module: Module;
-  parents: ModuleNode[];
-  children: ModuleNode[];
-}>;
+import {
+  Module,
+  ModuleHandler as ModuleHandlerAbstractClass,
+  ModuleNode,
+  NamespaceLoader
+} from "@somod/types";
 
 type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
 
 type MutableModule = DeepWriteable<Module>;
 type MutableModuleNode = DeepWriteable<ModuleNode>;
 
-export class ModuleHandler {
+export class ModuleHandler implements ModuleHandlerAbstractClass {
   private rootDir: string;
   private namespaceLoaders: NamespaceLoader[] = [];
 
@@ -397,7 +385,6 @@ export class ModuleHandler {
 
   /**
    * load and resolve the namespaces
-   * @param loader NamespaceLoader , namespaceLoader must make sure that namespaces are not repeated in same module
    * @returns Map of NamespaceKey to (Map of namespace to moduleName)
    */
   async getNamespaces() {

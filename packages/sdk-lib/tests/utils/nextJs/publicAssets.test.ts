@@ -1,8 +1,9 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { loadPublicAssetNamespaces } from "../../../src/utils/nextJs/publicAssets";
-import { Module, ModuleHandler } from "../../../src/utils/moduleHandler";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
 import { namespace_public } from "../../../src";
+import { Module } from "@somod/types";
 
 describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
   let dir: string = null;

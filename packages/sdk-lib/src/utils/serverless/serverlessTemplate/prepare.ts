@@ -1,10 +1,5 @@
-import {
-  JSONType,
-  KeywordProcessor,
-  parseJson,
-  processKeywords
-} from "../../jsonTemplate";
-import { KeywordDefinition } from "../../keywords/types";
+import { KeywordDefinition, KeywordProcessor } from "@somod/types";
+import { parseJson, processKeywords } from "../../jsonTemplate";
 import { listAllOutputs } from "../namespace";
 
 import {
@@ -51,7 +46,7 @@ export const prepareSamTemplate = async (
         );
 
         const processedTemplate = processKeywords(
-          parseJson(moduleContentMap[moduleName].json as JSONType),
+          parseJson(moduleContentMap[moduleName].json),
           keywordProcessors
         ) as SAMTemplate;
 

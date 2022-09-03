@@ -1,10 +1,5 @@
 import { mockedFunction } from "@sodev/test-utils";
-import {
-  JSONObjectNode,
-  JSONObjectType,
-  JSONType,
-  parseJson
-} from "../../../../src/utils/jsonTemplate";
+import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { listFiles } from "@solib/cli-base";
 import {
   checkCustomResourceSchema,
@@ -14,6 +9,7 @@ import {
 import { keywordRef } from "../../../../src/utils/serverless/keywords/ref";
 import { join } from "path";
 import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
+import { JSONObjectNode, JSONObjectType, JSONType } from "@somod/types";
 
 jest.mock("@solib/cli-base", () => {
   const original = jest.requireActual("@solib/cli-base");

@@ -1,3 +1,4 @@
+import { ModuleNode } from "@somod/types";
 import { mkdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import {
@@ -5,7 +6,7 @@ import {
   file_parametersYaml,
   path_build
 } from "../constants";
-import { ModuleHandler, ModuleNode } from "../moduleHandler";
+import { ModuleHandler } from "../moduleHandler";
 import { readYamlFileStore } from "../yamlFileStore";
 import { loadParameters } from "./load";
 

@@ -1,5 +1,6 @@
 import { mockedFunction } from "@sodev/test-utils";
-import { JSONObjectNode, parseJson } from "../../../../src/utils/jsonTemplate";
+import { JSONObjectNode } from "@somod/types";
+import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
 import { keywordDependsOn } from "../../../../src/utils/serverless/keywords/dependsOn";
 

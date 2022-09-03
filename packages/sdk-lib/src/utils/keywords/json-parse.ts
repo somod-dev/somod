@@ -1,4 +1,4 @@
-import { KeywordDefinition } from "./types";
+import { KeywordDefinition } from "@somod/types";
 
 export const keywordJsonParse: KeywordDefinition<string> = {
   keyword: "SOMOD::JsonParse",

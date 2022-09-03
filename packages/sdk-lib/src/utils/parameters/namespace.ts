@@ -1,9 +1,10 @@
+import { Module, NamespaceLoader } from "@somod/types";
 import {
   namespace_parameter,
   namespace_parameterGroup,
   namespace_parameterSchema
 } from "../constants";
-import { Module, ModuleHandler, NamespaceLoader } from "../moduleHandler";
+import { ModuleHandler } from "../moduleHandler";
 import { loadParameters } from "./load";
 
 export const loadParameterNamespaces: NamespaceLoader = async (

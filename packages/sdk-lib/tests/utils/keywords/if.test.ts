@@ -1,8 +1,5 @@
-import {
-  JSONArrayType,
-  JSONObjectNode,
-  parseJson
-} from "../../../src/utils/jsonTemplate";
+import { JSONArrayType, JSONObjectNode } from "@somod/types";
+import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordIf } from "../../../src/utils/keywords/if";
 
 describe("Test if keyword", () => {
