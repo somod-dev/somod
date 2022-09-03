@@ -3,7 +3,9 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { build } from "../../../src/utils/parameters/build";
+import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 
 describe("Test Util parameters.build", () => {
   let dir: string = null;
@@ -17,6 +19,7 @@ describe("Test Util parameters.build", () => {
         somod: "1.0.0"
       })
     });
+    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {

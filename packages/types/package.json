@@ -1,0 +1,36 @@
+{
+  "name": "@somod/types",
+  "version": "1.12.0",
+  "description": "Type Definitions for somod",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/types#readme",
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "bugs": {
+    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+  },
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+  },
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "tsc": "npx tsc",
+    "build": "npm run clean && npm run tsc",
+    "pretest": "$CI || npm run build",
+    "test": "echo 'No tests defined'"
+  },
+  "keywords": [
+    "somod",
+    "typescript",
+    "ts",
+    "sodaru"
+  ],
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "^4.5.5"
+  }
+}

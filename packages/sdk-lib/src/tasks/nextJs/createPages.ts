@@ -13,9 +13,9 @@ import {
 } from "../../utils/nextJs/pages";
 
 export const createPages = async (dir: string): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
 
-  const allPages = await listAllPages(dir);
+  const allPages = await listAllPages();
 
   await Promise.all(
     Object.keys(allPages).map(async page => {

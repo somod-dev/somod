@@ -3,13 +3,15 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { buildServerlessTemplate } from "../../../src";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
+import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { StringifyTemplate } from "../../utils/serverless/utils";
 describe("Test Task buildServerlessTemplate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {
@@ -86,6 +88,6 @@ describe("Test Task buildServerlessTemplate", () => {
       readFile(join(dir, "build", "serverless", "template.json"), {
         encoding: "utf8"
       })
-    ).resolves.toEqual(StringifyTemplate(template));
+    ).resolves.toEqual(JSON.stringify(template));
   });
 });

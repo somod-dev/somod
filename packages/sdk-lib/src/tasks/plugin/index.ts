@@ -1,27 +1,35 @@
 import { ModuleHandler } from "../../utils/moduleHandler";
-import { Mode, Plugin } from "../../utils/plugin/types";
 import { loadPlugins as _loadPlugins } from "../../utils/plugin/loadPlugins";
+import { KeywordDefinition, Mode, Plugin } from "@somod/types";
 import {
   getNodeRuntimeVersion,
-  getParameterNameFromSAMOutputName,
+  getSAMResourceLogicalId,
+  getSAMResourceName,
   getSAMOutputName,
-  getSAMResourceLogicalId
+  getParameterNameFromSAMOutputName
 } from "../../utils/serverless/utils";
-import { Filter } from "../../utils/parameters/filters";
 
 export const loadPlugins = async (dir: string) => {
   const plugins = await _loadPlugins(dir);
-  const init = plugins.filter(p => p.plugin.init);
-  const namespace = plugins.filter(p => p.plugin.namespaceLoader);
+  const namespaceLoaders = plugins
+    .filter(p => p.plugin.namespaceLoader)
+    .map(p => p.plugin.namespaceLoader);
   const prebuild = plugins.filter(p => p.plugin.prebuild).reverse();
   const build = plugins.filter(p => p.plugin.build);
   const preprepare = plugins.filter(p => p.plugin.preprepare).reverse();
   const prepare = plugins.filter(p => p.plugin.prepare);
 
-  const parameterFilters = plugins.reduce((agg, p) => {
-    agg = { ...agg, ...(p.plugin.parameterFilters || {}) };
-    return agg;
-  }, {} as Plugin["parameterFilters"]);
+  const uiKeywords: KeywordDefinition[] = [];
+  const serverlessKeywords: KeywordDefinition[] = [];
+
+  plugins.forEach(p => {
+    if (p.plugin.keywords?.uiConfig) {
+      uiKeywords.push(...p.plugin.keywords.uiConfig);
+    }
+    if (p.plugin.keywords?.serverless) {
+      serverlessKeywords.push(...p.plugin.keywords.serverless);
+    }
+  });
 
   const compilerOptions = plugins.reduce((agg, p) => {
     return { ...agg, ...p.plugin.tsconfig?.compilerOptions };
@@ -42,9 +50,9 @@ export const loadPlugins = async (dir: string) => {
   }, []) as string[];
 
   return {
-    init,
-    namespace,
-    parameterFilters,
+    namespaceLoaders,
+    uiKeywords,
+    serverlessKeywords,
     prebuild,
     build,
     preprepare,
@@ -62,43 +70,12 @@ export const loadPlugins = async (dir: string) => {
 };
 
 /* istanbul ignore next */
-export const runPluginInit = async (
-  dir: string,
-  plugin: Plugin,
-  mode: Mode
-) => {
-  await plugin.init(dir, mode);
-};
-
-/* istanbul ignore next */
-export const loadPluginNamespace = async (
-  dir: string,
-  plugin: Plugin,
-  mode: Mode
-) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
-  await moduleHandler.getNamespaces(async module => {
-    plugin.namespaceLoader(module, mode);
-  });
-};
-
-/* istanbul ignore next */
-export const loadPluginParameterFilters = async (
-  parameterFilters: Plugin["parameterFilters"]
-) => {
-  const filter = Filter.getFilter();
-  Object.keys(parameterFilters).forEach(filterName => {
-    filter.register(filterName, parameterFilters[filterName]);
-  });
-};
-
-/* istanbul ignore next */
 export const runPluginPrebuild = async (
   dir: string,
   plugin: Plugin,
   mode: Mode
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.prebuild(dir, moduleHandler, mode);
 };
 
@@ -108,7 +85,7 @@ export const runPluginBuild = async (
   plugin: Plugin,
   mode: Mode
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.build(dir, moduleHandler, mode);
 };
 
@@ -118,7 +95,7 @@ export const runPluginPreprepare = async (
   plugin: Plugin,
   mode: Mode
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.preprepare(dir, moduleHandler, mode);
 };
 
@@ -128,11 +105,12 @@ export const runPluginPrepare = async (
   plugin: Plugin,
   mode: Mode
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
   await plugin.prepare(dir, moduleHandler, mode, {
     getNodeRuntimeVersion,
-    getParameterNameFromSAMOutputName,
+    getSAMResourceLogicalId,
+    getSAMResourceName,
     getSAMOutputName,
-    getSAMResourceLogicalId
+    getParameterNameFromSAMOutputName
   });
 };

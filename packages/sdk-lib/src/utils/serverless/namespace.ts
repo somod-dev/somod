@@ -1,12 +1,13 @@
+import { NamespaceLoader } from "@somod/types";
 import { countBy } from "lodash";
 import {
-  namespace_export_parameter,
-  namespace_http_api,
+  namespace_api_gateway,
+  namespace_output,
   resourceType_Function
 } from "../constants";
-import { Module } from "../moduleHandler";
-import { loadOriginalSlpTemplate, NoSLPTemplateError } from "./slpTemplate";
-import { KeywordSOMODOutput } from "./types";
+import { ModuleHandler } from "../moduleHandler";
+import { keywordRef } from "./keywords/ref";
+import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
 
 const detectDuplicateNamespaces = (
   namespaces: string[],
@@ -22,7 +23,7 @@ const detectDuplicateNamespaces = (
   }
   if (repeatedNamespaces.length > 0) {
     throw new Error(
-      `Following ${namespaceType} are repeated in ${moduleName}\n${repeatedNamespaces
+      `Following routes for ${namespaceType} are repeated in ${moduleName}\n${repeatedNamespaces
         .map(a => " - " + a)
         .join("\n")}`
     );
@@ -33,73 +34,99 @@ const detectDuplicateNamespaces = (
 type FunctionResourceProperties = Record<string, unknown> & {
   Events?: Record<
     string,
-    {
-      Type: string;
-      Properties: Record<string, unknown> & {
-        Method: string;
-        Path: string;
-      };
-    }
+    | {
+        Type: "Api";
+        Properties: Record<string, unknown> & {
+          Method: string;
+          Path: string;
+          RestApiId: {
+            "SOMOD::Ref": {
+              module?: string;
+              resource: string;
+            };
+          };
+        };
+      }
+    | {
+        Type: "HttpApi";
+        Properties: Record<string, unknown> & {
+          Method: string;
+          Path: string;
+          ApiId: {
+            "SOMOD::Ref": {
+              module?: string;
+              resource: string;
+            };
+          };
+        };
+      }
   >;
 };
 
-export const loadHttpApiNamespaces = async (module: Module) => {
-  if (!module.namespaces[namespace_http_api]) {
-    const namespaces = [];
-    try {
-      const originalSlpTemplate = await loadOriginalSlpTemplate(module);
+export const loadApiRouteNamespaces: NamespaceLoader = async module => {
+  const namespaces: Record<string, string[]> = {};
+  const moduleServerlessTemplate = await loadServerlessTemplate(module);
 
-      Object.values(originalSlpTemplate.Resources).forEach(resource => {
-        if (resource.Type == resourceType_Function) {
-          const resourceProperties =
-            resource.Properties as FunctionResourceProperties;
-          Object.values(resourceProperties.Events || {}).forEach(event => {
-            if (event.Type == "HttpApi") {
-              namespaces.push(
-                `${event.Properties.Method} ${event.Properties.Path}`
-              );
+  if (moduleServerlessTemplate) {
+    const serverlessTemplate = moduleServerlessTemplate.template;
+
+    Object.values(serverlessTemplate.Resources).forEach(resource => {
+      if (resource.Type == resourceType_Function) {
+        const resourceProperties =
+          resource.Properties as FunctionResourceProperties;
+        Object.values(resourceProperties.Events || {}).forEach(event => {
+          let apiRef: {
+            module?: string;
+            resource: string;
+          };
+          if (event.Type == "HttpApi") {
+            apiRef = event.Properties.ApiId[keywordRef.keyword];
+          } else if (event.Type == "Api") {
+            apiRef = event.Properties.RestApiId[keywordRef.keyword];
+          }
+
+          if (apiRef) {
+            const apiNamespaceName = `${namespace_api_gateway} ${
+              apiRef.module || module.name
+            } ${apiRef.resource}`;
+            if (!namespaces[apiNamespaceName]) {
+              namespaces[apiNamespaceName] = [];
             }
-          });
-        }
-      });
-
-      detectDuplicateNamespaces(namespaces, namespace_http_api, module.name);
-    } catch (e) {
-      if (!(e instanceof NoSLPTemplateError)) {
-        throw e;
+            namespaces[apiNamespaceName].push(
+              `${event.Properties.Method} ${event.Properties.Path}`
+            );
+          }
+        });
       }
-    }
-    module.namespaces[namespace_http_api] = namespaces;
-  }
-};
+    });
 
-export const loadExportParameterNamespaces = async (module: Module) => {
-  if (!module.namespaces[namespace_export_parameter]) {
-    const namespaces = [];
-    try {
-      const originalSlpTemplate = await loadOriginalSlpTemplate(module);
-
-      Object.values(originalSlpTemplate.Resources).forEach(resource => {
-        if (
-          resource[KeywordSOMODOutput] &&
-          resource[KeywordSOMODOutput].export
-        ) {
-          namespaces.push(
-            ...Object.values(resource[KeywordSOMODOutput].export)
-          );
-        }
-      });
-
+    Object.keys(namespaces).forEach(apiNamespaceName => {
       detectDuplicateNamespaces(
-        namespaces,
-        namespace_export_parameter,
+        namespaces[apiNamespaceName],
+        apiNamespaceName,
         module.name
       );
-    } catch (e) {
-      if (!(e instanceof NoSLPTemplateError)) {
-        throw e;
-      }
-    }
-    module.namespaces[namespace_export_parameter] = namespaces;
+    });
   }
+
+  return namespaces;
+};
+
+export const loadOutputNamespaces: NamespaceLoader = async module => {
+  const namespaces = [];
+  const moduleServerlessTemplate = await loadServerlessTemplate(module);
+
+  if (moduleServerlessTemplate) {
+    const serverlessTemplate = moduleServerlessTemplate.template;
+
+    namespaces.push(...Object.keys(serverlessTemplate.Outputs || {}));
+  }
+
+  return { [namespace_output]: namespaces };
+};
+
+export const listAllOutputs = async () => {
+  const moduleHandler = ModuleHandler.getModuleHandler();
+  const namespaces = await moduleHandler.getNamespaces();
+  return namespaces[namespace_output] || {};
 };

@@ -1,28 +1,29 @@
-import {
-  KeywordSOMODResourceName,
-  ServerlessTemplate,
-  SOMODResourceName
-} from "../types";
-import {
-  getSAMResourceName,
-  getSOMODKeyword,
-  replaceSOMODKeyword
-} from "../utils";
+import { JSONType, KeywordDefinition } from "@somod/types";
+import { getSAMResourceName } from "../utils";
 
-export const apply = (serverlessTemplate: ServerlessTemplate) => {
-  Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSOMODResourceName].forEach(
-      resourceNamePath => {
-        const resourceName = getSOMODKeyword<SOMODResourceName>(
-          slpTemplate,
-          resourceNamePath
-        )[KeywordSOMODResourceName];
-        replaceSOMODKeyword(
-          slpTemplate,
-          resourceNamePath,
-          getSAMResourceName(slpTemplate.module, resourceName)
-        );
-      }
-    );
-  });
+export const keyword = "SOMOD::ResourceName";
+
+export const keywordResourceName: KeywordDefinition<string> = {
+  keyword: "SOMOD::ResourceName",
+
+  getValidator: async () => (keyword, node, value) => {
+    const errors: Error[] = [];
+
+    if (Object.keys(node.properties).length > 1) {
+      errors.push(
+        new Error(`Object with ${keyword} must not have additional properties`)
+      );
+    } else if (typeof value != "string") {
+      errors.push(new Error(`${keyword} value must be string`));
+    }
+
+    return errors;
+  },
+
+  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
+    return {
+      type: "object",
+      value: getSAMResourceName(moduleName, value) as JSONType
+    };
+  }
 };

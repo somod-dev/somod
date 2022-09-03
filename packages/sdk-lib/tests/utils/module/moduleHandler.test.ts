@@ -1,17 +1,16 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { Module, ModuleNode } from "@somod/types";
 import { join, normalize } from "path";
-import {
-  Module,
-  ModuleHandler,
-  ModuleNode
-} from "../../../src/utils/moduleHandler";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 
 const getRootModuleNode = async (dir: string) => {
-  return await ModuleHandler.getModuleHandler(dir).getRoodModuleNode();
+  ModuleHandler.initialize(dir, []);
+  return await ModuleHandler.getModuleHandler().getRoodModuleNode();
 };
 
 const listModules = async (dir: string) => {
-  return await ModuleHandler.getModuleHandler(dir).listModules();
+  ModuleHandler.initialize(dir, []);
+  return await ModuleHandler.getModuleHandler().listModules();
 };
 
 describe("Test util getRootModuleNode with invalid input", () => {
@@ -171,6 +170,7 @@ const template = (
       const actualSerialized = serializeModuleNode(actual);
 
       Object.values(expected.nodes).forEach(mn => {
+        //@ts-expect-error this is fine
         mn.packageLocation = join(dir, mn.packageLocation);
       });
 
@@ -191,7 +191,6 @@ template(
   {
     nodes: {
       m1: {
-        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -223,7 +222,6 @@ template(
   {
     nodes: {
       m1: {
-        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -263,7 +261,6 @@ template(
   {
     nodes: {
       m1: {
-        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -304,7 +301,6 @@ template(
   {
     nodes: {
       m1: {
-        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -312,14 +308,12 @@ template(
         root: true
       },
       m2: {
-        type: "somod",
         name: "m2",
         version: "0.0.2",
         packageLocation: "node_modules/m2",
         namespaces: {}
       },
       m3: {
-        type: "somod",
         name: "m3",
         version: "0.0.3",
         packageLocation: "node_modules/m3",
@@ -376,7 +370,6 @@ template(
   {
     nodes: {
       m1: {
-        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -384,7 +377,6 @@ template(
         root: true
       },
       m2: {
-        type: "somod",
         name: "m2",
         version: "0.0.2",
         packageLocation: "node_modules/m2",
@@ -430,7 +422,6 @@ template(
   {
     nodes: {
       m1: {
-        type: "somod",
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
@@ -438,14 +429,12 @@ template(
         root: true
       },
       "@s/m2": {
-        type: "somod",
         name: "@s/m2",
         version: "0.0.2",
         packageLocation: "node_modules/@s/m2",
         namespaces: {}
       },
       m3: {
-        type: "somod",
         name: "m3",
         version: "0.0.3",
         packageLocation: "node_modules/m3",

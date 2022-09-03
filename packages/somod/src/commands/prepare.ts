@@ -10,13 +10,13 @@ import {
   findRootDir,
   generateNextConfig,
   generateRootParameters,
-  generateSAMTemplate,
-  loadPluginParameterFilters,
+  prepareSAMTemplate,
   loadPlugins,
   path_pages,
   path_public,
   runPluginPrepare,
-  runPluginPreprepare
+  runPluginPreprepare,
+  initializeModuleHandler
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -37,6 +37,14 @@ export const PrepareAction = async ({
 
   const plugins = await loadPlugins(dir);
 
+  await taskRunner(
+    `Initialize ModuleHandler`,
+    initializeModuleHandler,
+    verbose,
+    dir,
+    plugins.namespaceLoaders
+  );
+
   await Promise.all(
     plugins.preprepare.map(plugin =>
       taskRunner(
@@ -51,13 +59,6 @@ export const PrepareAction = async ({
         }
       )
     )
-  );
-
-  await taskRunner(
-    `Register Parameter Filters from plugins`,
-    loadPluginParameterFilters,
-    verbose,
-    plugins.parameterFilters
   );
 
   if (ui) {
@@ -87,15 +88,17 @@ export const PrepareAction = async ({
       `Gernerate /${file_nextConfigJs} and /${file_dotenv}`,
       generateNextConfig,
       verbose,
-      dir
+      dir,
+      plugins.uiKeywords
     );
   }
   if (serverless) {
     await taskRunner(
       `Generate /${file_templateYaml}`,
-      generateSAMTemplate,
+      prepareSAMTemplate,
       verbose,
-      dir
+      dir,
+      plugins.serverlessKeywords
     );
   }
 

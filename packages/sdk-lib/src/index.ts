@@ -2,9 +2,7 @@ export * from "./findRootDir";
 
 export * from "./tasks/packageJson";
 
-export * from "./tasks/ignoreFile";
-
-export * from "./tasks/tsConfigBuildJson";
+export * from "./tasks/tsConfigSomodJson";
 
 export * from "./tasks/common";
 

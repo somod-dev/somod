@@ -4,12 +4,20 @@ import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
 import {
+  namespace_env_config,
+  namespace_public_runtime_config,
+  namespace_server_runtime_config
+} from "../../../src";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
+import {
   Config,
   loadConfig,
   loadConfigNamespaces,
-  buildConfig,
+  validate,
+  build,
   generateCombinedConfig
 } from "../../../src/utils/nextJs/config";
+import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 
 describe("Test Util nextjs.loadConfig", () => {
   let dir: string = null;
@@ -26,7 +34,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -38,7 +45,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir,
@@ -55,7 +61,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -73,7 +78,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -91,7 +95,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir,
@@ -113,7 +116,6 @@ describe("Test Util nextjs.loadConfig", () => {
     await expect(
       loadConfig({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -141,14 +143,11 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       namespaces: {},
       packageLocation: dir
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": [],
-        "UI Public Runtime Config": [],
-        "UI Server Runtime Config": []
-      }
+
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: [],
+      [namespace_public_runtime_config]: [],
+      [namespace_server_runtime_config]: []
     });
   });
 
@@ -161,14 +160,10 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       packageLocation: dir,
       root: true
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": [],
-        "UI Public Runtime Config": [],
-        "UI Server Runtime Config": []
-      }
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: [],
+      [namespace_public_runtime_config]: [],
+      [namespace_server_runtime_config]: []
     });
   });
 
@@ -183,14 +178,10 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       namespaces: {},
       packageLocation: dir
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": [],
-        "UI Public Runtime Config": [],
-        "UI Server Runtime Config": []
-      }
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: [],
+      [namespace_public_runtime_config]: [],
+      [namespace_server_runtime_config]: []
     });
   });
 
@@ -211,14 +202,13 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       namespaces: {},
       packageLocation: dir
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": Object.keys(config.env),
-        "UI Public Runtime Config": Object.keys(config.publicRuntimeConfig),
-        "UI Server Runtime Config": Object.keys(config.serverRuntimeConfig)
-      }
+
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: Object.keys(config.env),
+      [namespace_public_runtime_config]: Object.keys(
+        config.publicRuntimeConfig
+      ),
+      [namespace_server_runtime_config]: Object.keys(config.serverRuntimeConfig)
     });
   });
 
@@ -240,23 +230,85 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
       packageLocation: dir,
       root: true
     };
-    await expect(loadConfigNamespaces(module)).resolves.toBeUndefined();
-    expect(module).toEqual({
-      ...module,
-      namespaces: {
-        "UI Env Config": Object.keys(config.env),
-        "UI Public Runtime Config": Object.keys(config.publicRuntimeConfig),
-        "UI Server Runtime Config": Object.keys(config.serverRuntimeConfig)
-      }
+    await expect(loadConfigNamespaces(module)).resolves.toEqual({
+      [namespace_env_config]: Object.keys(config.env),
+      [namespace_public_runtime_config]: Object.keys(
+        config.publicRuntimeConfig
+      ),
+      [namespace_server_runtime_config]: Object.keys(config.serverRuntimeConfig)
     });
   });
 });
 
-describe("Test Util nextJs.buildConfig", () => {
+describe("Test Util nextJs.validate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [
+      loadConfigNamespaces,
+      loadParameterNamespaces
+    ]);
+    createFiles(dir, {
+      "package.json": JSON.stringify({
+        name: "my-module",
+        version: "1.0.0",
+        somod: "1.0.0"
+      })
+    });
+  });
+
+  afterEach(() => {
+    deleteDir(dir);
+  });
+
+  test("for empty object in ui/config.yaml", async () => {
+    createFiles(dir, { "ui/config.yaml": dump({}) });
+    await expect(validate(dir)).resolves.toBeUndefined();
+  });
+
+  test("for no config in ui/config.yaml", async () => {
+    createFiles(dir, { "ui/config.yaml": dump({ env: {} } as Config) });
+    await expect(validate(dir)).resolves.toBeUndefined();
+  });
+
+  test("for one config in ui/config.yaml", async () => {
+    const config: Config = {
+      env: { MY_ENV1: { "SOMOD::Parameter": "my.param1" } }
+    };
+    createFiles(dir, {
+      "ui/config.yaml": dump(config),
+      "parameters.yaml": dump({
+        Parameters: { "my.param1": { type: "text", default: "1" } }
+      })
+    });
+    await expect(validate(dir)).resolves.toBeUndefined();
+  });
+
+  test("for invalid parameter in ui/config.yaml", async () => {
+    createFiles(dir, {
+      "ui/config.yaml": dump({
+        env: { MY_ENV1: { "SOMOD::Parameter": "my.param1" } }
+      })
+    });
+    await expect(validate(dir)).rejects.toEqual(
+      new Error(
+        `Error at env.MY_ENV1 : parameter my.param1 referenced by SOMOD::Parameter does not exist. Define my.param1 in /parameters.yaml`
+      )
+    );
+    expect(existsSync(join(dir, "build/ui/config.json"))).not.toBeTruthy();
+  });
+});
+
+describe("Test Util nextJs.build", () => {
+  let dir: string = null;
+
+  beforeEach(async () => {
+    dir = createTempDir();
+    ModuleHandler.initialize(dir, [
+      loadConfigNamespaces,
+      loadParameterNamespaces
+    ]);
     createFiles(dir, {
       "package.json": JSON.stringify({
         name: "my-module",
@@ -271,7 +323,7 @@ describe("Test Util nextJs.buildConfig", () => {
   });
 
   test("for no ui/config.yaml", async () => {
-    await expect(buildConfig(dir)).rejects.toMatchObject({
+    await expect(build(dir)).rejects.toMatchObject({
       message: `ENOENT: no such file or directory, open '${join(
         dir,
         "ui/config.yaml"
@@ -281,7 +333,7 @@ describe("Test Util nextJs.buildConfig", () => {
 
   test("for empty ui/config.yaml", async () => {
     createFiles(dir, { "ui/config.yaml": "" });
-    await expect(buildConfig(dir)).resolves.toBeUndefined();
+    await expect(build(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}");
@@ -289,7 +341,7 @@ describe("Test Util nextJs.buildConfig", () => {
 
   test("for empty object in ui/config.yaml", async () => {
     createFiles(dir, { "ui/config.yaml": dump({}) });
-    await expect(buildConfig(dir)).resolves.toBeUndefined();
+    await expect(build(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}");
@@ -297,7 +349,7 @@ describe("Test Util nextJs.buildConfig", () => {
 
   test("for no config in ui/config.yaml", async () => {
     createFiles(dir, { "ui/config.yaml": dump({ env: {} } as Config) });
-    await expect(buildConfig(dir)).resolves.toBeUndefined();
+    await expect(build(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual('{"env":{}}');
@@ -313,25 +365,10 @@ describe("Test Util nextJs.buildConfig", () => {
         Parameters: { "my.param1": { type: "text", default: "1" } }
       })
     });
-    await expect(buildConfig(dir)).resolves.toBeUndefined();
+    await expect(build(dir)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual(JSON.stringify(config));
-  });
-
-  test("for invalid parameter in ui/config.yaml", async () => {
-    const config: Config = {
-      env: { MY_ENV1: { "SOMOD::Parameter": "my.param1" } }
-    };
-    createFiles(dir, {
-      "ui/config.yaml": dump(config)
-    });
-    await expect(buildConfig(dir)).rejects.toEqual(
-      new Error(
-        `Following parameters referenced from 'ui/config.yaml' are not found\n - my.param1`
-      )
-    );
-    expect(existsSync(join(dir, "build/ui/config.json"))).not.toBeTruthy();
   });
 });
 
@@ -340,6 +377,10 @@ describe("test util nextJs.generateCombinedConfig", () => {
 
   beforeEach(async () => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [
+      loadConfigNamespaces,
+      loadParameterNamespaces
+    ]);
   });
 
   afterEach(() => {
@@ -356,6 +397,20 @@ describe("test util nextJs.generateCombinedConfig", () => {
           m2: "^1.0.0",
           m3: "^1.0.0"
         }
+      }),
+      "parameters.json": JSON.stringify({
+        "m1.p1": "M1_P1",
+        "m1.p2": "M1_P2",
+        "m1.p3": "M1_P3",
+        "m2.p1": "M2_P1",
+        "m2.p2": "M2_P2",
+        "m2.p3": "M2_P3",
+        "m3.p1": "M3_P1",
+        "m4.p1": "M4_P1",
+        "m4.p2": "M4_P2",
+        "m4.p3": "M4_P3",
+        "m4.p4": "M4_P4",
+        "m4.p5": "M4_P5"
       }),
       "ui/config.yaml": dump({
         env: {
@@ -433,30 +488,18 @@ describe("test util nextJs.generateCombinedConfig", () => {
     const result = await generateCombinedConfig(dir);
     expect(result).toEqual({
       env: {
-        MY_ENV1: { "SOMOD::Parameter": "m1.p1" },
-        MY_ENV2: { "SOMOD::Parameter": "m4.p2" },
-        MY_ENV3: { "SOMOD::Parameter": "m2.p2" }
+        MY_ENV1: "M1_P1",
+        MY_ENV2: "M4_P2",
+        MY_ENV3: "M2_P2"
       },
-      imageDomains: [
-        "sodaru.com",
-        "somod.sodaru.com",
-        { "SOMOD::Parameter": "m1.p2" }
-      ],
+      imageDomains: ["M1_P2", "sodaru.com", "somod.sodaru.com"],
       publicRuntimeConfig: {
-        myPRC1: {
-          "SOMOD::Parameter": "m4.p3"
-        },
-        myPRC2: {
-          "SOMOD::Parameter": "m1.p3"
-        }
+        myPRC1: "M4_P3",
+        myPRC2: "M1_P3"
       },
       serverRuntimeConfig: {
-        mySRC1: {
-          "SOMOD::Parameter": "m4.p4"
-        },
-        mySRC2: {
-          "SOMOD::Parameter": "m4.p5"
-        }
+        mySRC1: "M4_P4",
+        mySRC2: "M4_P5"
       }
     });
   });

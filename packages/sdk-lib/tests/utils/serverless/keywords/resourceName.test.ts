@@ -1,85 +1,107 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { readFile } from "fs/promises";
-import { dump } from "js-yaml";
-import { join } from "path";
-import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
-import {
-  doublePackageJson,
-  installSchemaInTempDir,
-  singlePackageJson,
-  StringifyTemplate
-} from "../utils";
+import { JSONObjectNode } from "@somod/types";
+import { parseJson } from "../../../../src/utils/jsonTemplate";
+import { keywordResourceName } from "../../../../src/utils/serverless/keywords/resourceName";
 
-describe("test keyword SOMOD::ResourceName", () => {
-  let dir: string = null;
-  let buildTemplateJsonPath = null;
+describe("Test resourceName keyword", () => {
+  const getValidator = () => keywordResourceName.getValidator("", "", {});
+  const getProcessor = () => keywordResourceName.getProcessor("", "m1", {});
 
-  beforeEach(async () => {
-    dir = createTempDir();
-    buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
-    await installSchemaInTempDir(dir);
+  test("the keyword name", () => {
+    expect(keywordResourceName.keyword).toEqual("SOMOD::ResourceName");
   });
 
-  afterEach(() => {
-    deleteDir(dir);
-  });
+  test("the validator with additional properties", async () => {
+    const validator = await getValidator();
 
-  test("with SOMOD::ResourceName", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::DynamoDB::Table",
-          Properties: {
-            TableName: {
-              "SOMOD::ResourceName": "Resource1"
-            }
-          }
-        }
-      }
+    const obj = {
+      [keywordResourceName.keyword]: "myresource",
+      additionalProp: "abcd"
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...singlePackageJson
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(buildTemplateJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(StringifyTemplate(template));
+
+    expect(
+      validator(
+        keywordResourceName.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordResourceName.keyword]
+      )
+    ).toEqual([
+      new Error(
+        "Object with SOMOD::ResourceName must not have additional properties"
+      )
+    ]);
   });
 
-  test("with SOMOD::ResourceName on extended resource", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::DynamoDB::Table",
-          "SOMOD::Extend": {
-            module: "@my-scope/sample2",
-            resource: "Resource2"
-          },
-          Properties: {
-            TableName: {
-              "SOMOD::ResourceName": "Resource1"
-            }
-          }
-        }
-      }
+  test("the validator with string value", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordResourceName.keyword]: "myresource"
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource2: {
-              Type: "AWS::DynamoDB::Table",
-              Properties: {}
-            }
-          }
-        }),
-      ...doublePackageJson
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
+
+    expect(
+      validator(
+        keywordResourceName.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordResourceName.keyword]
+      )
+    ).toEqual([]);
+  });
+
+  test("the validator with non string value", async () => {
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordResourceName.keyword]: {}
+    };
+
+    expect(
+      validator(
+        keywordResourceName.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordResourceName.keyword] as unknown as string
+      )
+    ).toEqual([new Error("SOMOD::ResourceName value must be string")]);
+  });
+
+  test("the processor", async () => {
+    const processor = await getProcessor();
+
+    const obj = {
+      [keywordResourceName.keyword]: "myresource"
+    };
+
+    expect(
+      processor(
+        keywordResourceName.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordResourceName.keyword]
+      )
+    ).toMatchInlineSnapshot(`
+      Object {
+        "type": "object",
+        "value": Object {
+          "Fn::Sub": Array [
+            "somod\${stackId}\${moduleHash}\${somodResourceName}",
+            Object {
+              "moduleHash": "ca0df2c9",
+              "somodResourceName": "myresource",
+              "stackId": Object {
+                "Fn::Select": Array [
+                  2,
+                  Object {
+                    "Fn::Split": Array [
+                      "/",
+                      Object {
+                        "Ref": "AWS::StackId",
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      }
+    `);
   });
 });

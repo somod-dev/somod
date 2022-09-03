@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://json-schema.sodaru.com/@somod/schema/serverless/schemas/index.json",
+  "title": "JSON Schema for Serverless Template by Sodaru Technologies",
+  "type": "object",
+  "required": ["Resources"],
+  "properties": {
+    "Resources": {
+      "type": "object",
+      "additionalProperties": {
+        "if": {
+          "type": "object",
+          "properties": {
+            "Type": { "const": "AWS::Serverless::Function" }
+          }
+        },
+        "then": { "$ref": "./resources/function.json" },
+        "else": {
+          "if": {
+            "type": "object",
+            "properties": {
+              "Type": { "const": "AWS::Serverless::LayerVersion" }
+            }
+          },
+          "then": { "$ref": "./resources/function-layer.json" },
+          "else": {
+            "if": {
+              "type": "object",
+              "properties": {
+                "Type": {
+                  "type": "string",
+                  "pattern": "^Custom::[A-Z][a-zA-Z0-9]{0,63}$"
+                }
+              }
+            },
+            "then": { "$ref": "./resources/custom-resource.json" },
+            "else": { "$ref": "./resource.json" }
+          }
+        }
+      },
+      "propertyNames": { "type": "string", "pattern": "^[a-zA-Z0-9]{1,64}$" }
+    },
+    "Outputs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "./components/expression.json#/definitions/stringLike"
+      },
+      "propertyNames": {
+        "$ref": "../../common/expression.json#/definitions/somodParameter/properties/SOMOD::Parameter"
+      }
+    }
+  },
+  "additionalProperties": false
+}

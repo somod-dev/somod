@@ -1,151 +1,125 @@
-import { getKeyword, getKeywordPaths } from "../../keywords";
-import {
-  KeywordSOMODExtend,
-  KeywordSOMODOutput,
-  KeywordSOMODRef,
-  ServerlessTemplate,
-  SOMODRef,
-  SLPTemplate
-} from "../types";
-import {
-  getSAMResourceLogicalId,
-  getSOMODKeyword,
-  replaceSOMODKeyword
-} from "../utils";
+import { JSONSchema7, validate } from "@solib/json-validator";
+import { DataValidationError } from "@solib/errors";
+import { getSAMResourceLogicalId } from "../utils";
+import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
+import { checkCustomResourceSchema } from "./function";
+import { checkOutput } from "./output";
+import { keywordExtend } from "./extend";
+import { KeywordDefinition } from "@somod/types";
 
-export const validate = (
-  slpTemplate: SLPTemplate,
-  serverlessTemplate: ServerlessTemplate
-): Error[] => {
-  const errors: Error[] = [];
+export const keyword = "SOMOD::Ref";
 
-  slpTemplate.keywordPaths[KeywordSOMODRef].forEach(refKeywordPath => {
-    const ref = getSOMODKeyword<SOMODRef>(slpTemplate, refKeywordPath)[
-      KeywordSOMODRef
-    ];
-    if (!ref.module) {
-      ref.module = slpTemplate.module;
-    }
-    const referencedSLPTemplate =
-      ref.module == slpTemplate.module
-        ? slpTemplate
-        : serverlessTemplate[ref.module];
+type Ref = {
+  module?: string;
+  resource: string;
+  attribute?: string;
+};
 
-    const getError = (message: string) =>
-      new Error(
-        `Referenced module resource {${ref.module}, ${
-          ref.resource
-        }} ${message}. Referenced in "${
-          slpTemplate.module
-        }" at "Resources/${refKeywordPath.join("/")}"`
-      );
+export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
+  keyword: "SOMOD::Ref",
 
-    if (!referencedSLPTemplate?.Resources[ref.resource]) {
-      errors.push(getError("not found"));
-    } else {
-      const accessErrors = checkAccess(
-        slpTemplate.module,
-        refKeywordPath,
-        ref.resource,
-        referencedSLPTemplate
-      );
-      if (accessErrors.length > 0) {
-        errors.push(...accessErrors);
-      } else {
-        if (referencedSLPTemplate.Resources[ref.resource][KeywordSOMODExtend]) {
-          errors.push(getError(`must not have ${KeywordSOMODExtend}`));
-        } else if (
-          !referencedSLPTemplate.Resources[ref.resource][KeywordSOMODOutput]
-        ) {
-          errors.push(getError(`does not have ${KeywordSOMODOutput}`));
-        } else if (ref.attribute) {
-          if (
-            !referencedSLPTemplate.Resources[ref.resource][
-              KeywordSOMODOutput
-            ].attributes.includes(ref.attribute)
-          ) {
-            errors.push(
-              getError(
-                `does not have attribute ${ref.attribute} in ${KeywordSOMODOutput}`
-              )
-            );
-          }
+  getValidator: async (rootDir, moduleName, moduleContentMap) => {
+    return (keyword, node, value) => {
+      const errors: Error[] = [];
+
+      if (Object.keys(node.properties).length > 1) {
+        errors.push(
+          new Error(
+            `Object with ${keyword} must not have additional properties`
+          )
+        );
+      }
+
+      const valueSchema: JSONSchema7 = {
+        type: "object",
+        additionalProperties: false,
+        required: ["resource"],
+        properties: {
+          module: { type: "string" },
+          resource: { type: "string" },
+          attribute: { type: "string" }
+        }
+      };
+
+      try {
+        validate(valueSchema, value);
+      } catch (e) {
+        const violations = (e as DataValidationError).violations;
+        if (violations) {
+          errors.push(
+            new Error(
+              `Has following errors\n${violations
+                .map(v => `${v.path} ${v.message}`.trim())
+                .join("\n")}`
+            )
+          );
         } else {
-          if (
-            !referencedSLPTemplate.Resources[ref.resource][KeywordSOMODOutput]
-              .default
-          ) {
-            errors.push(
-              getError(
-                `does not have default set to true in ${KeywordSOMODOutput}`
-              )
-            );
-          }
+          errors.push(e);
         }
       }
-    }
-  });
 
-  return errors;
-};
+      if (errors.length == 0) {
+        const targetModule = value.module || moduleName;
 
-export const apply = (serverlessTemplate: ServerlessTemplate) => {
-  Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSOMODRef].forEach(refPath => {
-      const ref = getSOMODKeyword<SOMODRef>(slpTemplate, refPath)[
-        KeywordSOMODRef
-      ];
-      const resourceId = getSAMResourceLogicalId(
-        ref.module || slpTemplate.module,
-        ref.resource
-      );
-      const refValue = ref.attribute
-        ? { "Fn::GetAtt": [resourceId, ref.attribute] }
-        : { Ref: resourceId };
-      replaceSOMODKeyword(slpTemplate, refPath, refValue);
-    });
-  });
-};
+        if (!moduleContentMap[targetModule]?.json.Resources[value.resource]) {
+          errors.push(
+            new Error(
+              `Referenced module resource {${targetModule}, ${value.resource}} not found.`
+            )
+          );
+        } else {
+          if (
+            moduleContentMap[targetModule].json.Resources[value.resource][
+              keywordExtend.keyword
+            ] !== undefined
+          ) {
+            errors.push(
+              new Error(
+                `Can not reference an extended resource {${targetModule}, ${value.resource}}.`
+              )
+            );
+          }
+          errors.push(
+            ...checkAccess(
+              moduleName,
+              moduleContentMap[targetModule],
+              value.resource
+            )
+          );
 
-/**
- * Checks if the given resource is referenced in ServerlessTemplate
- *
- * This method checks for occurances of `Fn::GetAtt` and `Ref`, so this method needs to be called after applying all keywords
- */
-export const isReferenced = (
-  serverlessTemplate: ServerlessTemplate,
-  module: string,
-  resource: string,
-  attribute?: string
-): boolean => {
-  const dataToSearchFor = Object.fromEntries(
-    Object.keys(serverlessTemplate).map(moduleName => [
-      moduleName,
-      { Resources: serverlessTemplate[moduleName].Resources }
-    ])
-  );
+          errors.push(
+            ...checkOutput(
+              moduleContentMap[targetModule],
+              value.resource,
+              value.attribute
+            )
+          );
 
-  const samResourceLogicalId = getSAMResourceLogicalId(module, resource);
+          errors.push(
+            ...checkCustomResourceSchema(
+              node,
+              moduleContentMap[targetModule],
+              value.resource
+            )
+          );
+        }
+      }
 
-  const refPaths = getKeywordPaths(dataToSearchFor, ["Ref"]);
+      return errors;
+    };
+  },
 
-  for (const refPath of refPaths["Ref"]) {
-    const ref = getKeyword(dataToSearchFor, refPath)["Ref"] as string;
-    if (ref == samResourceLogicalId) {
-      return true;
-    }
+  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
+    const targetModule = value.module || moduleName;
+
+    const resourceId = getSAMResourceLogicalId(targetModule, value.resource);
+    const refValue = value.attribute
+      ? { "Fn::GetAtt": [resourceId, value.attribute] }
+      : { Ref: resourceId };
+    return {
+      type: "object",
+      value: refValue
+    };
   }
-
-  const getAttPaths = getKeywordPaths(dataToSearchFor, ["Fn::GetAtt"]);
-  for (const getAttPath of getAttPaths["Fn::GetAtt"]) {
-    const ref = getKeyword(dataToSearchFor, getAttPath)[
-      "Fn::GetAtt"
-    ] as string[];
-    if (ref[0] == samResourceLogicalId && (!attribute || ref[1] == attribute)) {
-      return true;
-    }
-  }
-
-  return false;
 };

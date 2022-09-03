@@ -1,58 +1,40 @@
-import { copyDirectory } from "@sodev/test-utils";
-import { join } from "path";
+import {
+  createFiles,
+  createTempDir,
+  deleteDir,
+  mockedFunction
+} from "@sodev/test-utils";
+import { validate } from "../../../src/utils/nextJs/config";
 import { validateUiConfigYaml } from "../../../src";
-import { createFiles, createTempDir, deleteDir } from "../../utils";
 
-const installSchemaInTempDir = async (dir: string) => {
-  await copyDirectory(
-    join(__dirname, "../../../../ui-config-schema"),
-    join(dir, "node_modules/@somod/ui-config-schema")
-  );
-};
+jest.mock("../../../src/utils/nextJs/config", () => {
+  return {
+    __esModule: true,
+    validate: jest.fn()
+  };
+});
 
-describe("Test Task validateUiConfigYaml", () => {
+describe("test Task validateUiConfigYaml", () => {
   let dir: string = null;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dir = createTempDir();
+    mockedFunction(validate).mockReset();
   });
 
   afterEach(() => {
     deleteDir(dir);
   });
 
-  test("For no ui directory", async () => {
+  test("for no config.yaml", async () => {
     await expect(validateUiConfigYaml(dir)).resolves.toBeUndefined();
+    expect(validate).toHaveBeenCalledTimes(0);
   });
 
-  test("For no config.yaml", async () => {
-    createFiles(dir, {
-      "ui/": ""
-    });
+  test("for valid config.yaml", async () => {
+    createFiles(dir, { "ui/config.yaml": "" });
     await expect(validateUiConfigYaml(dir)).resolves.toBeUndefined();
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(validate).toHaveBeenCalledWith(dir, []);
   });
-
-  test("For empty config.yaml", async () => {
-    await installSchemaInTempDir(dir);
-    createFiles(dir, {
-      "ui/config.yaml": ""
-    });
-    await expect(validateUiConfigYaml(dir)).rejects.toEqual(
-      new Error(
-        join(dir, "ui/config.yaml") + " has following errors\n must be object"
-      )
-    );
-  }, 20000);
-
-  test("For config.yaml with only env", async () => {
-    await installSchemaInTempDir(dir);
-    createFiles(dir, {
-      "ui/config.yaml": `
-env:
-  MY_ENV_VAR:
-    SOMOD::Parameter: myparameter
-`
-    });
-    await expect(validateUiConfigYaml(dir)).resolves.toBeUndefined();
-  }, 20000);
 });

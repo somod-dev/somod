@@ -1,16 +1,10 @@
 export const file_packageJson = "package.json";
 export const file_packageLockJson = "package-lock.json";
 
-export const file_gitIgnore = ".gitignore";
-export const file_eslintIgnore = ".eslintignore";
-export const file_prettierIgnore = ".prettierignore";
-
 export const file_dotenv = ".env";
 
-export const file_tsConfigJson = "tsconfig.json";
-export const file_tsConfigBuildJson = "tsconfig.build.json";
+export const file_tsConfigSomodJson = "tsconfig.somod.json";
 
-export const file_nextEnvDTs = "next-env.d.ts";
 export const file_nextConfigJs = "next.config.js";
 
 export const key_somod = "somod";
@@ -45,7 +39,6 @@ export const file_index_js = "index.js";
 export const file_index_dts = "index.d.ts";
 
 export const path_git = ".git";
-export const path_nextBuild = ".next";
 
 export const file_configYaml = "config.yaml";
 export const file_configJson = "config.json";
@@ -56,7 +49,6 @@ export const path_functionLayers = "functionLayers";
 export const file_templateYaml = "template.yaml";
 export const file_templateJson = "template.json";
 
-export const path_samBuild = ".aws-sam";
 export const file_samConfig = "samconfig.toml";
 
 export const path_vercel = ".vercel";
@@ -64,13 +56,13 @@ export const path_vercel = ".vercel";
 export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
 
 export const defaultServerlessTemplateSchema =
-  "https://json-schema.sodaru.com/@somod/serverless-schema/schemas/index.json";
+  "https://json-schema.sodaru.com/@somod/schema/serverless/schemas/index.json";
 
 export const defaultUiConfigSchema =
-  "https://json-schema.sodaru.com/@somod/ui-config-schema/schemas/index.json";
+  "https://json-schema.sodaru.com/@somod/schema/ui-config/schemas/index.json";
 
 export const defaultParametersSchema =
-  "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json";
+  "https://json-schema.sodaru.com/@somod/schema/parameters/schemas/index.json";
 
 export const namespace_page = "UI Page";
 
@@ -82,15 +74,18 @@ export const namespace_public_runtime_config = "UI Public Runtime Config";
 
 export const namespace_server_runtime_config = "UI Server Runtime Config";
 
-export const namespace_http_api = "Serverless Http Api";
-
-export const namespace_export_parameter = "Serverless Export Parameter";
+export const namespace_api_gateway = "Serverless Api Gateway";
 
 export const namespace_parameter = "Parameter";
 export const namespace_parameterSchema = "Parameter Schema";
 export const namespace_parameterGroup = "Parameter Group";
 
+export const namespace_output = "Serverless Output";
+
 export const resourceType_Function = "AWS::Serverless::Function";
+export const resourceType_FunctionLayer = "AWS::Serverless::LayerVersion";
+
+export const custom_resource_prefix = "Custom::";
 
 export const file_parametersYaml = "parameters.yaml";
 

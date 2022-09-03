@@ -1,133 +1,315 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { readFile } from "fs/promises";
-import { dump } from "js-yaml";
-import { join } from "path";
-import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
-import {
-  doublePackageJson,
-  functionDefaults,
-  installSchemaInTempDir,
-  singlePackageJson,
-  StringifyTemplate
-} from "../utils";
+import { mockedFunction } from "@sodev/test-utils";
+import { JSONObjectNode } from "@somod/types";
+import { parseJson } from "../../../../src/utils/jsonTemplate";
+import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
+import { keywordDependsOn } from "../../../../src/utils/serverless/keywords/dependsOn";
 
-describe("test keyword SOMOD::DependsOn", () => {
-  let dir: string = null;
-  let buildTemplateJsonPath = null;
+jest.mock("../../../../src/utils/serverless/keywords/access", () => {
+  return {
+    __esModule: true,
+    checkAccess: jest.fn().mockResolvedValue([])
+  };
+});
 
-  beforeEach(async () => {
-    dir = createTempDir();
-    buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
-    await installSchemaInTempDir(dir);
+describe("Test dependsOn keyword", () => {
+  beforeEach(() => {
+    mockedFunction(checkAccess).mockReset();
   });
 
-  afterEach(() => {
-    deleteDir(dir);
+  test("the keyword name", () => {
+    expect(keywordDependsOn.keyword).toEqual("SOMOD::DependsOn");
   });
 
-  test("with SOMOD::DependsOn without module", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: { ...functionDefaults },
-          "SOMOD::DependsOn": [
-            {
-              module: "@my-scope/sample2",
-              resource: "Resource2"
-            }
-          ]
-        }
-      }
+  test("the validator with keyword at top object", async () => {
+    const validator = await keywordDependsOn.getValidator("", "m1", {});
+
+    const obj = {
+      [keywordDependsOn.keyword]: []
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...singlePackageJson
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        "Dependent module resource {@my-scope/sample2, Resource2} not found. Depended from {@my-scope/sample, Resource1}"
+
+    expect(
+      validator(
+        keywordDependsOn.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordDependsOn.keyword] as { resource: string }[]
       )
-    });
+    ).toEqual([
+      new Error("SOMOD::DependsOn is allowed only as Resource Property")
+    ]);
   });
 
-  test("with SOMOD::DependsOn and with module but no resource", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: { ...functionDefaults },
-          "SOMOD::DependsOn": [
-            {
-              module: "@my-scope/sample2",
-              resource: "Resource2"
-            }
-          ]
-        }
-      }
-    };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource3: {
-              Type: "AWS::Serverless::Function",
-              Properties: { ...functionDefaults }
-            }
-          }
-        })
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        "Dependent module resource {@my-scope/sample2, Resource2} not found. Depended from {@my-scope/sample, Resource1}"
-      )
-    });
-  });
+  test("the validator with keyword at deep inside a Resource object", async () => {
+    const validator = await keywordDependsOn.getValidator("", "m1", {});
 
-  test("with SOMOD::DependsOn and with valid module and resource", async () => {
-    const template = {
+    const obj = {
       Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
+        MyResource1: {
+          Type: "Custom::MyCustomType",
           Properties: {
-            ...functionDefaults
-          },
-          "SOMOD::DependsOn": [
-            {
-              module: "@my-scope/sample2",
-              resource: "Resource2"
-            }
-          ]
+            [keywordDependsOn.keyword]: []
+          }
         }
       }
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      "serverless/functions/resource1.ts": "",
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordDependsOn.keyword,
+        (
+          (objNode.properties["Resources"] as JSONObjectNode).properties[
+            "MyResource1"
+          ] as JSONObjectNode
+        ).properties["Properties"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties[keywordDependsOn.keyword] as {
+          resource: string;
+        }[]
+      )
+    ).toEqual([
+      new Error("SOMOD::DependsOn is allowed only as Resource Property")
+    ]);
+  });
+
+  test("the validator with keyword as a Resource Property", async () => {
+    const validator = await keywordDependsOn.getValidator("", "m1", {});
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordDependsOn.keyword]: [],
+          Properties: {}
+        }
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordDependsOn.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        obj.Resources.MyResource1[keywordDependsOn.keyword] as {
+          resource: string;
+        }[]
+      )
+    ).toEqual([]);
+  });
+
+  test("the validator with non existing dependency", async () => {
+    const validator = await keywordDependsOn.getValidator("", "m1", {
+      m2: { moduleName: "m2", location: "", path: "", json: { Resources: {} } }
+    });
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordDependsOn.keyword]: [{ module: "m3", resource: "r1" }],
+          Properties: {}
+        }
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordDependsOn.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        obj.Resources.MyResource1[keywordDependsOn.keyword] as {
+          resource: string;
+        }[]
+      )
+    ).toEqual([new Error("Dependent module resource {m3, r1} not found.")]);
+  });
+
+  test("the validator with existing dependency", async () => {
+    const validator = await keywordDependsOn.getValidator("", "m1", {
+      m2: {
+        moduleName: "m2",
+        location: "",
+        path: "",
+        json: { Resources: { r1: { Type: "MyType", Properties: {} } } }
+      }
+    });
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordDependsOn.keyword]: [{ module: "m2", resource: "r1" }],
+          Properties: {}
+        }
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordDependsOn.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        obj.Resources.MyResource1[keywordDependsOn.keyword] as {
+          resource: string;
+        }[]
+      )
+    ).toEqual([]);
+  });
+
+  test("the validator calling checkAccess for each depended resource", async () => {
+    const allModules = {
+      m0: {
+        moduleName: "m0",
+        location: "",
+        path: "",
+        json: {
           Resources: {
-            Resource2: {
-              Type: "AWS::Serverless::Api",
-              Properties: {
-                Name: {
-                  "SOMOD::ResourceName": "Resource2Api"
-                }
-              }
+            MyResource1: {
+              Type: "Custom::MyCustomType",
+              [keywordDependsOn.keyword]: [
+                { module: "m1", resource: "resource1" },
+                { module: "m2", resource: "r1" }
+              ],
+              Properties: {}
             }
           }
-        })
+        }
+      },
+      m1: {
+        moduleName: "m1",
+        location: "",
+        path: "",
+        json: { Resources: { resource1: { Type: "MyType", Properties: {} } } }
+      },
+      m2: {
+        moduleName: "m2",
+        location: "",
+        path: "",
+        json: { Resources: { r1: { Type: "MyType", Properties: {} } } }
+      }
+    };
+    const validator = await keywordDependsOn.getValidator("", "m0", allModules);
+
+    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordDependsOn.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        allModules.m0.json.Resources.MyResource1[keywordDependsOn.keyword] as {
+          resource: string;
+        }[]
+      )
+    ).toEqual([]);
+
+    expect(checkAccess).toHaveBeenCalledTimes(2);
+    expect(checkAccess).toHaveBeenNthCalledWith(
+      1,
+      "m0",
+      allModules.m1,
+      "resource1"
+    );
+    expect(checkAccess).toHaveBeenNthCalledWith(2, "m0", allModules.m2, "r1");
+  });
+
+  test("the validator piping the errors from checkAccess", async () => {
+    mockedFunction(checkAccess).mockReturnValue([
+      new Error("Error from CheckAccess")
+    ]);
+    const allModules = {
+      m0: {
+        moduleName: "m0",
+        location: "",
+        path: "",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "Custom::MyCustomType",
+              [keywordDependsOn.keyword]: [
+                { module: "m1", resource: "resource1" },
+                { module: "m2", resource: "r1" }
+              ],
+              Properties: {}
+            }
+          }
+        }
+      },
+      m1: {
+        moduleName: "m1",
+        location: "",
+        path: "",
+        json: { Resources: { resource1: { Type: "MyType", Properties: {} } } }
+      },
+      m2: {
+        moduleName: "m2",
+        location: "",
+        path: "",
+        json: { Resources: { r1: { Type: "MyType", Properties: {} } } }
+      }
+    };
+    const validator = await keywordDependsOn.getValidator("", "m0", allModules);
+
+    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordDependsOn.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        allModules.m0.json.Resources.MyResource1[keywordDependsOn.keyword] as {
+          resource: string;
+        }[]
+      )
+    ).toEqual([
+      new Error("Error from CheckAccess"),
+      new Error("Error from CheckAccess")
+    ]);
+  });
+
+  test("the processor", async () => {
+    const processor = await keywordDependsOn.getProcessor("", "m0", {});
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordDependsOn.keyword]: [
+            { module: "m1", resource: "resource1" },
+            { module: "m2", resource: "r1" }
+          ],
+          Properties: {}
+        }
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      processor(
+        keywordDependsOn.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        obj.Resources.MyResource1[keywordDependsOn.keyword] as {
+          resource: string;
+        }[]
+      )
+    ).toEqual({
+      type: "keyword",
+      value: {
+        DependsOn: ["rca0df2c9resource1", "r29c1b289r1"]
+      }
     });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(buildTemplateJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(StringifyTemplate(template));
   });
 });

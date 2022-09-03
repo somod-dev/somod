@@ -1,3 +1,4 @@
+import { ModuleNode } from "@somod/types";
 import { mkdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import {
@@ -5,7 +6,7 @@ import {
   file_parametersYaml,
   path_build
 } from "../constants";
-import { ModuleHandler, ModuleNode } from "../moduleHandler";
+import { ModuleHandler } from "../moduleHandler";
 import { readYamlFileStore } from "../yamlFileStore";
 import { loadParameters } from "./load";
 
@@ -33,7 +34,7 @@ const validate = async (moduleNode: ModuleNode): Promise<void> => {
 };
 
 export const build = async (dir: string): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
 
   const rootModuleNode = await moduleHandler.getRoodModuleNode();
 

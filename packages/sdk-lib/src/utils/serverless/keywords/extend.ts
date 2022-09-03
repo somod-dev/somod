@@ -1,68 +1,90 @@
-import { merge } from "lodash";
-import {
-  KeywordSOMODExtend,
-  ServerlessTemplate,
-  SOMODExtend,
-  SLPTemplate
-} from "../types";
-import { getSOMODKeyword } from "../utils";
+import { getPath } from "../../jsonTemplate";
+import { getSAMResourceLogicalId } from "../utils";
+import { SAMTemplate, ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
+import { JSONPrimitiveNode, KeywordDefinition } from "@somod/types";
 
-export const validate = (
-  slpTemplate: SLPTemplate,
-  serverlessTemplate: ServerlessTemplate
-): Error[] => {
-  const errors: Error[] = [];
-  slpTemplate.keywordPaths[KeywordSOMODExtend].forEach(extendKeywordPath => {
-    const resourceId = extendKeywordPath[extendKeywordPath.length - 1];
-    const extend = getSOMODKeyword<SOMODExtend>(slpTemplate, extendKeywordPath)[
-      KeywordSOMODExtend
-    ];
-    if (!serverlessTemplate[extend.module]?.Resources[extend.resource]) {
-      errors.push(
-        new Error(
-          `Extended module resource {${extend.module}, ${extend.resource}} not found. Extended in {${slpTemplate.module}, ${resourceId}}`
-        )
-      );
-    } else {
-      errors.push(
-        ...checkAccess(
-          slpTemplate.module,
-          extendKeywordPath,
-          extend.resource,
-          serverlessTemplate[extend.module]
-        )
-      );
+type Extend = { module: string; resource: string };
+
+export const keywordExtend: KeywordDefinition<Extend, ServerlessTemplate> = {
+  keyword: "SOMOD::Extend",
+
+  getValidator: async (rootDir, moduleName, moduleContentMap) => {
+    return (keyword, node, value) => {
+      const errors: Error[] = [];
+
+      const path = getPath(node);
+      if (!(path.length == 2 && path[0] == "Resources")) {
+        errors.push(
+          new Error(`${keyword} is allowed only as Resource Property`)
+        );
+      } else {
+        //NOTE: structure of the value is validated by serverless-schema
+
+        if (value.module == moduleName) {
+          errors.push(
+            new Error(
+              `Can not extend the resource ${value.resource} in the same module ${moduleName}. Edit the resource directly`
+            )
+          );
+        } else if (
+          !moduleContentMap[value.module]?.json.Resources[value.resource]
+        ) {
+          errors.push(
+            new Error(
+              `Extended module resource {${value.module}, ${value.resource}} not found.`
+            )
+          );
+        } else {
+          const fromType = (node.properties["Type"] as JSONPrimitiveNode).value;
+          const toType =
+            moduleContentMap[value.module].json.Resources[value.resource].Type;
+
+          if (fromType != toType) {
+            errors.push(
+              new Error(
+                `Can extend only same type of resource. ${fromType} can not extend ${toType}`
+              )
+            );
+          }
+
+          errors.push(
+            ...checkAccess(
+              moduleName,
+              moduleContentMap[value.module],
+              value.resource
+            )
+          );
+        }
+      }
+
+      return errors;
+    };
+  },
+
+  getProcessor: async () => (keyword, node, value) => {
+    return {
+      type: "keyword",
+      value: {
+        [keyword]: getSAMResourceLogicalId(value.module, value.resource)
+      }
+    };
+  }
+};
+
+export const getExtendedResourceMap = (
+  samTemplate: SAMTemplate
+): Record<string, string> => {
+  const extendedMap: Record<string, string> = {};
+  Object.keys(samTemplate.Resources).forEach(resourceId => {
+    if (
+      samTemplate.Resources[resourceId][keywordExtend.keyword] !== undefined
+    ) {
+      extendedMap[resourceId] = samTemplate.Resources[resourceId][
+        keywordExtend.keyword
+      ] as string;
     }
   });
 
-  return errors;
-};
-
-export const apply = (serverlessTemplate: ServerlessTemplate): void => {
-  Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSOMODExtend].forEach(extendKeywordPath => {
-      const resourceId = extendKeywordPath[0]; // SOMOD::Extend is used as Resource attribute only
-      const extendedResource = slpTemplate.Resources[resourceId];
-
-      let extend = extendedResource[KeywordSOMODExtend];
-      delete extendedResource[KeywordSOMODExtend];
-
-      while (
-        serverlessTemplate[extend.module].original.Resources[extend.resource][
-          KeywordSOMODExtend
-        ]
-      ) {
-        extend =
-          serverlessTemplate[extend.module].original.Resources[extend.resource][
-            KeywordSOMODExtend
-          ];
-      }
-
-      serverlessTemplate[extend.module].Resources[extend.resource] = merge(
-        serverlessTemplate[extend.module].Resources[extend.resource],
-        extendedResource
-      );
-    });
-  });
+  return extendedMap;
 };
