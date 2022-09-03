@@ -73,10 +73,6 @@ export const prepareSamTemplate = async (
     });
   }
 
-  if (Object.keys(samTemplate.Outputs).length == 0) {
-    delete samTemplate.Outputs;
-  }
-
   extendResources(samTemplate);
   await attachBaseLayer(samTemplate);
 
