@@ -9,19 +9,16 @@ import {
   deleteBuildDir,
   validatePageData,
   validatePageExports,
-  doesServerlessFunctionsHaveDefaultExport,
   file_configYaml,
   file_packageJson,
   file_parametersYaml,
   file_templateYaml,
-  file_tsConfigBuildJson,
+  file_tsConfigSomodJson,
   findRootDir,
-  installLayerDependencies,
-  isValidTsConfigBuildJson,
+  bundleFunctionLayers,
+  isValidTsConfigSomodJson,
   key_somod,
-  loadAndResolveNamespaces,
   path_build,
-  path_functions,
   path_pages,
   path_public,
   path_serverless,
@@ -34,9 +31,11 @@ import {
   validateUiConfigYaml,
   path_pagesData,
   loadPlugins,
-  loadPluginNamespace,
   runPluginPrebuild,
-  runPluginBuild
+  runPluginBuild,
+  validateServerlessTemplate,
+  initializeModuleHandler,
+  validateUiConfigYamlWithSchema
 } from "@somod/sdk-lib";
 import { Command } from "commander";
 import {
@@ -57,6 +56,14 @@ export const BuildAction = async ({
 
   const plugins = await loadPlugins(dir);
 
+  await taskRunner(
+    `Initialize ModuleHandler`,
+    initializeModuleHandler,
+    verbose,
+    dir,
+    plugins.namespaceLoaders
+  );
+
   await Promise.all([
     taskRunner(
       `Validate ${file_packageJson}`,
@@ -65,8 +72,8 @@ export const BuildAction = async ({
       dir
     ),
     taskRunner(
-      `Validate ${file_tsConfigBuildJson}`,
-      isValidTsConfigBuildJson,
+      `Validate ${file_tsConfigSomodJson}`,
+      isValidTsConfigSomodJson,
       verbose,
       dir,
       ui ? { jsx: "react" } : {},
@@ -83,9 +90,16 @@ export const BuildAction = async ({
     await Promise.all([
       taskRunner(
         `Validate ${path_ui}/${file_configYaml} with schema`,
-        validateUiConfigYaml,
+        validateUiConfigYamlWithSchema,
         verbose,
         dir
+      ),
+      taskRunner(
+        `Validate ${path_ui}/${file_configYaml}`,
+        validateUiConfigYaml,
+        verbose,
+        dir,
+        plugins.uiKeywords
       ),
       taskRunner(
         `Validate exports in ${path_ui}/${path_pages}`,
@@ -103,46 +117,20 @@ export const BuildAction = async ({
   }
 
   if (serverless) {
-    await Promise.all([
-      taskRunner(
-        `Validate ${path_serverless}/${file_templateYaml} with schema`,
-        validateServerlessTemplateWithSchema,
-        verbose,
-        dir
-      ),
-      taskRunner(
-        `Check if ${path_serverless}/${path_functions} have default export`,
-        doesServerlessFunctionsHaveDefaultExport,
-        verbose,
-        dir
-      )
-    ]);
-  }
-
-  await taskRunner(
-    `Resolve Namespaces`,
-    loadAndResolveNamespaces,
-    verbose,
-    dir,
-    ui,
-    serverless
-  );
-
-  await Promise.all(
-    plugins.namespace.map(plugin =>
-      taskRunner(
-        `Resolve Namespaces in plugin ${plugin.name}`,
-        loadPluginNamespace,
+    await taskRunner(
+      `Validate ${path_serverless}/${file_templateYaml} with schema`,
+      validateServerlessTemplateWithSchema,
+      verbose,
+      dir
+    ),
+      await taskRunner(
+        `Validate ${path_serverless}/${file_templateYaml}`,
+        validateServerlessTemplate,
         verbose,
         dir,
-        plugin.plugin,
-        {
-          ui,
-          serverless
-        }
-      )
-    )
-  );
+        plugins.serverlessKeywords
+      );
+  }
 
   await Promise.all(
     plugins.prebuild.map(plugin =>
@@ -200,8 +188,8 @@ export const BuildAction = async ({
     );
 
     await taskRunner(
-      `Install libraries of Serverless FunctionLayers`,
-      installLayerDependencies,
+      `Bundle Serverless FunctionLayers`,
+      bundleFunctionLayers,
       verbose,
       dir,
       verbose

@@ -46,7 +46,6 @@ describe("Test util loadPlugins", () => {
         main: "dist/index.js"
       }),
       "node_modules/somod-plugin1/dist/index.js": `module.exports = {
-        init: 10,
         tsconfig: { include: ["widgets"] },
         namespaceLoader: 20
       }`,
@@ -54,7 +53,6 @@ describe("Test util loadPlugins", () => {
         main: "dist/index.js"
       }),
       "node_modules/somod-plugin2/dist/index.js": `module.exports = {
-        init: 100,
         tsconfig: {
           compilerOptions: 200,
           include: [300]
@@ -73,7 +71,6 @@ describe("Test util loadPlugins", () => {
       {
         name: "somod-plugin1",
         plugin: {
-          init: 10,
           tsconfig: { include: ["widgets"] },
           namespaceLoader: 20
         }
@@ -81,7 +78,6 @@ describe("Test util loadPlugins", () => {
       {
         name: "somod-plugin2",
         plugin: {
-          init: 100,
           tsconfig: {
             compilerOptions: 200,
             include: [300]
@@ -108,7 +104,6 @@ describe("Test util loadPlugins", () => {
         main: "dist/index.js"
       }),
       "node_modules/somod-plugin1/dist/index.js": `module.exports = {
-        init: 10,
         tsconfig: { include: ["widgets"] },
         namespaceLoader: 20
       }`
@@ -119,7 +114,6 @@ describe("Test util loadPlugins", () => {
           main: "dist/index.js"
         }),
       "node_modules/@somod-plugins-load-test/somod-plugin2/dist/index.js": `module.exports = {
-        init: 100,
         tsconfig: {
           compilerOptions: 200,
           include: [300]
@@ -139,7 +133,6 @@ describe("Test util loadPlugins", () => {
       {
         name: "somod-plugin1",
         plugin: {
-          init: 10,
           tsconfig: { include: ["widgets"] },
           namespaceLoader: 20
         }
@@ -147,7 +140,6 @@ describe("Test util loadPlugins", () => {
       {
         name: "@somod-plugins-load-test/somod-plugin2",
         plugin: {
-          init: 100,
           tsconfig: {
             compilerOptions: 200,
             include: [300]

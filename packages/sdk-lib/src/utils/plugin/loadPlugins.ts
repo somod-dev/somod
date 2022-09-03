@@ -1,3 +1,4 @@
+import { Plugin } from "@somod/types";
 import { existsSync } from "fs";
 import { dirname, join } from "path";
 import {
@@ -7,7 +8,6 @@ import {
   path_nodeModules
 } from "../constants";
 import { read } from "../packageJson";
-import { Plugin } from "./types";
 
 const resolvePluginPackage = (
   dir: string,

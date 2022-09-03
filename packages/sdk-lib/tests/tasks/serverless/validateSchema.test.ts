@@ -5,19 +5,9 @@ import { validateServerlessTemplateWithSchema } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 const installSchemaInTempDir = async (dir: string) => {
-  const schemaPackage = join(__dirname, "../../../../serverless-schema");
-  const schemaPackageInTempDir = join(
-    dir,
-    "node_modules/@somod/serverless-schema"
-  );
-  await copyDirectory(
-    join(schemaPackage, "meta-schemas"),
-    join(schemaPackageInTempDir, "meta-schemas")
-  );
-  await copyDirectory(
-    join(schemaPackage, "schemas"),
-    join(schemaPackageInTempDir, "schemas")
-  );
+  const schemaPackage = join(__dirname, "../../../../schema");
+  const schemaPackageInTempDir = join(dir, "node_modules/@somod/schema");
+  await copyDirectory(join(schemaPackage), join(schemaPackageInTempDir));
 };
 
 describe("Test Task validateServerlessTemplateWithSchema", () => {

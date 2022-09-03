@@ -1,137 +1,385 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { existsSync } from "fs";
-import { readFile } from "fs/promises";
-import { dump } from "js-yaml";
-import { join } from "path";
-import { validateSchema } from "../../../../src/tasks/serverless/validateSchema";
-import { buildTemplateYaml } from "../../../../src/utils/serverless/buildTemplateYaml";
-import {
-  doublePackageJson,
-  functionDefaults,
-  installSchemaInTempDir,
-  singlePackageJson,
-  StringifyTemplate
-} from "../utils";
+import { mockedFunction } from "@sodev/test-utils";
+import { JSONObjectNode } from "@somod/types";
+import { parseJson } from "../../../../src/utils/jsonTemplate";
+import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
+import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";
 
-describe("test keyword SOMOD::Extend", () => {
-  let dir: string = null;
-  let buildTemplateJsonPath = null;
+jest.mock("../../../../src/utils/serverless/keywords/access", () => {
+  return {
+    __esModule: true,
+    checkAccess: jest.fn().mockResolvedValue([])
+  };
+});
 
-  beforeEach(async () => {
-    dir = createTempDir();
-    buildTemplateJsonPath = join(dir, "build", "serverless", "template.json");
-    await installSchemaInTempDir(dir);
+describe("Test extend keyword", () => {
+  beforeEach(() => {
+    mockedFunction(checkAccess).mockReset();
   });
 
-  afterEach(() => {
-    deleteDir(dir);
+  test("the keyword name", () => {
+    expect(keywordExtend.keyword).toEqual("SOMOD::Extend");
   });
 
-  test("with SOMOD::Extend without module", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: { ...functionDefaults },
-          "SOMOD::Extend": {
-            module: "@my-scope/sample2",
-            resource: "Resource2"
-          }
-        }
-      }
+  test("the validator with keyword at top object", async () => {
+    const validator = await keywordExtend.getValidator("", "m1", {});
+
+    const obj = {
+      [keywordExtend.keyword]: {}
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...singlePackageJson
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        "Extended module resource {@my-scope/sample2, Resource2} not found. Extended in {@my-scope/sample, Resource1}"
+
+    expect(
+      validator(
+        keywordExtend.keyword,
+        parseJson(obj) as JSONObjectNode,
+        obj[keywordExtend.keyword] as { module: string; resource: string }
       )
-    });
-    expect(existsSync(buildTemplateJsonPath)).toBeFalsy();
+    ).toEqual([
+      new Error("SOMOD::Extend is allowed only as Resource Property")
+    ]);
   });
 
-  test("with SOMOD::Extend and with module but no resource", async () => {
-    const template = {
+  test("the validator with keyword at deep inside a Resource object", async () => {
+    const validator = await keywordExtend.getValidator("", "m1", {});
+
+    const obj = {
       Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: { ...functionDefaults },
-          "SOMOD::Extend": {
-            module: "@my-scope/sample2",
-            resource: "Resource2"
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          Properties: {
+            [keywordExtend.keyword]: {}
           }
         }
       }
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
-          Resources: {
-            Resource3: {
-              Type: "AWS::Serverless::Function",
-              Properties: { ...functionDefaults }
-            }
-          }
-        })
-    });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        "Extended module resource {@my-scope/sample2, Resource2} not found. Extended in {@my-scope/sample, Resource1}"
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordExtend.keyword,
+        (
+          (objNode.properties["Resources"] as JSONObjectNode).properties[
+            "MyResource1"
+          ] as JSONObjectNode
+        ).properties["Properties"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties[keywordExtend.keyword] as {
+          module: string;
+          resource: string;
+        }
       )
-    });
+    ).toEqual([
+      new Error("SOMOD::Extend is allowed only as Resource Property")
+    ]);
   });
 
-  test("with SOMOD::Extend and with valid module and resource", async () => {
-    const template = {
-      Resources: {
-        Resource1: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            Architectures: functionDefaults.Architectures,
-            CodeUri: {
-              "SOMOD::Function": { name: "resource1" }
+  test("the validator with keyword as a Resource Property", async () => {
+    const allModules = {
+      m0: {
+        moduleName: "m0",
+        location: "",
+        path: "",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "Custom::MyCustomType",
+              [keywordExtend.keyword]: { module: "m1", resource: "r1" },
+              Properties: {}
             }
-          },
-          "SOMOD::Extend": {
-            module: "@my-scope/sample2",
-            resource: "Resource2"
           }
-        },
-        Resource2: {
-          Type: "AWS::Serverless::Function",
-          Properties: {
-            ...functionDefaults
+        }
+      },
+      m1: {
+        moduleName: "m1",
+        location: "",
+        path: "",
+        json: {
+          Resources: { r1: { Type: "Custom::MyCustomType", Properties: {} } }
+        }
+      }
+    };
+
+    const validator = await keywordExtend.getValidator("", "m0", allModules);
+
+    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordExtend.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+          module: string;
+          resource: string;
+        }
+      )
+    ).toEqual([]);
+  });
+
+  test("the validator with extending resource in same module", async () => {
+    const allModules = {
+      m0: {
+        moduleName: "m0",
+        location: "",
+        path: "",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "Custom::MyCustomType",
+              [keywordExtend.keyword]: {
+                module: "m0",
+                resource: "MyResource2"
+              },
+              Properties: {}
+            },
+            MyResource2: {
+              Type: "Custom::MyCustomType",
+              Properties: {}
+            }
           }
         }
       }
     };
-    createFiles(dir, {
-      "serverless/template.yaml": dump(template),
-      "serverless/functions/resource1.ts": "",
-      "serverless/functions/resource2.ts": "",
-      ...doublePackageJson,
-      "node_modules/@my-scope/sample2/build/serverless/template.json":
-        JSON.stringify({
+
+    const validator = await keywordExtend.getValidator("", "m0", allModules);
+
+    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordExtend.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+          module: string;
+          resource: string;
+        }
+      )
+    ).toEqual([
+      new Error(
+        "Can not extend the resource MyResource2 in the same module m0. Edit the resource directly"
+      )
+    ]);
+  });
+
+  test("the validator with extending different type of resource", async () => {
+    const allModules = {
+      m0: {
+        moduleName: "m0",
+        location: "",
+        path: "",
+        json: {
           Resources: {
-            Resource2: {
-              Type: "AWS::Serverless::Function",
-              Properties: {
-                ...functionDefaults
-              }
+            MyResource1: {
+              Type: "Custom::MyCustomType",
+              [keywordExtend.keyword]: { module: "m1", resource: "r1" },
+              Properties: {}
             }
           }
-        })
+        }
+      },
+      m1: {
+        moduleName: "m1",
+        location: "",
+        path: "",
+        json: {
+          Resources: { r1: { Type: "AnotherType", Properties: {} } }
+        }
+      }
+    };
+
+    const validator = await keywordExtend.getValidator("", "m0", allModules);
+
+    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordExtend.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+          module: string;
+          resource: string;
+        }
+      )
+    ).toEqual([
+      new Error(
+        "Can extend only same type of resource. Custom::MyCustomType can not extend AnotherType"
+      )
+    ]);
+  });
+
+  test("the validator with extending non existing resource", async () => {
+    const allModules = {
+      m0: {
+        moduleName: "m0",
+        location: "",
+        path: "",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "Custom::MyCustomType",
+              [keywordExtend.keyword]: { module: "m3", resource: "r1" },
+              Properties: {}
+            }
+          }
+        }
+      },
+      m1: {
+        moduleName: "m1",
+        location: "",
+        path: "",
+        json: {
+          Resources: { r1: { Type: "Custom::MyCustomType", Properties: {} } }
+        }
+      }
+    };
+
+    const validator = await keywordExtend.getValidator("", "m0", allModules);
+
+    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordExtend.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+          module: string;
+          resource: string;
+        }
+      )
+    ).toEqual([new Error("Extended module resource {m3, r1} not found.")]);
+  });
+
+  test("the validator calling checkAccess for extended resource", async () => {
+    const allModules = {
+      m0: {
+        moduleName: "m0",
+        location: "",
+        path: "",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "Custom::MyCustomType",
+              [keywordExtend.keyword]: { module: "m1", resource: "r1" },
+              Properties: {}
+            }
+          }
+        }
+      },
+      m1: {
+        moduleName: "m1",
+        location: "",
+        path: "",
+        json: {
+          Resources: { r1: { Type: "Custom::MyCustomType", Properties: {} } }
+        }
+      }
+    };
+
+    const validator = await keywordExtend.getValidator("", "m0", allModules);
+
+    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordExtend.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+          module: string;
+          resource: string;
+        }
+      )
+    ).toEqual([]);
+
+    expect(checkAccess).toHaveBeenCalledTimes(1);
+    expect(checkAccess).toHaveBeenNthCalledWith(1, "m0", allModules.m1, "r1");
+  });
+
+  test("the validator piping the checkAccess errors", async () => {
+    mockedFunction(checkAccess).mockReturnValue([
+      new Error("Error from checkAccess")
+    ]);
+    const allModules = {
+      m0: {
+        moduleName: "m0",
+        location: "",
+        path: "",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "Custom::MyCustomType",
+              [keywordExtend.keyword]: { module: "m1", resource: "r1" },
+              Properties: {}
+            }
+          }
+        }
+      },
+      m1: {
+        moduleName: "m1",
+        location: "",
+        path: "",
+        json: {
+          Resources: { r1: { Type: "Custom::MyCustomType", Properties: {} } }
+        }
+      }
+    };
+
+    const validator = await keywordExtend.getValidator("", "m0", allModules);
+
+    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordExtend.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+          module: string;
+          resource: string;
+        }
+      )
+    ).toEqual([new Error("Error from checkAccess")]);
+  });
+
+  test("the processor", async () => {
+    const processor = await keywordExtend.getProcessor("", "m0", {});
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordExtend.keyword]: { module: "m1", resource: "r1" },
+          Properties: {}
+        }
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      processor(
+        keywordExtend.keyword,
+        (objNode.properties["Resources"] as JSONObjectNode).properties[
+          "MyResource1"
+        ] as JSONObjectNode,
+        obj.Resources.MyResource1[keywordExtend.keyword] as {
+          module: string;
+          resource: string;
+        }
+      )
+    ).toEqual({
+      type: "keyword",
+      value: {
+        [keywordExtend.keyword]: "rca0df2c9r1"
+      }
     });
-    await validateSchema(dir); // make sure schema is right
-    await expect(buildTemplateYaml(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(buildTemplateJsonPath, { encoding: "utf8" })
-    ).resolves.toEqual(StringifyTemplate(template));
   });
 });

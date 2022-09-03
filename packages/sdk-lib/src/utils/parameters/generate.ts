@@ -9,7 +9,6 @@ import { join } from "path";
 import { file_parametersJson, namespace_parameter } from "../constants";
 import { ModuleHandler } from "../moduleHandler";
 import { loadParameters } from "./load";
-import { loadParameterNamespaces } from "./namespace";
 import { Parameters } from "./types";
 
 /**
@@ -22,9 +21,9 @@ export const generate = async (
   dir: string,
   override = false
 ): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler(dir);
+  const moduleHandler = ModuleHandler.getModuleHandler();
 
-  const namespaces = await moduleHandler.getNamespaces(loadParameterNamespaces);
+  const namespaces = await moduleHandler.getNamespaces();
 
   const parameterToModuleNameMap = namespaces[namespace_parameter];
 

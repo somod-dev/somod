@@ -1,13 +1,16 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { loadPublicAssetNamespaces } from "../../../src/utils/nextJs/publicAssets";
-import { Module } from "../../../src/utils/moduleHandler";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
+import { namespace_public } from "../../../src";
+import { Module } from "@somod/types";
 
 describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
   let dir: string = null;
 
   beforeEach(() => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [loadPublicAssetNamespaces]);
   });
 
   afterEach(() => {
@@ -15,7 +18,6 @@ describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
   });
 
   const getModuleTemplate = (directory: string): Module => ({
-    type: "somod",
     name: "my-module",
     version: "1.0.0",
     packageLocation: directory,
@@ -26,10 +28,8 @@ describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
     createFiles(dir, { "build/": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadPublicAssetNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: { "UI Public Asset": [] }
+    await expect(loadPublicAssetNamespaces(module)).resolves.toEqual({
+      [namespace_public]: []
     });
   });
 
@@ -37,10 +37,8 @@ describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
     createFiles(dir, { "build/ui/public/": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadPublicAssetNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: { "UI Public Asset": [] }
+    await expect(loadPublicAssetNamespaces(module)).resolves.toEqual({
+      [namespace_public]: []
     });
   });
 
@@ -48,10 +46,8 @@ describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
     createFiles(dir, { "build/ui/public/page1.html": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadPublicAssetNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: { "UI Public Asset": ["page1.html"] }
+    await expect(loadPublicAssetNamespaces(module)).resolves.toEqual({
+      [namespace_public]: ["page1.html"]
     });
   });
 
@@ -62,10 +58,8 @@ describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
     });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await loadPublicAssetNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: { "UI Public Asset": ["page1.html", "sub/page2.css"] }
+    await expect(loadPublicAssetNamespaces(module)).resolves.toEqual({
+      [namespace_public]: ["page1.html", "sub/page2.css"]
     });
   });
 
@@ -77,14 +71,11 @@ describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
       "build/ui/public/sub/page2.css": ""
     });
     const moduleTemplate = getModuleTemplate(dir);
+    //@ts-expect-error this is fine during test
     moduleTemplate.root = true;
     const module = cloneDeep(moduleTemplate);
-    await loadPublicAssetNamespaces(module);
-    expect(module).toEqual({
-      ...moduleTemplate,
-      namespaces: {
-        "UI Public Asset": ["root-page1.html", "sub/root-page2.css"]
-      }
+    await expect(loadPublicAssetNamespaces(module)).resolves.toEqual({
+      [namespace_public]: ["root-page1.html", "sub/root-page2.css"]
     });
   });
 });

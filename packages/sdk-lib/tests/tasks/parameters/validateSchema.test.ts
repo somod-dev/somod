@@ -26,7 +26,7 @@ describe("test Task validateParametersWithSchema", () => {
     await expect(validateParametersWithSchema(dir)).resolves.toBeUndefined();
     expect(yamlSchemaValidator).toHaveBeenCalledTimes(1);
     expect(yamlSchemaValidator).toHaveBeenCalledWith(
-      "https://json-schema.sodaru.com/@somod/parameters-schema/schemas/index.json",
+      "https://json-schema.sodaru.com/@somod/schema/parameters/schemas/index.json",
       join(dir, "parameters.yaml"),
       dir
     );

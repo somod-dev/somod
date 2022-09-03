@@ -1,87 +1,59 @@
-import { childProcess } from "@solib/cli-base";
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { readFile } from "fs/promises";
-import { join } from "path";
+import {
+  createFiles,
+  createTempDir,
+  deleteDir,
+  mockedFunction
+} from "@sodev/test-utils";
+import { bundleFunctions as bundleFunctionsUtil } from "../../../src/utils/serverless/bundleFunctions";
 import { bundleFunctions } from "../../../src";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
+import { join } from "path";
 
-describe("Test Task bundleFunctions", () => {
-  let dir: string;
-  beforeEach(() => {
+jest.mock("../../../src/utils/serverless/bundleFunctions", () => {
+  return {
+    __esModule: true,
+    bundleFunctions: jest.fn()
+  };
+});
+
+describe("test Task bundleFunctions", () => {
+  let dir: string = null;
+
+  beforeEach(async () => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, []);
+    mockedFunction(bundleFunctionsUtil).mockReset();
   });
 
   afterEach(() => {
     deleteDir(dir);
   });
 
-  test("with no functions", async () => {
+  test("for no template.yaml", async () => {
     await expect(bundleFunctions(dir)).resolves.toBeUndefined();
+    expect(bundleFunctionsUtil).toHaveBeenCalledTimes(0);
   });
 
-  test("with empty functions dir", async () => {
-    createFiles(dir, { "serverless/functions/": "" });
+  test("for valid template.yaml", async () => {
+    createFiles(dir, {
+      "package.json": JSON.stringify({
+        name: "my-module",
+        version: "1.0.0",
+        somod: "1.0.0"
+      }),
+      "serverless/template.yaml": "Resources: {}"
+    });
     await expect(bundleFunctions(dir)).resolves.toBeUndefined();
-  });
-
-  test("with one function and no exclude file", async () => {
-    createFiles(dir, { "serverless/functions/f1.ts": "" });
-    await expect(bundleFunctions(dir)).rejects.toHaveProperty(
-      "message",
-      `ENOENT: no such file or directory, open '${join(
-        dir,
-        "build/serverless/functions/f1/exclude.json"
-      )}'`
+    expect(bundleFunctionsUtil).toHaveBeenCalledTimes(1);
+    expect(bundleFunctionsUtil).toHaveBeenCalledWith(
+      dir,
+      {
+        module: "my-module",
+        packageLocation: join(dir),
+        root: true,
+        template: { Resources: {} }
+      },
+      false
     );
   });
-
-  test("with one function and valid exclude file", async () => {
-    createFiles(dir, {
-      "build/serverless/functions/f1/exclude.json": '{"external":["lodash"]}',
-      "serverless/functions/f1.ts":
-        'import {difference} from "lodash"; export const diff = (a:string[], b:string[]):string[] => {return difference(a,b);}'
-    });
-    await expect(bundleFunctions(dir)).resolves.toBeUndefined();
-    await expect(
-      readFile(join(dir, "build/serverless/functions/f1/index.js"), {
-        encoding: "utf8"
-      })
-    ).resolves.toMatchSnapshot();
-  });
-
-  test("with multiple functions", async () => {
-    createFiles(dir, {
-      "build/serverless/functions/f1/exclude.json": '{"external":["lodash"]}',
-      "build/serverless/functions/f2/exclude.json": '{"external":["aws-sdk"]}',
-      "serverless/functions/f1.ts":
-        'import {difference} from "lodash"; export const diff = (a:string[], b:string[]):string[] => {return difference(a,b);}',
-      "serverless/functions/f2.ts":
-        'import {DynamoDB} from "aws-sdk";import difference from "lodash/difference"; export const conn = new DynamoDB(); export const diff = (a:string[], b:string[]):string[] => {return difference(a,b);}',
-      "package.json": JSON.stringify(
-        {
-          name: "sample",
-          version: "1.0.0",
-          dependencies: { lodash: "^4.17.21" }
-        },
-        null,
-        2
-      )
-    });
-
-    await childProcess(dir, process.platform == "win32" ? "npm.cmd" : "npm", [
-      "install"
-    ]);
-
-    await expect(bundleFunctions(dir)).resolves.toBeUndefined();
-
-    await expect(
-      readFile(join(dir, "build/serverless/functions/f1/index.js"), {
-        encoding: "utf8"
-      })
-    ).resolves.toMatchSnapshot();
-    await expect(
-      readFile(join(dir, "build/serverless/functions/f2/index.js"), {
-        encoding: "utf8"
-      })
-    ).resolves.toMatchSnapshot();
-  }, 20000);
 });

@@ -1,29 +1,25 @@
 import { readJsonFileStore } from "@solib/cli-base";
 import { existsSync } from "fs";
-import { intersection, uniq } from "lodash";
+import { cloneDeep, intersection, uniq } from "lodash";
 import { dirname, join, normalize } from "path";
 import { file_packageJson, key_somod, path_nodeModules } from "./constants";
 import { Node, bfs } from "@solib/graph";
+import { freeze } from "./freeze";
+import {
+  Module,
+  ModuleHandler as ModuleHandlerAbstractClass,
+  ModuleNode,
+  NamespaceLoader
+} from "@somod/types";
 
-export type Module = {
-  type: string; // TODO: type is not required , since only somod is the only module type
-  name: string;
-  version: string;
-  packageLocation: string;
-  namespaces: Record<string, string[]>;
-  root?: boolean;
-};
+type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
 
-export type NamespaceLoader = (module: Module) => Promise<void>;
+type MutableModule = DeepWriteable<Module>;
+type MutableModuleNode = DeepWriteable<ModuleNode>;
 
-export type ModuleNode = {
-  module: Module;
-  parents: ModuleNode[];
-  children: ModuleNode[];
-};
-
-export class ModuleHandler {
+export class ModuleHandler implements ModuleHandlerAbstractClass {
   private rootDir: string;
+  private namespaceLoaders: NamespaceLoader[] = [];
 
   private moduleLoadJobs: Record<string, Promise<ModuleNode>> = {};
 
@@ -35,22 +31,36 @@ export class ModuleHandler {
 
   private moduleNodesInBFSOrder: ModuleNode[];
 
-  private constructor(rootDir: string) {
+  private resolvedNamespaces: Record<string, Record<string, string>>;
+
+  private constructor(rootDir: string, namespaceLoaders: NamespaceLoader[]) {
     this.rootDir = rootDir;
+    this.namespaceLoaders = namespaceLoaders;
   }
 
   /* MODULE LOAD FACTORY - START */
 
-  private static moduleHandlerMap: Record<string, ModuleHandler> = {};
+  private static moduleHandler: ModuleHandler = null;
 
-  static getModuleHandler(rootDir: string) {
-    const keyHash = normalize(rootDir);
+  /* Static Initializers */
+  /**
+   *
+   * @param rootDir
+   * @param namespaceLoaders,  namespaceLoader must make sure that namespaces are not repeated in same module
+   *
+   */
+  static initialize(rootDir: string, namespaceLoaders: NamespaceLoader[]) {
+    this.moduleHandler = new ModuleHandler(rootDir, namespaceLoaders);
+  }
 
-    if (!ModuleHandler.moduleHandlerMap[keyHash]) {
-      ModuleHandler.moduleHandlerMap[keyHash] = new ModuleHandler(rootDir);
+  static getModuleHandler() {
+    if (!this.moduleHandler) {
+      throw new Error(
+        `Initialise the ModuleHandler before calling getModuleHandler`
+      );
     }
 
-    return ModuleHandler.moduleHandlerMap[keyHash];
+    return this.moduleHandler;
   }
 
   /* MODULE LOAD FACTORY - END */
@@ -90,8 +100,7 @@ export class ModuleHandler {
         if (packageJson[key_somod] === undefined) {
           throw new Error("Not a module");
         } else {
-          const module: Module = {
-            type: key_somod,
+          const module: MutableModule = {
             name: packageJson.name as string,
             version: packageJson.version as string,
             packageLocation,
@@ -101,9 +110,31 @@ export class ModuleHandler {
           if (root) {
             module.root = true;
           }
+          const moduleForNamespaceLoader = cloneDeep(module);
+          freeze(moduleForNamespaceLoader);
+          await Promise.all(
+            this.namespaceLoaders.map(async loader => {
+              const namespaces = await loader(moduleForNamespaceLoader);
+              Object.keys(namespaces).forEach(namespaceName => {
+                if (!module.namespaces[namespaceName]) {
+                  module.namespaces[namespaceName] = [];
+                }
+                module.namespaces[namespaceName].push(
+                  ...namespaces[namespaceName]
+                );
+              });
+            })
+          );
+          Object.keys(module.namespaces).forEach(namespaceName => {
+            module.namespaces[namespaceName] = uniq(
+              module.namespaces[namespaceName]
+            );
+          });
 
-          const moduleNode: ModuleNode = {
-            module,
+          const completeModule: Module = freeze(module, true);
+
+          const moduleNode: MutableModuleNode = {
+            module: completeModule,
             parents: [],
             children: []
           };
@@ -211,6 +242,9 @@ export class ModuleHandler {
         normalize(this.rootDir),
         true
       );
+      Object.values(this.locationToModuleNodeMap).forEach(moduleNode => {
+        freeze(moduleNode);
+      });
       this.checkDuplicates();
       this.sort();
     }
@@ -235,14 +269,6 @@ export class ModuleHandler {
   async listModules() {
     await this.load();
     return this.moduleNodesInBFSOrder;
-  }
-
-  private async loadNamespaces(loader: NamespaceLoader) {
-    await Promise.all(
-      this.moduleNodesInBFSOrder.map(async moduleNode => {
-        await loader(moduleNode.module);
-      })
-    );
   }
 
   private _getNamespaceToModulesMap() {
@@ -359,12 +385,13 @@ export class ModuleHandler {
 
   /**
    * load and resolve the namespaces
-   * @param loader NamespaceLoader , namespaceLoader must make sure that namespaces are not repeated in same module
    * @returns Map of NamespaceKey to (Map of namespace to moduleName)
    */
-  async getNamespaces(loader: NamespaceLoader) {
+  async getNamespaces() {
     await this.load();
-    await this.loadNamespaces(loader);
-    return this.resolveNamespaces();
+    if (!this.resolvedNamespaces) {
+      this.resolvedNamespaces = this.resolveNamespaces();
+    }
+    return this.resolvedNamespaces;
   }
 }

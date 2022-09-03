@@ -34,7 +34,7 @@ describe("Test Task compileTypeScript", () => {
     expect(childProcess).toHaveBeenCalledWith(
       dir,
       npxCommand,
-      ["tsc", "--project", "tsconfig.build.json"],
+      ["tsc", "--project", "tsconfig.somod.json"],
       { show: "off", return: "on" },
       { show: "off", return: "on" }
     );
@@ -42,7 +42,7 @@ describe("Test Task compileTypeScript", () => {
 
   test("for no files to compile", async () => {
     mockedFunction(childProcess).mockRejectedValue(
-      new ChildProcessError("npx tsc --project tsconfig.build.json", {
+      new ChildProcessError("npx tsc --project tsconfig.somod.json", {
         stdout:
           "error TS18003: No inputs were found in config file **** junk ******"
       })
@@ -53,7 +53,7 @@ describe("Test Task compileTypeScript", () => {
     expect(childProcess).toHaveBeenCalledWith(
       dir,
       npxCommand,
-      ["tsc", "--project", "tsconfig.build.json"],
+      ["tsc", "--project", "tsconfig.somod.json"],
       { show: "off", return: "on" },
       { show: "off", return: "on" }
     );
@@ -61,12 +61,12 @@ describe("Test Task compileTypeScript", () => {
 
   test("for compile errors", async () => {
     mockedFunction(childProcess).mockRejectedValue(
-      new ChildProcessError("npx tsc --project tsconfig.build.json", {
+      new ChildProcessError("npx tsc --project tsconfig.somod.json", {
         stdout: "Could not compile"
       })
     );
     await expect(compileTypeScript(dir)).rejects.toEqual(
-      new ChildProcessError("npx tsc --project tsconfig.build.json", {
+      new ChildProcessError("npx tsc --project tsconfig.somod.json", {
         stdout: "Could not compile"
       })
     );
@@ -75,7 +75,7 @@ describe("Test Task compileTypeScript", () => {
     expect(childProcess).toHaveBeenCalledWith(
       dir,
       npxCommand,
-      ["tsc", "--project", "tsconfig.build.json"],
+      ["tsc", "--project", "tsconfig.somod.json"],
       { show: "off", return: "on" },
       { show: "off", return: "on" }
     );
@@ -88,7 +88,7 @@ describe("Test Task compileTypeScript", () => {
     expect(childProcess).toHaveBeenCalledWith(
       dir,
       npxCommand,
-      ["tsc", "--project", "tsconfig.build.json", "--noEmit"],
+      ["tsc", "--project", "tsconfig.somod.json", "--noEmit"],
       { show: "off", return: "on" },
       { show: "off", return: "on" }
     );

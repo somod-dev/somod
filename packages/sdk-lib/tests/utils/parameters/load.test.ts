@@ -1,10 +1,12 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
 import { ErrorSet } from "@solib/cli-base";
 import { dump } from "js-yaml";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import {
   loadAllParameterValues,
   loadParameters
 } from "../../../src/utils/parameters/load";
+import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 import { Parameters } from "../../../src/utils/parameters/types";
 
 describe("Test Util parameters.loadParameters", () => {
@@ -22,7 +24,6 @@ describe("Test Util parameters.loadParameters", () => {
     await expect(
       loadParameters({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -34,7 +35,6 @@ describe("Test Util parameters.loadParameters", () => {
     await expect(
       loadParameters({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir,
@@ -50,7 +50,6 @@ describe("Test Util parameters.loadParameters", () => {
     await expect(
       loadParameters({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -71,7 +70,6 @@ describe("Test Util parameters.loadParameters", () => {
     await expect(
       loadParameters({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir
@@ -92,7 +90,6 @@ describe("Test Util parameters.loadParameters", () => {
     await expect(
       loadParameters({
         name: "my-module",
-        type: "somod",
         version: "1.0.0",
         namespaces: {},
         packageLocation: dir,
@@ -107,6 +104,7 @@ describe("Test Util parameters.loadAllParameterValues", () => {
 
   beforeEach(async () => {
     dir = createTempDir();
+    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {
@@ -137,7 +135,6 @@ describe("Test Util parameters.loadAllParameterValues", () => {
         somod: "1.0.0"
       })
     });
-
     await expect(loadAllParameterValues(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
@@ -145,37 +142,5 @@ describe("Test Util parameters.loadAllParameterValues", () => {
         )
       ])
     );
-  });
-
-  test("with valid data and filters", async () => {
-    createFiles(dir, {
-      "parameters.yaml": dump({
-        Parameters: {
-          "my.param": { type: "text", default: "one" },
-          "my.param2": { type: "text", default: "two" }
-        },
-        Schemas: {
-          "require-param": {
-            type: "object",
-            required: ["my.param"]
-          }
-        },
-        Filters: { "my.param2": ["jsonStringify"] }
-      } as Parameters),
-      "parameters.json": JSON.stringify({
-        "my.param": "one",
-        "my.param2": "two"
-      }),
-      "package.json": JSON.stringify({
-        name: "my-module",
-        version: "1.0.0",
-        somod: "1.0.0"
-      })
-    });
-
-    await expect(loadAllParameterValues(dir)).resolves.toEqual({
-      "my.param": "one",
-      "my.param2": '"two"'
-    });
   });
 });

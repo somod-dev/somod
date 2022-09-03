@@ -1,264 +1,193 @@
-import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
-import { build as esbuild } from "esbuild";
-import { existsSync } from "fs";
-import { mkdir, readdir, writeFile } from "fs/promises";
-import { cloneDeep, uniq } from "lodash";
-import { dirname, join } from "path";
+import { listFiles, unixStylePath } from "@solib/cli-base";
+import { DataValidationError } from "@solib/errors";
+import { JSONSchema7, validate } from "@solib/json-validator";
 import {
-  file_index_js,
+  JSONObjectNode,
+  JSONObjectType,
+  JSONPrimitiveNode,
+  KeywordDefinition,
+  ModuleTemplate
+} from "@somod/types";
+import { basename, extname, join } from "path";
+import {
+  custom_resource_prefix,
   path_build,
   path_functions,
-  path_serverless
+  path_serverless,
+  resourceType_Function
 } from "../../constants";
-import {
-  apply as applyBaseLayer,
-  listLayerLibraries
-} from "../baseModule/layers/baseLayer";
-import {
-  KeywordSOMODFunction,
-  KeywordSOMODRef,
-  ServerlessTemplate,
-  SOMODFunction,
-  SOMODRef,
-  SLPTemplate
-} from "../types";
-import {
-  getNodeRuntimeVersion,
-  getSOMODKeyword,
-  replaceSOMODKeyword,
-  updateKeywordPathsInSLPTemplate
-} from "../utils";
-import { validate as jsonValidator } from "@solib/json-validator";
-import { DataValidationError } from "@solib/errors";
+import { constructJson, getPath } from "../../jsonTemplate";
+import { ServerlessTemplate } from "../types";
 
-export const validate = (slpTemplate: SLPTemplate): Error[] => {
-  const errors: Error[] = [];
-
-  slpTemplate.keywordPaths[KeywordSOMODFunction].forEach(
-    functionKeywordPath => {
-      const _function = getSOMODKeyword<SOMODFunction>(
-        slpTemplate,
-        functionKeywordPath
-      )[KeywordSOMODFunction];
-
-      /**
-       * for root module look in <$packageLocation>/serverless/functions/<functionName>.ts
-       * for child module look in <$packageLocation>/build/serverless/functions/<functionName>/index.js
-       */
-      let functionFilePath = slpTemplate.packageLocation;
-      if (!slpTemplate.root) {
-        functionFilePath = join(functionFilePath, path_build);
-      }
-      functionFilePath = join(
-        functionFilePath,
-        path_serverless,
-        path_functions,
-        _function.name + (slpTemplate.root ? ".ts" : "/index.js")
-      );
-
-      if (!existsSync(functionFilePath)) {
-        errors.push(
-          new Error(
-            `Referenced module function {${slpTemplate.module}, ${
-              _function.name
-            }} not found. Looked for file "${unixStylePath(
-              functionFilePath
-            )}". Referenced in "${
-              slpTemplate.module
-            }" at "Resources/${functionKeywordPath.join("/")}"`
-          )
-        );
-      }
-    }
-  );
-
-  return errors;
+type FunctionType = {
+  name: string;
+  exclude?: string[];
+  customResources?: JSONObjectType;
 };
 
-export const validateCustomResourceSchema = (
-  slpTemplate: SLPTemplate,
-  serverlessTemplate: ServerlessTemplate
+const getDefinedFunctions = async (dir: string) => {
+  const functionsDir = join(dir, path_serverless, path_functions);
+  const files = await listFiles(functionsDir);
+  const functions = files
+    .filter(file => file.indexOf("/") == -1)
+    .map(file => basename(file, extname(file)));
+  return functions;
+};
+
+export const keywordFunction: KeywordDefinition<
+  FunctionType,
+  ServerlessTemplate
+> = {
+  keyword: "SOMOD::Function",
+
+  getValidator: async rootDir => {
+    const definedFunctions = await getDefinedFunctions(rootDir);
+    return (keyword, node, value) => {
+      const errors: Error[] = [];
+
+      const path = getPath(node);
+      if (
+        !(
+          path.length == 4 &&
+          path[0] == "Resources" &&
+          path[2] == "Properties" &&
+          path[3] == "CodeUri" &&
+          (
+            (node.parent.node.parent.node as JSONObjectNode).properties
+              ?.Type as JSONPrimitiveNode
+          ).value == resourceType_Function
+        )
+      ) {
+        errors.push(
+          new Error(
+            `${keyword} is allowed only as value of CodeUri property of ${resourceType_Function} resource`
+          )
+        );
+      } else {
+        //NOTE: structure of the value is validated by serverless-schema
+
+        if (!definedFunctions.includes(value.name)) {
+          errors.push(
+            new Error(
+              `Function ${value.name} not found. define under ${path_serverless}/${path_functions}`
+            )
+          );
+        }
+      }
+
+      return errors;
+    };
+  },
+
+  getProcessor:
+    async (rootDir, moduleName, moduleContentMap) => (keyword, node, value) => {
+      return {
+        type: "object",
+        value: unixStylePath(
+          join(
+            moduleContentMap[moduleName].location,
+            path_build,
+            path_serverless,
+            path_functions,
+            value.name
+          )
+        )
+      };
+    }
+};
+
+export const checkCustomResourceSchema = (
+  refNode: JSONObjectNode,
+  targetTemplate: ModuleTemplate<ServerlessTemplate>,
+  targetResource: string
 ): Error[] => {
   const errors: Error[] = [];
-  Object.keys(slpTemplate.Resources).forEach(logicalResourceId => {
-    if (
-      /^Custom::[A-Z][a-zA-Z0-9]{0,63}$/.test(
-        slpTemplate.Resources[logicalResourceId].Type
-      )
-    ) {
-      const customResource = cloneDeep(
-        slpTemplate.original.Resources[logicalResourceId]
-      );
-      const customResourceType = customResource.Type.substring(
-        "Custom::".length
-      );
-      const serviceToken = (customResource.Properties.ServiceToken as SOMODRef)[
-        KeywordSOMODRef
-      ];
-      if (!serviceToken.module) {
-        serviceToken.module = slpTemplate.module;
-      }
-      const customResourceFunctionSlpTemplate =
-        serviceToken.module == slpTemplate.module
-          ? slpTemplate
-          : serverlessTemplate[serviceToken.module];
 
-      if (customResourceFunctionSlpTemplate) {
-        // else part is taken care by SLPRef validation
-        const customResourceFunctionResource =
-          customResourceFunctionSlpTemplate.original.Resources[
-            serviceToken.resource
-          ];
-        if (customResourceFunctionResource) {
-          // else part is taken care by SLPRef validation
-          const schemaNotFoundError = new Error(
-            `Schema not found for CustomResource ${logicalResourceId}. Looked at 'Properties.CodeUri.${KeywordSOMODFunction}.customResources.${customResourceType}' in {${serviceToken.module}, ${serviceToken.resource}}`
+  // assumption is that the existance of target resource is already verified
+
+  const path = getPath(refNode);
+  if (
+    path.length == 4 &&
+    path[0] == "Resources" &&
+    path[2] == "Properties" &&
+    path[3] == "ServiceToken" &&
+    (
+      (
+        (refNode.parent.node.parent.node as JSONObjectNode).properties
+          ?.Type as JSONPrimitiveNode
+      ).value as string
+    )?.startsWith(custom_resource_prefix)
+  ) {
+    // the ref node is referring a function which implements custom resource
+
+    const customResourceNode = refNode.parent.node.parent.node;
+    const customResource = constructJson(customResourceNode) as {
+      Type: string;
+      Properties: { ServiceToken?: unknown } & Record<string, unknown>;
+    };
+
+    const _customResourceType = customResource.Type.substring(
+      custom_resource_prefix.length
+    );
+
+    const codeUriOfTheTargetResource =
+      targetTemplate.json.Resources[targetResource]?.Properties.CodeUri;
+
+    const customResourceSchema = codeUriOfTheTargetResource
+      ? (codeUriOfTheTargetResource[keywordFunction.keyword] as FunctionType)
+          ?.customResources[_customResourceType]
+      : undefined;
+
+    if (customResourceSchema === undefined) {
+      errors.push(
+        new Error(
+          `Unable to find the schema for the custom resource ${_customResourceType}. The custom resource function ${targetResource} must define the schema for the custom resource.`
+        )
+      );
+    } else {
+      delete customResource.Properties.ServiceToken;
+      try {
+        validate(
+          customResourceSchema as JSONSchema7,
+          customResource.Properties
+        );
+      } catch (e) {
+        const violations = (e as DataValidationError).violations || [];
+        if (violations.length > 0) {
+          errors.push(
+            new Error(
+              `Custom Resource ${
+                path[1]
+              } has following validation errors\n${violations
+                .map(v => `${v.path} ${v.message}`.trim())
+                .join("\n")}`
+            )
           );
-          const customResourceCodeUri = customResourceFunctionResource
-            .Properties?.CodeUri as SOMODFunction;
-          if (customResourceCodeUri) {
-            const customResourceSlpFunction =
-              customResourceCodeUri[KeywordSOMODFunction];
-            if (customResourceSlpFunction) {
-              const customResourceSchema =
-                (customResourceSlpFunction.customResources || {})[
-                  customResourceType
-                ];
-              if (customResourceSchema) {
-                try {
-                  delete customResource.Properties.ServiceToken;
-                  jsonValidator(customResourceSchema, customResource);
-                } catch (e) {
-                  if (e instanceof DataValidationError) {
-                    errors.push(
-                      new Error(
-                        `Custom Resource ${logicalResourceId} has following errors\n${e.violations
-                          .map(v => " " + (v.path + " " + v.message).trim())
-                          .join("\n")}`
-                      )
-                    );
-                  } else {
-                    throw e;
-                  }
-                }
-              } else {
-                errors.push(schemaNotFoundError);
-              }
-            } else {
-              errors.push(schemaNotFoundError);
-            }
-          } else {
-            errors.push(schemaNotFoundError);
-          }
+        } else {
+          errors.push(e);
         }
       }
     }
-  });
+  }
+
   return errors;
 };
 
-export const apply = (serverlessTemplate: ServerlessTemplate) => {
-  Object.values(serverlessTemplate).forEach(slpTemplate => {
-    slpTemplate.keywordPaths[KeywordSOMODFunction].forEach(
-      functionKeywordPath => {
-        const _function = getSOMODKeyword<SOMODFunction>(
-          slpTemplate,
-          functionKeywordPath
-        )[KeywordSOMODFunction];
-        replaceSOMODKeyword(
-          slpTemplate,
-          functionKeywordPath,
-          unixStylePath(
-            join(
-              slpTemplate.packageLocation,
-              path_build,
-              path_serverless,
-              path_functions,
-              _function.name
-            )
-          )
-        );
-
-        const resourceId = functionKeywordPath[0];
-
-        applyBaseLayer(slpTemplate, resourceId);
+export const getDeclaredFunctions = (
+  serverlessTemplate: ServerlessTemplate
+) => {
+  const functionExcludes: { name: string; exclude: string[] }[] = [];
+  Object.values(serverlessTemplate.Resources).forEach(resource => {
+    if (resource.Type == resourceType_Function) {
+      const fun = resource.Properties.CodeUri?.[
+        keywordFunction.keyword
+      ] as FunctionType;
+      const functionName = fun?.name;
+      if (functionName) {
+        const exclude = fun?.exclude || [];
+        functionExcludes.push({ name: functionName, exclude });
       }
-    );
-    if (slpTemplate.keywordPaths[KeywordSOMODFunction].length > 0) {
-      // refresh keyword paths after applying layers
-      updateKeywordPathsInSLPTemplate(slpTemplate);
     }
   });
-};
-
-const file_excludeJson = "exclude.json";
-
-export const build = async (rootSLPTemplate: SLPTemplate): Promise<void> => {
-  const buildFunctionsPath = join(
-    rootSLPTemplate.packageLocation,
-    path_build,
-    path_serverless,
-    path_functions
-  );
-  await Promise.all(
-    rootSLPTemplate.keywordPaths[KeywordSOMODFunction].map(
-      async functionPaths => {
-        const _function = getSOMODKeyword<SOMODFunction>(
-          rootSLPTemplate,
-          functionPaths
-        )[KeywordSOMODFunction];
-        const external = ["aws-sdk", ...(_function.exclude || [])];
-        const baseLayerLibraries = await listLayerLibraries();
-        external.push(...baseLayerLibraries);
-
-        const excludeFilePath = join(
-          buildFunctionsPath,
-          _function.name,
-          file_excludeJson
-        );
-        const excludeFileDir = dirname(excludeFilePath);
-        await mkdir(excludeFileDir, { recursive: true });
-        await writeFile(
-          excludeFilePath,
-          JSON.stringify({ external: uniq(external.sort()) })
-        );
-      }
-    )
-  );
-};
-
-export const bundle = async (dir: string): Promise<void> => {
-  const srcFunctionsPath = join(dir, path_serverless, path_functions);
-  const buildFunctionsPath = join(
-    dir,
-    path_build,
-    path_serverless,
-    path_functions
-  );
-  if (existsSync(srcFunctionsPath)) {
-    const functions = await readdir(srcFunctionsPath);
-    await Promise.all(
-      functions.map(async functionFileName => {
-        const functionName = functionFileName.substring(
-          0,
-          functionFileName.length - 3
-        );
-
-        const exclude = await readJsonFileStore(
-          join(buildFunctionsPath, functionName, file_excludeJson)
-        );
-
-        await esbuild({
-          entryPoints: [join(srcFunctionsPath, functionFileName)],
-          bundle: true,
-          outfile: join(buildFunctionsPath, functionName, file_index_js),
-          sourcemap: false,
-          platform: "node",
-          external: exclude.external as string[],
-          minify: true,
-          target: ["node" + getNodeRuntimeVersion()]
-        });
-      })
-    );
-  }
+  return functionExcludes;
 };
