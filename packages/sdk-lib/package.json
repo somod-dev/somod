@@ -1,6 +1,6 @@
 {
   "name": "@somod/sdk-lib",
-  "version": "1.13.2",
+  "version": "1.13.3",
   "description": "Sodaru Module SDK library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/sdk-lib#readme",
@@ -51,7 +51,7 @@
     "@types/semver": "^7.3.9",
     "jest-summarizing-reporter": "^1.1.4",
     "typescript": "^4.5.5",
-    "@somod/schema": "^1.13.2",
-    "@somod/types": "^1.13.2"
+    "@somod/schema": "^1.13.3",
+    "@somod/types": "^1.13.3"
   }
 }
