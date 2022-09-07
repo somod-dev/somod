@@ -35,7 +35,7 @@
     "imageDomains": {
       "type": "array",
       "items": {
-        "oneOf": [
+        "anyOf": [
           { "type": "string", "format": "hostname" },
           {
             "$ref": "../../common/expression.json#/definitions/somodFunctions"

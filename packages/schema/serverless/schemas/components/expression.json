@@ -279,7 +279,7 @@
       "additionalProperties": false,
       "properties": {
         "Fn::GetAZs": {
-          "oneOf": [
+          "anyOf": [
             { "$ref": "#/definitions/string" },
             { "$ref": "#/definitions/somodRef" },
             {
@@ -298,7 +298,7 @@
           "items": [
             { "$ref": "#/definitions/string" },
             {
-              "oneOf": [
+              "anyOf": [
                 {
                   "type": "array",
                   "items": {
@@ -335,7 +335,7 @@
           "type": "array",
           "items": [
             {
-              "oneOf": [
+              "anyOf": [
                 { "$ref": "#/definitions/number" },
                 {
                   "$ref": "../../../common/expression.json#/definitions/somodFunctions"
@@ -344,7 +344,7 @@
               ]
             },
             {
-              "oneOf": [
+              "anyOf": [
                 { "$ref": "#/definitions/findInMap" },
                 { "$ref": "#/definitions/getAZs" },
                 { "$ref": "#/definitions/if" },
@@ -372,7 +372,7 @@
           "items": [
             { "$ref": "#/definitions/string" },
             {
-              "oneOf": [
+              "anyOf": [
                 { "$ref": "#/definitions/string" },
                 { "$ref": "#/definitions/base64" },
                 { "$ref": "#/definitions/findInMap" },
@@ -412,7 +412,7 @@
                   "additionalProperties": false,
                   "patternProperties": {
                     "^[a-zA-Z0-9]+$": {
-                      "oneOf": [
+                      "anyOf": [
                         { "$ref": "#/definitions/string" },
                         { "$ref": "#/definitions/base64" },
                         { "$ref": "#/definitions/findInMap" },
