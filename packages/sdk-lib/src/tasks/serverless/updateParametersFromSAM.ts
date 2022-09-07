@@ -59,8 +59,8 @@ export const updateParametersFromSAM = async (
 
   const outputParameterValues: Record<string, string> = {};
 
-  result.Stacks[0].Outputs.forEach(output => {
-    parameterValues[getParameterNameFromSAMOutputName(output.OutputKey)] =
+  result.Stacks[0].Outputs?.forEach(output => {
+    outputParameterValues[getParameterNameFromSAMOutputName(output.OutputKey)] =
       output.OutputValue;
   });
 

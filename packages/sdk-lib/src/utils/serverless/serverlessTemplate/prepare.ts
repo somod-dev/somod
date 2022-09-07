@@ -7,6 +7,7 @@ import {
   SAMTemplate,
   ServerlessTemplate
 } from "../types";
+import { getSAMOutputName } from "../utils";
 import { attachBaseLayer } from "./attachBaseLayer";
 import { extendResources } from "./extendResources";
 import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
@@ -66,10 +67,11 @@ export const prepareSamTemplate = async (
     samTemplate.Outputs = {};
     outputNames.forEach(outputName => {
       const moduleName = outputToModuleMap[outputName];
+      const samOutputName = getSAMOutputName(outputName);
       const output = processedTemplateMap[moduleName].Outputs[
-        outputName
+        samOutputName
       ] as SAMTemplate["Outputs"][string];
-      samTemplate.Outputs[outputName] = output;
+      samTemplate.Outputs[samOutputName] = output;
     });
   }
 

@@ -9,6 +9,7 @@ import { prepareSamTemplate } from "../../../../src/utils/serverless/serverlessT
 import { attachBaseLayer } from "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer";
 import { extendResources } from "../../../../src/utils/serverless/serverlessTemplate/extendResources";
 import { listAllOutputs } from "../../../../src/utils/serverless/namespace";
+import { getSAMOutputName } from "../../../../src/utils/serverless/utils";
 
 jest.mock(
   "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
@@ -141,7 +142,14 @@ describe("test util serverlessTemplate.prepare", () => {
 
   test("without errors", async () => {
     mockedFunction(processKeywords).mockImplementation(node => {
-      return constructJson(node);
+      const processedTemplate = constructJson(node);
+      // process output keys
+      Object.keys(processedTemplate?.["Outputs"] || {}).forEach(outputName => {
+        processedTemplate["Outputs"][getSAMOutputName(outputName)] =
+          processedTemplate["Outputs"][outputName];
+        delete processedTemplate["Outputs"][outputName];
+      });
+      return processedTemplate;
     });
 
     const expectedSamTemplate = {
@@ -151,8 +159,15 @@ describe("test util serverlessTemplate.prepare", () => {
         ...moduleServerlessTemplateMap.m0.template.Resources
       },
       Outputs: {
-        ...moduleServerlessTemplateMap.m3.template.Outputs,
-        ...moduleServerlessTemplateMap.m0.template.Outputs
+        o7031: {
+          Ref: "R0"
+        },
+        o7032: {
+          Ref: "R3"
+        },
+        o7033: {
+          Ref: "AWS::AccountId"
+        }
       }
     };
 
