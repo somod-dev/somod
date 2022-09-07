@@ -10,6 +10,7 @@ import { keywordRef } from "../../../../src/utils/serverless/keywords/ref";
 import { join } from "path";
 import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import { JSONObjectNode, JSONObjectType, JSONType } from "@somod/types";
+import { existsSync } from "fs";
 
 jest.mock("@solib/cli-base", () => {
   const original = jest.requireActual("@solib/cli-base");
@@ -17,6 +18,15 @@ jest.mock("@solib/cli-base", () => {
     __esModule: true,
     ...original,
     listFiles: jest.fn()
+  };
+});
+
+jest.mock("fs", () => {
+  const original = jest.requireActual("fs");
+  return {
+    __esModule: true,
+    ...original,
+    existsSync: jest.fn()
   };
 });
 
@@ -34,6 +44,9 @@ describe("Test function keyword", () => {
       "func2.ts",
       "func3.ts"
     ]);
+
+    mockedFunction(existsSync).mockReset();
+    mockedFunction(existsSync).mockReturnValue(true);
   });
 
   test("the keyword name", () => {
@@ -167,6 +180,17 @@ describe("Test function keyword", () => {
         "Function function1 not found. define under serverless/functions"
       )
     ]);
+  });
+
+  test("the getValidator is calling existsSync and skipping listFiles when existsSync returns false", async () => {
+    mockedFunction(existsSync).mockReturnValue(false);
+    await keywordFunction.getValidator("/root/dir", "m1", {});
+    expect(existsSync).toHaveBeenCalledTimes(1);
+    expect(existsSync).toHaveBeenNthCalledWith(
+      1,
+      join("/root/dir", "serverless/functions")
+    );
+    expect(listFiles).toHaveBeenCalledTimes(0);
   });
 
   test("the getValidator is calling listFiles", async () => {

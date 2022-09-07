@@ -8,6 +8,7 @@ import {
   KeywordDefinition,
   ModuleTemplate
 } from "@somod/types";
+import { existsSync } from "fs";
 import { basename, extname, join } from "path";
 import {
   custom_resource_prefix,
@@ -27,6 +28,9 @@ type FunctionType = {
 
 const getDefinedFunctions = async (dir: string) => {
   const functionsDir = join(dir, path_serverless, path_functions);
+  if (!existsSync(functionsDir)) {
+    return [];
+  }
   const files = await listFiles(functionsDir);
   const functions = files
     .filter(file => file.indexOf("/") == -1)
