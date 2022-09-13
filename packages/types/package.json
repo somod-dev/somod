@@ -1,5 +1,5 @@
 {
-  "name": "@somod/types",
+  "name": "somod-types",
   "version": "1.13.3",
   "description": "Type Definitions for somod",
   "typings": "dist/index.d.ts",
