@@ -178,6 +178,45 @@ describe("Test util jsonTemplate.validateKeywords", () => {
     expectKey2ToBeCalledWith();
     expect(validators.key3).toBeCalledTimes(0);
   });
+
+  test("for validators returning Promise", async () => {
+    mockedFunction(validators.key1).mockResolvedValue([]);
+    mockedFunction(validators.key2).mockResolvedValue([]);
+    await expect(
+      validateKeywords(jsonNode, {
+        key1: validators.key1,
+        key2: validators.key2
+      })
+    ).resolves.toEqual([]);
+    expect(validators.key1).toBeCalledTimes(2);
+    expectKey1ToBeCalledWith();
+    expect(validators.key2).toBeCalledTimes(1);
+    expectKey2ToBeCalledWith();
+    expect(validators.key3).toBeCalledTimes(0);
+  });
+
+  test("for validators returning errors in Promise", async () => {
+    const errors = [new Error("Mocked Error 1"), new Error("Mocked Error 2")];
+    mockedFunction(validators.key1).mockResolvedValueOnce([errors[0]]);
+    mockedFunction(validators.key2).mockResolvedValue([errors[1]]);
+    await expect(
+      validateKeywords(jsonNode, {
+        key1: validators.key1,
+        key2: validators.key2
+      })
+    ).resolves.toEqual([
+      new JSONTemplateError(
+        jsonNode["properties"]["key2"]["properties"]["y"]["items"][0],
+        errors[0]
+      ),
+      new JSONTemplateError(jsonNode, errors[1])
+    ]);
+    expect(validators.key1).toBeCalledTimes(2);
+    expectKey1ToBeCalledWith();
+    expect(validators.key2).toBeCalledTimes(1);
+    expectKey2ToBeCalledWith();
+    expect(validators.key3).toBeCalledTimes(0);
+  });
 });
 
 describe("Test util jsonTemplate.processKeywords", () => {
@@ -209,16 +248,16 @@ describe("Test util jsonTemplate.processKeywords", () => {
         expect(processors.key1).toHaveBeenNthCalledWith(
           1,
           "key1",
-          jsonNode["properties"]["a"],
-          json.a.key1
+          jsonNode["properties"]["key2"]["properties"]["y"]["items"][0],
+          json.key2.y[0].key1
         );
       },
       () => {
         expect(processors.key1).toHaveBeenNthCalledWith(
           2,
           "key1",
-          jsonNode["properties"]["key2"]["properties"]["y"]["items"][0],
-          json.key2.y[0].key1
+          jsonNode["properties"]["a"],
+          json.a.key1
         );
       }
     ];
@@ -258,15 +297,15 @@ describe("Test util jsonTemplate.processKeywords", () => {
     });
   });
 
-  test("for no processors", () => {
-    expect(processKeywords(jsonNode, {})).toEqual(json);
+  test("for no processors", async () => {
+    await expect(processKeywords(jsonNode, {})).resolves.toEqual(json);
     expect(processors.key1).toBeCalledTimes(0);
     expect(processors.key2).toBeCalledTimes(0);
     expect(processors.key3).toBeCalledTimes(0);
     expect(processors.key4).toBeCalledTimes(0);
   });
 
-  test("for object replacer", () => {
+  test("for object replacer", async () => {
     mockedFunction(processors.key1).mockReturnValue({
       type: "object",
       value: "replaced value"
@@ -277,9 +316,9 @@ describe("Test util jsonTemplate.processKeywords", () => {
     // @ts-expect-error this is fine
     jsonClone.key2.y[0] = "replaced value";
 
-    expect(processKeywords(jsonNode, { key1: processors.key1 })).toEqual(
-      jsonClone
-    );
+    await expect(
+      processKeywords(jsonNode, { key1: processors.key1 })
+    ).resolves.toEqual(jsonClone);
     expect(processors.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith(1);
     expectKey1ToBeCalledWith(2);
@@ -288,7 +327,7 @@ describe("Test util jsonTemplate.processKeywords", () => {
     expect(processors.key4).toBeCalledTimes(0);
   });
 
-  test("for multiple object replacer", () => {
+  test("for multiple object replacer", async () => {
     mockedFunction(processors.key1).mockReturnValue({
       type: "object",
       value: "replaced value"
@@ -298,23 +337,26 @@ describe("Test util jsonTemplate.processKeywords", () => {
       value: "replaced value"
     });
 
-    expect(() =>
+    await expect(
       processKeywords(jsonNode, {
         key1: processors.key1,
         key4: processors.key4
       })
-    ).toThrow(
-      `Object replacement is allowed for only one keyword, Found key1,key4`
+    ).rejects.toEqual(
+      new Error(
+        `Object replacement is allowed for only one keyword, Found key1,key4`
+      )
     );
-    expect(processors.key1).toBeCalledTimes(1);
+    expect(processors.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith(1);
+    expectKey1ToBeCalledWith(2);
     expect(processors.key2).toBeCalledTimes(0);
     expect(processors.key3).toBeCalledTimes(0);
     expect(processors.key4).toBeCalledTimes(1);
     expectKey4ToBeCalledWith();
   });
 
-  test("for keyword replacer without additional keys", () => {
+  test("for keyword replacer without additional keys", async () => {
     mockedFunction(processors.key2).mockReturnValue({
       type: "keyword",
       value: {}
@@ -323,11 +365,11 @@ describe("Test util jsonTemplate.processKeywords", () => {
     const jsonClone = cloneDeep(json);
     delete jsonClone.key2;
 
-    expect(
+    await expect(
       processKeywords(jsonNode, {
         key2: processors.key2
       })
-    ).toEqual(jsonClone);
+    ).resolves.toEqual(jsonClone);
     expect(processors.key1).toBeCalledTimes(0);
     expect(processors.key2).toBeCalledTimes(1);
     expectKey2ToBeCalledWith();
@@ -335,7 +377,7 @@ describe("Test util jsonTemplate.processKeywords", () => {
     expect(processors.key4).toBeCalledTimes(0);
   });
 
-  test("for keyword replacer with additional keys", () => {
+  test("for keyword replacer with additional keys", async () => {
     mockedFunction(processors.key2).mockReturnValue({
       type: "keyword",
       value: { key2replacement: "waw" }
@@ -346,11 +388,11 @@ describe("Test util jsonTemplate.processKeywords", () => {
     // @ts-expect-error this is fine
     jsonClone.key2replacement = "waw";
 
-    expect(
+    await expect(
       processKeywords(jsonNode, {
         key2: processors.key2
       })
-    ).toEqual(jsonClone);
+    ).resolves.toEqual(jsonClone);
     expect(processors.key1).toBeCalledTimes(0);
     expect(processors.key2).toBeCalledTimes(1);
     expectKey2ToBeCalledWith();
@@ -358,7 +400,7 @@ describe("Test util jsonTemplate.processKeywords", () => {
     expect(processors.key4).toBeCalledTimes(0);
   });
 
-  test("for multiple keyword replacer", () => {
+  test("for multiple keyword replacer", async () => {
     mockedFunction(processors.key3).mockReturnValue({
       type: "keyword",
       value: { key3replacement: "waw" }
@@ -374,12 +416,12 @@ describe("Test util jsonTemplate.processKeywords", () => {
     // @ts-expect-error this is fine
     jsonClone.a.key3replacement = "waw";
 
-    expect(
+    await expect(
       processKeywords(jsonNode, {
         key3: processors.key3,
         key4: processors.key4
       })
-    ).toEqual(jsonClone);
+    ).resolves.toEqual(jsonClone);
     expect(processors.key1).toBeCalledTimes(0);
     expect(processors.key2).toBeCalledTimes(0);
     expect(processors.key3).toBeCalledTimes(1);
@@ -388,12 +430,12 @@ describe("Test util jsonTemplate.processKeywords", () => {
     expectKey4ToBeCalledWith();
   });
 
-  test("for object replacer (returning object) and keyword replacers", () => {
+  test("for object replacer (returning object) and keyword replacers", async () => {
     mockedFunction(processors.key1).mockReturnValue({
       type: "object",
       value: { key1replacement: "replacedkey1" }
     });
-    mockedFunction(processors.key3).mockReturnValue({
+    mockedFunction(processors.key3).mockResolvedValue({
       type: "keyword",
       value: { key3replacement: "waw" }
     });
@@ -414,13 +456,13 @@ describe("Test util jsonTemplate.processKeywords", () => {
       key1replacement: "replacedkey1"
     };
 
-    expect(
+    await expect(
       processKeywords(jsonNode, {
         key1: processors.key1,
         key3: processors.key3,
         key4: processors.key4
       })
-    ).toEqual(jsonClone);
+    ).resolves.toEqual(jsonClone);
     expect(processors.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith(1);
     expectKey1ToBeCalledWith(2);
@@ -431,8 +473,8 @@ describe("Test util jsonTemplate.processKeywords", () => {
     expectKey4ToBeCalledWith();
   });
 
-  test("for object replacer (returning string) and keyword replacers", () => {
-    mockedFunction(processors.key1).mockReturnValue({
+  test("for object replacer (returning string) and keyword replacers", async () => {
+    mockedFunction(processors.key1).mockResolvedValue({
       type: "object",
       value: "replacedkey1"
     });
@@ -440,7 +482,7 @@ describe("Test util jsonTemplate.processKeywords", () => {
       type: "keyword",
       value: { key3replacement: "waw" }
     });
-    mockedFunction(processors.key4).mockReturnValue({
+    mockedFunction(processors.key4).mockResolvedValue({
       type: "keyword",
       value: {}
     });
@@ -451,13 +493,13 @@ describe("Test util jsonTemplate.processKeywords", () => {
     // @ts-expect-error this is fine
     jsonClone.key2.y[0] = "replacedkey1";
 
-    expect(
+    await expect(
       processKeywords(jsonNode, {
         key1: processors.key1,
         key3: processors.key3,
         key4: processors.key4
       })
-    ).toEqual(jsonClone);
+    ).resolves.toEqual(jsonClone);
     expect(processors.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith(1);
     expectKey1ToBeCalledWith(2);
