@@ -14,13 +14,10 @@
   },
   "eslintConfig": {
     "extends": [
-      "@sodev/eslint-config"
-    ],
-    "rules": {
-      "no-console": 1
-    }
+      "sodaru"
+    ]
   },
-  "prettier": "@sodev/prettier-config",
+  "prettier": "prettier-config-sodaru",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
@@ -42,8 +39,8 @@
   "homepage": "https://gitlab.com/sodaru/somod/sdk#readme",
   "private": true,
   "devDependencies": {
-    "@sodev/eslint-config": "^1.1.0",
-    "@sodev/mono-repo": "^1.2.0",
-    "@sodev/prettier-config": "^1.1.0"
+    "eslint-config-sodaru": "^1.0.0",
+    "npm-mono-repo": "^1.0.0",
+    "prettier-config-sodaru": "^1.0.0"
   }
 }
