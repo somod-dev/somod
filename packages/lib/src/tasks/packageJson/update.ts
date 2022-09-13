@@ -1,4 +1,4 @@
-import { getCommandVersion } from "@solib/cli-base";
+import { getCommandVersion } from "nodejs-cli-runner";
 import {
   file_index_dts,
   file_index_js,

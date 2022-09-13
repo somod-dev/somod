@@ -1,7 +1,7 @@
 import { listAllParameters } from "../../../src/utils/parameters/namespace";
 import { loadAllParameterValues } from "../../../src/utils/parameters/load";
 import { keywordParameter } from "../../../src/utils/keywords/parameter";
-import { mockedFunction } from "@sodev/test-utils";
+import { mockedFunction } from "../../utils";
 import { parseJson } from "../../../src/utils/jsonTemplate";
 import { JSONObjectNode } from "somod-types";
 

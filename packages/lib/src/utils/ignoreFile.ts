@@ -6,7 +6,7 @@ import {
   updateIgnoreFileStore,
   saveIgnoreFileStore,
   unixStylePath
-} from "@solib/cli-base";
+} from "nodejs-file-utils";
 import { existsSync } from "fs";
 
 // read from ignore file in current dir to any parent dir

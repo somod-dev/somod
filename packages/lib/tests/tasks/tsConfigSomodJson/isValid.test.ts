@@ -1,14 +1,14 @@
 import { cloneDeep } from "lodash";
 import { join } from "path";
 import { isValidTsConfigSomodJson } from "../../../src";
+import ErrorSet from "../../../src/utils/ErrorSet";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { ErrorSet } from "@solib/cli-base";
 
 describe("Test task isValidTsConfigSomodJson", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

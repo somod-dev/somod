@@ -6,7 +6,7 @@ describe("Test Task deleteBuildDir", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

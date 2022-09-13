@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { dump } from "js-yaml";
 import {
   namespace_parameter,
@@ -15,7 +15,7 @@ describe("Test Util parameters.loadParameterNamespaces", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {
@@ -172,7 +172,7 @@ describe("Test Util parameters.listAllParameters", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 

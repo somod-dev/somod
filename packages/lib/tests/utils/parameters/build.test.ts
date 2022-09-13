@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
@@ -11,7 +11,7 @@ describe("Test Util parameters.build", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     createFiles(dir, {
       "package.json": JSON.stringify({
         name: "my-module",

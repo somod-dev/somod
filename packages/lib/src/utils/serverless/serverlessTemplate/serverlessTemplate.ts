@@ -1,4 +1,4 @@
-import { readJsonFileStore } from "@solib/cli-base";
+import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
 import { existsSync } from "fs";
 import { join } from "path";
 import {
@@ -26,7 +26,6 @@ import { keywordModuleName } from "../keywords/moduleName";
 import { keywordOutput } from "../keywords/output";
 import { keywordRef } from "../keywords/ref";
 import { keywordResourceName } from "../keywords/resourceName";
-import { readYamlFileStore } from "../../yamlFileStore";
 import {
   ModuleServerlessTemplate,
   ModuleServerlessTemplateMap,

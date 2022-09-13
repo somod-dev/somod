@@ -18,7 +18,7 @@ describe("Test getExports with invalid inputs", () => {
 
   test("non existing file", () => {
     expect(() =>
-      getExports(pathJoin(createTempDir(), "mycode.ts"))
+      getExports(pathJoin(createTempDir("test-somod-lib"), "mycode.ts"))
     ).toThrowError("no such file or directory");
   });
 });
@@ -33,7 +33,7 @@ const template = (
     let dir: string = null;
     let file = null;
     beforeEach(() => {
-      dir = createTempDir();
+      dir = createTempDir("test-somod-lib");
       const files = isString(code) ? { "code.ts": code } : code;
       file = Object.keys(files)[0];
       createFiles(dir, files);

@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
@@ -45,7 +45,7 @@ describe("Test Util parameters.generate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 

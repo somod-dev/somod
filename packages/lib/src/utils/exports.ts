@@ -1,4 +1,3 @@
-import { ErrorSet } from "@solib/cli-base";
 import {
   parse,
   AST_NODE_TYPES,
@@ -8,6 +7,7 @@ import {
 import { existsSync, readFileSync } from "fs";
 import { countBy } from "lodash";
 import { join, normalize, dirname } from "path";
+import ErrorSet from "./ErrorSet";
 
 export type Exports = {
   default: boolean;

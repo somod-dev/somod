@@ -1,4 +1,4 @@
-import { mockedFunction } from "@sodev/test-utils";
+import { mockedFunction } from "../../utils";
 import { loadPlugins as loadPluginsUtil } from "../../../src/utils/plugin/loadPlugins";
 import { loadPlugins } from "../../../src";
 

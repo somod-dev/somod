@@ -1,15 +1,15 @@
 import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 import { createPublicAssets } from "../../../src";
 import { join } from "path";
-import { ErrorSet } from "@solib/cli-base";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { loadPublicAssetNamespaces } from "../../../src/utils/nextJs/publicAssets";
+import ErrorSet from "../../../src/utils/ErrorSet";
 
 describe("Test Task createPublicAssets", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [loadPublicAssetNamespaces]);
   });
 

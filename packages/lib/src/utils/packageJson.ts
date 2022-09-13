@@ -4,7 +4,7 @@ import {
   readJsonFileStore,
   updateJsonFileStore,
   unixStylePath
-} from "@solib/cli-base";
+} from "nodejs-file-utils";
 
 export const read = async (dir: string): Promise<Record<string, unknown>> => {
   const packageJsonPath = join(dir, file_packageJson);

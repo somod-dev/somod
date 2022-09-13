@@ -10,7 +10,7 @@ describe("Test Task buildServerlessTemplate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 

@@ -1,6 +1,5 @@
-import { listFiles, unixStylePath } from "@solib/cli-base";
-import { DataValidationError } from "@solib/errors";
-import { JSONSchema7, validate } from "@solib/json-validator";
+import { listFiles, unixStylePath } from "nodejs-file-utils";
+import { JSONSchema7, validate } from "decorated-ajv";
 import {
   JSONObjectNode,
   JSONObjectType,
@@ -100,11 +99,11 @@ export const keywordFunction: KeywordDefinition<
     }
 };
 
-export const checkCustomResourceSchema = (
+export const checkCustomResourceSchema = async (
   refNode: JSONObjectNode,
   targetTemplate: ModuleTemplate<ServerlessTemplate>,
   targetResource: string
-): Error[] => {
+): Promise<Error[]> => {
   const errors: Error[] = [];
 
   // assumption is that the existance of target resource is already verified
@@ -151,12 +150,10 @@ export const checkCustomResourceSchema = (
     } else {
       delete customResource.Properties.ServiceToken;
       try {
-        validate(
+        const violations = await validate(
           customResourceSchema as JSONSchema7,
           customResource.Properties
         );
-      } catch (e) {
-        const violations = (e as DataValidationError).violations || [];
         if (violations.length > 0) {
           errors.push(
             new Error(
@@ -167,9 +164,9 @@ export const checkCustomResourceSchema = (
                 .join("\n")}`
             )
           );
-        } else {
-          errors.push(e);
         }
+      } catch (e) {
+        errors.push(e);
       }
     }
   }

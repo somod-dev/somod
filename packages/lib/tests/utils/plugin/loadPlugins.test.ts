@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { join } from "path";
 import { loadPlugins } from "../../../src/utils/plugin/loadPlugins";
 
@@ -6,7 +6,7 @@ describe("Test util loadPlugins", () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

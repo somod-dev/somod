@@ -1,4 +1,4 @@
-import { unixStylePath } from "@solib/cli-base";
+import { unixStylePath } from "nodejs-file-utils";
 import { KeywordDefinition } from "somod-types";
 import { writeFile } from "fs/promises";
 import { join, relative } from "path";

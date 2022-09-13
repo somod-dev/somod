@@ -1,4 +1,4 @@
-import { unixStylePath } from "@solib/cli-base";
+import { unixStylePath } from "nodejs-file-utils";
 import { getPackageLocation } from "@somod/lambda-base-layer";
 import { join } from "path";
 import {

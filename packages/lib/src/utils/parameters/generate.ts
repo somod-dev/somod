@@ -2,7 +2,7 @@ import {
   readJsonFileStore,
   saveJsonFileStore,
   updateJsonFileStore
-} from "@solib/cli-base";
+} from "nodejs-file-utils";
 import { existsSync } from "fs";
 import { uniq } from "lodash";
 import { join } from "path";

@@ -1,5 +1,5 @@
-import { ErrorSet } from "@solib/cli-base";
 import { KeywordDefinition, KeywordValidator } from "somod-types";
+import ErrorSet from "../../ErrorSet";
 import { parseJson, validateKeywords } from "../../jsonTemplate";
 import { ModuleServerlessTemplateMap } from "../types";
 import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
@@ -33,7 +33,7 @@ export const validateServerlessTemplate = async (
     })
   );
 
-  const errors = validateKeywords(
+  const errors = await validateKeywords(
     parseJson(moduleTemplateMap[rootModuleName].template),
     keywordValidators
   );

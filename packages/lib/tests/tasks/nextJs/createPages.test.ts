@@ -2,15 +2,15 @@ import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 
 import { createPages } from "../../../src";
 import { join } from "path";
-import { ErrorSet } from "@solib/cli-base";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { loadPageNamespaces } from "../../../src/utils/nextJs/pages";
+import ErrorSet from "../../../src/utils/ErrorSet";
 
 describe("Test Task createPages", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [loadPageNamespaces]);
   });
 

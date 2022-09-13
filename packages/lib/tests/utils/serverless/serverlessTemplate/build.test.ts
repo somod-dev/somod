@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../../utils";
 import { dump } from "js-yaml";
 import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import { buildServerlessTemplate } from "../../../../src/utils/serverless/serverlessTemplate/build";
@@ -9,7 +9,7 @@ describe("test util serverlessTemplate.build", () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

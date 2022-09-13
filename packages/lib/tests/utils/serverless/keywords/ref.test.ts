@@ -3,7 +3,7 @@ import { keywordRef } from "../../../../src/utils/serverless/keywords/ref";
 import { checkOutput } from "../../../../src/utils/serverless/keywords/output";
 import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
 import { checkCustomResourceSchema } from "../../../../src/utils/serverless/keywords/function";
-import { mockedFunction } from "@sodev/test-utils";
+import { mockedFunction } from "../../../utils";
 import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";
 import { JSONObjectNode } from "somod-types";
 
@@ -67,7 +67,7 @@ describe("Test ref keyword", () => {
     mockedFunction(checkOutput).mockReset();
     mockedFunction(checkOutput).mockReturnValue([]);
     mockedFunction(checkCustomResourceSchema).mockReset();
-    mockedFunction(checkCustomResourceSchema).mockReturnValue([]);
+    mockedFunction(checkCustomResourceSchema).mockResolvedValue([]);
   });
 
   test("the keyword name", () => {
@@ -82,13 +82,13 @@ describe("Test ref keyword", () => {
       additionalProp: "abcd"
     };
 
-    expect(
+    await expect(
       validator(
         keywordRef.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordRef.keyword] as RefType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("Object with SOMOD::Ref must not have additional properties")
     ]);
   });
@@ -100,13 +100,13 @@ describe("Test ref keyword", () => {
       [keywordRef.keyword]: { resource: "TargetResource" } as RefType
     };
 
-    expect(
+    await expect(
       validator(
         keywordRef.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordRef.keyword]
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
   });
 
   test("the validator with invalid value", async () => {
@@ -119,13 +119,13 @@ describe("Test ref keyword", () => {
       }
     };
 
-    expect(
+    await expect(
       validator(
         keywordRef.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordRef.keyword] as unknown as RefType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "Has following errors\nmust NOT have additional properties\nresource must be string"
       )
@@ -141,13 +141,13 @@ describe("Test ref keyword", () => {
       }
     };
 
-    expect(
+    await expect(
       validator(
         keywordRef.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordRef.keyword] as unknown as RefType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("Referenced module resource {m1, TargetResource2} not found.")
     ]);
   });
@@ -162,13 +162,13 @@ describe("Test ref keyword", () => {
       }
     };
 
-    expect(
+    await expect(
       validator(
         keywordRef.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordRef.keyword] as unknown as RefType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("Referenced module resource {m1, TargetResource2} not found.")
     ]);
   });
@@ -182,13 +182,13 @@ describe("Test ref keyword", () => {
       }
     };
 
-    expect(
+    await expect(
       validator(
         keywordRef.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordRef.keyword] as unknown as RefType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "Can not reference an extended resource {m1, ExtendedTargetResource}."
       )
@@ -202,7 +202,7 @@ describe("Test ref keyword", () => {
     mockedFunction(checkOutput).mockReturnValue([
       new Error("error from checkOutput")
     ]);
-    mockedFunction(checkCustomResourceSchema).mockReturnValue([
+    mockedFunction(checkCustomResourceSchema).mockResolvedValue([
       new Error("error from checkCustomResourceSchema")
     ]);
 
@@ -216,9 +216,9 @@ describe("Test ref keyword", () => {
 
     const node = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(keywordRef.keyword, node, obj[keywordRef.keyword])
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("error from checkAccess"),
       new Error("error from checkOutput"),
       new Error("error from checkCustomResourceSchema")

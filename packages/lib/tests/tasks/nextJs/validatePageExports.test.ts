@@ -1,11 +1,11 @@
 import { validatePageExports } from "../../../src";
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 describe("Test task validatePageExports", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

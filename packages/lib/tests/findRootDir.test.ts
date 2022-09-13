@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "./utils";
 import { join } from "path";
 import { findRootDir } from "../src";
 
@@ -7,7 +7,7 @@ describe("test findRootDir", () => {
   const originalCwd = process.cwd;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     process.cwd = () => dir;
   });
 

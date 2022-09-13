@@ -70,13 +70,13 @@ describe("Test ajv-compile keyword", () => {
       [keywordAjvCompile.keyword]: "this is invalid schema"
     };
 
-    expect(() =>
+    await expect(
       processor(
         keywordAjvCompile.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordAjvCompile.keyword] as unknown as JSONObjectType
       )
-    ).toThrow("schema must be object or boolean");
+    ).rejects.toEqual(new Error("schema must be object or boolean"));
   });
 
   test("the processor with valid schema", async () => {
@@ -86,13 +86,13 @@ describe("Test ajv-compile keyword", () => {
       [keywordAjvCompile.keyword]: { type: "object" }
     };
 
-    expect(
+    await expect(
       processor(
         keywordAjvCompile.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordAjvCompile.keyword] as unknown as JSONObjectType
       )
-    ).toMatchInlineSnapshot(`
+    ).resolves.toMatchInlineSnapshot(`
       Object {
         "type": "object",
         "value": "\\"use strict\\";module.exports = validate14;module.exports.default = validate14;const schema16 = {\\"type\\":\\"object\\"};function validate14(data, {instancePath=\\"\\", parentData, parentDataProperty, rootData=data}={}){let vErrors = null;let errors = 0;if(!(data && typeof data == \\"object\\" && !Array.isArray(data))){const err0 = {instancePath,schemaPath:\\"#/type\\",keyword:\\"type\\",params:{type: \\"object\\"},message:\\"must be object\\"};if(vErrors === null){vErrors = [err0];}else {vErrors.push(err0);}errors++;}validate14.errors = vErrors;return errors === 0;}",

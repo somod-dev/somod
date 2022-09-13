@@ -10,7 +10,7 @@ describe("Test util page.loadPageNamespaces", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [loadPageNamespaces]);
   });
 

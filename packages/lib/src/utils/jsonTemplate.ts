@@ -12,7 +12,8 @@ import {
   JSONNode,
   JSONObjectType,
   KeywordValidator,
-  KeywordProcessor
+  KeywordProcessor,
+  KeywordReplacement
 } from "somod-types";
 
 export const parseJson = (json: JSONType): JSONNode => {
@@ -128,75 +129,103 @@ export class JSONTemplateError extends Error {
   }
 }
 
-export const validateKeywords = (
+export const validateKeywords = async (
   jsonNode: JSONNode,
   keywordValidators: Record<string, KeywordValidator>
-): JSONTemplateError[] => {
+): Promise<JSONTemplateError[]> => {
   const errors: JSONTemplateError[] = [];
   const keywords = Object.keys(keywordValidators);
-  const navigator = (jsonNode: JSONNode) => {
+  const navigator = async (jsonNode: JSONNode) => {
     if (jsonNode.type == "array") {
-      jsonNode.items.forEach(item => {
-        navigator(item);
-      });
+      await Promise.all(
+        jsonNode.items.map(async item => {
+          await navigator(item);
+        })
+      );
     } else if (jsonNode.type == "object") {
       const properties = Object.keys(jsonNode.properties);
-      properties.forEach(property => {
-        navigator(jsonNode.properties[property]);
-      });
+      await Promise.all(
+        properties.map(async property => {
+          await navigator(jsonNode.properties[property]);
+        })
+      );
 
       // validation
       const keywordsInThisObject = intersection(properties, keywords);
-      keywordsInThisObject.forEach(keyword => {
-        const keywordErrors = keywordValidators[keyword](
-          keyword,
-          jsonNode,
-          constructJson(jsonNode.properties[keyword])
-        );
-        errors.push(
-          ...keywordErrors.map(e => new JSONTemplateError(jsonNode, e))
-        );
-      });
+
+      await Promise.all(
+        keywordsInThisObject.map(async keyword => {
+          const keywordErrorsPromise = keywordValidators[keyword](
+            keyword,
+            jsonNode,
+            constructJson(jsonNode.properties[keyword])
+          );
+          let keywordErrors = keywordErrorsPromise as Error[];
+          if (
+            typeof (keywordErrorsPromise as Promise<Error[]>)?.then ==
+            "function"
+          ) {
+            keywordErrors = await keywordErrorsPromise;
+          }
+
+          errors.push(
+            ...keywordErrors.map(e => new JSONTemplateError(jsonNode, e))
+          );
+        })
+      );
     }
   };
-  navigator(jsonNode);
+  await navigator(jsonNode);
   return errors;
 };
 
-export const processKeywords = (
+export const processKeywords = async (
   jsonNode: JSONNode,
   keywordProcessors: Record<string, KeywordProcessor>
-): JSONType => {
+): Promise<JSONType> => {
   const keywords = Object.keys(keywordProcessors);
-  const navigator = (jsonNode: JSONNode): JSONType => {
+  const navigator = async (jsonNode: JSONNode): Promise<JSONType> => {
     if (jsonNode.type == "primitive") {
       return jsonNode.value;
     } else if (jsonNode.type == "array") {
-      const jsonArray = jsonNode.items.map(item => navigator(item));
+      const jsonArray = await Promise.all(
+        jsonNode.items.map(item => navigator(item))
+      );
       return jsonArray;
     } else if (jsonNode.type == "object") {
       const properties = Object.keys(jsonNode.properties);
       const jsonObject = Object.fromEntries(
-        properties.map(property => [
-          property,
-          navigator(jsonNode.properties[property])
-        ])
+        await Promise.all(
+          properties.map(async property => [
+            property,
+            await navigator(jsonNode.properties[property])
+          ])
+        )
       );
 
       // replacement
       const keywordsInThisObject = intersection(properties, keywords);
-      const keywordReplacements = keywordsInThisObject.map(keyword => {
-        try {
-          const replacer = keywordProcessors[keyword](
-            keyword,
-            jsonNode,
-            jsonObject[keyword]
-          );
-          return { ...replacer, keyword };
-        } catch (e) {
-          throw new JSONTemplateError(jsonNode, e);
-        }
-      });
+      const keywordReplacements = await Promise.all(
+        keywordsInThisObject.map(async keyword => {
+          try {
+            const replacerPromise = keywordProcessors[keyword](
+              keyword,
+              jsonNode,
+              jsonObject[keyword]
+            );
+            let replacer = replacerPromise as KeywordReplacement;
+            if (
+              typeof (replacerPromise as Promise<KeywordReplacement>)?.then ==
+              "function"
+            ) {
+              replacer = await replacerPromise;
+            }
+            return { ...replacer, keyword };
+          } catch (e) {
+            throw new JSONTemplateError(jsonNode, e);
+          }
+        })
+      );
       const keywordObjectReplacements = keywordReplacements.filter(
         r => r.type == "object"
       );
@@ -224,5 +253,5 @@ export const processKeywords = (
       return resultObject;
     }
   };
-  return navigator(jsonNode);
+  return await navigator(jsonNode);
 };

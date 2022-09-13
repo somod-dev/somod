@@ -1,4 +1,4 @@
-import { childProcess, ChildProcessStreamConfig } from "@solib/cli-base";
+import { childProcess, ChildProcessStreamConfig } from "nodejs-cli-runner";
 import { mkdir, writeFile } from "fs/promises";
 import { difference } from "lodash";
 import { join } from "path";

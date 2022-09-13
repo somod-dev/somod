@@ -1,12 +1,12 @@
 import { validatePageData } from "../../../src";
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { ErrorSet } from "@solib/cli-base";
+import ErrorSet from "../../../src/utils/ErrorSet";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 describe("Test task validatePageData", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

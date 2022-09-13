@@ -5,10 +5,7 @@ import { ModuleHandler } from "../../utils/moduleHandler";
 import { prepareSamTemplate } from "../../utils/serverless/serverlessTemplate/prepare";
 import { loadServerlessTemplateMap } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
 import { getNodeRuntimeVersion } from "../../utils/serverless/utils";
-import {
-  saveYamlFileStore,
-  updateYamlFileStore
-} from "../../utils/yamlFileStore";
+import { saveYamlFileStore, updateYamlFileStore } from "nodejs-file-utils";
 
 export const prepareSAMTemplate = async (
   dir: string,

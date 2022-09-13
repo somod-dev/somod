@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { path_pages, path_pagesData, path_ui } from "../../utils/constants";
-import { copyDirectory } from "@solib/cli-base";
+import { copyDirectory } from "nodejs-file-utils";
 import { linkPage, removeExtension } from "../../utils/nextJs/pages";
 import watch from "../../utils/watch";
 import { sync as rimrafSync } from "rimraf";

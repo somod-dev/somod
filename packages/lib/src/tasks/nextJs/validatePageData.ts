@@ -1,10 +1,11 @@
-import { ErrorSet, listFiles } from "@solib/cli-base";
+import { listFiles } from "nodejs-file-utils";
 import { existsSync } from "fs";
 import { difference } from "lodash";
 import { join } from "path";
 import { path_pages, path_pagesData, path_ui } from "../../utils/constants";
 import { get as getExports } from "../../utils/exports";
 import { addPageExtention } from "../../utils/nextJs/pages";
+import ErrorSet from "../../utils/ErrorSet";
 
 const doesPageExistsForPageData = (pagesDir: string, pageData: string) => {
   const pageDataPathWithoutExtention = pageData.substring(

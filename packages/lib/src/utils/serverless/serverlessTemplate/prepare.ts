@@ -46,10 +46,10 @@ export const prepareSamTemplate = async (
           })
         );
 
-        const processedTemplate = processKeywords(
+        const processedTemplate = (await processKeywords(
           parseJson(moduleContentMap[moduleName].json),
           keywordProcessors
-        ) as SAMTemplate;
+        )) as SAMTemplate;
 
         samTemplate.Resources = {
           ...samTemplate.Resources,

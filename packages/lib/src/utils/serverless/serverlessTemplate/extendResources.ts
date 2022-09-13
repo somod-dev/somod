@@ -1,4 +1,4 @@
-import { dfs } from "@solib/graph";
+import { dfs } from "graph-dsa";
 import { merge } from "lodash";
 import { getExtendedResourceMap } from "../keywords/extend";
 import { SAMTemplate } from "../types";

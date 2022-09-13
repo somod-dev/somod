@@ -1,4 +1,4 @@
-import { createTempDir, deleteDir, mockedFunction } from "@sodev/test-utils";
+import { createTempDir, deleteDir, mockedFunction } from "../../utils";
 import { generate } from "../../../src/utils/parameters/generate";
 import { generateRootParameters } from "../../../src";
 
@@ -13,7 +13,7 @@ describe("test Task generateRootParameters", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     mockedFunction(generate).mockReset();
   });
 

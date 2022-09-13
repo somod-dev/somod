@@ -3,6 +3,7 @@ import {
   cli_version_regex,
   file_index_dts,
   file_index_js,
+  file_packageJson,
   key_files,
   key_jsnextMain,
   key_main,
@@ -15,9 +16,8 @@ import {
   path_build,
   path_lib
 } from "../../utils/constants";
-import { read, packageJsonPath } from "../../utils/packageJson";
-import { validate as validateJson } from "@solib/json-validator";
-import { DataValidationError, DataViolation } from "@solib/errors";
+import { read } from "../../utils/packageJson";
+import { validate as validateJson, Violation } from "decorated-ajv";
 
 const packageJsonSchema: JSONSchema7 = {
   type: "object",
@@ -85,36 +85,43 @@ const packageJsonSchema: JSONSchema7 = {
   }
 };
 
+const schemaValidate = async (packageJson: Record<string, unknown>) => {
+  const violations = await validateJson(packageJsonSchema, packageJson);
+  if (violations.length > 0) {
+    throw new Error(
+      `${file_packageJson} has following errors\n${violations
+        .map(v => " " + (v.path + " " + v.message).trim())
+        .join("\n")}`
+    );
+  }
+};
+
 const validateInvalidKeys = (packageJson: Record<string, unknown>) => {
   const invalidKeys = [key_main, key_jsnextMain, key_type];
 
-  const violations: DataViolation[] = [];
+  const violations: Violation[] = [];
   invalidKeys.forEach(key => {
     if (packageJson[key] !== undefined) {
-      violations.push({ path: key, message: "must not exist" });
+      violations.push({
+        path: key,
+        message: "must not exist",
+        context: { params: {} }
+      });
     }
   });
 
   if (violations.length > 0) {
-    throw new DataValidationError(violations);
+    throw new Error(
+      `${file_packageJson} has following errors\n${violations
+        .map(v => " " + (v.path + " " + v.message).trim())
+        .join("\n")}`
+    );
   }
 };
 
 export const validate = async (dir: string): Promise<void> => {
   const packageJson = await read(dir);
 
-  try {
-    validateJson(packageJsonSchema, packageJson);
-    validateInvalidKeys(packageJson);
-  } catch (e) {
-    if (e instanceof DataValidationError) {
-      throw new Error(
-        `${packageJsonPath(dir)} has following errors\n${e.violations
-          .map(v => " " + (v.path + " " + v.message).trim())
-          .join("\n")}`
-      );
-    } else {
-      throw e;
-    }
-  }
+  await schemaValidate(packageJson);
+  validateInvalidKeys(packageJson);
 };

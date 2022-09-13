@@ -7,7 +7,7 @@ import {
   path_build
 } from "../constants";
 import { ModuleHandler } from "../moduleHandler";
-import { readYamlFileStore } from "../yamlFileStore";
+import { readYamlFileStore } from "nodejs-file-utils";
 import { loadParameters } from "./load";
 
 const buildParametersYaml = async (dir: string): Promise<void> => {

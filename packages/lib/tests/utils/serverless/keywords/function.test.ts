@@ -1,6 +1,5 @@
-import { mockedFunction } from "@sodev/test-utils";
+import { mockedFunction } from "../../../utils";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import { listFiles } from "@solib/cli-base";
 import {
   checkCustomResourceSchema,
   getDeclaredFunctions,
@@ -11,9 +10,10 @@ import { join } from "path";
 import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import { JSONObjectNode, JSONObjectType, JSONType } from "somod-types";
 import { existsSync } from "fs";
+import { listFiles } from "nodejs-file-utils";
 
-jest.mock("@solib/cli-base", () => {
-  const original = jest.requireActual("@solib/cli-base");
+jest.mock("nodejs-file-utils", () => {
+  const original = jest.requireActual("nodejs-file-utils");
   return {
     __esModule: true,
     ...original,
@@ -381,8 +381,8 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
 
   const template2Node = parseJson(template2 as JSONType);
 
-  test("for a reference other than Service Token", () => {
-    expect(
+  test("for a reference other than Service Token", async () => {
+    await expect(
       checkCustomResourceSchema(
         (
           (
@@ -401,11 +401,11 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
         },
         "CFNLambda"
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
   });
 
-  test("for missing schema", () => {
-    expect(
+  test("for missing schema", async () => {
+    await expect(
       checkCustomResourceSchema(
         (
           (
@@ -424,15 +424,15 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
         },
         "CFNLambda"
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "Unable to find the schema for the custom resource R2. The custom resource function CFNLambda must define the schema for the custom resource."
       )
     ]);
   });
 
-  test("for schema validation failure", () => {
-    expect(
+  test("for schema validation failure", async () => {
+    await expect(
       checkCustomResourceSchema(
         (
           (
@@ -451,15 +451,15 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
         },
         "CFNLambda"
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         `Custom Resource R2Resource has following validation errors\nmust have required property 'P1'`
       )
     ]);
   });
 
-  test("for right schema", () => {
-    expect(
+  test("for right schema", async () => {
+    await expect(
       checkCustomResourceSchema(
         (
           (
@@ -478,6 +478,6 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
         },
         "CFNLambda"
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
   });
 });

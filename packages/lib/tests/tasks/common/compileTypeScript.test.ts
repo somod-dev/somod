@@ -1,10 +1,14 @@
-import { childProcess, ChildProcessError } from "@solib/cli-base";
-import { mockedFunction } from "@sodev/test-utils";
+import { childProcess, ChildProcessError } from "nodejs-cli-runner";
 import { compileTypeScript } from "../../../src";
-import { createFiles, createTempDir, deleteDir } from "../../utils";
+import {
+  createFiles,
+  createTempDir,
+  deleteDir,
+  mockedFunction
+} from "../../utils";
 
-jest.mock("@solib/cli-base", () => {
-  const originalModule = jest.requireActual("@solib/cli-base");
+jest.mock("nodejs-cli-runner", () => {
+  const originalModule = jest.requireActual("nodejs-cli-runner");
   return {
     __esModule: true,
     ...originalModule,
@@ -16,7 +20,7 @@ describe("Test Task compileTypeScript", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     createFiles(dir, {
       "package.json": JSON.stringify({ name: "sample", version: "1.0.0" })
     });

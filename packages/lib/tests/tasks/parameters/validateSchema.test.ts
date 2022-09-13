@@ -1,4 +1,4 @@
-import { createTempDir, deleteDir, mockedFunction } from "@sodev/test-utils";
+import { createTempDir, deleteDir, mockedFunction } from "../../utils";
 import { yamlSchemaValidator } from "../../../src/utils/yamlSchemaValidator";
 import { validateParametersWithSchema } from "../../../src";
 import { join } from "path";
@@ -14,7 +14,7 @@ describe("test Task validateParametersWithSchema", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     mockedFunction(yamlSchemaValidator).mockReset();
   });
 

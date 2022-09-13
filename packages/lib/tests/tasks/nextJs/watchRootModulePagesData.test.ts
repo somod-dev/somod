@@ -10,7 +10,7 @@ describe("Test Task watchRootModulePagesData", () => {
   let closeHandle: () => void = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

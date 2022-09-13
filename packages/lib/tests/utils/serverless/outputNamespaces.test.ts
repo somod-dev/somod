@@ -14,7 +14,7 @@ describe("Test util serverless.loadOutputNamespaces", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {
@@ -137,7 +137,7 @@ describe("Test Util serverless.listAllOutputs", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [loadOutputNamespaces]);
   });
 

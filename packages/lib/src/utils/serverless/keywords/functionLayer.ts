@@ -1,4 +1,4 @@
-import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
+import { readJsonFileStore, unixStylePath } from "nodejs-file-utils";
 import {
   JSONObjectNode,
   JSONPrimitiveNode,

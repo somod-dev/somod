@@ -1,4 +1,4 @@
-import { childProcess, ChildProcessError } from "@solib/cli-base";
+import { childProcess, ChildProcessError } from "nodejs-cli-runner";
 import { file_tsConfigSomodJson } from "../../utils/constants";
 
 export const compileTypeScript = async (

@@ -1,4 +1,4 @@
-import { mockedFunction } from "@sodev/test-utils";
+import { mockedFunction } from "../../../utils";
 import {
   constructJson,
   parseJson,
@@ -141,7 +141,7 @@ describe("test util serverlessTemplate.prepare", () => {
   });
 
   test("without errors", async () => {
-    mockedFunction(processKeywords).mockImplementation(node => {
+    mockedFunction(processKeywords).mockImplementation(async node => {
       const processedTemplate = constructJson(node);
       // process output keys
       Object.keys(processedTemplate?.["Outputs"] || {}).forEach(outputName => {

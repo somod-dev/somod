@@ -5,14 +5,14 @@ import {
 } from "../../../src";
 import { existsSync } from "fs";
 import { join } from "path";
-import { readJsonFileStore, updateJsonFileStore } from "@solib/cli-base";
+import { readJsonFileStore, updateJsonFileStore } from "nodejs-file-utils";
 import { readFile } from "fs/promises";
 
 describe("Test Task savePackageJson", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

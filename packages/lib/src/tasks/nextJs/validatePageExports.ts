@@ -1,8 +1,9 @@
-import { ErrorSet, listFiles } from "@solib/cli-base";
+import { listFiles } from "nodejs-file-utils";
 import { existsSync } from "fs";
 import { join } from "path";
 import { path_pages, path_pagesData, path_ui } from "../../utils/constants";
 import { get as getExports } from "../../utils/exports";
+import ErrorSet from "../../utils/ErrorSet";
 
 export const validatePageExports = async (dir: string): Promise<void> => {
   const errors: Error[] = [];

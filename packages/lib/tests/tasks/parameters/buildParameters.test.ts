@@ -3,7 +3,7 @@ import {
   createTempDir,
   deleteDir,
   mockedFunction
-} from "@sodev/test-utils";
+} from "../../utils";
 import { build } from "../../../src/utils/parameters/build";
 import { buildParameters } from "../../../src";
 
@@ -18,7 +18,7 @@ describe("test Task buildParameters", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     mockedFunction(build).mockReset();
   });
 

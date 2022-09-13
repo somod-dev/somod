@@ -1,10 +1,9 @@
-import { DataValidationError } from "@solib/errors";
 import {
   CompiledValidateFunction,
   validate as jsonValidator
-} from "@solib/json-validator";
+} from "decorated-ajv";
 import { existsSync } from "fs";
-import { readYamlFileStore } from "./yamlFileStore";
+import { readYamlFileStore } from "nodejs-file-utils";
 
 export const yamlSchemaValidator = async (
   schemaValidator: CompiledValidateFunction,
@@ -12,18 +11,13 @@ export const yamlSchemaValidator = async (
 ): Promise<void> => {
   if (existsSync(yamlFilePath)) {
     const yamlContentAsJson = await readYamlFileStore(yamlFilePath);
-    try {
-      jsonValidator(schemaValidator, yamlContentAsJson);
-    } catch (e) {
-      if (e instanceof DataValidationError) {
-        throw new Error(
-          `${yamlFilePath} has following errors\n${e.violations
-            .map(v => " " + (v.path + " " + v.message).trim())
-            .join("\n")}`
-        );
-      } else {
-        throw e;
-      }
+    const violations = await jsonValidator(schemaValidator, yamlContentAsJson);
+    if (violations.length > 0) {
+      throw new Error(
+        `${yamlFilePath} has following errors\n${violations
+          .map(v => " " + (v.path + " " + v.message).trim())
+          .join("\n")}`
+      );
     }
   }
 };

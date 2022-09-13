@@ -1,9 +1,9 @@
-import { readJsonFileStore } from "@solib/cli-base";
+import { readJsonFileStore } from "nodejs-file-utils";
 import { existsSync } from "fs";
 import { cloneDeep, intersection, uniq } from "lodash";
 import { dirname, join, normalize } from "path";
 import { file_packageJson, key_somod, path_nodeModules } from "./constants";
-import { Node, bfs } from "@solib/graph";
+import { Node, bfs } from "graph-dsa";
 import { freeze } from "./freeze";
 import {
   Module,

@@ -3,7 +3,7 @@ import {
   createTempDir,
   deleteDir,
   mockedFunction
-} from "@sodev/test-utils";
+} from "../../utils";
 import { bundleFunctionLayers as bundleFunctionLayersUtil } from "../../../src/utils/serverless/bundleFunctionLayers";
 import { bundleFunctionLayers } from "../../../src";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
@@ -20,7 +20,7 @@ describe("test Task bundleFunctionLayers", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, []);
     mockedFunction(bundleFunctionLayersUtil).mockReset();
   });

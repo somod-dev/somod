@@ -3,7 +3,7 @@ import {
   createTempDir,
   deleteDir,
   mockedFunction
-} from "@sodev/test-utils";
+} from "../../utils";
 import { validate } from "../../../src/utils/nextJs/config";
 import { validateUiConfigYaml } from "../../../src";
 
@@ -18,7 +18,7 @@ describe("test Task validateUiConfigYaml", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     mockedFunction(validate).mockReset();
   });
 

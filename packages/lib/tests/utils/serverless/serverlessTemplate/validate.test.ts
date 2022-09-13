@@ -1,5 +1,4 @@
-import { mockedFunction } from "@sodev/test-utils";
-import { ErrorSet } from "@solib/cli-base";
+import { mockedFunction } from "../../../utils";
 import {
   JSONTemplateError,
   parseJson,
@@ -7,6 +6,7 @@ import {
 } from "../../../../src/utils/jsonTemplate";
 import { getBaseKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { validateServerlessTemplate } from "../../../../src/utils/serverless/serverlessTemplate/validate";
+import ErrorSet from "../../../../src/utils/ErrorSet";
 
 jest.mock(
   "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
@@ -84,7 +84,7 @@ describe("test util serverlessTemplate.validate", () => {
   });
 
   test("without errors", async () => {
-    mockedFunction(validateKeywords).mockReturnValue([]);
+    mockedFunction(validateKeywords).mockResolvedValue([]);
 
     await expect(
       validateServerlessTemplate("/a", "m0", moduleServerlessTemplateMap)
@@ -101,7 +101,7 @@ describe("test util serverlessTemplate.validate", () => {
 
   test("with errors", async () => {
     const jsonNode = parseJson(moduleServerlessTemplateMap.m0.template);
-    mockedFunction(validateKeywords).mockReturnValue([
+    mockedFunction(validateKeywords).mockResolvedValue([
       new JSONTemplateError(
         jsonNode,
         new Error("There is an error in template")

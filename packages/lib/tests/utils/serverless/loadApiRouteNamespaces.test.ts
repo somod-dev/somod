@@ -11,7 +11,7 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

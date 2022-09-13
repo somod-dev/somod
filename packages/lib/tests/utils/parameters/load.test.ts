@@ -1,5 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { ErrorSet } from "@solib/cli-base";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { dump } from "js-yaml";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import {
@@ -8,12 +7,13 @@ import {
 } from "../../../src/utils/parameters/load";
 import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 import { Parameters } from "../../../src/utils/parameters/types";
+import ErrorSet from "../../../src/utils/ErrorSet";
 
 describe("Test Util parameters.loadParameters", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {
@@ -103,7 +103,7 @@ describe("Test Util parameters.loadAllParameterValues", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
@@ -138,7 +138,7 @@ describe("Test Util parameters.loadAllParameterValues", () => {
     await expect(loadAllParameterValues(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
-          "DataValidationError:  must have required property 'my.param'"
+          "parameters.json has following errors\n must have required property 'my.param'"
         )
       ])
     );

@@ -3,9 +3,9 @@ import {
   createTempDir,
   deleteDir,
   mockedFunction
-} from "@sodev/test-utils";
+} from "../../../utils";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import { readJsonFileStore, unixStylePath } from "@solib/cli-base";
+import { readJsonFileStore, unixStylePath } from "nodejs-file-utils";
 import {
   getFunctionLayerLibraries,
   keywordFunctionLayer
@@ -15,8 +15,8 @@ import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import { readdir, readFile } from "fs/promises";
 import { JSONObjectNode, JSONType, ModuleTemplateMap } from "somod-types";
 
-jest.mock("@solib/cli-base", () => {
-  const original = jest.requireActual("@solib/cli-base");
+jest.mock("nodejs-file-utils", () => {
+  const original = jest.requireActual("nodejs-file-utils");
   return {
     __esModule: true,
     ...original,
@@ -250,7 +250,7 @@ describe("Test util processor of functionLayer keyword with overriding content",
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

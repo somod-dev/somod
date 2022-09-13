@@ -8,13 +8,13 @@ import {
   DescribeStacksCommand
 } from "@aws-sdk/client-cloudformation";
 import {
-  logWarning,
   readJsonFileStore,
   saveJsonFileStore,
   updateJsonFileStore
-} from "@solib/cli-base";
+} from "nodejs-file-utils";
 import { getParameterNameFromSAMOutputName } from "../../utils/serverless/utils";
 import { existsSync } from "fs";
+import { logWarning } from "nodejs-cli-runner";
 
 const getStackNameFromSamConfig = async (dir: string) => {
   const samConfig = await readFile(join(dir, file_samConfig), {

@@ -4,7 +4,7 @@ import { dirname, join, relative } from "path";
 import { namespace_page, path_build, path_pages, path_ui } from "../constants";
 import { ModuleHandler } from "../moduleHandler";
 import { get as getExports } from "../exports";
-import { unixStylePath } from "@solib/cli-base";
+import { unixStylePath } from "nodejs-file-utils";
 import { NamespaceLoader } from "somod-types";
 
 export const removeExtension = (pagePathWithExtension: string) => {

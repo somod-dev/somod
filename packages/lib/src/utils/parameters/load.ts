@@ -1,5 +1,5 @@
-import { readJsonFileStore } from "@solib/cli-base";
-import { JSONSchema7, validate } from "@solib/json-validator";
+import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
+import { JSONSchema7, validate } from "decorated-ajv";
 import { Module } from "somod-types";
 import { existsSync } from "fs";
 import { uniq } from "lodash";
@@ -10,7 +10,6 @@ import {
   path_build
 } from "../constants";
 import { ModuleHandler } from "../moduleHandler";
-import { readYamlFileStore } from "../yamlFileStore";
 import { listAllParameterSchemas } from "./namespace";
 import { Parameters, ParameterValues } from "./types";
 
@@ -54,7 +53,14 @@ export const validateParameterValues = async (
     schemas.push(moduleParameters[moduleName].Schemas[schemaName]);
   }
   if (schemas.length > 0) {
-    validate({ allOf: schemas }, parameterValues);
+    const violations = await validate({ allOf: schemas }, parameterValues);
+    if (violations.length > 0) {
+      throw new Error(
+        `${file_parametersJson} has following errors\n${violations
+          .map(v => " " + (v.path + " " + v.message).trim())
+          .join("\n")}`
+      );
+    }
   }
 };
 

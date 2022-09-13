@@ -11,9 +11,9 @@ import { file_tsConfigSomodJson, path_build, path_lib } from "./constants";
 import {
   readJsonFileStore,
   updateJsonFileStore,
-  ErrorSet,
   unixStylePath
-} from "@solib/cli-base";
+} from "nodejs-file-utils";
+import ErrorSet from "./ErrorSet";
 
 const defaultCompilerOptions = {
   allowUmdGlobalAccess: true,

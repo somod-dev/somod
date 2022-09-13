@@ -1,5 +1,4 @@
-import { JSONSchema7, validate } from "@solib/json-validator";
-import { DataValidationError } from "@solib/errors";
+import { JSONSchema7, validate } from "decorated-ajv";
 import { getSAMResourceLogicalId } from "../utils";
 import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
@@ -20,7 +19,7 @@ export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
   keyword: "SOMOD::Ref",
 
   getValidator: async (rootDir, moduleName, moduleContentMap) => {
-    return (keyword, node, value) => {
+    return async (keyword, node, value) => {
       const errors: Error[] = [];
 
       if (Object.keys(node.properties).length > 1) {
@@ -43,10 +42,8 @@ export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
       };
 
       try {
-        validate(valueSchema, value);
-      } catch (e) {
-        const violations = (e as DataValidationError).violations;
-        if (violations) {
+        const violations = await validate(valueSchema, value);
+        if (violations.length > 0) {
           errors.push(
             new Error(
               `Has following errors\n${violations
@@ -54,9 +51,9 @@ export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
                 .join("\n")}`
             )
           );
-        } else {
-          errors.push(e);
         }
+      } catch (e) {
+        errors.push(e);
       }
 
       if (errors.length == 0) {
@@ -97,11 +94,11 @@ export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
           );
 
           errors.push(
-            ...checkCustomResourceSchema(
+            ...(await checkCustomResourceSchema(
               node,
               moduleContentMap[targetModule],
               value.resource
-            )
+            ))
           );
         }
       }

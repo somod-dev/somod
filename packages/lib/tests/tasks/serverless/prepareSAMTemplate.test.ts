@@ -3,7 +3,7 @@ import {
   createTempDir,
   deleteDir,
   mockedFunction
-} from "@sodev/test-utils";
+} from "../../utils";
 import { prepareSamTemplate } from "../../../src/utils/serverless/serverlessTemplate/prepare";
 import { prepareSAMTemplate } from "../../../src";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
@@ -23,7 +23,7 @@ describe("test Task prepareSAMTemplate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, []);
     mockedFunction(prepareSamTemplate).mockReset();
   });

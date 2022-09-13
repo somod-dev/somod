@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import { childProcess } from "@solib/cli-base";
+import { childProcess } from "nodejs-cli-runner";
 
 export const vercelCommand = async (
   dir: string,

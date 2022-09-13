@@ -1,11 +1,11 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
 
 describe("Test util getNamespaces", () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
 
     createFiles(dir, {
       "package.json": JSON.stringify({

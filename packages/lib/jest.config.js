@@ -1,11 +1,12 @@
 /* eslint-disable */
-
-const commonConfig = require("@sodev/jest-config");
-
-/**
- * @type {import('@jest/types').Config.InitialOptions}
- */
 module.exports = {
-  ...commonConfig,
-  transformIgnorePatterns: ["node_modules/(?!@so|js-yaml)"]
+  preset: "ts-jest",
+  testEnvironment: "node",
+  testMatch: ["**/tests/**/**.test.ts"],
+  collectCoverageFrom: ["src/**/*.ts"],
+  coverageReporters: ["text", "lcov"],
+  transform: {
+    "^.+\\.tsx?$": "ts-jest" // for ts & tsx files
+  },
+  modulePathIgnorePatterns: ["<rootDir>/dist/"]
 };

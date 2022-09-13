@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { existsSync } from "fs";
 import { join } from "path";
 import { bundleFunctionLayers } from "../../../src/utils/serverless/bundleFunctionLayers";
@@ -7,7 +7,7 @@ import { keywordFunctionLayer } from "../../../src/utils/serverless/keywords/fun
 describe("Test Task bundleFunctionLayers", () => {
   let dir: string;
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

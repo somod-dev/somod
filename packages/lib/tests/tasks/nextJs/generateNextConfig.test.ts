@@ -1,5 +1,9 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { unixStylePath } from "@solib/cli-base";
+import {
+  createFiles,
+  createTempDir,
+  deleteDir,
+  unixStylePath
+} from "../../utils";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join, relative } from "path";
@@ -12,7 +16,7 @@ describe("test Task generateNextConfig", () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [
       loadConfigNamespaces,
       loadParameterNamespaces

@@ -1,4 +1,4 @@
-import { mockedFunction } from "@sodev/test-utils";
+import { mockedFunction } from "../utils";
 import { KeywordProcessor, KeywordValidator } from "somod-types";
 import { cloneDeep } from "lodash";
 import {
@@ -74,7 +74,7 @@ describe("Test util jsonTemplate.parseJson", () => {
 describe("Test util jsonTemplate.validateKeywords", () => {
   const validators: Record<string, KeywordValidator> = {
     key1: jest.fn().mockReturnValue([]),
-    key2: jest.fn().mockReturnValue([]),
+    key2: jest.fn().mockResolvedValue([]),
     key3: jest.fn().mockReturnValue([])
   };
 
@@ -95,14 +95,14 @@ describe("Test util jsonTemplate.validateKeywords", () => {
     expect(validators.key1).toHaveBeenNthCalledWith(
       1,
       "key1",
-      jsonNode["properties"]["a"],
-      json.a.key1
+      jsonNode["properties"]["key2"]["properties"]["y"]["items"][0],
+      json.key2.y[0].key1
     );
     expect(validators.key1).toHaveBeenNthCalledWith(
       2,
       "key1",
-      jsonNode["properties"]["key2"]["properties"]["y"]["items"][0],
-      json.key2.y[0].key1
+      jsonNode["properties"]["a"],
+      json.a.key1
     );
   };
 
@@ -121,27 +121,34 @@ describe("Test util jsonTemplate.validateKeywords", () => {
     });
   });
 
-  test("for no validators", () => {
-    expect(validateKeywords(jsonNode, {})).toEqual([]);
+  test("for no validators", async () => {
+    await expect(validateKeywords(jsonNode, {})).resolves.toEqual([]);
     expect(validators.key1).toBeCalledTimes(0);
     expect(validators.key2).toBeCalledTimes(0);
     expect(validators.key3).toBeCalledTimes(0);
   });
 
-  test("for one validator without error", () => {
-    expect(validateKeywords(jsonNode, { key1: validators.key1 })).toEqual([]);
+  test("for one validator without error", async () => {
+    await expect(
+      validateKeywords(jsonNode, { key1: validators.key1 })
+    ).resolves.toEqual([]);
     expect(validators.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith();
     expect(validators.key2).toBeCalledTimes(0);
     expect(validators.key3).toBeCalledTimes(0);
   });
 
-  test("for one validator with errors", () => {
+  test("for one validator with errors", async () => {
     const errors = [new Error("Mocked Error 1")];
     mockedFunction(validators.key1).mockReturnValueOnce(errors);
-    const actualErrors = validateKeywords(jsonNode, { key1: validators.key1 });
+    const actualErrors = await validateKeywords(jsonNode, {
+      key1: validators.key1
+    });
     expect(actualErrors).toEqual([
-      new JSONTemplateError(jsonNode["properties"]["a"], errors[0])
+      new JSONTemplateError(
+        jsonNode["properties"]["key2"]["properties"]["y"]["items"][0],
+        errors[0]
+      )
     ]);
     expect(validators.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith();
@@ -149,17 +156,20 @@ describe("Test util jsonTemplate.validateKeywords", () => {
     expect(validators.key3).toBeCalledTimes(0);
   });
 
-  test("for two validators with errors", () => {
+  test("for two validators with errors", async () => {
     const errors = [new Error("Mocked Error 1"), new Error("Mocked Error 2")];
     mockedFunction(validators.key1).mockReturnValueOnce([errors[0]]);
     mockedFunction(validators.key2).mockReturnValue([errors[1]]);
-    expect(
+    await expect(
       validateKeywords(jsonNode, {
         key1: validators.key1,
         key2: validators.key2
       })
-    ).toEqual([
-      new JSONTemplateError(jsonNode["properties"]["a"], errors[0]),
+    ).resolves.toEqual([
+      new JSONTemplateError(
+        jsonNode["properties"]["key2"]["properties"]["y"]["items"][0],
+        errors[0]
+      ),
       new JSONTemplateError(jsonNode, errors[1])
     ]);
     expect(validators.key1).toBeCalledTimes(2);

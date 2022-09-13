@@ -1,4 +1,8 @@
-import { ErrorSet, readJsonFileStore } from "@solib/cli-base";
+import { existsSync } from "fs";
+import { mkdir, writeFile } from "fs/promises";
+import { isString, sortBy, uniqBy } from "lodash";
+import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
+import { dirname, join } from "path";
 import {
   JSONType,
   KeywordDefinition,
@@ -9,10 +13,6 @@ import {
   ModuleTemplateMap,
   NamespaceLoader
 } from "somod-types";
-import { existsSync } from "fs";
-import { mkdir, writeFile } from "fs/promises";
-import { isString, sortBy, uniqBy } from "lodash";
-import { dirname, join } from "path";
 import {
   file_configJson,
   file_configYaml,
@@ -22,6 +22,7 @@ import {
   path_build,
   path_ui
 } from "../constants";
+import ErrorSet from "../ErrorSet";
 import { freeze } from "../freeze";
 import { parseJson, processKeywords, validateKeywords } from "../jsonTemplate";
 import { keywordAjvCompile } from "../keywords/ajv-compile";
@@ -34,7 +35,6 @@ import { keywordKey } from "../keywords/key";
 import { keywordOr } from "../keywords/or";
 import { keywordParameter } from "../keywords/parameter";
 import { ModuleHandler } from "../moduleHandler";
-import { readYamlFileStore } from "../yamlFileStore";
 
 const getBaseKeywords = () => [
   keywordAjvCompile,
@@ -135,7 +135,7 @@ export const validate = async (
     })
   );
 
-  const errors = validateKeywords(
+  const errors = await validateKeywords(
     parseJson(moduleContentMap[rootModuleName].json),
     keywordValidators
   );
@@ -186,13 +186,15 @@ export const generateCombinedConfig = async (
   const processsedMap: Record<string, Config> = {};
 
   allModules.reverse();
-  allModules.forEach(moduleNode => {
-    const moduleName = moduleNode.module.name;
-    processsedMap[moduleName] = processKeywords(
-      parseJson(moduleContentMap[moduleName].json),
-      keywordProcessors
-    ) as Config;
-  });
+  await Promise.all(
+    allModules.map(async moduleNode => {
+      const moduleName = moduleNode.module.name;
+      processsedMap[moduleName] = (await processKeywords(
+        parseJson(moduleContentMap[moduleName].json),
+        keywordProcessors
+      )) as Config;
+    })
+  );
 
   const namespaces = await moduleHandler.getNamespaces();
 

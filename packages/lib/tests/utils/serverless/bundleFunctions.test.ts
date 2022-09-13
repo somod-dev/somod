@@ -1,5 +1,5 @@
-import { childProcess } from "@solib/cli-base";
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { childProcess } from "nodejs-cli-runner";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { bundleFunctions } from "../../../src/utils/serverless/bundleFunctions";
@@ -9,7 +9,7 @@ import { keywordFunction } from "../../../src/utils/serverless/keywords/function
 describe("Test util bundleFunctions", () => {
   let dir: string;
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

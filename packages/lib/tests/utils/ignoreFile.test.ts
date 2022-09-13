@@ -1,13 +1,13 @@
 import { createFiles, createTempDir, deleteDir } from "../utils";
 import { update, validate } from "../../src/utils/ignoreFile";
 import { join } from "path";
-import { readIgnoreFileStore } from "@solib/cli-base";
+import { readIgnoreFileStore } from "nodejs-file-utils";
 
 describe("Test Util ignoreFile.validate", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {
@@ -91,7 +91,7 @@ describe("Test Util ignoreFile.update", () => {
   let dir: string = null;
 
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {

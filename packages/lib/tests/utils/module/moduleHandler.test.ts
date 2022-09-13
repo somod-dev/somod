@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { Module, ModuleNode } from "somod-types";
 import { join, normalize } from "path";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
@@ -16,7 +16,7 @@ const listModules = async (dir: string) => {
 describe("Test util getRootModuleNode with invalid input", () => {
   let dir: string = null;
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
   afterEach(() => {
     deleteDir(dir);
@@ -158,7 +158,7 @@ const template = (
   describe(description, () => {
     let dir: string = null;
     beforeEach(() => {
-      dir = createTempDir();
+      dir = createTempDir("test-somod-lib");
       createFiles(dir, files);
     });
     afterEach(() => {
@@ -457,7 +457,7 @@ template(
 describe("Test util listModules", () => {
   let dir: string = null;
   beforeEach(() => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     createFiles(dir, {
       "node_modules/m2/package.json": stringify({
         name: "m2",

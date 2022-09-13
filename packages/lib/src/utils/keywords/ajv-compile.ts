@@ -1,4 +1,4 @@
-import { getCompiledValidator } from "@solib/json-validator";
+import { getCompiledValidator } from "decorated-ajv";
 import { JSONObjectType, KeywordDefinition } from "somod-types";
 
 export const keywordAjvCompile: KeywordDefinition<JSONObjectType> = {
@@ -14,10 +14,10 @@ export const keywordAjvCompile: KeywordDefinition<JSONObjectType> = {
     return errors;
   },
 
-  getProcessor: async () => (keyword, node, value) => {
+  getProcessor: async () => async (keyword, node, value) => {
     return {
       type: "object",
-      value: getCompiledValidator(value)
+      value: await getCompiledValidator(value)
     };
   }
 };

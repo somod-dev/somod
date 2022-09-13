@@ -1,4 +1,4 @@
-import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
@@ -23,7 +23,7 @@ describe("Test Util nextjs.loadConfig", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {
@@ -128,7 +128,7 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
   });
 
   afterEach(() => {
@@ -244,7 +244,7 @@ describe("Test Util nextJs.validate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [
       loadConfigNamespaces,
       loadParameterNamespaces
@@ -304,7 +304,7 @@ describe("Test Util nextJs.build", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [
       loadConfigNamespaces,
       loadParameterNamespaces
@@ -376,7 +376,7 @@ describe("test util nextJs.generateCombinedConfig", () => {
   let dir: string = null;
 
   beforeEach(async () => {
-    dir = createTempDir();
+    dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, [
       loadConfigNamespaces,
       loadParameterNamespaces
