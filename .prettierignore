@@ -2,8 +2,8 @@ node_modules
 dist
 package-lock.json
 
-packages/sdk-lib/coverage
-packages/sdk-lib/tests/tasks/build/testData
+packages/lib/coverage
+packages/lib/tests/tasks/build/testData
 
 packages/schema/compiled
 packages/schema/schemas
