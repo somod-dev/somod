@@ -3,7 +3,7 @@ import { getPath } from "../../jsonTemplate";
 import { listAllParameters } from "../../parameters/namespace";
 import { getSAMOutputName } from "../utils";
 import { ServerlessTemplate } from "../types";
-import { JSONType, KeywordDefinition } from "@somod/types";
+import { JSONType, KeywordDefinition } from "somod-types";
 
 type Outputs = Record<string, JSONType>;
 

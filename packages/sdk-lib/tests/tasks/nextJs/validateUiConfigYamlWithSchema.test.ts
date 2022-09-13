@@ -1,14 +1,6 @@
-import { copyDirectory } from "@sodev/test-utils";
 import { join } from "path";
 import { validateUiConfigYamlWithSchema } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-
-const installSchemaInTempDir = async (dir: string) => {
-  await copyDirectory(
-    join(__dirname, "../../../../schema"),
-    join(dir, "node_modules/@somod/schema")
-  );
-};
 
 describe("Test Task validateUiConfigYamlWithSchema", () => {
   let dir: string = null;
@@ -33,7 +25,6 @@ describe("Test Task validateUiConfigYamlWithSchema", () => {
   });
 
   test("For empty config.yaml", async () => {
-    await installSchemaInTempDir(dir);
     createFiles(dir, {
       "ui/config.yaml": ""
     });
@@ -45,7 +36,6 @@ describe("Test Task validateUiConfigYamlWithSchema", () => {
   }, 20000);
 
   test("For config.yaml with only env", async () => {
-    await installSchemaInTempDir(dir);
     createFiles(dir, {
       "ui/config.yaml": `
 env:

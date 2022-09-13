@@ -1,14 +1,7 @@
-import { copyDirectory } from "@solib/cli-base";
 import { dump } from "js-yaml";
 import { join } from "path";
 import { validateServerlessTemplateWithSchema } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-
-const installSchemaInTempDir = async (dir: string) => {
-  const schemaPackage = join(__dirname, "../../../../schema");
-  const schemaPackageInTempDir = join(dir, "node_modules/@somod/schema");
-  await copyDirectory(join(schemaPackage), join(schemaPackageInTempDir));
-};
 
 describe("Test Task validateServerlessTemplateWithSchema", () => {
   let dir: string = null;
@@ -45,7 +38,6 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
       "package.json": JSON.stringify({ name: "sample" }),
       "serverless/template.yaml": ""
     });
-    await installSchemaInTempDir(dir);
     await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
       new Error(
         join(dir, "serverless/template.yaml") +
@@ -59,7 +51,6 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
       "package.json": JSON.stringify({ name: "sample" }),
       "serverless/template.yaml": "Resources:\n  "
     });
-    await installSchemaInTempDir(dir);
     await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
       new Error(
         join(dir, "serverless/template.yaml") +
@@ -83,7 +74,6 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
         }
       })
     });
-    await installSchemaInTempDir(dir);
     await expect(
       validateServerlessTemplateWithSchema(dir)
     ).resolves.toBeUndefined();

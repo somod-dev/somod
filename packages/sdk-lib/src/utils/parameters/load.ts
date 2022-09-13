@@ -1,6 +1,6 @@
 import { readJsonFileStore } from "@solib/cli-base";
 import { JSONSchema7, validate } from "@solib/json-validator";
-import { Module } from "@somod/types";
+import { Module } from "somod-types";
 import { existsSync } from "fs";
 import { uniq } from "lodash";
 import { join } from "path";

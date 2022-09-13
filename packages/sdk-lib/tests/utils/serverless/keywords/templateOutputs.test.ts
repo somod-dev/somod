@@ -2,7 +2,7 @@ import { listAllParameters } from "../../../../src/utils/parameters/namespace";
 import { keywordTemplateOutputs } from "../../../../src/utils/serverless/keywords/templateOutputs";
 import { mockedFunction } from "@sodev/test-utils";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import { JSONObjectNode, JSONType } from "@somod/types";
+import { JSONObjectNode, JSONType } from "somod-types";
 
 jest.mock("../../../../src/utils/parameters/namespace", () => {
   return {

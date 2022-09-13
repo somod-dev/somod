@@ -8,7 +8,7 @@ import {
   ModuleTemplate,
   ModuleTemplateMap,
   NamespaceLoader
-} from "@somod/types";
+} from "somod-types";
 import { existsSync } from "fs";
 import { mkdir, writeFile } from "fs/promises";
 import { isString, sortBy, uniqBy } from "lodash";

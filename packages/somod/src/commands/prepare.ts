@@ -17,7 +17,7 @@ import {
   runPluginPrepare,
   runPluginPreprepare,
   initializeModuleHandler
-} from "@somod/sdk-lib";
+} from "somod-lib";
 import { Command } from "commander";
 import {
   addSOMODCommandTypeOptions,

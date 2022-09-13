@@ -5,7 +5,7 @@ import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
 import { checkCustomResourceSchema } from "../../../../src/utils/serverless/keywords/function";
 import { mockedFunction } from "@sodev/test-utils";
 import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";
-import { JSONObjectNode } from "@somod/types";
+import { JSONObjectNode } from "somod-types";
 
 jest.mock("../../../../src/utils/serverless/keywords/output", () => {
   return {

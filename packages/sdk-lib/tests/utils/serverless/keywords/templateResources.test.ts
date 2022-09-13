@@ -1,6 +1,6 @@
 import { keywordTemplateResources } from "../../../../src/utils/serverless/keywords/templateResources";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import { JSONObjectNode, JSONType } from "@somod/types";
+import { JSONObjectNode, JSONType } from "somod-types";
 
 type TemplateOutputsType = Record<string, JSONType>;
 

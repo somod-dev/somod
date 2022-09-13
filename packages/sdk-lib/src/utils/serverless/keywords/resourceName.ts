@@ -1,4 +1,4 @@
-import { JSONType, KeywordDefinition } from "@somod/types";
+import { JSONType, KeywordDefinition } from "somod-types";
 import { getSAMResourceName } from "../utils";
 
 export const keyword = "SOMOD::ResourceName";

@@ -2,7 +2,7 @@ import { getPath } from "../../jsonTemplate";
 import { getSAMResourceLogicalId } from "../utils";
 import { SAMTemplate, ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
-import { JSONPrimitiveNode, KeywordDefinition } from "@somod/types";
+import { JSONPrimitiveNode, KeywordDefinition } from "somod-types";
 
 type Extend = { module: string; resource: string };
 

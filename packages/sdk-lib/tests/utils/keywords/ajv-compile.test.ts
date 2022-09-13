@@ -1,4 +1,4 @@
-import { JSONObjectNode, JSONObjectType } from "@somod/types";
+import { JSONObjectNode, JSONObjectType } from "somod-types";
 import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordAjvCompile } from "../../../src/utils/keywords/ajv-compile";
 

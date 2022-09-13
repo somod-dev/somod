@@ -1,6 +1,6 @@
 import { ModuleHandler } from "../../utils/moduleHandler";
 import { loadPlugins as _loadPlugins } from "../../utils/plugin/loadPlugins";
-import { KeywordDefinition, Mode, Plugin } from "@somod/types";
+import { KeywordDefinition, Mode, Plugin } from "somod-types";
 import {
   getNodeRuntimeVersion,
   getSAMResourceLogicalId,

@@ -1,4 +1,4 @@
-import { Plugin } from "@somod/types";
+import { Plugin } from "somod-types";
 import { existsSync } from "fs";
 import { dirname, join } from "path";
 import {

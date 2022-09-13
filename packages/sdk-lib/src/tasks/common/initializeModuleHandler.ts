@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import { NamespaceLoader } from "@somod/types";
+import { NamespaceLoader } from "somod-types";
 import { ModuleHandler } from "../../utils/moduleHandler";
 import { loadConfigNamespaces } from "../../utils/nextJs/config";
 import { loadPageNamespaces } from "../../utils/nextJs/pages";

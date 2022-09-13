@@ -36,7 +36,7 @@ import {
   validateServerlessTemplate,
   initializeModuleHandler,
   validateUiConfigYamlWithSchema
-} from "@somod/sdk-lib";
+} from "somod-lib";
 import { Command } from "commander";
 import {
   addSOMODCommandTypeOptions,

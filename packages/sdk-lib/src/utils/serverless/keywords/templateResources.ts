@@ -1,7 +1,7 @@
 import { getPath } from "../../jsonTemplate";
 import { getSAMResourceLogicalId } from "../utils";
 import { ServerlessTemplate } from "../types";
-import { JSONType, KeywordDefinition } from "@somod/types";
+import { JSONType, KeywordDefinition } from "somod-types";
 
 type Resources = Record<string, JSONType>;
 

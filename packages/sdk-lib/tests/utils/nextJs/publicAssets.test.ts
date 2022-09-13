@@ -3,7 +3,7 @@ import { loadPublicAssetNamespaces } from "../../../src/utils/nextJs/publicAsset
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
 import { namespace_public } from "../../../src";
-import { Module } from "@somod/types";
+import { Module } from "somod-types";
 
 describe("Test util publicAssets.loadPublicAssetNamespaces", () => {
   let dir: string = null;

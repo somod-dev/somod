@@ -35,7 +35,7 @@ import {
 import { keywordCreateIf } from "../keywords/createIf";
 import { keywordTemplateOutputs } from "../keywords/templateOutputs";
 import { keywordTemplateResources } from "../keywords/templateResources";
-import { Module, ModuleTemplate, ModuleTemplateMap } from "@somod/types";
+import { Module, ModuleTemplate, ModuleTemplateMap } from "somod-types";
 
 const loadBuiltServerlessTemplate = async (
   module: Module

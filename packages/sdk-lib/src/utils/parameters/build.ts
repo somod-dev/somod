@@ -1,4 +1,4 @@
-import { ModuleNode } from "@somod/types";
+import { ModuleNode } from "somod-types";
 import { mkdir, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import {

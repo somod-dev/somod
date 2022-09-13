@@ -13,7 +13,7 @@ import {
   JSONObjectType,
   KeywordValidator,
   KeywordProcessor
-} from "@somod/types";
+} from "somod-types";
 
 export const parseJson = (json: JSONType): JSONNode => {
   const navigator = (json: JSONType, parent?: JSONNode["parent"]): JSONNode => {

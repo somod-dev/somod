@@ -5,7 +5,7 @@ import { namespace_page, path_build, path_pages, path_ui } from "../constants";
 import { ModuleHandler } from "../moduleHandler";
 import { get as getExports } from "../exports";
 import { unixStylePath } from "@solib/cli-base";
-import { NamespaceLoader } from "@somod/types";
+import { NamespaceLoader } from "somod-types";
 
 export const removeExtension = (pagePathWithExtension: string) => {
   let extension = "";

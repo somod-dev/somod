@@ -1,4 +1,4 @@
-import { NamespaceLoader } from "@somod/types";
+import { NamespaceLoader } from "somod-types";
 import { countBy } from "lodash";
 import {
   namespace_api_gateway,

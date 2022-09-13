@@ -1,4 +1,4 @@
-import { JSONArrayType, KeywordDefinition } from "@somod/types";
+import { JSONArrayType, KeywordDefinition } from "somod-types";
 import { isArray, isEqual } from "lodash";
 
 export const keywordEquals: KeywordDefinition<JSONArrayType> = {

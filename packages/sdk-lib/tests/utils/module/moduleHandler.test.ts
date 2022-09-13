@@ -1,5 +1,5 @@
 import { createFiles, createTempDir, deleteDir } from "@sodev/test-utils";
-import { Module, ModuleNode } from "@somod/types";
+import { Module, ModuleNode } from "somod-types";
 import { join, normalize } from "path";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
 

@@ -37,7 +37,7 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2",
-    "tslib": "^2.3.1",
+    "tslib": "^2.4.0",
     "watchpack": "^2.2.0"
   },
   "devDependencies": {

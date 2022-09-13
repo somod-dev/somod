@@ -1,4 +1,4 @@
-import { KeywordDefinition } from "@somod/types";
+import { KeywordDefinition } from "somod-types";
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";

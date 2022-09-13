@@ -13,7 +13,7 @@ import {
 import { join } from "path";
 import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import { readdir, readFile } from "fs/promises";
-import { JSONObjectNode, JSONType, ModuleTemplateMap } from "@somod/types";
+import { JSONObjectNode, JSONType, ModuleTemplateMap } from "somod-types";
 
 jest.mock("@solib/cli-base", () => {
   const original = jest.requireActual("@solib/cli-base");

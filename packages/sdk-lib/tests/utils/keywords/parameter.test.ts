@@ -3,7 +3,7 @@ import { loadAllParameterValues } from "../../../src/utils/parameters/load";
 import { keywordParameter } from "../../../src/utils/keywords/parameter";
 import { mockedFunction } from "@sodev/test-utils";
 import { parseJson } from "../../../src/utils/jsonTemplate";
-import { JSONObjectNode } from "@somod/types";
+import { JSONObjectNode } from "somod-types";
 
 jest.mock("../../../src/utils/parameters/namespace", () => {
   return {

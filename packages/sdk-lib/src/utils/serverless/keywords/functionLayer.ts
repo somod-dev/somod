@@ -3,7 +3,7 @@ import {
   JSONObjectNode,
   JSONPrimitiveNode,
   KeywordDefinition
-} from "@somod/types";
+} from "somod-types";
 import { mkdirSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import {

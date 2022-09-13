@@ -1,5 +1,5 @@
 import { mockedFunction } from "@sodev/test-utils";
-import { JSONObjectNode } from "@somod/types";
+import { JSONObjectNode } from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
 import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";

@@ -1,4 +1,4 @@
-import { KeywordDefinition, KeywordProcessor } from "@somod/types";
+import { KeywordDefinition, KeywordProcessor } from "somod-types";
 import { parseJson, processKeywords } from "../../jsonTemplate";
 import { listAllOutputs } from "../namespace";
 

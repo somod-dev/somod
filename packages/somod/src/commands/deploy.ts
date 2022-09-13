@@ -1,5 +1,5 @@
 import { CommonOptions, taskRunner } from "@solib/cli-base";
-import { file_templateYaml, findRootDir, samDeploy } from "@somod/sdk-lib";
+import { file_templateYaml, findRootDir, samDeploy } from "somod-lib";
 import { Command, Option } from "commander";
 import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";

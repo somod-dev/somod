@@ -4,7 +4,7 @@ import {
   GetSAMOutputNameType,
   GetSAMResourceLogicalIdType,
   GetSAMResourceNameType
-} from "@somod/types/dist/ServerlessUtils";
+} from "somod-types/dist/ServerlessUtils";
 import { createHash } from "crypto";
 
 export const getNodeRuntimeVersion: GetNodeRuntimeVersionType = () => {

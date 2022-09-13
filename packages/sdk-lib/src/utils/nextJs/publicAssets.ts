@@ -1,4 +1,4 @@
-import { NamespaceLoader } from "@somod/types";
+import { NamespaceLoader } from "somod-types";
 import { existsSync } from "fs";
 import { readdir, stat, mkdir, copyFile } from "fs/promises";
 import { dirname, join } from "path";

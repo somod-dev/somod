@@ -1,5 +1,5 @@
 import { mockedFunction } from "@sodev/test-utils";
-import { KeywordProcessor, KeywordValidator } from "@somod/types";
+import { KeywordProcessor, KeywordValidator } from "somod-types";
 import { cloneDeep } from "lodash";
 import {
   parseJson,

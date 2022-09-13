@@ -1,1 +1,1 @@
-export * from "@somod/types";
+export * from "somod-types";

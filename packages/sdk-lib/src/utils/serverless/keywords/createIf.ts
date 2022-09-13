@@ -1,4 +1,4 @@
-import { KeywordDefinition } from "@somod/types";
+import { KeywordDefinition } from "somod-types";
 import { getPath } from "../../jsonTemplate";
 
 export const keywordCreateIf: KeywordDefinition<boolean> = {

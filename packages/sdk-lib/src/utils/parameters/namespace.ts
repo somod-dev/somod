@@ -1,4 +1,4 @@
-import { Module, NamespaceLoader } from "@somod/types";
+import { Module, NamespaceLoader } from "somod-types";
 import {
   namespace_parameter,
   namespace_parameterGroup,

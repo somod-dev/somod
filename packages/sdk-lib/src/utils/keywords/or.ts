@@ -1,4 +1,4 @@
-import { JSONArrayType, KeywordDefinition } from "@somod/types";
+import { JSONArrayType, KeywordDefinition } from "somod-types";
 import { isArray } from "lodash";
 
 export const keywordOr: KeywordDefinition<JSONArrayType> = {

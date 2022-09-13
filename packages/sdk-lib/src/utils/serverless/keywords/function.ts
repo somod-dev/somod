@@ -7,7 +7,7 @@ import {
   JSONPrimitiveNode,
   KeywordDefinition,
   ModuleTemplate
-} from "@somod/types";
+} from "somod-types";
 import { existsSync } from "fs";
 import { basename, extname, join } from "path";
 import {

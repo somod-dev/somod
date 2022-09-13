@@ -9,7 +9,7 @@ import {
 import { keywordRef } from "../../../../src/utils/serverless/keywords/ref";
 import { join } from "path";
 import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
-import { JSONObjectNode, JSONObjectType, JSONType } from "@somod/types";
+import { JSONObjectNode, JSONObjectType, JSONType } from "somod-types";
 import { existsSync } from "fs";
 
 jest.mock("@solib/cli-base", () => {

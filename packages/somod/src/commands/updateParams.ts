@@ -3,7 +3,7 @@ import {
   file_parametersJson,
   findRootDir,
   updateParametersFromSAM
-} from "@somod/sdk-lib";
+} from "somod-lib";
 import { Command, Option } from "commander";
 
 type UpdateParamsOptions = CommonOptions & {

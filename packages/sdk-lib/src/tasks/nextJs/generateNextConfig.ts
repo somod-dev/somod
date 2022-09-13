@@ -1,5 +1,5 @@
 import { unixStylePath } from "@solib/cli-base";
-import { KeywordDefinition } from "@somod/types";
+import { KeywordDefinition } from "somod-types";
 import { writeFile } from "fs/promises";
 import { join, relative } from "path";
 import { file_dotenv, file_nextConfigJs } from "../../utils/constants";

@@ -6,7 +6,7 @@ import { checkAccess } from "./access";
 import { checkCustomResourceSchema } from "./function";
 import { checkOutput } from "./output";
 import { keywordExtend } from "./extend";
-import { KeywordDefinition } from "@somod/types";
+import { KeywordDefinition } from "somod-types";
 
 export const keyword = "SOMOD::Ref";
 

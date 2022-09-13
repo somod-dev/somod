@@ -1,4 +1,4 @@
-import { KeywordDefinition } from "@somod/types";
+import { KeywordDefinition } from "somod-types";
 import { ServerlessTemplate } from "../types";
 
 export const keywordModuleName: KeywordDefinition<boolean, ServerlessTemplate> =

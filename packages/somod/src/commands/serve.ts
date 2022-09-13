@@ -9,7 +9,7 @@ import {
   watchRootModulePages,
   watchRootModulePagesData,
   watchRootModulePublicAssets
-} from "@somod/sdk-lib";
+} from "somod-lib";
 import { Command, Option } from "commander";
 import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";

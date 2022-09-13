@@ -1,4 +1,4 @@
-import { JSONArrayType, JSONObjectNode, JSONObjectType } from "@somod/types";
+import { JSONArrayType, JSONObjectNode, JSONObjectType } from "somod-types";
 import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordKey } from "../../../src/utils/keywords/key";
 

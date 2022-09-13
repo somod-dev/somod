@@ -10,7 +10,7 @@ import {
   ModuleHandler as ModuleHandlerAbstractClass,
   ModuleNode,
   NamespaceLoader
-} from "@somod/types";
+} from "somod-types";
 
 type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
 

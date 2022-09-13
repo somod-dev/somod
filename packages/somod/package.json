@@ -1,5 +1,5 @@
 {
-  "name": "@somod/somod",
+  "name": "somod",
   "version": "1.13.3",
   "description": "Sodaru Module (somod) SDK",
   "keywords": [
@@ -29,7 +29,7 @@
   },
   "scripts": {
     "clean": "npx rimraf dist",
-    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:@somod/serverless-schema --external:@somod/lambda-base-layer --external:esbuild  --external:@typescript-eslint/typescript-estree --external:lodash --external:tslib",
+    "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify --external:somod-schema --external:@somod/lambda-base-layer --external:esbuild  --external:@typescript-eslint/typescript-estree --external:lodash --external:tslib",
     "build": "npm run clean && npm run bundle",
     "pretest": "$CI || npm run build",
     "test": "echo 'No tests defined'",

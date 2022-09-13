@@ -1,4 +1,4 @@
-import { KeywordDefinition, ModuleTemplate } from "@somod/types";
+import { KeywordDefinition, ModuleTemplate } from "somod-types";
 import { getPath } from "../../jsonTemplate";
 import { ServerlessTemplate } from "../types";
 

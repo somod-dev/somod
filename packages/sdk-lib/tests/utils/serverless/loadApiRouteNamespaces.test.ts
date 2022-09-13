@@ -5,7 +5,7 @@ import { cloneDeep } from "lodash";
 import { dump } from "js-yaml";
 import { namespace_api_gateway } from "../../../src";
 import { keywordRef } from "../../../src/utils/serverless/keywords/ref";
-import { Module } from "@somod/types";
+import { Module } from "somod-types";
 
 describe("Test util serverless.loadApiRouteNamespaces", () => {
   let dir: string = null;

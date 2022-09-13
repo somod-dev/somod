@@ -1,4 +1,4 @@
-import { KeywordDefinition, KeywordObjectReplacement } from "@somod/types";
+import { KeywordDefinition, KeywordObjectReplacement } from "somod-types";
 import { file_parametersYaml } from "../constants";
 import { loadAllParameterValues } from "../parameters/load";
 import { listAllParameters } from "../parameters/namespace";

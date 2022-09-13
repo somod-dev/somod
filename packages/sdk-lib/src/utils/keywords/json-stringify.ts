@@ -1,4 +1,4 @@
-import { KeywordDefinition } from "@somod/types";
+import { KeywordDefinition } from "somod-types";
 
 export const keywordJsonStringify: KeywordDefinition = {
   keyword: "SOMOD::JsonStringify",

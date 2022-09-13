@@ -1,5 +1,5 @@
 import { ErrorSet } from "@solib/cli-base";
-import { KeywordDefinition, KeywordValidator } from "@somod/types";
+import { KeywordDefinition, KeywordValidator } from "somod-types";
 import { parseJson, validateKeywords } from "../../jsonTemplate";
 import { ModuleServerlessTemplateMap } from "../types";
 import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
