@@ -119,16 +119,6 @@ export const functionResource: JSONSchema7 = {
                     "The name of the function, this is the file name of es module under 'serverless/functions' directory (without file extension)",
                   pattern: "^[a-zA-Z]+[a-zA-Z0-9]*$"
                 },
-                exclude: {
-                  type: "array",
-                  description:
-                    "libraries to exclude while bundling this function, excluded libraries must be included as layers",
-                  items: {
-                    type: "string",
-                    pattern: "^(@[a-zA-Z0-9\\-_]+\\/)?[a-zA-Z0-9\\-_]+$"
-                  },
-                  maxItems: 100
-                },
                 customResources: {
                   type: "object",
                   description:
@@ -151,11 +141,11 @@ export const functionResource: JSONSchema7 = {
         Layers: {
           type: "array",
           description:
-            "@somod/lambda-base-layer is added as default layer to every Serverless function , hence maximum of 4 layer is allowed in somod modules",
+            "Layers attached to the funtion, If a layer are refered using SOMOD::Ref, the npm packages in the layer are excluded from the function bundle",
           items: {
             $ref: "#/definitions/stringLike"
           },
-          maxItems: 4,
+          maxItems: 5,
           uniqueItems: true
         },
         Events: {

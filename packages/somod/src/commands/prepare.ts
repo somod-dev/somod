@@ -16,7 +16,9 @@ import {
   path_public,
   runPluginPrepare,
   runPluginPreprepare,
-  initializeModuleHandler
+  initializeModuleHandler,
+  bundleFunctions,
+  bundleFunctionLayers
 } from "somod-lib";
 import { Command } from "commander";
 import {
@@ -93,6 +95,21 @@ export const PrepareAction = async ({
     );
   }
   if (serverless) {
+    await taskRunner(
+      `Bundle Serverless Functions`,
+      bundleFunctions,
+      verbose,
+      dir
+    );
+
+    await taskRunner(
+      `Bundle Serverless FunctionLayers`,
+      bundleFunctionLayers,
+      verbose,
+      dir,
+      verbose
+    );
+
     await taskRunner(
       `Generate /${file_templateYaml}`,
       prepareSAMTemplate,

@@ -4,7 +4,6 @@ import {
   buildServerlessTemplate,
   buildUiConfigYaml,
   buildUiPublic,
-  bundleFunctions,
   compileTypeScript,
   deleteBuildDir,
   validatePageData,
@@ -15,7 +14,6 @@ import {
   file_templateYaml,
   file_tsConfigSomodJson,
   findRootDir,
-  bundleFunctionLayers,
   isValidTsConfigSomodJson,
   key_somod,
   path_build,
@@ -77,7 +75,7 @@ export const BuildAction = async ({
       verbose,
       dir,
       ui ? { jsx: "react" } : {},
-      ui ? [path_ui] : []
+      [...(ui ? [path_ui] : []), ...(serverless ? [path_serverless] : [])]
     ),
     taskRunner(
       `Validate ${file_parametersYaml} with schema`,
@@ -178,21 +176,6 @@ export const BuildAction = async ({
       buildServerlessTemplate,
       verbose,
       dir
-    );
-
-    await taskRunner(
-      `Bundle Serverless Functions`,
-      bundleFunctions,
-      verbose,
-      dir
-    );
-
-    await taskRunner(
-      `Bundle Serverless FunctionLayers`,
-      bundleFunctionLayers,
-      verbose,
-      dir,
-      verbose
     );
   }
 

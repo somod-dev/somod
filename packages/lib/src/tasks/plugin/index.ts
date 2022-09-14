@@ -31,24 +31,6 @@ export const loadPlugins = async (dir: string) => {
     }
   });
 
-  const compilerOptions = plugins.reduce((agg, p) => {
-    return { ...agg, ...p.plugin.tsconfig?.compilerOptions };
-  }, {} as Plugin["tsconfig"]["compilerOptions"]);
-
-  const include = plugins.reduce((agg, p) => {
-    return [...agg, ...(p.plugin.tsconfig?.include || [])];
-  }, [] as Plugin["tsconfig"]["include"]);
-
-  const gitIgnore = plugins.reduce((agg, p) => {
-    return [...agg, ...(p.plugin.ignorePatterns?.git || [])];
-  }, []) as string[];
-  const eslintIgnore = plugins.reduce((agg, p) => {
-    return [...agg, ...(p.plugin.ignorePatterns?.eslint || [])];
-  }, []) as string[];
-  const prettierIgnore = plugins.reduce((agg, p) => {
-    return [...agg, ...(p.plugin.ignorePatterns?.prettier || [])];
-  }, []) as string[];
-
   return {
     namespaceLoaders,
     uiKeywords,
@@ -56,16 +38,7 @@ export const loadPlugins = async (dir: string) => {
     prebuild,
     build,
     preprepare,
-    prepare,
-    tsconfig: {
-      compilerOptions,
-      include
-    },
-    ignorePatterns: {
-      git: gitIgnore,
-      eslint: eslintIgnore,
-      prettier: prettierIgnore
-    }
+    prepare
   };
 };
 

@@ -1,18 +1,16 @@
-import { existsSync } from "fs";
-import { join } from "path";
-import { file_templateYaml, path_serverless } from "../../utils/constants";
 import { ModuleHandler } from "../../utils/moduleHandler";
 import { bundleFunctions as _bundleFunctions } from "../../utils/serverless/bundleFunctions";
-import { loadServerlessTemplate } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
+import { loadServerlessTemplateMap } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
 
-export const bundleFunctions = async (dir: string, verbose = false) => {
-  const templateYamlPath = join(dir, path_serverless, file_templateYaml);
-  if (existsSync(templateYamlPath)) {
-    const moduleHandler = ModuleHandler.getModuleHandler();
-    const rootModuleNode = await moduleHandler.getRoodModuleNode();
-    const rootModuleTemplate = await loadServerlessTemplate(
-      rootModuleNode.module
-    );
-    await _bundleFunctions(dir, rootModuleTemplate, verbose);
-  }
+export const bundleFunctions = async (
+  dir: string,
+  verbose = false,
+  sourcemap = false
+) => {
+  const moduleHandler = ModuleHandler.getModuleHandler();
+  const moduleNodes = await moduleHandler.listModules();
+  const moduleTemplateMap = await loadServerlessTemplateMap(
+    moduleNodes.map(m => m.module)
+  );
+  await _bundleFunctions(dir, moduleTemplateMap, verbose, sourcemap);
 };

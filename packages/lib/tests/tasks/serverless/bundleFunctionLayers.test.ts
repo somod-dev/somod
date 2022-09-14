@@ -30,8 +30,16 @@ describe("test Task bundleFunctionLayers", () => {
   });
 
   test("for no template.yaml", async () => {
+    createFiles(dir, {
+      "package.json": JSON.stringify({
+        name: "my-module",
+        version: "1.0.0",
+        somod: "1.0.0"
+      })
+    });
     await expect(bundleFunctionLayers(dir)).resolves.toBeUndefined();
-    expect(bundleFunctionLayersUtil).toHaveBeenCalledTimes(0);
+    expect(bundleFunctionLayersUtil).toHaveBeenCalledTimes(1);
+    expect(bundleFunctionLayersUtil).toHaveBeenNthCalledWith(1, dir, {}, false);
   });
 
   test("for valid template.yaml", async () => {
@@ -48,10 +56,12 @@ describe("test Task bundleFunctionLayers", () => {
     expect(bundleFunctionLayersUtil).toHaveBeenCalledWith(
       dir,
       {
-        module: "my-module",
-        packageLocation: join(dir),
-        root: true,
-        template: { Resources: {} }
+        "my-module": {
+          module: "my-module",
+          packageLocation: join(dir),
+          root: true,
+          template: { Resources: {} }
+        }
       },
       false
     );

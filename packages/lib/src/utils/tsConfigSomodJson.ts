@@ -1,18 +1,7 @@
-import {
-  difference,
-  isArray,
-  isEqual,
-  isPlainObject,
-  toString,
-  union
-} from "lodash";
+import { difference, isArray, isEqual, isPlainObject, toString } from "lodash";
 import { normalize, join } from "path";
 import { file_tsConfigSomodJson, path_build, path_lib } from "./constants";
-import {
-  readJsonFileStore,
-  updateJsonFileStore,
-  unixStylePath
-} from "nodejs-file-utils";
+import { readJsonFileStore, unixStylePath } from "nodejs-file-utils";
 import ErrorSet from "./ErrorSet";
 
 const defaultCompilerOptions = {
@@ -90,42 +79,4 @@ export const validate = async (
   if (errors.length > 0) {
     throw new ErrorSet(errors);
   }
-};
-
-export const update = async (
-  dir: string,
-  compilerOptions: Record<string, unknown>,
-  include: string[]
-): Promise<void> => {
-  const tsConfigPath = normalize(join(dir, file_tsConfigSomodJson));
-
-  type TsConfigType = {
-    compilerOptions: Record<string, unknown>;
-    include: string[];
-  };
-  let tsConfig: TsConfigType = null;
-
-  try {
-    tsConfig = (await readJsonFileStore(tsConfigPath)) as TsConfigType;
-  } catch (e) {
-    tsConfig = { compilerOptions: {}, include: [] };
-  }
-
-  if (!tsConfig.compilerOptions) {
-    tsConfig.compilerOptions = {};
-  }
-
-  if (!tsConfig.include) {
-    tsConfig.include = [];
-  }
-
-  tsConfig.compilerOptions = {
-    ...tsConfig.compilerOptions,
-    ...defaultCompilerOptions,
-    ...compilerOptions
-  };
-
-  tsConfig.include = union(tsConfig.include, defaultInclude, include);
-
-  updateJsonFileStore(tsConfigPath, tsConfig);
 };

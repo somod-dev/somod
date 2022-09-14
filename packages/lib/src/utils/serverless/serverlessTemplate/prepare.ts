@@ -8,7 +8,6 @@ import {
   ServerlessTemplate
 } from "../types";
 import { getSAMOutputName } from "../utils";
-import { attachBaseLayer } from "./attachBaseLayer";
 import { extendResources } from "./extendResources";
 import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
 
@@ -76,7 +75,6 @@ export const prepareSamTemplate = async (
   }
 
   extendResources(samTemplate);
-  await attachBaseLayer(samTemplate);
 
   return samTemplate;
 };

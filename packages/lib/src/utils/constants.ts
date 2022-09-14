@@ -26,6 +26,8 @@ export const key_somodPlugins = "somodPlugins";
 
 export const path_nodeModules = "node_modules";
 
+export const path_somodWorkingDir = ".somod";
+
 export const path_build = "build";
 
 export const path_ui = "ui";

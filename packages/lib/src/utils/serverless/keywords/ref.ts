@@ -7,12 +7,14 @@ import { checkOutput } from "./output";
 import { keywordExtend } from "./extend";
 import { KeywordDefinition } from "somod-types";
 
-export const keyword = "SOMOD::Ref";
-
 type Ref = {
   module?: string;
   resource: string;
   attribute?: string;
+};
+
+export type KeywordSomodRef = {
+  "SOMOD::Ref": Ref;
 };
 
 export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {

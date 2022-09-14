@@ -8,9 +8,9 @@ import { mkdirSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import {
   file_packageJson,
-  path_build,
   path_functionLayers,
   path_serverless,
+  path_somodWorkingDir,
   resourceType_FunctionLayer
 } from "../../constants";
 import { getPath } from "../../jsonTemplate";
@@ -72,27 +72,32 @@ export const keywordFunctionLayer: KeywordDefinition<
     };
   },
 
-  getProcessor:
-    async (rootDir, moduleName, moduleContentMap) => (keyword, node, value) => {
-      const functionLayerPath = join(
-        moduleContentMap[moduleName].location,
-        path_build,
-        path_serverless,
-        path_functionLayers,
-        value.name
-      );
+  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
+    const functionLayerPath = join(
+      rootDir,
+      path_somodWorkingDir,
+      path_serverless,
+      path_functionLayers,
+      moduleName,
+      value.name
+    );
 
-      overrideLayerContent(
-        moduleContentMap[moduleName].location,
-        value.name,
-        value.content || {}
-      );
+    overrideLayerContent(rootDir, moduleName, value.name, value.content || {});
 
-      return {
-        type: "object",
-        value: unixStylePath(functionLayerPath)
-      };
-    }
+    return {
+      type: "object",
+      value: unixStylePath(functionLayerPath)
+    };
+  }
+};
+
+export const getLibrariesFromFunctionLayerResource = (
+  resource: ServerlessTemplate["Resources"][string]
+) => {
+  const layer = resource.Properties.ContentUri?.[
+    keywordFunctionLayer.keyword
+  ] as FunctionLayerType;
+  return layer?.libraries || [];
 };
 
 export const getFunctionLayerLibraries = (
@@ -114,15 +119,17 @@ export const getFunctionLayerLibraries = (
 };
 
 export const overrideLayerContent = (
-  moduleLocation: string,
+  rootDir: string,
+  moduleName: string,
   layerName: string,
   content: Record<string, string>
 ) => {
   const functionLayerPath = join(
-    moduleLocation,
-    path_build,
+    rootDir,
+    path_somodWorkingDir,
     path_serverless,
     path_functionLayers,
+    moduleName,
     layerName
   );
 

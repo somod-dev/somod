@@ -1,53 +1,33 @@
 import { childProcess, ChildProcessStreamConfig } from "nodejs-cli-runner";
 import { mkdir, writeFile } from "fs/promises";
-import { difference } from "lodash";
 import { join } from "path";
 import {
   file_packageJson,
-  path_build,
   path_functionLayers,
-  path_serverless
+  path_serverless,
+  path_somodWorkingDir
 } from "../constants";
 import { read } from "../packageJson";
 import { getFunctionLayerLibraries } from "./keywords/functionLayer";
-import { ModuleServerlessTemplate } from "./types";
+import { ModuleServerlessTemplate, ModuleServerlessTemplateMap } from "./types";
 
 const path_layerNodeJs = "nodejs";
 
-export const bundleFunctionLayers = async (
-  dir: string,
-  rootServerlessTemplate: ModuleServerlessTemplate,
+export const bundleFunctionLayersForModule = async (
+  rootDir: string,
+  serverlessTemplate: ModuleServerlessTemplate,
   verbose = false
 ): Promise<void> => {
-  const layerLibraries = getFunctionLayerLibraries(
-    rootServerlessTemplate.template
-  );
+  const layerLibraries = getFunctionLayerLibraries(serverlessTemplate.template);
 
-  const devDependencies = (await read(dir)).devDependencies || {};
-
-  const devDependenciesList = Object.keys(devDependencies);
-
-  const missingLibraries: string[] = [];
-
-  Object.keys(layerLibraries).forEach(layerName => {
-    const _missing = difference(layerLibraries[layerName], devDependenciesList);
-    missingLibraries.push(
-      ..._missing.map(libraryName => `${libraryName} - (${layerName})`)
-    );
-  });
-
-  if (missingLibraries.length > 0) {
-    throw new Error(
-      `Following layer libraries are missing as dev dependencies\n${missingLibraries.join(
-        "\n"
-      )}`
-    );
-  }
+  const devDependencies =
+    (await read(serverlessTemplate.packageLocation)).devDependencies || {};
 
   const buildFunctionLayersPath = join(
-    dir,
-    path_build,
+    rootDir,
+    path_somodWorkingDir,
     path_serverless,
+    serverlessTemplate.module,
     path_functionLayers
   );
 
@@ -61,7 +41,7 @@ export const bundleFunctionLayers = async (
     Object.keys(layerLibraries).map(async layerName => {
       try {
         const layerPackageJson = {
-          name: rootServerlessTemplate.module + "-" + layerName.toLowerCase(),
+          name: serverlessTemplate.module + "-" + layerName.toLowerCase(),
           version: "1.0.0",
           description: `Lambda function layer - ${layerName}`,
           dependencies: Object.fromEntries(
@@ -93,9 +73,25 @@ export const bundleFunctionLayers = async (
         );
       } catch (e) {
         throw new Error(
-          `bundle function layer failed for ${layerName}: ${e.message}`
+          `bundle function layer failed for ${layerName} from ${serverlessTemplate.module} module: ${e.message}`
         );
       }
+    })
+  );
+};
+
+export const bundleFunctionLayers = async (
+  dir: string,
+  moduleTemplateMap: ModuleServerlessTemplateMap,
+  verbose = false
+): Promise<void> => {
+  await Promise.all(
+    Object.keys(moduleTemplateMap).map(async moduleName => {
+      await bundleFunctionLayersForModule(
+        dir,
+        moduleTemplateMap[moduleName],
+        verbose
+      );
     })
   );
 };

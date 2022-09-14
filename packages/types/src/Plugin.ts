@@ -11,15 +11,6 @@ import {
 export type Mode = { ui: boolean; serverless: boolean };
 
 export type Plugin = {
-  tsconfig?: {
-    compilerOptions?: Record<string, unknown>;
-    include?: string[];
-  };
-  ignorePatterns?: {
-    git?: string[];
-    eslint?: string[];
-    prettier?: string[];
-  };
   namespaceLoader?: NamespaceLoader;
   keywords?: {
     uiConfig?: KeywordDefinition[];

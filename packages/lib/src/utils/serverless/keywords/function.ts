@@ -11,18 +11,24 @@ import { existsSync } from "fs";
 import { basename, extname, join } from "path";
 import {
   custom_resource_prefix,
-  path_build,
   path_functions,
   path_serverless,
+  path_somodWorkingDir,
   resourceType_Function
 } from "../../constants";
 import { constructJson, getPath } from "../../jsonTemplate";
-import { ServerlessTemplate } from "../types";
+import { ModuleServerlessTemplateMap, ServerlessTemplate } from "../types";
+import { KeywordSomodRef } from "./ref";
+import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
+import { uniq } from "lodash";
 
 type FunctionType = {
   name: string;
-  exclude?: string[];
   customResources?: JSONObjectType;
+};
+
+export type KeywordSomodFunction = {
+  "SOMOD::Function": FunctionType;
 };
 
 const getDefinedFunctions = async (dir: string) => {
@@ -82,21 +88,21 @@ export const keywordFunction: KeywordDefinition<
     };
   },
 
-  getProcessor:
-    async (rootDir, moduleName, moduleContentMap) => (keyword, node, value) => {
-      return {
-        type: "object",
-        value: unixStylePath(
-          join(
-            moduleContentMap[moduleName].location,
-            path_build,
-            path_serverless,
-            path_functions,
-            value.name
-          )
+  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
+    return {
+      type: "object",
+      value: unixStylePath(
+        join(
+          rootDir,
+          path_somodWorkingDir,
+          path_serverless,
+          path_functions,
+          moduleName,
+          value.name
         )
-      };
-    }
+      )
+    };
+  }
 };
 
 export const checkCustomResourceSchema = async (
@@ -174,10 +180,12 @@ export const checkCustomResourceSchema = async (
   return errors;
 };
 
-export const getDeclaredFunctions = (
-  serverlessTemplate: ServerlessTemplate
+export const getDeclaredFunctionsWithExcludedLibraries = (
+  moduleName: string,
+  serverlessTemplateMap: ModuleServerlessTemplateMap
 ) => {
-  const functionExcludes: { name: string; exclude: string[] }[] = [];
+  const declaredFunctions: { name: string; exclude: string[] }[] = [];
+  const serverlessTemplate = serverlessTemplateMap[moduleName].template;
   Object.values(serverlessTemplate.Resources).forEach(resource => {
     if (resource.Type == resourceType_Function) {
       const fun = resource.Properties.CodeUri?.[
@@ -185,10 +193,24 @@ export const getDeclaredFunctions = (
       ] as FunctionType;
       const functionName = fun?.name;
       if (functionName) {
-        const exclude = fun?.exclude || [];
-        functionExcludes.push({ name: functionName, exclude });
+        const exclude: string[] = ["aws-sdk"];
+        ((resource.Properties.Layers || []) as KeywordSomodRef[]).forEach(
+          layer => {
+            if (layer["SOMOD::Ref"]) {
+              const layerModule = layer["SOMOD::Ref"].module || moduleName;
+              const layerResourceId = layer["SOMOD::Ref"].resource;
+              const layerLibraries = getLibrariesFromFunctionLayerResource(
+                serverlessTemplateMap[layerModule].template.Resources[
+                  layerResourceId
+                ]
+              );
+              exclude.push(...layerLibraries);
+            }
+          }
+        );
+        declaredFunctions.push({ name: functionName, exclude: uniq(exclude) });
       }
     }
   });
-  return functionExcludes;
+  return declaredFunctions;
 };

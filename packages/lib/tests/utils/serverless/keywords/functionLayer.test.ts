@@ -218,7 +218,7 @@ describe("Test functionLayer keyword", () => {
     };
 
     const processor = await keywordFunctionLayer.getProcessor(
-      "",
+      "/root/dir",
       "m1",
       allModules
     );
@@ -241,7 +241,7 @@ describe("Test functionLayer keyword", () => {
       )
     ).toEqual({
       type: "object",
-      value: "/a/b/c/build/serverless/functionLayers/layer1"
+      value: "/root/dir/.somod/serverless/functionLayers/m1/layer1"
     });
   });
 });
@@ -261,7 +261,7 @@ describe("Test util processor of functionLayer keyword with overriding content",
     const allModules = {
       m1: {
         moduleName: "m1",
-        location: dir,
+        location: join(dir, "node_modules/m1"),
         path: "serverless/template.yaml",
         json: {
           Resources: {
@@ -319,7 +319,9 @@ describe("Test util processor of functionLayer keyword with overriding content",
       )
     ).toEqual({
       type: "object",
-      value: unixStylePath(join(dir, "/build/serverless/functionLayers/layer1"))
+      value: unixStylePath(
+        join(dir, "/.somod/serverless/functionLayers/m1/layer1")
+      )
     });
 
     await expect(readdir(dir)).resolves.toEqual([]);
@@ -346,12 +348,14 @@ describe("Test util processor of functionLayer keyword with overriding content",
       )
     ).toEqual({
       type: "object",
-      value: unixStylePath(join(dir, "/build/serverless/functionLayers/layer1"))
+      value: unixStylePath(
+        join(dir, ".somod/serverless/functionLayers/m1/layer1")
+      )
     });
 
     await expect(
       readFile(
-        join(dir, "build/serverless/functionLayers/layer1/a/b.json"),
+        join(dir, ".somod/serverless/functionLayers/m1/layer1/a/b.json"),
         "utf8"
       )
     ).resolves.toEqual("[1, 2, 3]");
@@ -359,7 +363,7 @@ describe("Test util processor of functionLayer keyword with overriding content",
 
   test("with overriding file in content", async () => {
     createFiles(dir, {
-      "build/serverless/functionLayers/layer1/a.json":
+      ".somod/serverless/functionLayers/m1/layer1/a.json":
         '"waw this gets replaced"'
     });
 
@@ -384,18 +388,20 @@ describe("Test util processor of functionLayer keyword with overriding content",
       )
     ).toEqual({
       type: "object",
-      value: unixStylePath(join(dir, "/build/serverless/functionLayers/layer1"))
+      value: unixStylePath(
+        join(dir, ".somod/serverless/functionLayers/m1/layer1")
+      )
     });
 
     await expect(
       readFile(
-        join(dir, "build/serverless/functionLayers/layer1/a.json"),
+        join(dir, ".somod/serverless/functionLayers/m1/layer1/a.json"),
         "utf8"
       )
     ).resolves.toEqual("123");
     await expect(
       readFile(
-        join(dir, "build/serverless/functionLayers/layer1/a/b.json"),
+        join(dir, ".somod/serverless/functionLayers/m1/layer1/a/b.json"),
         "utf8"
       )
     ).resolves.toEqual("[1, 2, 3]");
