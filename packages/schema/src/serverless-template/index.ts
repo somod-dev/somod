@@ -54,7 +54,7 @@ import { customResource } from "./resources/custom";
 import { functionEventSource, functionResource } from "./resources/function";
 import { functionLayerResource } from "./resources/functionLayer";
 
-const serverless: JSONSchema7 = {
+const serverlessTemplate: JSONSchema7 = {
   $schema: "http://json-schema.org/draft-07/schema",
   $id: "https://somod.json-schema.sodaru.com/serverless-template/index.json",
   title: "JSON Schema for Serverless Template in SOMOD",
@@ -162,4 +162,4 @@ const serverless: JSONSchema7 = {
   additionalProperties: false
 };
 
-export default serverless;
+export default serverlessTemplate;

@@ -1,41 +1,25 @@
-# Sodaru Module SDK
+# SOMOD
 
-> Design Doc : https://docs.google.com/presentation/d/1mxlUuocYzJfEmOmBrdyPbB1hktiQQHzDAReXXLcOCyM
+> **S**erverless **O**ptimized **MOD**ule
 
-Sodaru Module (somod) enables development and sharing of UI and Serverless Components as npm packages
+SOMOD is a framework to create reusable micro applications using serverless technologies. The framework helps to develop, build and merge multiple micro applications to create a complete solution.
 
-## Type of modules
+For usage and guides visit https://somod.sodaru.com
 
-- **NJP** - NextJS Modules
-- **SLP** - Serverless Modules
-- **SOMOD** - NextJS And Serverless Modules
+This github repository is a mono-repo containing `somod`, `somod-docs`, `create-somod` and other utility packages.
 
-## Package Inforamtion
+## Issues
 
-### [parameters-schema](./packages/parameters-schema)
+The project issues, features, and milestones are maintained in this github repo.
 
-JSON schema to validate the parameters in NJP, SLP and SOMOD modules
+Create issues or feature requests at https://github.com/sodaru/somod/issues
 
-### [ui-config-schema](./packages/ui-config-schema)
+## Contributions
 
-JSON schema to validate the UI Configuration in NJP and SOMOD modules
+For Contributions, fork this repo and submit a PR with the changes.
 
-### [serverless-schema](./packages/serverless-schema)
+## Support
 
-JSON schema to validate the templates in SLP and SOMOD modules
+This project is a part of Open Source Intitiative from [Sodaru Technologies](https://sodaru.com)
 
-### [sdk-lib](./packages/sdk-lib)
-
-Library of tasks and utilities for Developing SLP, NJP and SOMOD modules
-
-### [njp](./packages/njp)
-
-CLI tool to init, build and serve NextJs Modules
-
-### [slp](./packages/slp)
-
-CLI tool to init, build and deploy Serverless Modules
-
-### [somod](./packages/somod)
-
-CLI tool combining njp and slp
+Write an email to opensource@sodaru.com for queries on this project

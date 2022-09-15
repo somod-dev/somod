@@ -1,5 +1,5 @@
-# Package Manager Utility Library
+# SOMOD lib
 
-> Implements tasks for package management
+> Library of tasks used in SOMOD CLI
 
-> Not to be used directly , this package is used by package manage utilities
+Not to be used directly, Refer [../../readme](../../README.md) instead.
