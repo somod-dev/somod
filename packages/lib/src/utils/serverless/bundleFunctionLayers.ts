@@ -27,8 +27,8 @@ export const bundleFunctionLayersForModule = async (
     rootDir,
     path_somodWorkingDir,
     path_serverless,
-    serverlessTemplate.module,
-    path_functionLayers
+    path_functionLayers,
+    serverlessTemplate.module
   );
 
   const npmCommand = process.platform == "win32" ? "npm.cmd" : "npm";

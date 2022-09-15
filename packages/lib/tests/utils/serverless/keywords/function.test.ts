@@ -2,7 +2,7 @@ import { mockedFunction } from "../../../utils";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import {
   checkCustomResourceSchema,
-  getDeclaredFunctions,
+  getDeclaredFunctionsWithExcludedLibraries,
   keywordFunction
 } from "../../../../src/utils/serverless/keywords/function";
 import { keywordRef } from "../../../../src/utils/serverless/keywords/ref";
@@ -223,7 +223,11 @@ describe("Test function keyword", () => {
       }
     };
 
-    const processor = await keywordFunction.getProcessor("", "m1", allModules);
+    const processor = await keywordFunction.getProcessor(
+      "/root/dir",
+      "m1",
+      allModules
+    );
 
     const objNode = parseJson(allModules.m1.json) as JSONObjectNode;
 
@@ -243,7 +247,7 @@ describe("Test function keyword", () => {
       )
     ).toEqual({
       type: "object",
-      value: "/a/b/c/build/serverless/functions/func1"
+      value: "/root/dir/.somod/serverless/functions/m1/func1"
     });
   });
 });
@@ -251,58 +255,142 @@ describe("Test function keyword", () => {
 describe("Test util getDeclaredFunctions in keyword function", () => {
   test("for a complete template", () => {
     expect(
-      getDeclaredFunctions({
-        Resources: {
-          R1: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                [keywordFunction.keyword]: {
-                  name: "func1"
-                } as FunctionType
+      getDeclaredFunctionsWithExcludedLibraries("m1", {
+        m1: {
+          module: "m1",
+          packageLocation: "",
+          template: {
+            Resources: {
+              R1: {
+                Type: "AWS::Serverless::Function",
+                Properties: {
+                  CodeUri: {
+                    [keywordFunction.keyword]: {
+                      name: "func1"
+                    } as FunctionType
+                  }
+                }
+              },
+              R2: {
+                Type: "AWS::Serverless::Function",
+                Properties: {
+                  CodeUri: {
+                    [keywordFunction.keyword]: {
+                      name: "func2"
+                    } as FunctionType
+                  }
+                }
+              },
+              L1: {
+                Type: "AWS::Serverless::LayerVersion",
+                Properties: {
+                  ContentUri: {
+                    "SOMOD::FunctionLayer": {
+                      name: "layer1",
+                      libraries: ["l1", "l2", "l3"],
+                      content: { "/a/b/c": "123" }
+                    }
+                  }
+                }
+              },
+              R3: {
+                Type: "AWS::Serverless::Function",
+                Properties: {
+                  CodeUri: {
+                    [keywordFunction.keyword]: {
+                      name: "func3"
+                    } as FunctionType
+                  },
+                  Layers: [
+                    {
+                      "SOMOD::Ref": {
+                        resource: "L1"
+                      }
+                    }
+                  ]
+                }
+              },
+              R4: {
+                Type: "AWS::Serverless::Function",
+                Properties: {
+                  CodeUri: {
+                    [keywordFunction.keyword]: {
+                      name: "func4"
+                    } as FunctionType
+                  },
+                  Layers: [
+                    {
+                      "SOMOD::Ref": {
+                        resource: "L2",
+                        module: "m2"
+                      }
+                    }
+                  ]
+                }
+              },
+              R5: {
+                Type: "AWS::Serverless::Function",
+                Properties: {
+                  CodeUri: {
+                    [keywordFunction.keyword]: {
+                      name: "func5"
+                    } as FunctionType
+                  },
+                  Layers: [
+                    {
+                      "SOMOD::Ref": {
+                        resource: "L1",
+                        module: "m1"
+                      }
+                    },
+                    {
+                      "SOMOD::Ref": {
+                        resource: "L2",
+                        module: "m2"
+                      }
+                    }
+                  ]
+                }
+              },
+              R6: {
+                Type: "SomeType",
+                Properties: {
+                  CodeUri: {
+                    [keywordFunction.keyword]: {
+                      name: "func5"
+                    } as FunctionType
+                  }
+                }
               }
             }
-          },
-          R2: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                [keywordFunction.keyword]: {
-                  name: "func2",
-                  exclude: []
-                } as FunctionType
-              }
-            }
-          },
-          R3: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                [keywordFunction.keyword]: {
-                  name: "func3",
-                  exclude: ["l1", "l2", "l3"]
-                } as FunctionType
-              }
-            }
-          },
-          R4: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: {
-                [keywordFunction.keyword]: {
-                  name: "func4",
-                  exclude: ["l3", "l4"]
-                } as FunctionType
+          }
+        },
+        m2: {
+          module: "m2",
+          packageLocation: "",
+          template: {
+            Resources: {
+              L2: {
+                Type: "AWS::Serverless::LayerVersion",
+                Properties: {
+                  ContentUri: {
+                    "SOMOD::FunctionLayer": {
+                      name: "layer1",
+                      libraries: ["l3", "l4"]
+                    }
+                  }
+                }
               }
             }
           }
         }
       })
     ).toEqual([
-      { name: "func1", exclude: [] },
-      { name: "func2", exclude: [] },
-      { name: "func3", exclude: ["l1", "l2", "l3"] },
-      { name: "func4", exclude: ["l3", "l4"] }
+      { name: "func1", exclude: ["aws-sdk"] },
+      { name: "func2", exclude: ["aws-sdk"] },
+      { name: "func3", exclude: ["aws-sdk", "l1", "l2", "l3"] },
+      { name: "func4", exclude: ["aws-sdk", "l3", "l4"] },
+      { name: "func5", exclude: ["aws-sdk", "l1", "l2", "l3", "l4"] }
     ]);
   });
 });

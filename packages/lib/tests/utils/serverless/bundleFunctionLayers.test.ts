@@ -6,11 +6,14 @@ import { keywordFunctionLayer } from "../../../src/utils/serverless/keywords/fun
 
 describe("Test Task bundleFunctionLayers", () => {
   let dir: string;
+  const originalStdErrWrite = process.stderr.write;
   beforeEach(() => {
     dir = createTempDir("test-somod-lib");
+    process.stderr.write = jest.fn();
   });
 
   afterEach(() => {
+    process.stderr.write = originalStdErrWrite;
     deleteDir(dir);
   });
 
@@ -23,9 +26,11 @@ describe("Test Task bundleFunctionLayers", () => {
 
     await expect(
       bundleFunctionLayers(dir, {
-        module: "m0",
-        packageLocation: "",
-        template: { Resources: {} }
+        m0: {
+          module: "m0",
+          packageLocation: dir,
+          template: { Resources: {} }
+        }
       })
     ).resolves.toBeUndefined();
     expect(existsSync(join(dir, "build"))).not.toBeTruthy();
@@ -40,15 +45,17 @@ describe("Test Task bundleFunctionLayers", () => {
 
     await expect(
       bundleFunctionLayers(dir, {
-        module: "m0",
-        packageLocation: "",
-        template: {
-          Resources: {
-            L1: {
-              Type: "AWS::Serverless::LayerVersion",
-              Properties: {
-                ContentUri: {
-                  [keywordFunctionLayer.keyword]: { name: "layer1" }
+        m0: {
+          module: "m0",
+          packageLocation: dir,
+          template: {
+            Resources: {
+              L1: {
+                Type: "AWS::Serverless::LayerVersion",
+                Properties: {
+                  ContentUri: {
+                    [keywordFunctionLayer.keyword]: { name: "layer1" }
+                  }
                 }
               }
             }
@@ -57,48 +64,6 @@ describe("Test Task bundleFunctionLayers", () => {
       })
     ).resolves.toBeUndefined();
   });
-
-  test("with missing library in dev Dependencies", async () => {
-    createFiles(dir, {
-      "package.json": JSON.stringify({
-        name: "waw"
-      })
-    });
-    await expect(
-      bundleFunctionLayers(dir, {
-        module: "m0",
-        packageLocation: "",
-        template: {
-          Resources: {
-            L1: {
-              Type: "AWS::Serverless::LayerVersion",
-              Properties: {
-                ContentUri: {
-                  [keywordFunctionLayer.keyword]: {
-                    name: "layer1",
-                    libraries: ["lodash"]
-                  }
-                }
-              }
-            }
-          }
-        }
-      })
-    ).rejects.toEqual(
-      new Error(
-        "Following layer libraries are missing as dev dependencies\nlodash - (layer1)"
-      )
-    );
-
-    expect(
-      existsSync(
-        join(
-          dir,
-          "build/serverless/functionLayers/layer1/nodejs/node_modules/lodash"
-        )
-      )
-    ).not.toBeTruthy();
-  }, 20000);
 
   test("with invalid library in layer", async () => {
     createFiles(dir, {
@@ -111,17 +76,19 @@ describe("Test Task bundleFunctionLayers", () => {
     });
     await expect(
       bundleFunctionLayers(dir, {
-        module: "m0",
-        packageLocation: "",
-        template: {
-          Resources: {
-            L1: {
-              Type: "AWS::Serverless::LayerVersion",
-              Properties: {
-                ContentUri: {
-                  [keywordFunctionLayer.keyword]: {
-                    name: "layer1",
-                    libraries: ["@sodaru/dssfkdasfkjdhskfhakjdhkfkadhkf"]
+        m0: {
+          module: "m0",
+          packageLocation: dir,
+          template: {
+            Resources: {
+              L1: {
+                Type: "AWS::Serverless::LayerVersion",
+                Properties: {
+                  ContentUri: {
+                    [keywordFunctionLayer.keyword]: {
+                      name: "layer1",
+                      libraries: ["@sodaru/dssfkdasfkjdhskfhakjdhkfkadhkf"]
+                    }
                   }
                 }
               }
@@ -139,7 +106,7 @@ describe("Test Task bundleFunctionLayers", () => {
       existsSync(
         join(
           dir,
-          "build/serverless/functionLayers/layer1/nodejs/node_modules/lodash"
+          ".somod/serverless/functionLayers/m0/layer1/nodejs/node_modules/lodash"
         )
       )
     ).not.toBeTruthy();
@@ -157,28 +124,30 @@ describe("Test Task bundleFunctionLayers", () => {
     });
     await expect(
       bundleFunctionLayers(dir, {
-        module: "m0",
-        packageLocation: "",
-        template: {
-          Resources: {
-            L1: {
-              Type: "AWS::Serverless::LayerVersion",
-              Properties: {
-                ContentUri: {
-                  [keywordFunctionLayer.keyword]: {
-                    name: "layer1",
-                    libraries: ["lodash", "smallest"]
+        m0: {
+          module: "m0",
+          packageLocation: dir,
+          template: {
+            Resources: {
+              L1: {
+                Type: "AWS::Serverless::LayerVersion",
+                Properties: {
+                  ContentUri: {
+                    [keywordFunctionLayer.keyword]: {
+                      name: "layer1",
+                      libraries: ["lodash", "smallest"]
+                    }
                   }
                 }
-              }
-            },
-            L2: {
-              Type: "AWS::Serverless::LayerVersion",
-              Properties: {
-                ContentUri: {
-                  [keywordFunctionLayer.keyword]: {
-                    name: "layer2",
-                    libraries: ["smallest"]
+              },
+              L2: {
+                Type: "AWS::Serverless::LayerVersion",
+                Properties: {
+                  ContentUri: {
+                    [keywordFunctionLayer.keyword]: {
+                      name: "layer2",
+                      libraries: ["smallest"]
+                    }
                   }
                 }
               }
@@ -192,7 +161,7 @@ describe("Test Task bundleFunctionLayers", () => {
       existsSync(
         join(
           dir,
-          "build/serverless/functionLayers/layer1/nodejs/node_modules/lodash"
+          ".somod/serverless/functionLayers/m0/layer1/nodejs/node_modules/lodash"
         )
       )
     ).toBeTruthy();
@@ -200,7 +169,7 @@ describe("Test Task bundleFunctionLayers", () => {
       existsSync(
         join(
           dir,
-          "build/serverless/functionLayers/layer1/nodejs/node_modules/smallest"
+          ".somod/serverless/functionLayers/m0/layer1/nodejs/node_modules/smallest"
         )
       )
     ).toBeTruthy();
@@ -209,7 +178,7 @@ describe("Test Task bundleFunctionLayers", () => {
       existsSync(
         join(
           dir,
-          "build/serverless/functionLayers/layer2/nodejs/node_modules/smallest"
+          ".somod/serverless/functionLayers/m0/layer2/nodejs/node_modules/smallest"
         )
       )
     ).toBeTruthy();

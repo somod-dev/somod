@@ -23,9 +23,7 @@ describe("Test task loadPlugins", () => {
       prebuild: [],
       build: [],
       preprepare: [],
-      prepare: [],
-      tsconfig: { compilerOptions: {}, include: [] },
-      ignorePatterns: { git: [], eslint: [], prettier: [] }
+      prepare: []
     });
   });
 
@@ -54,16 +52,7 @@ describe("Test task loadPlugins", () => {
           prebuild: jest.fn(),
           build: jest.fn(),
           preprepare: jest.fn(),
-          prepare: jest.fn(),
-          tsconfig: {
-            compilerOptions: {
-              lib: ["DOM"]
-            },
-            include: ["widgets"]
-          },
-          ignorePatterns: {
-            git: [".vercel"]
-          }
+          prepare: jest.fn()
         }
       }
     ];
@@ -75,9 +64,7 @@ describe("Test task loadPlugins", () => {
       prebuild: plugins,
       build: plugins,
       preprepare: plugins,
-      prepare: plugins,
-      tsconfig: plugins[0].plugin.tsconfig,
-      ignorePatterns: { git: [".vercel"], eslint: [], prettier: [] }
+      prepare: plugins
     });
   });
 
@@ -97,14 +84,7 @@ describe("Test task loadPlugins", () => {
           },
           prebuild: jest.fn(),
           preprepare: jest.fn(),
-          prepare: jest.fn(),
-          tsconfig: {
-            compilerOptions: {
-              lib: ["DOM"]
-            },
-            include: ["widgets"]
-          },
-          ignorePatterns: { eslint: ["path1"], prettier: [] }
+          prepare: jest.fn()
         }
       },
       {
@@ -113,13 +93,7 @@ describe("Test task loadPlugins", () => {
           namespaceLoader: jest.fn(),
           prebuild: jest.fn(),
           build: jest.fn(),
-          prepare: jest.fn(),
-          tsconfig: {
-            compilerOptions: {
-              lib: ["DOM", "ESNext"]
-            },
-            include: ["schemas"]
-          }
+          prepare: jest.fn()
         }
       },
       {
@@ -144,12 +118,7 @@ describe("Test task loadPlugins", () => {
           prebuild: jest.fn(),
           build: jest.fn(),
           preprepare: jest.fn(),
-          prepare: jest.fn(),
-          ignorePatterns: {
-            git: ["path1", "path2"],
-            eslint: ["path1"],
-            prettier: ["path1", "pathx"]
-          }
+          prepare: jest.fn()
         }
       }
     ];
@@ -164,18 +133,7 @@ describe("Test task loadPlugins", () => {
       prebuild: [plugins[2], plugins[1], plugins[0]],
       build: [plugins[1], plugins[2]],
       preprepare: [plugins[2], plugins[0]],
-      prepare: [plugins[0], plugins[1], plugins[2]],
-      tsconfig: {
-        compilerOptions: {
-          lib: ["DOM", "ESNext"]
-        },
-        include: ["widgets", "schemas"]
-      },
-      ignorePatterns: {
-        git: ["path1", "path2"],
-        eslint: ["path1", "path1"],
-        prettier: ["path1", "pathx"]
-      }
+      prepare: [plugins[0], plugins[1], plugins[2]]
     });
   });
 });

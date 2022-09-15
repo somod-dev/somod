@@ -6,7 +6,6 @@ import {
 } from "../../../../src/utils/jsonTemplate";
 import { getBaseKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { prepareSamTemplate } from "../../../../src/utils/serverless/serverlessTemplate/prepare";
-import { attachBaseLayer } from "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer";
 import { extendResources } from "../../../../src/utils/serverless/serverlessTemplate/extendResources";
 import { listAllOutputs } from "../../../../src/utils/serverless/namespace";
 import { getSAMOutputName } from "../../../../src/utils/serverless/utils";
@@ -25,16 +24,6 @@ jest.mock("../../../../src/utils/jsonTemplate", () => {
   const original = jest.requireActual("../../../../src/utils/jsonTemplate");
   return { __esModule: true, ...original, processKeywords: jest.fn() };
 });
-
-jest.mock(
-  "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer",
-  () => {
-    const original = jest.requireActual(
-      "../../../../src/utils/serverless/serverlessTemplate/attachBaseLayer"
-    );
-    return { __esModule: true, ...original, attachBaseLayer: jest.fn() };
-  }
-);
 
 jest.mock(
   "../../../../src/utils/serverless/serverlessTemplate/extendResources",
@@ -196,9 +185,6 @@ describe("test util serverlessTemplate.prepare", () => {
       parseJson(moduleServerlessTemplateMap.m0.template),
       { k1: processor }
     );
-
-    expect(attachBaseLayer).toHaveBeenCalledTimes(1);
-    expect(attachBaseLayer).toHaveBeenNthCalledWith(1, expectedSamTemplate);
 
     expect(extendResources).toHaveBeenCalledTimes(1);
     expect(extendResources).toHaveBeenNthCalledWith(1, expectedSamTemplate);
