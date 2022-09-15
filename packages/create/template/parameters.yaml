@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
+
+Parameters:
+  ui.theme.options:
+    type: json
+    default:
+      palette:
+        primary: "#004b89"
+        secondary: "#ffb476"
+
+    schema: true

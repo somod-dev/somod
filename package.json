@@ -32,7 +32,7 @@
     "sodaru-module-package"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
     "url": "https://gitlab.com/sodaru/somod/sdk/issues"
   },

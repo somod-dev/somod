@@ -1,0 +1,14 @@
+node_modules
+build
+parameters.json
+.next
+tsconfig.json
+pages
+public
+next-env.d.ts
+.env
+next.config.js
+.aws-sam
+samconfig.toml
+/template.yaml
+tsconfig.somod.json
