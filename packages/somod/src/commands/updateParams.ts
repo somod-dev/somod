@@ -1,10 +1,9 @@
-import { CommonOptions, taskRunner } from "@solib/cli-base";
+import { CommonOptions, taskRunner, Command, Option } from "nodejs-cli-runner";
 import {
   file_parametersJson,
   findRootDir,
   updateParametersFromSAM
 } from "somod-lib";
-import { Command, Option } from "commander";
 
 type UpdateParamsOptions = CommonOptions & {
   stackName?: string;

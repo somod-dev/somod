@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@solib/cli-base";
+import { CommonOptions, taskRunner, Command } from "nodejs-cli-runner";
 import {
   createPages,
   createPublicAssets,
@@ -20,7 +20,6 @@ import {
   bundleFunctions,
   bundleFunctionLayers
 } from "somod-lib";
-import { Command } from "commander";
 import {
   addSOMODCommandTypeOptions,
   getSOMODCommandTypeOptions,

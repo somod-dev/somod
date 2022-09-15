@@ -1,6 +1,5 @@
-import { CommonOptions, taskRunner } from "@solib/cli-base";
+import { CommonOptions, taskRunner, Command, Option } from "nodejs-cli-runner";
 import { file_templateYaml, findRootDir, samDeploy } from "somod-lib";
-import { Command, Option } from "commander";
 import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";
 

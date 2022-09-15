@@ -6,3 +6,4 @@ export { bundleFunctionLayers } from "./bundleFunctionLayers";
 export { prepareSAMTemplate } from "./prepareSAMTemplate";
 export { samDeploy } from "./samDeploy";
 export { updateParametersFromSAM } from "./updateParametersFromSAM";
+export { validateFunctionExports } from "./validateFunctionExports";

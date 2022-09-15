@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable */
-require("@solib/cli-open-telemetry").tele(
+require("cli-opentelemetry").tele(
   "somod",
   require("path").join(__dirname, "../dist/index.js"),
   "OTLP_URL",

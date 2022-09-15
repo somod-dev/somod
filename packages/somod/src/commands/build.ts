@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@solib/cli-base";
+import { CommonOptions, taskRunner, Command } from "nodejs-cli-runner";
 import {
   buildParameters,
   buildServerlessTemplate,
@@ -33,9 +33,11 @@ import {
   runPluginBuild,
   validateServerlessTemplate,
   initializeModuleHandler,
-  validateUiConfigYamlWithSchema
+  validateUiConfigYamlWithSchema,
+  loadNamespaces,
+  path_functions,
+  validateFunctionExports
 } from "somod-lib";
-import { Command } from "commander";
 import {
   addSOMODCommandTypeOptions,
   getSOMODCommandTypeOptions,
@@ -84,6 +86,7 @@ export const BuildAction = async ({
       dir
     )
   ]);
+
   if (ui) {
     await Promise.all([
       taskRunner(
@@ -120,15 +123,23 @@ export const BuildAction = async ({
       validateServerlessTemplateWithSchema,
       verbose,
       dir
-    ),
-      await taskRunner(
-        `Validate ${path_serverless}/${file_templateYaml}`,
-        validateServerlessTemplate,
-        verbose,
-        dir,
-        plugins.serverlessKeywords
-      );
+    );
+    await taskRunner(
+      `Validate ${path_serverless}/${file_templateYaml}`,
+      validateServerlessTemplate,
+      verbose,
+      dir,
+      plugins.serverlessKeywords
+    );
+    await taskRunner(
+      `Validate exports in ${path_serverless}/${path_functions}`,
+      validateFunctionExports,
+      verbose,
+      dir
+    );
   }
+
+  await taskRunner(`Resolve Namespaces`, loadNamespaces, verbose);
 
   await Promise.all(
     plugins.prebuild.map(plugin =>

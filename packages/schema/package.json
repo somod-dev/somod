@@ -21,8 +21,8 @@
     "schemas"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/serverless-schema#readme",
-  "license": "UNLICENSED",
+  "homepage": "https://github.com/sodaru/somod/tree/main/packages/schema#readme",
+  "license": "MIT",
   "scripts": {
     "clean": "npx rimraf dist && npx rimraf compiled && npx rimraf schemas",
     "tsc": "npx tsc",
@@ -35,10 +35,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+    "url": "git+ssh://git@github.com/sodaru/somod.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+    "url": "https://github.com/sodaru/somod/issues"
   },
   "devDependencies": {
     "decorated-ajv": "^1.1.0",

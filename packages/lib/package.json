@@ -1,10 +1,10 @@
 {
   "name": "somod-lib",
   "version": "1.13.3",
-  "description": "Sodaru Module SDK library",
+  "description": "SOMOD library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/sdk-lib#readme",
-  "license": "UNLICENSED",
+  "homepage": "https://github.com/sodaru/somod/tree/main/packages/lib#readme",
+  "license": "MIT",
   "module": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
@@ -14,7 +14,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+    "url": "git+ssh://git@github.com/sodaru/somod.git"
   },
   "scripts": {
     "clean": "npx rimraf dist",
@@ -24,7 +24,7 @@
     "test": "npx jest"
   },
   "bugs": {
-    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+    "url": "https://github.com/sodaru/somod/issues"
   },
   "dependencies": {
     "@aws-sdk/client-cloudformation": "^3.121.0",

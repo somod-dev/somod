@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import { Command } from "nodejs-cli-runner";
 
 export type SOMODCommandTypeOptions = {
   ui: boolean;
