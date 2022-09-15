@@ -1,4 +1,4 @@
-image: registry.gitlab.com/sodaru/container/sodaru/ci-nodejs
+image: node:16
 
 stages:
   - test
