@@ -1,4 +1,7 @@
 node_modules
 dist
 
-/packages/sdk-lib/coverage
+/packages/lib/coverage
+
+packages/schema/compiled
+packages/schema/schemas

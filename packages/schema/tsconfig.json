@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "target": "ES5",
+    "module": "ES6",
+    "moduleResolution": "node",
+    "lib": ["ESNext"],
+    "importHelpers": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}

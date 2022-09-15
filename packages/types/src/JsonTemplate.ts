@@ -39,7 +39,7 @@ export type KeywordValidator<T extends JSONType = JSONType> = (
   keyword: string,
   node: JSONObjectNode,
   value: T
-) => Error[];
+) => Error[] | Promise<Error[]>;
 
 export type KeywordObjectReplacement = {
   type: "object";
@@ -59,4 +59,4 @@ export type KeywordProcessor<T extends JSONType = JSONType> = (
   keyword: string,
   node: JSONObjectNode,
   value: T
-) => KeywordReplacement;
+) => KeywordReplacement | Promise<KeywordReplacement>;

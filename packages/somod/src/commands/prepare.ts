@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@solib/cli-base";
+import { CommonOptions, taskRunner, Command } from "nodejs-cli-runner";
 import {
   createPages,
   createPublicAssets,
@@ -16,9 +16,10 @@ import {
   path_public,
   runPluginPrepare,
   runPluginPreprepare,
-  initializeModuleHandler
-} from "@somod/sdk-lib";
-import { Command } from "commander";
+  initializeModuleHandler,
+  bundleFunctions,
+  bundleFunctionLayers
+} from "somod-lib";
 import {
   addSOMODCommandTypeOptions,
   getSOMODCommandTypeOptions,
@@ -93,6 +94,21 @@ export const PrepareAction = async ({
     );
   }
   if (serverless) {
+    await taskRunner(
+      `Bundle Serverless Functions`,
+      bundleFunctions,
+      verbose,
+      dir
+    );
+
+    await taskRunner(
+      `Bundle Serverless FunctionLayers`,
+      bundleFunctionLayers,
+      verbose,
+      dir,
+      verbose
+    );
+
     await taskRunner(
       `Generate /${file_templateYaml}`,
       prepareSAMTemplate,

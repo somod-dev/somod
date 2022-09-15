@@ -1,4 +1,4 @@
-image: registry.gitlab.com/sodaru/container/sodaru/ci-nodejs
+image: node:16
 
 stages:
   - test
@@ -10,13 +10,11 @@ cache:
   paths:
     - node_modules
 
-before_script:
-  - npm i -g esbuild
-  - npm i
-
 test:
   stage: test
   script:
+    - npm i -g esbuild
+    - npm i
     - npm test
   only:
     - develop
@@ -25,6 +23,8 @@ publish:
   stage: publish
   cache: []
   script:
+    - npm i -g esbuild
+    - npm i
     - npm test
     - npx mono-repo publish -v
   rules:
