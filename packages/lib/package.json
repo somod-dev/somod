@@ -1,6 +1,6 @@
 {
   "name": "somod-lib",
-  "version": "1.13.3",
+  "version": "1.13.4",
   "description": "SOMOD library",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "homepage": "https://github.com/sodaru/somod/tree/main/packages/lib#readme",
@@ -50,7 +50,7 @@
     "ts-jest": "28.0.2",
     "jest-summarizing-reporter": "^1.1.4",
     "typescript": "^4.5.5",
-    "somod-schema": "^1.13.3",
-    "somod-types": "^1.13.3"
+    "somod-schema": "^1.13.4",
+    "somod-types": "^1.13.4"
   }
 }
