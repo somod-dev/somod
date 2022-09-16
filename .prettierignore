@@ -8,17 +8,4 @@ packages/lib/tests/tasks/build/testData
 packages/schema/compiled
 packages/schema/schemas
 
-packages/create/template/.somod
-packages/create/template/build
-packages/create/template/parameters.json
-packages/create/template/.next
-packages/create/template/tsconfig.json
-packages/create/template/pages
-packages/create/template/public
-packages/create/template/next-env.d.ts
-packages/create/template/.env
-packages/create/template/next.config.js
-packages/create/template/.aws-sam
-packages/create/template/samconfig.toml
-packages/create/template//template.yaml
-packages/create/template/tsconfig.somod.json
+packages/create/template

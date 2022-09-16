@@ -30,7 +30,6 @@
     "url": "git+ssh://git@github.com/sodaru/somod.git"
   },
   "scripts": {
-    "postinstall": "$CI && cd template && npm install",
     "clean": "npx rimraf dist",
     "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify",
     "emit-types": "npx tsc",
@@ -46,6 +45,7 @@
     "nodejs-cli-runner": "^1.1.1",
     "nodejs-file-utils": "^1.0.1",
     "tslib": "^2.4.0",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "somod": "1.13.3"
   }
 }
