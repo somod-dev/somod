@@ -1,5 +1,5 @@
 {
-  "name": "@somod/schema",
+  "name": "somod-schema",
   "version": "1.13.3",
   "description": "Schema to validate yaml files in somod modules",
   "keywords": [
@@ -12,24 +12,38 @@
     "ui-config",
     "parameters"
   ],
+  "main": "./dist/cjs/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "compiled",
+    "schemas"
+  ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/serverless-schema#readme",
-  "license": "UNLICENSED",
+  "homepage": "https://github.com/sodaru/somod/tree/main/packages/schema#readme",
+  "license": "MIT",
   "scripts": {
-    "load:common": "npx schema-manager load common",
-    "load:ui-config": "npx schema-manager load ui-config",
-    "load:serverless": "npx schema-manager load serverless",
-    "load:parameters": "npx schema-manager load parameters",
-    "test": "npm run load:common && npm run load:serverless && npm run load:ui-config && npm run load:parameters"
+    "clean": "npx rimraf dist && npx rimraf compiled && npx rimraf schemas",
+    "tsc": "npx tsc",
+    "tsc-cjs": "npx tsc --project tsconfig.cjs.json",
+    "buildSchema": "node ./scripts/build.js",
+    "compileSchema": "node ./scripts/compile.js",
+    "build": "npm run clean && npm run tsc && npm run tsc-cjs && npm run buildSchema && npm run compileSchema",
+    "pretest": "$CI || npm run build",
+    "test": "echo 'No tests here'"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+    "url": "git+ssh://git@github.com/sodaru/somod.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+    "url": "https://github.com/sodaru/somod/issues"
   },
   "devDependencies": {
-    "@solib/schema-manager": "^1.0.5"
+    "decorated-ajv": "^1.1.0",
+    "rimraf": "^3.0.2",
+    "tslib": "^2.4.0",
+    "typescript": "^4.5.5"
   }
 }

@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../node_modules/somod-schema/schemas/serverless-template/index.json
+
+Resources:
+  SampleParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: Hello
+      Description: "TODO: This is a sample resource, Delete this and add the valid resources for your module"
+      Type: String
+      Value: Good Luck

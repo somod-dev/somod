@@ -1,15 +1,13 @@
-# `@somod/somod`
+# SOMOD
 
-> Enhances NPM Package to be Sodaru Module Package (SOMOD)
+> **S**erverless **O**ptimized **MOD**ule
 
-This is a combination of [njp](../njp) and [slp](../slp)
+SOMOD is a framework to create reusable micro applications using serverless technologies. The framework helps to develop, build and merge multiple micro applications to create a complete solution.
 
-## Usage
+For usage and guides visit https://somod.sodaru.com
 
-```SH
- > somod init
- > somod build
- > somod deploy-serverless
- > somod deploy-nextjs
- > somod serve
-```
+## Support
+
+This project is a part of Open Source Intitiative from [Sodaru Technologies](https://sodaru.com)
+
+Write an email to opensource@sodaru.com for queries on this project

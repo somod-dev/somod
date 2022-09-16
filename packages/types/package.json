@@ -1,20 +1,20 @@
 {
-  "name": "@somod/types",
+  "name": "somod-types",
   "version": "1.13.3",
   "description": "Type Definitions for somod",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "homepage": "https://gitlab.com/sodaru/somod/sdk/packages/types#readme",
+  "homepage": "https://github.com/sodaru/somod/tree/main/packages/types#readme",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "bugs": {
-    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+    "url": "https://github.com/sodaru/somod"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+    "url": "git+ssh://git@github.com/sodaru/somod.git"
   },
   "scripts": {
     "clean": "npx rimraf dist",

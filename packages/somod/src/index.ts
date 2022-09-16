@@ -1,4 +1,4 @@
-import { rootCommand } from "@solib/cli-base";
+import { rootCommand } from "nodejs-cli-runner";
 import buildCommand from "./commands/build";
 import deployCommand from "./commands/deploy";
 import prepareCommand from "./commands/prepare";

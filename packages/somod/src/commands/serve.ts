@@ -1,4 +1,4 @@
-import { CommonOptions, taskRunner } from "@solib/cli-base";
+import { CommonOptions, taskRunner, Command, Option } from "nodejs-cli-runner";
 import {
   findRootDir,
   nextCommand,
@@ -9,8 +9,7 @@ import {
   watchRootModulePages,
   watchRootModulePagesData,
   watchRootModulePublicAssets
-} from "@somod/sdk-lib";
-import { Command, Option } from "commander";
+} from "somod-lib";
 import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";
 

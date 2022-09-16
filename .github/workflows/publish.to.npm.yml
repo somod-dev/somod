@@ -1,0 +1,21 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "*"
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - run: npm i -g esbuild
+      - run: npm install
+      - run: npm test
+      - run: npx mono-repo publish -v
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_PUBLIC_TOKEN}}
