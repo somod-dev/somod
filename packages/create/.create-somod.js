@@ -23,7 +23,7 @@ module.exports = async mode => {
     target: "ES5",
     module: "ES6",
     rootDir: "./",
-    lib: ["ESNext"],
+    lib: ["ESNext", "DOM", "DOM.Iterable"],
     moduleResolution: "Node",
     esModuleInterop: true,
     importHelpers: true,
@@ -66,7 +66,7 @@ module.exports = async mode => {
 
   return {
     somodName: "somod",
-    somodVersion: "^1.13.0",
+    somodVersion: "^1.14.0",
     ignorePaths: {
       git: ignoreList,
       prettier: [...ignoreList, "tsconfig.somod.json"],
