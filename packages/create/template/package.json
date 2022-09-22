@@ -15,7 +15,7 @@
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "license": "MIT",
   "devDependencies": {
-    "somod": "file://../../somod"
+    "somod": "^1.14.0"
   },
   "somodPlugins": []
 }

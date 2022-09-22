@@ -34,7 +34,10 @@ export default function Home() {
             <p>Learn SOMOD framework in an Interactive Tutorial!</p>
           </a>
 
-          <a href="https://github.com/somod-dev/somod-examples" className="card">
+          <a
+            href="https://github.com/somod-dev/somod-examples"
+            className="card"
+          >
             <h3>Examples &rarr;</h3>
             <p>Discover and deploy boilerplate example SOMOD projects.</p>
           </a>
@@ -42,11 +45,7 @@ export default function Home() {
       </main>
 
       <footer>
-        <a
-          href="https://somod.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://somod.dev" target="_blank" rel="noopener noreferrer">
           Powered by{" "}
           <svg
             width="24"
