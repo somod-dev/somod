@@ -1,6 +1,6 @@
 # create-somod
 
-> [SOMOD](https://somod.sodaru.com) project creation utility
+> [SOMOD](https://somod.dev) project creation utility
 
 Initialize the SOMOD project
 
@@ -26,9 +26,3 @@ Options:
   --no-files     Skip Sample files
   -h, --help     display help for command
 ```
-
-## Support
-
-This project is a part of Open Source Intitiative from [Sodaru Technologies](https://sodaru.com)
-
-Write an email to opensource@sodaru.com for queries on this project

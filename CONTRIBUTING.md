@@ -1,4 +1,5 @@
 # Contributing to SOMOD
+
 We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
 - Reporting a bug
@@ -8,9 +9,11 @@ We love your input! We want to make contributing to this project as easy and tra
 - Becoming a maintainer
 
 ## We Develop with Github
+
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
 ## We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
+
 Pull requests are the best way to propose changes to the codebase (we use [Github Flow](https://guides.github.com/introduction/flow/index.html)). We actively welcome your pull requests:
 
 1. Fork the repo and create your branch from `develop`.
@@ -21,10 +24,13 @@ Pull requests are the best way to propose changes to the codebase (we use [Githu
 6. Issue that pull request!
 
 ## Any contributions you make will be under the MIT Software License
+
 In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-## Report bugs using Github's [issues](https://github.com/sodaru/somod/issues)
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/sodaru/somod/issues/new); it's that easy!
+## Report bugs using Github's [issues](https://github.com/somod-dev/somod/issues)
+
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/somod-dev/somod/issues/new); it's that easy!
+
 > Please browse the existing list of issue to avoid duplicate reporting.
 
 ## Write bug reports with detail, background, and sample code
@@ -39,13 +45,14 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 - What actually happens
 - Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
 
-People *love* thorough bug reports.
+People _love_ thorough bug reports.
 
 ## Use a Consistent Coding Style
+
 we use prettier to follow the consistent coding style.
 
 run `npm run prettier` to validate the coding style before submitting the PR
 
 ## License
-By contributing, you agree that your contributions will be licensed under its MIT License.
 
+By contributing, you agree that your contributions will be licensed under its MIT License.
