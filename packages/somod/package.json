@@ -14,6 +14,11 @@
     "builder"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "contributors": [
+    "Raghavendra K R <raghavendra@sodaru.com>",
+    "Lokesh G C <lokesh@sodaru.com>",
+    "Sukhesh M G <sukhesh@sodaru.com>"
+  ],
   "homepage": "https://github.com/somod-dev/somod/tree/main/packages/somod#readme",
   "license": "MIT",
   "bin": {

@@ -7,6 +7,11 @@
   ],
   "homepage": "https://github.com/somod-dev/somod/tree/main/packages/docs#readme",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "contributors": [
+    "Raghavendra K R <raghavendra@sodaru.com>",
+    "Lokesh G C <lokesh@sodaru.com>",
+    "Sukhesh M G <sukhesh@sodaru.com>"
+  ],
   "bugs": {
     "url": "https://github.com/somod-dev/somod/issues"
   },
