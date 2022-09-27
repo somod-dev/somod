@@ -9,7 +9,7 @@
     "check-sanity": "npm run prettier && npm run eslint && npx mono-repo validate --version-match",
     "pretest": "npm run check-sanity",
     "test": "npx mono-repo run test -v",
-    "version": "npx mono-repo version -v && git add -A",
+    "version": "npx mono-repo version -v",
     "postversion": "git push --follow-tags"
   },
   "eslintConfig": {
@@ -40,7 +40,7 @@
   "private": true,
   "devDependencies": {
     "eslint-config-sodaru": "^1.0.0",
-    "npm-mono-repo": "^1.0.0",
+    "npm-mono-repo": "^1.2.0",
     "prettier-config-sodaru": "^1.0.0"
   }
 }
