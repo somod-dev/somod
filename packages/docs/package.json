@@ -3,7 +3,7 @@
   "version": "1.14.0",
   "description": "Documentation for SOMOD",
   "files": [
-    "reference"
+    "src"
   ],
   "homepage": "https://github.com/somod-dev/somod/tree/main/packages/docs#readme",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
