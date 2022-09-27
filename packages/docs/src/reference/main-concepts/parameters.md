@@ -9,7 +9,7 @@ meta:
 
 ---
 
-The SOMOD Parameters define the configurations for the module. `ui/config.yaml` and `serverless/template.yaml` refer to the parameters available in the parameters.yaml.
+The SOMOD Parameters define the configurations for the module. `ui/config.yaml` and `serverless/template.yaml` refer to the parameters available in the `parameters.yaml`.
 
 `ui/config.yaml` and `serverless/template.yaml` can refer to the parameters from the current and all dependency modules.
 
@@ -65,7 +65,7 @@ Groups:
       to collect data for the parameters
 ```
 
-The parameters.yaml contains three optional sections, **Parameters**, **Schemas**, and **Groups**
+The `parameters.yaml` contains three optional sections, **Parameters**, **Schemas**, and **Groups**
 
 - **`Parameters`**  
   Parameters is a map of the parameter name to the input schema.
@@ -82,9 +82,9 @@ The parameters.yaml contains three optional sections, **Parameters**, **Schemas*
     SOMOD uses [Form Input Schema](https://github.com/sodaru/form-input-schema) to define the validation constraints for the parameters.
 
 - **`Schemas`**  
-  Provide additional schema to be applied before using the parameter values during prepare.
+  Provide additional schema to be applied before using the parameter values during preparation.
 
-  Map of schema name to JSONSchema7. Every Schema from all dependency modules are validated during prepare.
+  Map of schema name to JSONSchema7. Every Schema from all dependency modules is validated during preparation.
 
 - **`Groups`**  
   Provide Group metadata for the Parameters Grouping.

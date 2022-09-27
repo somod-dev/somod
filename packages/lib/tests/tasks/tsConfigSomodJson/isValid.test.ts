@@ -40,7 +40,7 @@ describe("Test task isValidTsConfigSomodJson", () => {
       target: "ES5",
       module: "ES6",
       rootDir: "./",
-      lib: ["ESNext"],
+      lib: ["ESNext", "DOM", "DOM.Iterable"],
       moduleResolution: "Node",
       esModuleInterop: true,
       importHelpers: true,

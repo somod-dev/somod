@@ -21,7 +21,7 @@
     "schemas"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "homepage": "https://github.com/sodaru/somod/tree/main/packages/schema#readme",
+  "homepage": "https://github.com/somod-dev/somod/tree/main/packages/schema#readme",
   "license": "MIT",
   "scripts": {
     "clean": "npx rimraf dist && npx rimraf compiled && npx rimraf schemas",
@@ -35,10 +35,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/sodaru/somod.git"
+    "url": "https//github.com/somod-dev/somod.git"
   },
   "bugs": {
-    "url": "https://github.com/sodaru/somod/issues"
+    "url": "https://github.com/somod-dev/somod/issues"
   },
   "devDependencies": {
     "decorated-ajv": "^1.1.0",

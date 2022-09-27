@@ -468,7 +468,7 @@ describe("test util nextJs.generateCombinedConfig", () => {
           MY_ENV1: { "SOMOD::Parameter": "m4.p1" },
           MY_ENV2: { "SOMOD::Parameter": "m4.p2" }
         },
-        imageDomains: ["somod.sodaru.com", "sodaru.com"],
+        imageDomains: ["somod.dev", "sodaru.com"],
         publicRuntimeConfig: {
           myPRC1: {
             "SOMOD::Parameter": "m4.p3"
@@ -492,7 +492,7 @@ describe("test util nextJs.generateCombinedConfig", () => {
         MY_ENV2: "M4_P2",
         MY_ENV3: "M2_P2"
       },
-      imageDomains: ["M1_P2", "sodaru.com", "somod.sodaru.com"],
+      imageDomains: ["M1_P2", "sodaru.com", "somod.dev"],
       publicRuntimeConfig: {
         myPRC1: "M4_P3",
         myPRC2: "M1_P3"

@@ -11,7 +11,7 @@ const defaultCompilerOptions = {
   target: "ES5",
   module: "ES6",
   rootDir: "./",
-  lib: ["ESNext"],
+  lib: ["ESNext", "DOM", "DOM.Iterable"],
   moduleResolution: "Node",
   esModuleInterop: true,
   importHelpers: true,
@@ -44,12 +44,25 @@ export const validate = async (
     );
   } else {
     Object.keys(expectedCompilerOptions).forEach(compilerOption => {
-      if (
+      let error = false;
+      if (compilerOption == "lib") {
+        if (
+          difference(
+            expectedCompilerOptions[compilerOption],
+            tsConfig.compilerOptions[compilerOption]
+          ).length > 0
+        ) {
+          error = true;
+        }
+      } else if (
         !isEqual(
           expectedCompilerOptions[compilerOption],
           tsConfig.compilerOptions[compilerOption]
         )
       ) {
+        error = true;
+      }
+      if (error) {
         errors.push(
           new Error(
             `compilerOptions.${compilerOption} must be '${toString(

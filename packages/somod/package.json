@@ -14,7 +14,7 @@
     "builder"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
-  "homepage": "https://github.com/sodaru/somod/tree/main/packages/somod#readme",
+  "homepage": "https://github.com/somod-dev/somod/tree/main/packages/somod#readme",
   "license": "MIT",
   "bin": {
     "somod": "./bin/somod.js"
@@ -28,10 +28,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/sodaru/somod/sdk.git"
+    "url": "https//github.com/somod-dev/somod/sdk.git"
   },
   "bugs": {
-    "url": "https://github.com/sodaru/somod/issues"
+    "url": "https://github.com/somod-dev/somod/issues"
   },
   "scripts": {
     "clean": "npx rimraf dist",
@@ -42,7 +42,7 @@
     "prepack": "sed -i \"s|OTLP_URL|$OTLP_URL|g\" bin/somod.js && sed -i \"s|OTLP_KEY_NAME|$OTLP_KEY_NAME|g\" bin/somod.js && sed -i \"s|OTLP_KEY_VALUE|$OTLP_KEY_VALUE|g\" bin/somod.js"
   },
   "peerDependencies": {
-    "@types/node": "^17.0.21",
+    "@types/node": "^17.0.21 || ^18.0.0",
     "@types/react": "^17.0.2 || ^18.0.0",
     "@typescript-eslint/typescript-estree": ">=5.22.0",
     "lodash": "^4.17.21",
@@ -59,12 +59,12 @@
   },
   "devDependencies": {
     "nodejs-cli-runner": "^1.1.1",
-    "@types/node": "^17.0.21",
+    "@types/node": "^17.0.21 || ^18.0.0",
     "typescript": "^4.5.5",
     "somod-lib": "^1.14.0",
     "somod-types": "^1.14.0"
   },
   "dependencies": {
-    "cli-opentelemetry": "^1.0.0"
+    "cli-opentelemetry": "^1.1.0"
   }
 }

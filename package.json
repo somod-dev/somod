@@ -4,12 +4,12 @@
   "description": "SOMOD (Serverless Optimized MODule). Serverless Framework to create reusable micro applications",
   "scripts": {
     "postinstall": "npx mono-repo install -v && npx mono-repo run build -v",
-    "eslint": "npx eslint ./",
-    "prettier": "npx prettier --check --ignore-unknown ./**/*",
+    "eslint": "npx eslint ./ --no-error-on-unmatched-pattern",
+    "prettier": "npx prettier --check --ignore-unknown --no-error-on-unmatched-pattern ./**/*",
     "check-sanity": "npm run prettier && npm run eslint && npx mono-repo validate --version-match",
     "pretest": "npm run check-sanity",
     "test": "npx mono-repo run test -v",
-    "version": "npx mono-repo version -v && git add -A",
+    "version": "npx mono-repo version -v -p %npm_config_packages%",
     "postversion": "git push --follow-tags"
   },
   "eslintConfig": {
@@ -20,7 +20,7 @@
   "prettier": "prettier-config-sodaru",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/sodaru/somod/sdk.git"
+    "url": "https://github.com/somod-dev/somod.git"
   },
   "keywords": [
     "sodaru",
@@ -34,13 +34,13 @@
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://gitlab.com/sodaru/somod/sdk/issues"
+    "url": "https://github.com/somod-dev/somod/issues"
   },
-  "homepage": "https://gitlab.com/sodaru/somod/sdk#readme",
+  "homepage": "https://github.com/somod-dev/somod#readme",
   "private": true,
   "devDependencies": {
     "eslint-config-sodaru": "^1.0.0",
-    "npm-mono-repo": "^1.0.0",
+    "npm-mono-repo": "^1.2.0",
     "prettier-config-sodaru": "^1.0.0"
   }
 }

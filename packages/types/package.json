@@ -6,15 +6,15 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://github.com/sodaru/somod/tree/main/packages/types#readme",
+  "homepage": "https://github.com/somod-dev/somod/tree/main/packages/types#readme",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
   "bugs": {
-    "url": "https://github.com/sodaru/somod"
+    "url": "https://github.com/somod-dev/somod"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/sodaru/somod.git"
+    "url": "https//github.com/somod-dev/somod.git"
   },
   "scripts": {
     "clean": "npx rimraf dist",

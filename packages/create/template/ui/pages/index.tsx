@@ -16,7 +16,7 @@ export default function Home() {
 
       <main>
         <h1 className="title">
-          Welcome to <a href="https://somod.sodaru.com">SOMOD!</a>
+          Welcome to <a href="https://somod.dev">SOMOD!</a>
         </h1>
 
         <p className="description">
@@ -24,17 +24,20 @@ export default function Home() {
         </p>
 
         <div className="grid">
-          <a href="https://somod.sodaru.com" className="card">
+          <a href="https://docs.somod.dev" className="card">
             <h3>Documentation &rarr;</h3>
             <p>Find in-depth information about SOMOD features and API.</p>
           </a>
 
-          <a href="https://somod.sodaru.com/tutorial" className="card">
+          <a href="https://somod.dev/tutorial" className="card">
             <h3>Learn &rarr;</h3>
             <p>Learn SOMOD framework in an Interactive Tutorial!</p>
           </a>
 
-          <a href="https://github.com/sodaru/somod-examples" className="card">
+          <a
+            href="https://github.com/somod-dev/somod-examples"
+            className="card"
+          >
             <h3>Examples &rarr;</h3>
             <p>Discover and deploy boilerplate example SOMOD projects.</p>
           </a>
@@ -42,11 +45,7 @@ export default function Home() {
       </main>
 
       <footer>
-        <a
-          href="https://somod.sodaru.com?utm_source=somod-init&utm_medium=default-template&utm_campaign=somod-cli"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://somod.dev" target="_blank" rel="noopener noreferrer">
           Powered by{" "}
           <svg
             width="24"

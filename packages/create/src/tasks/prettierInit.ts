@@ -25,7 +25,10 @@ export const prettierInit = async (
   const packageJsonPath = join(dir, "package.json");
   const packageJson = await readJsonFileStore(packageJsonPath, true);
 
-  const scripts = { prettier: "npx prettier --check --ignore-unknown ./**/*" };
+  const scripts = {
+    prettier:
+      "npx prettier --check --ignore-unknown --no-error-on-unmatched-pattern ./**/*"
+  };
   if (packageJson.scripts?.["prebuild"]) {
     scripts["prebuild"] =
       packageJson.scripts?.["prebuild"] + " && " + "npm run prettier";

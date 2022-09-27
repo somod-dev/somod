@@ -4,4 +4,16 @@ dist
 packages/schema/compiled
 packages/schema/schemas
 
-packages/create/template
+packages/create/.aws-sam
+packages/create/.next
+packages/create/.somod
+packages/create/parameters.json
+packages/create/tsconfig.json
+packages/create/pages
+packages/create/public
+packages/create/next-env.d.ts
+packages/create/.env
+packages/create/next.config.js
+packages/create/samconfig.toml
+packages/create//template.yaml
+packages/create/tsconfig.somod.json
