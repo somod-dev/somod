@@ -28,7 +28,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https//github.com/sodaru/somod/sdk.git"
+    "url": "https//github.com/somod-dev/somod/sdk.git"
   },
   "bugs": {
     "url": "https://github.com/somod-dev/somod/issues"

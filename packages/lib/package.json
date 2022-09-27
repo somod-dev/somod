@@ -14,7 +14,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https//github.com/sodaru/somod.git"
+    "url": "https//github.com/somod-dev/somod.git"
   },
   "scripts": {
     "clean": "npx rimraf dist",

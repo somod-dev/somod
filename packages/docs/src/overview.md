@@ -47,4 +47,4 @@ Check the [Reference](/reference) for detailed usage of SOMOD.
 
 ## Want to contribute?
 
-The [Contribution](https://github.com/sodaru/somod/blob/main/CONTRIBUTING.md) guide on GitHub helps you make contributions to the SOMOD project.
+The [Contribution](https://github.com/somod-dev/somod/blob/main/CONTRIBUTING.md) guide on GitHub helps you make contributions to the SOMOD project.
