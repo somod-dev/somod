@@ -16,8 +16,8 @@ In this guide, we will examine the concepts used in SOMOD projects. Once you mas
 This reference is a step-by-step guide to explaining the main concepts of SOMOD. You can find the list of all concepts in the left navigation bar under [Reference](/reference)/[Main Concepts](/reference/main-concepts).
 
 > This guide is designed for people who prefer learning concepts **step by step**.  
-> If you prefer to learn by doing, check out our [practical tutorial](/tutorial).
-> You might find this guide and the tutorial complementary to each other.
+> If you prefer to learn by doing, check out our [Getting Started](/getting-started) guide.
+> You might find this and getting started guide complementary to each other.
 
 ## Assumptions
 

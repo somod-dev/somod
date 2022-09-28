@@ -144,7 +144,6 @@ In the example from the previous chapter, we have created REST APIs for user man
        Paper,
        Typography
      } from "@mui/material";
-     import fetch from "cross-fetch";
      import { NextComponentType } from "next";
      import NextLink from "next/link";
      import { useEffect, useState } from "react";
@@ -253,7 +252,6 @@ In the example from the previous chapter, we have created REST APIs for user man
        TextField,
        Typography
      } from "@mui/material";
-     import fetch from "cross-fetch";
      import { NextComponentType } from "next";
      import NextLink from "next/link";
      import { useRouter } from "next/router";
@@ -396,7 +394,6 @@ In the example from the previous chapter, we have created REST APIs for user man
        Switch,
        Typography
      } from "@mui/material";
-     import fetch from "cross-fetch";
      import { NextComponentType } from "next";
      import NextLink from "next/link";
      import { useRouter } from "next/router";
@@ -515,7 +512,6 @@ In the example from the previous chapter, we have created REST APIs for user man
        TextField,
        Typography
      } from "@mui/material";
-     import fetch from "cross-fetch";
      import { NextComponentType } from "next";
      import NextLink from "next/link";
      import { useRouter } from "next/router";
