@@ -61,4 +61,4 @@ The namespace resolving mechanism helps to work with multiple modules individual
 
 Until now we have understood the project structure and main concepts in the SOMOD.
 
-In the [Next Chapter](reference/main-concepts/tsconfig.somod.json), let us understand the SOMOD's typescript configurations which help to generate the build from the source.
+In the [Next Chapter](/reference/main-concepts/tsconfig.somod.json), let us understand the SOMOD's typescript configurations which help to generate the build from the source.
