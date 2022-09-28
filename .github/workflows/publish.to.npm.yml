@@ -19,3 +19,6 @@ jobs:
       - run: npx mono-repo publish -v
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_PUBLIC_TOKEN}}
+          OTLP_KEY_NAME: ${{secrets.OTLP_KEY_NAME}}
+          OTLP_KEY_VALUE: ${{secrets.OTLP_KEY_VALUE}}
+          OTLP_URL: ${{secrets.OTLP_URL}}
