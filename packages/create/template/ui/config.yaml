@@ -2,8 +2,5 @@
 
 env: {}
 imageDomains: []
-publicRuntimeConfig:
-  defaultThemeOptions:
-    SOMOD::Parameter: ui.theme.options
-
+publicRuntimeConfig: {}
 serverRuntimeConfig: {}
