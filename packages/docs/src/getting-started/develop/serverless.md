@@ -339,7 +339,6 @@ The following steps guide you to create your first SOMOD module for User Managem
    For this getting-started project, update the parameters.json as follows
 
    ```json
-   // parameters.json
    {
      "apigateway.http.endpoint": null,
      "apigateway.http.cors.allow_credentials": false,

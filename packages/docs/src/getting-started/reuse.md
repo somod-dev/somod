@@ -30,6 +30,22 @@ The User Management module that we have created in our [Getting Started / Develo
   npm i somod-example-user-management
   ```
 
+- Configure the dependency
+
+  create `parameters.json` file with the below contents
+
+  ```json
+  {
+    "apigateway.http.cors.allow_headers": [
+      "authorization",
+      "content-type",
+      "content-length"
+    ],
+    "apigateway.http.cors.allow_methods": ["GET", "POST", "PUT", "DELETE"],
+    "apigateway.http.cors.allow_origins": ["http://localhost:3000"]
+  }
+  ```
+
 - Deploy the current module  
   SOMOD automatically prepares AWS SAM Project for deployment
 
