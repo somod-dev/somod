@@ -34,7 +34,7 @@ const packageJsonUpdate = async (dir: string) => {
     scripts: {
       build: "npx somod build",
       deploy: "npx somod deploy",
-      start: "npx somod serve",
+      start: "npx somod start",
       pretest: "npm run build",
       test: "echo 'No Tests defined'"
     },

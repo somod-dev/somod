@@ -1,5 +1,7 @@
 overview
+getting-started
 getting-started/setup
+getting-started/develop
 getting-started/develop/add-dependencies
 getting-started/develop/serverless
 getting-started/develop/ui
@@ -7,6 +9,7 @@ getting-started/build
 getting-started/ship
 getting-started/reuse
 getting-started/deploy
+reference
 reference/main-concepts
 reference/main-concepts/module
 reference/main-concepts/package.json

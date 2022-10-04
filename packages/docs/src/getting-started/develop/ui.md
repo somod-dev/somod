@@ -666,10 +666,22 @@ In the example from the previous chapter, we have created REST APIs for user man
      export default UserEdit;
      ```
 
+   - `/ui/config.yaml`  
+     Let us use the UI Configuration to bind the API Endpoint URL to the FrontEnd
+
+     ```yaml
+     # yaml-language-server: $schema=../node_modules/somod-schema/schemas/ui-config/index.json
+
+     env:
+       NEXT_PUBLIC_USER_API_URL: # adds NEXT_PUBLIC_USER_API_URL environmental variable to nextjs project
+         SOMOD::Parameter: apigateway.http.endpoint
+         # The value of the environmental variable is read from the SOMOD Parameter apigateway.http.endpoint in parameters.json
+     ```
+
 3. Start a dev server for the UI
 
    ```
-   npx somod serve --dev -v
+   npx somod start --dev -v
    ```
 
    Open the URL `http://localhost:3000` in the browser to see the User Management App

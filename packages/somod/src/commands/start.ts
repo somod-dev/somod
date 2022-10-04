@@ -13,14 +13,14 @@ import {
 import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";
 
-type ServeOptions = CommonOptions & {
+type StartOptions = CommonOptions & {
   dev: boolean;
 };
 
-export const ServeAction = async ({
+export const StartAction = async ({
   verbose,
   dev
-}: ServeOptions): Promise<void> => {
+}: StartOptions): Promise<void> => {
   const dir = findRootDir();
 
   await BuildAction({ verbose, ui: true, serverless: false });
@@ -64,11 +64,11 @@ export const ServeAction = async ({
   }
 };
 
-const serveCommand = new Command("serve");
+const startCommand = new Command("start");
 
-serveCommand.action(ServeAction);
+startCommand.action(StartAction);
 
-serveCommand.addOption(
+startCommand.addOption(
   new Option("-d, --dev", "Start a dev server in watch mode")
 );
-export default serveCommand;
+export default startCommand;

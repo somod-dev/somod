@@ -76,7 +76,7 @@ export const BuildAction = async ({
       isValidTsConfigSomodJson,
       verbose,
       dir,
-      ui ? { jsx: "react" } : {},
+      ui ? { jsx: "react-jsx" } : {},
       [...(ui ? [path_ui] : []), ...(serverless ? [path_serverless] : [])]
     ),
     taskRunner(

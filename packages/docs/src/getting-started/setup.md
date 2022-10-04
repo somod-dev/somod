@@ -30,6 +30,8 @@ There are two ways to set up a SOMOD Module project.
 
    The [readme](https://www.npmjs.com/package/create-somod) of create-somod explains the available options for this command
 
+   _OR_
+
 2. Manual setup  
    Otherwise, the SOMOD Module project can be created manually by following these steps.
 
@@ -49,4 +51,6 @@ There are two ways to set up a SOMOD Module project.
 
 SOMOD works on the Serverless Platform from AWS. Install AWS SAM CLI and configure it to deploy SOMOD modules into AWS. The [Getting Started](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started.html) guide helps you to install and configure AWS SAM.
 
-After initializing the SOMOD module package, [add](/getting-started/develop/add-dependencies) readily available modules as dependencies.
+> Configuring AWS is purely _OPTIONAL_. AWS Setup is **required** only if the module being developed contains backend code and needs to be deployed to AWS for development purposes.
+
+In the [next chapter](/getting-started/develop), let us start developing the SOMOD module. Happy coding.

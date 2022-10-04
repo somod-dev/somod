@@ -29,7 +29,7 @@ The content of the `tsconfig.somod.json` file is as follows
     "esModuleInterop": true,
     "importHelpers": true,
     "skipLibCheck": true,
-    "jsx": "react"
+    "jsx": "react-jsx"
   },
   "include": ["lib", "ui", "serverless"]
 }

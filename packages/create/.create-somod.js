@@ -46,7 +46,7 @@ module.exports = async mode => {
       ".env",
       "next.config.js"
     );
-    defaultCompilerOptions.jsx = "react";
+    defaultCompilerOptions.jsx = "react-jsx";
     defaultInclude.push("ui");
 
     await loadFile(files, "ui/pages/_document.tsx");
@@ -66,7 +66,7 @@ module.exports = async mode => {
 
   return {
     somodName: "somod",
-    somodVersion: "^1.15.3",
+    somodVersion: "^1.15.4",
     ignorePaths: {
       git: ignoreList,
       prettier: [...ignoreList, "tsconfig.somod.json"],

@@ -48,7 +48,7 @@ The User Management module that we have created in our [Getting Started / Develo
   Run the following command to start the UI server.
 
   ```
-  npx somod serve
+  npx somod start
   ```
 
 In the above example, we have created a web application without actually writing the code.  

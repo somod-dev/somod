@@ -88,10 +88,10 @@ This command requires that AWS SAM is installed and configured to right AWS Acco
 - `-g` or `--guided`  
   enables guided flag on aws sam cli
 
-### **`serve`**
+### **`start`**
 
 ```
-npx somod serve
+npx somod start
 ```
 
 This command starts the NextJs Server. Internally calls `build` and `prepare` with --ui option.  
