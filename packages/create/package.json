@@ -1,6 +1,6 @@
 {
   "name": "create-somod",
-  "version": "1.15.4",
+  "version": "1.15.5",
   "description": "SOMOD Project creator",
   "keywords": [
     "somod",
@@ -56,6 +56,6 @@
     "nodejs-file-utils": "^1.0.1",
     "tslib": "^2.4.0",
     "typescript": "^4.5.5",
-    "somod": "^1.15.4"
+    "somod": "^1.15.5"
   }
 }
