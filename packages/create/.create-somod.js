@@ -66,7 +66,7 @@ module.exports = async mode => {
 
   return {
     somodName: "somod",
-    somodVersion: "^1.15.4",
+    somodVersion: "latest",
     ignorePaths: {
       git: ignoreList,
       prettier: [...ignoreList, "tsconfig.somod.json"],
