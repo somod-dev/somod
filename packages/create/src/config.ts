@@ -8,7 +8,6 @@ export type Config = {
     prettier?: string[];
     eslint?: string[];
   };
-  silentNpmInit?: boolean;
   plugins?: (string | { name: string; version: string })[];
   files?: Record<string, string>;
   tsConfig?: {

@@ -24,5 +24,6 @@ Options:
   --no-prettier  Skip prettier initialization
   --no-eslint    Skip eslint initialization
   --no-files     Skip Sample files
+  --npm-prompt   Prompt for input during npm init
   -h, --help     display help for command
 ```

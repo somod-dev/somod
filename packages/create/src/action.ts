@@ -27,6 +27,7 @@ type CreateSomodOptions = CommonOptions &
     prettier: boolean;
     eslint: boolean;
     files: boolean;
+    npmPrompt: boolean;
   };
 
 export const decorateCommand = (command: Command) => {
@@ -46,12 +47,21 @@ export const decorateCommand = (command: Command) => {
   command.option("--no-prettier", "Skip prettier initialization");
   command.option("--no-eslint", "Skip eslint initialization");
   command.option("--no-files", "Skip Sample files");
+  command.option("--npm-prompt", "Prompt for input during npm init");
 };
 
 export const CreateSomodAction = async (
   modName: string,
   mode: "ALL" | "UI" | "SERVERLESS",
-  { verbose, version, git, prettier, eslint, files }: CreateSomodOptions
+  {
+    verbose,
+    version,
+    git,
+    prettier,
+    eslint,
+    files,
+    npmPrompt
+  }: CreateSomodOptions
 ) => {
   const dir = process.cwd();
 
@@ -83,7 +93,7 @@ export const CreateSomodAction = async (
     verbose,
     targetDir,
     verbose,
-    config.silentNpmInit
+    npmPrompt
   );
 
   if (git) {

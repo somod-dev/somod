@@ -1,10 +1,4 @@
 import Head from "next/head";
-import getConfig from "next/config";
-import { NextConfig } from "next";
-
-const config = getConfig() as NextConfig;
-
-const theme = config?.publicRuntimeConfig?.defaultThemeOptions || {};
 
 export default function Home() {
   return (
@@ -110,7 +104,7 @@ export default function Home() {
         }
 
         .title a {
-          color: ${theme.palette.primary};
+          color: #004b89;
           text-decoration: none;
         }
 
@@ -170,8 +164,8 @@ export default function Home() {
         .card:hover,
         .card:focus,
         .card:active {
-          color: ${theme.palette.primary};
-          border-color: ${theme.palette.primary};
+          color: #004b89;
+          border-color: #004b89;
         }
 
         .card h3 {
