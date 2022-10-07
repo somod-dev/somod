@@ -45,17 +45,21 @@ const packageJsonUpdate = async (dir: string) => {
   await saveJsonFileStore(packageJsonPath);
 };
 
-export const npmInit = async (dir: string, verbose: boolean, yes: boolean) => {
+export const npmInit = async (
+  dir: string,
+  verbose: boolean,
+  prompt: boolean
+) => {
   const args = [];
-  if (yes) {
+  if (!prompt) {
     args.push("--yes");
   }
   await childProcess(
     dir,
     process.platform === "win32" ? "npm.cmd" : "npm",
     ["init", ...args],
-    { show: !yes || verbose ? "on" : "error", return: "off" },
-    { show: !yes || verbose ? "on" : "error", return: "off" }
+    { show: prompt || verbose ? "on" : "error", return: "off" },
+    { show: prompt || verbose ? "on" : "error", return: "off" }
   );
 
   await packageJsonUpdate(dir);

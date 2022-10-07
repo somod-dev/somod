@@ -90,7 +90,7 @@ export const CreateSomodAction = async (
   await taskRunner(
     `Initialize NPM`,
     npmInit,
-    verbose,
+    { verbose, progressIndicator: !npmPrompt },
     targetDir,
     verbose,
     npmPrompt
@@ -100,7 +100,7 @@ export const CreateSomodAction = async (
     await taskRunner(
       `Initialize Git`,
       gitInit,
-      verbose,
+      { verbose, progressIndicator: true },
       targetDir,
       verbose,
       config.ignorePaths?.git || []
@@ -113,7 +113,7 @@ export const CreateSomodAction = async (
     await taskRunner(
       `Initialize Prettier`,
       prettierInit,
-      verbose,
+      { verbose, progressIndicator: true },
       targetDir,
       verbose,
       config.ignorePaths?.prettier || []
@@ -126,7 +126,7 @@ export const CreateSomodAction = async (
     await taskRunner(
       `Initialize Eslint`,
       eslintInit,
-      verbose,
+      { verbose, progressIndicator: true },
       targetDir,
       verbose,
       config.ignorePaths?.eslint || []
@@ -138,7 +138,7 @@ export const CreateSomodAction = async (
   await taskRunner(
     `Initialize Somod`,
     somodInit,
-    verbose,
+    { verbose, progressIndicator: true },
     targetDir,
     verbose,
     config.somodName,
@@ -149,7 +149,7 @@ export const CreateSomodAction = async (
   await taskRunner(
     `Initialize tsconfig.somod.json`,
     tsconfigInit,
-    verbose,
+    { verbose, progressIndicator: true },
     targetDir,
     config.tsConfig || {}
   );
@@ -158,7 +158,7 @@ export const CreateSomodAction = async (
     await taskRunner(
       `Initialize sample files`,
       filesInit,
-      verbose,
+      { verbose, progressIndicator: true },
       targetDir,
       config.files || {}
     );
@@ -169,7 +169,7 @@ export const CreateSomodAction = async (
   await taskRunner(
     `Initialize dependencies`,
     dependenciesInit,
-    verbose,
+    { verbose, progressIndicator: true },
     targetDir,
     verbose,
     config.dependencies || {}
@@ -179,7 +179,7 @@ export const CreateSomodAction = async (
     await taskRunner(
       `Post Initialization`,
       config.postInit,
-      verbose,
+      { verbose, progressIndicator: true },
       targetDir,
       verbose
     );

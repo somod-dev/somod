@@ -18,7 +18,7 @@ export const UpdateParamsAction = async ({
   await taskRunner(
     `Updating /${file_parametersJson}`,
     updateParametersFromSAM,
-    verbose,
+    { verbose, progressIndicator: true },
     dir,
     stackName
   );

@@ -59,7 +59,7 @@ export const BuildAction = async ({
   await taskRunner(
     `Initialize ModuleHandler`,
     initializeModuleHandler,
-    verbose,
+    { verbose, progressIndicator: true },
     dir,
     plugins.namespaceLoaders
   );
@@ -68,13 +68,13 @@ export const BuildAction = async ({
     taskRunner(
       `Validate ${file_packageJson}`,
       validatePackageJson,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     ),
     taskRunner(
       `Validate ${file_tsConfigSomodJson}`,
       isValidTsConfigSomodJson,
-      verbose,
+      { verbose, progressIndicator: true },
       dir,
       ui ? { jsx: "react-jsx" } : {},
       [...(ui ? [path_ui] : []), ...(serverless ? [path_serverless] : [])]
@@ -82,7 +82,7 @@ export const BuildAction = async ({
     taskRunner(
       `Validate ${file_parametersYaml} with schema`,
       validateParametersWithSchema,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     )
   ]);
@@ -92,26 +92,26 @@ export const BuildAction = async ({
       taskRunner(
         `Validate ${path_ui}/${file_configYaml} with schema`,
         validateUiConfigYamlWithSchema,
-        verbose,
+        { verbose, progressIndicator: true },
         dir
       ),
       taskRunner(
         `Validate ${path_ui}/${file_configYaml}`,
         validateUiConfigYaml,
-        verbose,
+        { verbose, progressIndicator: true },
         dir,
         plugins.uiKeywords
       ),
       taskRunner(
         `Validate exports in ${path_ui}/${path_pages}`,
         validatePageExports,
-        verbose,
+        { verbose, progressIndicator: true },
         dir
       ),
       taskRunner(
         `Validate exports in ${path_ui}/${path_pagesData}`,
         validatePageData,
-        verbose,
+        { verbose, progressIndicator: true },
         dir
       )
     ]);
@@ -121,38 +121,38 @@ export const BuildAction = async ({
     await taskRunner(
       `Validate ${path_serverless}/${file_templateYaml} with schema`,
       validateServerlessTemplateWithSchema,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
     await taskRunner(
       `Validate ${path_serverless}/${file_templateYaml}`,
       validateServerlessTemplate,
-      verbose,
+      { verbose, progressIndicator: true },
       dir,
       plugins.serverlessKeywords
     );
     await taskRunner(
       `Validate exports in ${path_serverless}/${path_functions}`,
       validateFunctionExports,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
   }
 
-  await taskRunner(`Resolve Namespaces`, loadNamespaces, verbose);
+  await taskRunner(`Resolve Namespaces`, loadNamespaces, {
+    verbose,
+    progressIndicator: true
+  });
 
   await Promise.all(
     plugins.prebuild.map(plugin =>
       taskRunner(
         `PreBuild plugin ${plugin.name}`,
         runPluginPrebuild,
-        verbose,
+        { verbose, progressIndicator: true },
         dir,
         plugin.plugin,
-        {
-          ui,
-          serverless
-        }
+        { ui, serverless }
       )
     )
   );
@@ -160,23 +160,28 @@ export const BuildAction = async ({
   await taskRunner(
     `Delete ${path_build} directory`,
     deleteBuildDir,
-    verbose,
+    { verbose, progressIndicator: true },
     dir
   );
-  await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
+  await taskRunner(
+    `Compile Typescript`,
+    compileTypeScript,
+    { verbose, progressIndicator: true },
+    dir
+  );
 
   if (ui) {
     await taskRunner(
       `Build ${path_ui}/${path_public}`,
       buildUiPublic,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
 
     await taskRunner(
       `Build ${path_ui}/${file_configYaml}`,
       buildUiConfigYaml,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
   }
@@ -185,7 +190,7 @@ export const BuildAction = async ({
     await taskRunner(
       `Build ${path_serverless}/${file_templateYaml}`,
       buildServerlessTemplate,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
   }
@@ -193,24 +198,29 @@ export const BuildAction = async ({
   await taskRunner(
     `Build ${file_parametersYaml}`,
     buildParameters,
-    verbose,
+    { verbose, progressIndicator: true },
     dir
   );
 
   await taskRunner(
     `Set ${key_somod} version in ${file_packageJson}`,
     updateSodaruModuleKeyInPackageJson,
-    verbose,
+    { verbose, progressIndicator: true },
     dir
   );
-  await taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir);
+  await taskRunner(
+    `Save ${file_packageJson}`,
+    savePackageJson,
+    { verbose, progressIndicator: true },
+    dir
+  );
 
   await Promise.all(
     plugins.build.map(plugin =>
       taskRunner(
         `Build plugin ${plugin.name}`,
         runPluginBuild,
-        verbose,
+        { verbose, progressIndicator: true },
         dir,
         plugin.plugin,
         {

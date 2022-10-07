@@ -20,7 +20,7 @@ export const DeployAction = async ({
   await taskRunner(
     `Deploying ${file_templateYaml}`,
     samDeploy,
-    verbose,
+    { verbose, progressIndicator: false },
     dir,
     verbose,
     guided

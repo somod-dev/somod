@@ -41,7 +41,7 @@ export const PrepareAction = async ({
   await taskRunner(
     `Initialize ModuleHandler`,
     initializeModuleHandler,
-    verbose,
+    { verbose, progressIndicator: true },
     dir,
     plugins.namespaceLoaders
   );
@@ -51,7 +51,7 @@ export const PrepareAction = async ({
       taskRunner(
         `PrePrepare plugin ${plugin.name}`,
         runPluginPreprepare,
-        verbose,
+        { verbose, progressIndicator: true },
         dir,
         plugin.plugin,
         {
@@ -66,21 +66,26 @@ export const PrepareAction = async ({
     await taskRunner(
       `Deleting /${path_pages} and /${path_public}`,
       deletePagesAndPublicDir,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
-    await taskRunner(`Create /${path_pages}`, createPages, verbose, dir);
+    await taskRunner(
+      `Create /${path_pages}`,
+      createPages,
+      { verbose, progressIndicator: true },
+      dir
+    );
     await taskRunner(
       `Create /${path_public}`,
       createPublicAssets,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
   }
   await taskRunner(
     `Create/Update /${file_parametersJson}`,
     generateRootParameters,
-    verbose,
+    { verbose, progressIndicator: true },
     dir
   );
 
@@ -88,7 +93,7 @@ export const PrepareAction = async ({
     await taskRunner(
       `Gernerate /${file_nextConfigJs} and /${file_dotenv}`,
       generateNextConfig,
-      verbose,
+      { verbose, progressIndicator: true },
       dir,
       plugins.uiKeywords
     );
@@ -97,14 +102,14 @@ export const PrepareAction = async ({
     await taskRunner(
       `Bundle Serverless Functions`,
       bundleFunctions,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
 
     await taskRunner(
       `Bundle Serverless FunctionLayers`,
       bundleFunctionLayers,
-      verbose,
+      { verbose, progressIndicator: true },
       dir,
       verbose
     );
@@ -112,7 +117,7 @@ export const PrepareAction = async ({
     await taskRunner(
       `Generate /${file_templateYaml}`,
       prepareSAMTemplate,
-      verbose,
+      { verbose, progressIndicator: true },
       dir,
       plugins.serverlessKeywords
     );
@@ -123,7 +128,7 @@ export const PrepareAction = async ({
       taskRunner(
         `Prepare plugin ${plugin.name}`,
         runPluginPrepare,
-        verbose,
+        { verbose, progressIndicator: true },
         dir,
         plugin.plugin,
         {

@@ -31,36 +31,44 @@ export const StartAction = async ({
     await taskRunner(
       `Watch ${path_ui}/${path_pages}`,
       watchRootModulePages,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
     await taskRunner(
       `Watch ${path_ui}/${path_pagesData}`,
       watchRootModulePagesData,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
     await taskRunner(
       `Watch ${path_ui}/${path_public}`,
       watchRootModulePublicAssets,
-      verbose,
+      { verbose, progressIndicator: true },
       dir
     );
 
     await taskRunner(
       `Start NextJs Development server`,
       nextCommand,
-      verbose,
+      { verbose, progressIndicator: false },
       dir,
       ["dev"]
     );
   } else {
-    await taskRunner(`Build NextJS Project`, nextCommand, verbose, dir, [
-      "build"
-    ]);
-    await taskRunner(`Start NextJS Server`, nextCommand, verbose, dir, [
-      "start"
-    ]);
+    await taskRunner(
+      `Build NextJS Project`,
+      nextCommand,
+      { verbose, progressIndicator: false },
+      dir,
+      ["build"]
+    );
+    await taskRunner(
+      `Start NextJS Server`,
+      nextCommand,
+      { verbose, progressIndicator: false },
+      dir,
+      ["start"]
+    );
   }
 };
 
