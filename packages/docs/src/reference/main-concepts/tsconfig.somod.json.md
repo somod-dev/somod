@@ -22,7 +22,7 @@ The content of the `tsconfig.somod.json` file is as follows
     "outDir": "build",
     "declaration": true,
     "target": "ES5",
-    "module": "ES6",
+    "module": "ESNext",
     "rootDir": "./",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleResolution": "Node",
