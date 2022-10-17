@@ -17,14 +17,6 @@ export type ModuleNode = Readonly<{
 }>;
 
 export abstract class ModuleHandler {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static initialize(rootDir: string, namespaceLoaders: NamespaceLoader[]) {
-    throw new Error("This method must be overrided in child class");
-  }
-  static getModuleHandler(): ModuleHandler {
-    throw new Error("This method must be overrided in child class");
-  }
-
   abstract getRoodModuleNode(): Promise<ModuleNode>;
 
   abstract getModule(moduleName: string): Promise<ModuleNode>;

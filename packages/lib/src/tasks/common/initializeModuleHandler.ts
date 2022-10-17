@@ -1,6 +1,5 @@
 /* istanbul ignore file */
 
-import { NamespaceLoader } from "somod-types";
 import { ModuleHandler } from "../../utils/moduleHandler";
 import { loadConfigNamespaces } from "../../utils/nextJs/config";
 import { loadPageNamespaces } from "../../utils/nextJs/pages";
@@ -11,18 +10,14 @@ import {
   loadOutputNamespaces
 } from "../../utils/serverless/namespace";
 
-export const initializeModuleHandler = async (
-  dir: string,
-  pluginNamespaceLoaders: NamespaceLoader[]
-) => {
+export const initializeModuleHandler = async (dir: string) => {
   const namespaceLoaders = [
     loadPageNamespaces,
     loadPublicAssetNamespaces,
     loadConfigNamespaces,
     loadApiRouteNamespaces,
     loadParameterNamespaces,
-    loadOutputNamespaces,
-    ...pluginNamespaceLoaders
+    loadOutputNamespaces
   ];
   ModuleHandler.initialize(dir, namespaceLoaders);
 };

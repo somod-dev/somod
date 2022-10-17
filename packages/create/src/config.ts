@@ -8,7 +8,6 @@ export type Config = {
     prettier?: string[];
     eslint?: string[];
   };
-  plugins?: (string | { name: string; version: string })[];
   files?: Record<string, string>;
   tsConfig?: {
     compilerOptions?: CompilerOptions;

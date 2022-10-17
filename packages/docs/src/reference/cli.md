@@ -116,4 +116,4 @@ Read the [SOMOD Serverless template.yaml](/reference/main-concepts/serverless/te
 - `-s` or `--stack-name`  
   Stack name to update the params from. Reads from samconfig.toml if omitted
 
-In the [Next Chapter](/reference/plugins) let us explore the way of extending the SOMOD through Plugins.
+In the [Next Chapter](/reference/lifecycle-hooks) let us explore the way of extending the SOMOD through LifeCycle Hooks.

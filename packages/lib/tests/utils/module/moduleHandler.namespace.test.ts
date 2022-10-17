@@ -141,6 +141,41 @@ describe("Test util getNamespaces", () => {
     });
   });
 
+  test("with appended namespaceLoaders", async () => {
+    ModuleHandler.initialize(dir, [
+      async module => {
+        return { n1: [module.name + "-" + module.version] };
+      }
+    ]);
+    ModuleHandler.appendNamespaceLoaders([
+      async module => {
+        return { n2: [module.name + "-" + module.version] };
+      }
+    ]);
+    const moduleHandler = ModuleHandler.getModuleHandler();
+
+    const namespaces = await moduleHandler.getNamespaces();
+
+    expect(namespaces).toEqual({
+      n1: {
+        "root-1.0.0": "root",
+        "m1-1.0.1": "m1",
+        "m2-1.0.2": "m2",
+        "m3-1.3.0": "m3",
+        "m4-1.4.0": "m4",
+        "m5-1.5.0": "m5"
+      },
+      n2: {
+        "root-1.0.0": "root",
+        "m1-1.0.1": "m1",
+        "m2-1.0.2": "m2",
+        "m3-1.3.0": "m3",
+        "m4-1.4.0": "m4",
+        "m5-1.5.0": "m5"
+      }
+    });
+  });
+
   test("with conflicts resolved at higher modules", async () => {
     const namespaceMap = {
       root: ["n1"],

@@ -28,15 +28,17 @@ import {
   validateServerlessTemplateWithSchema,
   validateUiConfigYaml,
   path_pagesData,
-  loadPlugins,
-  runPluginPrebuild,
-  runPluginBuild,
   validateServerlessTemplate,
   initializeModuleHandler,
   validateUiConfigYamlWithSchema,
   loadNamespaces,
   path_functions,
-  validateFunctionExports
+  validateFunctionExports,
+  loadLifeCycleHooks,
+  appendNamespaceLoaders,
+  runPrebuildLifeCycleHook,
+  runBuildLifeCycleHook,
+  bundleLifeCycleHook
 } from "somod-lib";
 import {
   addSOMODCommandTypeOptions,
@@ -54,15 +56,16 @@ export const BuildAction = async ({
 
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
-  const plugins = await loadPlugins(dir);
-
   await taskRunner(
     `Initialize ModuleHandler`,
     initializeModuleHandler,
     { verbose, progressIndicator: true },
-    dir,
-    plugins.namespaceLoaders
+    dir
   );
+
+  const moduleLifeCycleHooks = await loadLifeCycleHooks();
+
+  await appendNamespaceLoaders(moduleLifeCycleHooks.namespaceLoaders);
 
   await Promise.all([
     taskRunner(
@@ -100,7 +103,7 @@ export const BuildAction = async ({
         validateUiConfigYaml,
         { verbose, progressIndicator: true },
         dir,
-        plugins.uiKeywords
+        moduleLifeCycleHooks.uiKeywords
       ),
       taskRunner(
         `Validate exports in ${path_ui}/${path_pages}`,
@@ -129,7 +132,7 @@ export const BuildAction = async ({
       validateServerlessTemplate,
       { verbose, progressIndicator: true },
       dir,
-      plugins.serverlessKeywords
+      moduleLifeCycleHooks.serverlessKeywords
     );
     await taskRunner(
       `Validate exports in ${path_serverless}/${path_functions}`,
@@ -145,13 +148,13 @@ export const BuildAction = async ({
   });
 
   await Promise.all(
-    plugins.prebuild.map(plugin =>
+    moduleLifeCycleHooks.prebuild.map(hook =>
       taskRunner(
-        `PreBuild plugin ${plugin.name}`,
-        runPluginPrebuild,
+        `Run PreBuild Hook of ${hook.name}`,
+        runPrebuildLifeCycleHook,
         { verbose, progressIndicator: true },
         dir,
-        plugin.plugin,
+        hook.lifeCycle,
         { ui, serverless }
       )
     )
@@ -163,9 +166,17 @@ export const BuildAction = async ({
     { verbose, progressIndicator: true },
     dir
   );
+
   await taskRunner(
     `Compile Typescript`,
     compileTypeScript,
+    { verbose, progressIndicator: true },
+    dir
+  );
+
+  await taskRunner(
+    `Bundle lifeCycle hooks`,
+    bundleLifeCycleHook,
     { verbose, progressIndicator: true },
     dir
   );
@@ -216,13 +227,13 @@ export const BuildAction = async ({
   );
 
   await Promise.all(
-    plugins.build.map(plugin =>
+    moduleLifeCycleHooks.build.map(hook =>
       taskRunner(
-        `Build plugin ${plugin.name}`,
-        runPluginBuild,
+        `Run Build Hook of ${hook.name}`,
+        runBuildLifeCycleHook,
         { verbose, progressIndicator: true },
         dir,
-        plugin.plugin,
+        hook.lifeCycle,
         {
           ui,
           serverless

@@ -45,6 +45,9 @@ export const path_git = ".git";
 export const file_configYaml = "config.yaml";
 export const file_configJson = "config.json";
 
+export const file_lifeCycleTs = "lifeCycle.ts";
+export const file_lifeCycleJs = "lifeCycle.js";
+
 export const path_serverless = "serverless";
 export const path_functions = "functions";
 export const path_functionLayers = "functionLayers";

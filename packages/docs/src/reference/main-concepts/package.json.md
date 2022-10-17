@@ -34,8 +34,6 @@ The following properties in the package.json object have a particular purpose in
   SOMOD builds source code into the `build` directory. So files property must include the `"build"` in the array.
 - `somod`  
   The somod property differentiates other npm packages from SOMOD modules. NPM packages containing `somod` property in `package.json` are considered SOMOD modules. The `somod build` command sets this to the version of somod CLI used during the build.
-- `somodPlugins`
-  The somodPlugins contains list of somod plugin names. Read more about SOMOD Plugins [here](/reference/plugins)
 
 > Otherwise documented, all other properties in package.json behave as defined in the [original specification](https://docs.npmjs.com/cli/v8/configuring-npm/package-json).
 
@@ -50,7 +48,6 @@ The following properties in the package.json object have a particular purpose in
   "files": ["build"],
   "sideEffects": false,
   "somod": "1.13.3",
-  "somodPlugins": [],
   "devDependencies": {
     "somod": "^1.13.3"
   }

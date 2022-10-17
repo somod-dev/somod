@@ -1,22 +1,22 @@
 import { mockedFunction } from "../../utils";
-import { loadPlugins as loadPluginsUtil } from "../../../src/utils/plugin/loadPlugins";
-import { loadPlugins } from "../../../src";
+import { loadLifeCycleHooks as loadLifeCycleHooksUtil } from "../../../src/utils/lifeCycle/load";
+import { loadLifeCycleHooks } from "../../../src";
 
-jest.mock("../../../src/utils/plugin/loadPlugins", () => {
+jest.mock("../../../src/utils/lifeCycle/load", () => {
   return {
     __esmodule: true,
-    loadPlugins: jest.fn()
+    loadLifeCycleHooks: jest.fn()
   };
 });
 
-describe("Test task loadPlugins", () => {
+describe("Test task loadLifeCycleHooks", () => {
   beforeEach(() => {
-    mockedFunction(loadPluginsUtil).mockReset();
+    mockedFunction(loadLifeCycleHooksUtil).mockReset();
   });
 
   test("empty plugins", async () => {
-    mockedFunction(loadPluginsUtil).mockResolvedValue([]);
-    await expect(loadPlugins("")).resolves.toEqual({
+    mockedFunction(loadLifeCycleHooksUtil).mockResolvedValue([]);
+    await expect(loadLifeCycleHooks()).resolves.toEqual({
       namespaceLoaders: [],
       uiKeywords: [],
       serverlessKeywords: [],
@@ -27,11 +27,11 @@ describe("Test task loadPlugins", () => {
     });
   });
 
-  test("single plugin", async () => {
-    const plugins: Awaited<ReturnType<typeof loadPluginsUtil>> = [
+  test("single hook", async () => {
+    const hooks: Awaited<ReturnType<typeof loadLifeCycleHooksUtil>> = [
       {
         name: "somod-plugin1",
-        plugin: {
+        lifeCycle: {
           namespaceLoader: jest.fn(),
           keywords: {
             uiConfig: [
@@ -56,23 +56,23 @@ describe("Test task loadPlugins", () => {
         }
       }
     ];
-    mockedFunction(loadPluginsUtil).mockResolvedValue(plugins);
-    await expect(loadPlugins("")).resolves.toEqual({
-      namespaceLoaders: plugins.map(p => p.plugin.namespaceLoader),
-      uiKeywords: [plugins[0].plugin.keywords.uiConfig[0]],
-      serverlessKeywords: [plugins[0].plugin.keywords.serverless[0]],
-      prebuild: plugins,
-      build: plugins,
-      preprepare: plugins,
-      prepare: plugins
+    mockedFunction(loadLifeCycleHooksUtil).mockResolvedValue(hooks);
+    await expect(loadLifeCycleHooks()).resolves.toEqual({
+      namespaceLoaders: hooks.map(p => p.lifeCycle.namespaceLoader),
+      uiKeywords: [hooks[0].lifeCycle.keywords.uiConfig[0]],
+      serverlessKeywords: [hooks[0].lifeCycle.keywords.serverless[0]],
+      prebuild: hooks,
+      build: hooks,
+      preprepare: hooks,
+      prepare: hooks
     });
   });
 
-  test("multiple plugins", async () => {
-    const plugins: Awaited<ReturnType<typeof loadPluginsUtil>> = [
+  test("multiple hooks", async () => {
+    const hooks: Awaited<ReturnType<typeof loadLifeCycleHooksUtil>> = [
       {
         name: "somod-plugin1",
-        plugin: {
+        lifeCycle: {
           keywords: {
             uiConfig: [
               {
@@ -89,7 +89,7 @@ describe("Test task loadPlugins", () => {
       },
       {
         name: "somod-plugin2",
-        plugin: {
+        lifeCycle: {
           namespaceLoader: jest.fn(),
           prebuild: jest.fn(),
           build: jest.fn(),
@@ -98,7 +98,7 @@ describe("Test task loadPlugins", () => {
       },
       {
         name: "somod-plugin3",
-        plugin: {
+        lifeCycle: {
           keywords: {
             uiConfig: [
               {
@@ -122,18 +122,18 @@ describe("Test task loadPlugins", () => {
         }
       }
     ];
-    mockedFunction(loadPluginsUtil).mockResolvedValue(plugins);
-    await expect(loadPlugins("")).resolves.toEqual({
-      namespaceLoaders: [plugins[1].plugin.namespaceLoader],
+    mockedFunction(loadLifeCycleHooksUtil).mockResolvedValue(hooks);
+    await expect(loadLifeCycleHooks()).resolves.toEqual({
+      namespaceLoaders: [hooks[1].lifeCycle.namespaceLoader],
       uiKeywords: [
-        plugins[0].plugin.keywords.uiConfig[0],
-        plugins[2].plugin.keywords.uiConfig[0]
+        hooks[0].lifeCycle.keywords.uiConfig[0],
+        hooks[2].lifeCycle.keywords.uiConfig[0]
       ],
-      serverlessKeywords: [plugins[2].plugin.keywords.serverless[0]],
-      prebuild: [plugins[2], plugins[1], plugins[0]],
-      build: [plugins[1], plugins[2]],
-      preprepare: [plugins[2], plugins[0]],
-      prepare: [plugins[0], plugins[1], plugins[2]]
+      serverlessKeywords: [hooks[2].lifeCycle.keywords.serverless[0]],
+      prebuild: [hooks[2], hooks[1], hooks[0]],
+      build: [hooks[1], hooks[2]],
+      preprepare: [hooks[2], hooks[0]],
+      prepare: [hooks[0], hooks[1], hooks[2]]
     });
   });
 });

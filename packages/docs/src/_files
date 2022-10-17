@@ -25,4 +25,4 @@ reference/main-concepts/parameters
 reference/main-concepts/namespaces
 reference/main-concepts/tsconfig.somod.json
 reference/cli
-reference/plugins
+reference/lifecycle-hooks

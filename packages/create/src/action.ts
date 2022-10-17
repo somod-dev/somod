@@ -142,8 +142,7 @@ export const CreateSomodAction = async (
     targetDir,
     verbose,
     config.somodName,
-    config.somodVersion || null,
-    config.plugins || []
+    config.somodVersion || null
   );
 
   await taskRunner(

@@ -12,6 +12,6 @@ export * from "./tasks/serverless";
 
 export * from "./tasks/parameters";
 
-export * from "./tasks/plugin";
+export * from "./tasks/lifecycle";
 
 export * from "./utils/constants";

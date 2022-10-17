@@ -53,6 +53,21 @@ export class ModuleHandler implements ModuleHandlerAbstractClass {
     this.moduleHandler = new ModuleHandler(rootDir, namespaceLoaders);
   }
 
+  static appendNamespaceLoaders(namespaceLoaders: NamespaceLoader[]) {
+    if (!this.moduleHandler) {
+      throw new Error(
+        `Initialise the ModuleHandler before calling appendNamespaceLoaders`
+      );
+    }
+
+    if (this.moduleHandler.resolvedNamespaces) {
+      throw new Error(
+        `new namespaces can not be appended after namespace are resolved`
+      );
+    }
+    this.moduleHandler.namespaceLoaders.push(...namespaceLoaders);
+  }
+
   static getModuleHandler() {
     if (!this.moduleHandler) {
       throw new Error(

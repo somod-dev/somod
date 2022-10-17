@@ -16,6 +16,5 @@
   "license": "MIT",
   "devDependencies": {
     "somod": "^1.14.0"
-  },
-  "somodPlugins": []
+  }
 }

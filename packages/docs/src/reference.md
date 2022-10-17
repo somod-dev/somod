@@ -2,7 +2,7 @@
 title: SOMOD Reference
 meta:
   description:
-    This documentation contains manual pages for the main concepts, CLI tool, and plugin infrastructure of the SOMOD
+    This documentation contains manual pages for the main concepts, CLI tool, and lifecycle infrastructure of the SOMOD
 
 ```
 
@@ -10,6 +10,6 @@ meta:
 
 ---
 
-This documentation contains manual pages for the main concepts, CLI tool, and plugin infrastructure of the SOMOD
+This documentation contains manual pages for the main concepts, CLI tool, and lifecycle infrastructure of the SOMOD
 
 Let us start with understanding the main concepts of SOMOD in the [next chapter](/reference/main-concepts)
