@@ -51,6 +51,7 @@ export const file_lifeCycleJs = "lifeCycle.js";
 export const path_serverless = "serverless";
 export const path_functions = "functions";
 export const path_functionLayers = "functionLayers";
+export const path_middlewares = "middlewares";
 export const file_templateYaml = "template.yaml";
 export const file_templateJson = "template.json";
 
@@ -80,6 +81,8 @@ export const namespace_output = "Serverless Output";
 
 export const resourceType_Function = "AWS::Serverless::Function";
 export const resourceType_FunctionLayer = "AWS::Serverless::LayerVersion";
+export const resourceType_FunctionMiddleware =
+  "SOMOD::Serverless::FuntionMiddleware";
 
 export const custom_resource_prefix = "Custom::";
 

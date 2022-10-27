@@ -44,6 +44,7 @@ export type KeywordValidator<T extends JSONType = JSONType> = (
 export type KeywordObjectReplacement = {
   type: "object";
   value: JSONType;
+  level?: number;
 };
 
 export type KeywordKeywordReplacement = {

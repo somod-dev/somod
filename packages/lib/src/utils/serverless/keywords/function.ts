@@ -23,8 +23,10 @@ import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
 import { uniq } from "lodash";
 
 type FunctionType = {
+  type: string;
   name: string;
   customResources?: JSONObjectType;
+  middlewares?: KeywordSomodRef[];
 };
 
 export type KeywordSomodFunction = {
@@ -49,7 +51,7 @@ export const keywordFunction: KeywordDefinition<
 > = {
   keyword: "SOMOD::Function",
 
-  getValidator: async rootDir => {
+  getValidator: async (rootDir, moduleName, moduleContentMap) => {
     const definedFunctions = await getDefinedFunctions(rootDir);
     return (keyword, node, value) => {
       const errors: Error[] = [];
@@ -78,7 +80,56 @@ export const keywordFunction: KeywordDefinition<
         if (!definedFunctions.includes(value.name)) {
           errors.push(
             new Error(
-              `Function ${value.name} not found. define under ${path_serverless}/${path_functions}`
+              `Function ${value.name} not found. Create the function under ${path_serverless}/${path_functions} directory`
+            )
+          );
+        }
+
+        // events
+        const functionResourceProperties = constructJson(node.parent.node) as {
+          Events?: Record<string, { Type: string }>;
+        };
+        const events = functionResourceProperties.Events || {};
+        const unmatchedEvents = Object.keys(events).filter(
+          eventName => events[eventName].Type != value.type
+        );
+        if (unmatchedEvents.length > 0) {
+          errors.push(
+            new Error(
+              `All Events in the function '${
+                value.name
+              }' must match its type '${
+                value.type
+              }'. Unmatched events are ${unmatchedEvents.join(", ")}.`
+            )
+          );
+        }
+
+        // middlewares
+        const unmatchedMiddlewares = (value.middlewares || []).filter(
+          middleware => {
+            const targetModule = middleware["SOMOD::Ref"].module || moduleName;
+            const allowedTypes = moduleContentMap[targetModule].json.Resources[
+              middleware["SOMOD::Ref"].resource
+            ].Properties["AllowedTypes"] as string[];
+            return !allowedTypes.includes(value.type);
+          }
+        );
+        if (unmatchedMiddlewares.length > 0) {
+          errors.push(
+            new Error(
+              `All middlewares in the function '${
+                value.name
+              }' must be allowed for type '${
+                value.type
+              }'. Unmatched middlewares are ${unmatchedMiddlewares
+                .map(
+                  m =>
+                    (m["SOMOD::Ref"].module || moduleName) +
+                    "." +
+                    m["SOMOD::Ref"].resource
+                )
+                .join(", ")}.`
             )
           );
         }
@@ -180,6 +231,42 @@ export const checkCustomResourceSchema = async (
   return errors;
 };
 
+const getLayerLibraries = (
+  layers: KeywordSomodRef[],
+  moduleName: string,
+  serverlessTemplateMap: ModuleServerlessTemplateMap
+) => {
+  const libraries = [];
+  layers.forEach(layer => {
+    if (layer["SOMOD::Ref"]) {
+      const layerModule = layer["SOMOD::Ref"].module || moduleName;
+      const layerResourceId = layer["SOMOD::Ref"].resource;
+      const layerLibraries = getLibrariesFromFunctionLayerResource(
+        serverlessTemplateMap[layerModule].template.Resources[layerResourceId]
+      );
+      libraries.push(...layerLibraries);
+    }
+  });
+  return libraries;
+};
+
+const getMiddlewareLayers = (
+  middlewares: KeywordSomodRef[],
+  moduleName: string,
+  serverlessTemplateMap: ModuleServerlessTemplateMap
+) => {
+  const layers: KeywordSomodRef[] = [];
+  middlewares.forEach(middleWare => {
+    const middlewareModule = middleWare["SOMOD::Ref"].module || moduleName;
+    const middlewareResource =
+      serverlessTemplateMap[middlewareModule].template.Resources[
+        middleWare["SOMOD::Ref"].resource
+      ];
+    layers.push(...(middlewareResource.Properties.Layers as KeywordSomodRef[]));
+  });
+  return layers;
+};
+
 export const getDeclaredFunctionsWithExcludedLibraries = (
   moduleName: string,
   serverlessTemplateMap: ModuleServerlessTemplateMap
@@ -193,21 +280,21 @@ export const getDeclaredFunctionsWithExcludedLibraries = (
       ] as FunctionType;
       const functionName = fun?.name;
       if (functionName) {
-        const exclude: string[] = ["aws-sdk"];
-        ((resource.Properties.Layers || []) as KeywordSomodRef[]).forEach(
-          layer => {
-            if (layer["SOMOD::Ref"]) {
-              const layerModule = layer["SOMOD::Ref"].module || moduleName;
-              const layerResourceId = layer["SOMOD::Ref"].resource;
-              const layerLibraries = getLibrariesFromFunctionLayerResource(
-                serverlessTemplateMap[layerModule].template.Resources[
-                  layerResourceId
-                ]
-              );
-              exclude.push(...layerLibraries);
-            }
-          }
+        const layers: KeywordSomodRef[] = [];
+        layers.push(...(resource.Properties.Layers as KeywordSomodRef[]));
+        layers.push(
+          ...getMiddlewareLayers(
+            fun.middlewares || [],
+            moduleName,
+            serverlessTemplateMap
+          )
         );
+
+        const exclude: string[] = ["aws-sdk"];
+        exclude.push(
+          ...getLayerLibraries(layers, moduleName, serverlessTemplateMap)
+        );
+
         declaredFunctions.push({ name: functionName, exclude: uniq(exclude) });
       }
     }

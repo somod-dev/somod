@@ -224,7 +224,8 @@ describe("Test util jsonTemplate.processKeywords", () => {
     key1: jest.fn(),
     key2: jest.fn(),
     key3: jest.fn(),
-    key4: jest.fn()
+    key4: jest.fn(),
+    key5: jest.fn()
   };
 
   const json = {
@@ -236,7 +237,7 @@ describe("Test util jsonTemplate.processKeywords", () => {
       key4: "welcome"
     },
     key2: {
-      y: [{ key1: "k1", p: "__p" }]
+      y: [{ key1: "k1", key5: "__p" }]
     }
   };
 
@@ -344,7 +345,7 @@ describe("Test util jsonTemplate.processKeywords", () => {
       })
     ).rejects.toEqual(
       new Error(
-        `Object replacement is allowed for only one keyword, Found key1,key4`
+        `Error at a : Object replacement can not be combined with other object/keyword replacements. The keywords are key1, key4`
       )
     );
     expect(processors.key1).toBeCalledTimes(2);
@@ -444,25 +445,17 @@ describe("Test util jsonTemplate.processKeywords", () => {
       value: {}
     });
 
-    const jsonClone = cloneDeep(json);
-    jsonClone.a = {
-      // @ts-expect-error this is fine
-      key1replacement: "replacedkey1"
-    };
-    // @ts-expect-error this is fine
-    jsonClone.a.key3replacement = "waw";
-    jsonClone.key2.y[0] = {
-      // @ts-expect-error this is fine
-      key1replacement: "replacedkey1"
-    };
-
     await expect(
       processKeywords(jsonNode, {
         key1: processors.key1,
         key3: processors.key3,
         key4: processors.key4
       })
-    ).resolves.toEqual(jsonClone);
+    ).rejects.toEqual(
+      new Error(
+        `Error at a : Object replacement can not be combined with other object/keyword replacements. The keywords are key1, key3, key4`
+      )
+    );
     expect(processors.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith(1);
     expectKey1ToBeCalledWith(2);
@@ -487,19 +480,17 @@ describe("Test util jsonTemplate.processKeywords", () => {
       value: {}
     });
 
-    const jsonClone = cloneDeep(json);
-    // @ts-expect-error this is fine
-    jsonClone.a = "replacedkey1";
-    // @ts-expect-error this is fine
-    jsonClone.key2.y[0] = "replacedkey1";
-
     await expect(
       processKeywords(jsonNode, {
         key1: processors.key1,
         key3: processors.key3,
         key4: processors.key4
       })
-    ).resolves.toEqual(jsonClone);
+    ).rejects.toEqual(
+      new Error(
+        `Error at a : Object replacement can not be combined with other object/keyword replacements. The keywords are key1, key3, key4`
+      )
+    );
     expect(processors.key1).toBeCalledTimes(2);
     expectKey1ToBeCalledWith(1);
     expectKey1ToBeCalledWith(2);
@@ -508,5 +499,108 @@ describe("Test util jsonTemplate.processKeywords", () => {
     expectKey3ToBeCalledWith();
     expect(processors.key4).toBeCalledTimes(1);
     expectKey4ToBeCalledWith();
+  });
+
+  test("for object replacer with no level", async () => {
+    mockedFunction(processors.key5).mockResolvedValue({
+      type: "object",
+      value: "replacedkey5"
+    });
+
+    const jsonClone = cloneDeep(json);
+    // @ts-expect-error this is ok
+    jsonClone.key2.y = ["replacedkey5"];
+
+    await expect(
+      processKeywords(jsonNode, {
+        key5: processors.key5
+      })
+    ).resolves.toEqual(jsonClone);
+  });
+
+  test("for object replacer with level 0", async () => {
+    mockedFunction(processors.key5).mockResolvedValue({
+      type: "object",
+      value: "replacedkey5",
+      level: 0
+    });
+
+    const jsonClone = cloneDeep(json);
+    // @ts-expect-error this is ok
+    jsonClone.key2.y = ["replacedkey5"];
+
+    await expect(
+      processKeywords(jsonNode, {
+        key5: processors.key5
+      })
+    ).resolves.toEqual(jsonClone);
+  });
+
+  test("for object replacer with level 1", async () => {
+    mockedFunction(processors.key5).mockResolvedValue({
+      type: "object",
+      value: "replacedkey5",
+      level: 1
+    });
+
+    const jsonClone = cloneDeep(json);
+    // @ts-expect-error this is ok
+    jsonClone.key2.y = "replacedkey5";
+
+    await expect(
+      processKeywords(jsonNode, {
+        key5: processors.key5
+      })
+    ).resolves.toEqual(jsonClone);
+  });
+
+  test("for object replacer with level 2", async () => {
+    mockedFunction(processors.key5).mockResolvedValue({
+      type: "object",
+      value: "replacedkey5",
+      level: 2
+    });
+
+    const jsonClone = cloneDeep(json);
+    // @ts-expect-error this is ok
+    jsonClone.key2 = "replacedkey5";
+
+    await expect(
+      processKeywords(jsonNode, {
+        key5: processors.key5
+      })
+    ).resolves.toEqual(jsonClone);
+  });
+
+  test("for object replacer with level 3", async () => {
+    mockedFunction(processors.key5).mockResolvedValue({
+      type: "object",
+      value: "replacedkey5",
+      level: 3
+    });
+
+    await expect(
+      processKeywords(jsonNode, {
+        key5: processors.key5
+      })
+    ).resolves.toEqual("replacedkey5");
+  });
+
+  test("for object replacer with level 4", async () => {
+    mockedFunction(processors.key5).mockResolvedValue({
+      type: "object",
+      value: "replacedkey5",
+      level: 4
+    });
+
+    await expect(
+      processKeywords(jsonNode, {
+        key5: processors.key5
+      })
+    ).rejects.toEqual(
+      new Error(
+        "Error at key2.y.0 : Object replacement at level 4 was not possible"
+      )
+    );
   });
 });

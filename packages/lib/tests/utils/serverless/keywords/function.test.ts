@@ -31,6 +31,7 @@ jest.mock("fs", () => {
 });
 
 type FunctionType = {
+  type: string;
   name: string;
   exclude?: string[];
   customResources?: JSONObjectType;
@@ -177,7 +178,7 @@ describe("Test function keyword", () => {
       )
     ).toEqual([
       new Error(
-        "Function function1 not found. define under serverless/functions"
+        "Function function1 not found. Create the function under serverless/functions directory"
       )
     ]);
   });
@@ -403,6 +404,7 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
         Properties: {
           CodeUri: {
             [keywordFunction.keyword]: {
+              type: "CFNCustomResource",
               name: "cfnLambda",
               customResources: {
                 R1: {

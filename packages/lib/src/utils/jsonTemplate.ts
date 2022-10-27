@@ -13,7 +13,9 @@ import {
   JSONObjectType,
   KeywordValidator,
   KeywordProcessor,
-  KeywordReplacement
+  KeywordReplacement,
+  KeywordObjectReplacement,
+  KeywordKeywordReplacement
 } from "somod-types";
 
 export const parseJson = (json: JSONType): JSONNode => {
@@ -179,17 +181,51 @@ export const validateKeywords = async (
   return errors;
 };
 
+class ReplaceObjectAtLevelError extends Error {
+  private _node: JSONNode;
+  private _level: number;
+  private _replacement: JSONType;
+
+  constructor(node: JSONNode, level: number, replacement: JSONType) {
+    super(`Object replacement at level ${level} was not possible`);
+    this._node = node;
+    this._level = level;
+    this._replacement = replacement;
+
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  next() {
+    this._level--;
+    return this;
+  }
+
+  get node() {
+    return this._node;
+  }
+
+  get level() {
+    return this._level;
+  }
+
+  get replacement() {
+    return this._replacement;
+  }
+}
+
 export const processKeywords = async (
   jsonNode: JSONNode,
   keywordProcessors: Record<string, KeywordProcessor>
 ): Promise<JSONType> => {
   const keywords = Object.keys(keywordProcessors);
+
   const navigator = async (jsonNode: JSONNode): Promise<JSONType> => {
     if (jsonNode.type == "primitive") {
       return jsonNode.value;
     } else if (jsonNode.type == "array") {
       const jsonArray = await Promise.all(
-        jsonNode.items.map(item => navigator(item))
+        jsonNode.items.map(item => navigatorWithReplacementHandler(item))
       );
       return jsonArray;
     } else if (jsonNode.type == "object") {
@@ -198,14 +234,16 @@ export const processKeywords = async (
         await Promise.all(
           properties.map(async property => [
             property,
-            await navigator(jsonNode.properties[property])
+            await navigatorWithReplacementHandler(jsonNode.properties[property])
           ])
         )
-      );
+      ) as JSONObjectType;
 
       // replacement
       const keywordsInThisObject = intersection(properties, keywords);
-      const keywordReplacements = await Promise.all(
+      const objectReplacements: Record<string, KeywordObjectReplacement> = {};
+      const keywordReplacements: Record<string, KeywordKeywordReplacement> = {};
+      await Promise.all(
         keywordsInThisObject.map(async keyword => {
           try {
             const replacerPromise = keywordProcessors[keyword](
@@ -220,38 +258,83 @@ export const processKeywords = async (
             ) {
               replacer = await replacerPromise;
             }
-            return { ...replacer, keyword };
+            if (replacer.type == "object") {
+              objectReplacements[keyword] = replacer;
+            } else {
+              keywordReplacements[keyword] = replacer;
+            }
           } catch (e) {
             throw new JSONTemplateError(jsonNode, e);
           }
         })
       );
-      const keywordObjectReplacements = keywordReplacements.filter(
-        r => r.type == "object"
-      );
-      if (keywordObjectReplacements.length > 1) {
-        throw new Error(
-          `Object replacement is allowed for only one keyword, Found ${keywordObjectReplacements.map(
-            r => r.keyword
-          )}`
+
+      const numberOfObjectReplacements = Object.keys(objectReplacements).length;
+      const numberOfKeywordReplacements =
+        Object.keys(keywordReplacements).length;
+
+      if (
+        numberOfObjectReplacements > 1 ||
+        (numberOfObjectReplacements == 1 && numberOfKeywordReplacements > 0)
+      ) {
+        throw new JSONTemplateError(
+          jsonNode,
+          new Error(
+            `Object replacement can not be combined with other object/keyword replacements. The keywords are ${keywordsInThisObject.join(
+              ", "
+            )}`
+          )
         );
       }
 
-      let resultObject =
-        keywordObjectReplacements.length == 1
-          ? keywordObjectReplacements[0].value
-          : jsonObject;
-
-      if (isPlainObject(resultObject)) {
-        keywordReplacements.forEach(r => {
-          if (r.type == "keyword") {
-            delete resultObject[r.keyword];
-            resultObject = { ...(resultObject as JSONObjectType), ...r.value };
-          }
+      if (numberOfObjectReplacements == 1) {
+        const replacement = Object.values(objectReplacements)[0];
+        if (replacement.level > 0) {
+          throw new ReplaceObjectAtLevelError(
+            jsonNode,
+            replacement.level,
+            replacement.value
+          );
+        }
+        return Object.values(objectReplacements)[0].value;
+      } else {
+        Object.keys(keywordReplacements).forEach(k => {
+          delete jsonObject[k];
+          const replacement = keywordReplacements[k].value;
+          Object.keys(replacement).forEach(newKey => {
+            jsonObject[newKey] = replacement[newKey];
+          });
         });
+        return jsonObject;
       }
-      return resultObject;
     }
   };
-  return await navigator(jsonNode);
+
+  const navigatorWithReplacementHandler = async (
+    jsonNode: JSONNode
+  ): Promise<JSONType> => {
+    try {
+      return await navigator(jsonNode);
+    } catch (e) {
+      if (e instanceof ReplaceObjectAtLevelError) {
+        if (e.level > 0) {
+          throw e.next();
+        } else {
+          return e.replacement;
+        }
+      } else {
+        throw e;
+      }
+    }
+  };
+
+  try {
+    return await navigatorWithReplacementHandler(jsonNode);
+  } catch (e) {
+    if (e instanceof ReplaceObjectAtLevelError) {
+      throw new JSONTemplateError(e.node, e);
+    } else {
+      throw e;
+    }
+  }
 };
