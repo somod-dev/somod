@@ -38,7 +38,7 @@ const getDefinedFunctionMiddlewares = async (dir: string) => {
   return middlewares;
 };
 
-export const keywordFunction: KeywordDefinition<
+export const keywordFunctionMiddleware: KeywordDefinition<
   FunctionMiddlewareType,
   ServerlessTemplate
 > = {
@@ -80,11 +80,10 @@ export const keywordFunction: KeywordDefinition<
     };
   },
 
-  getProcessor: async () => () => {
+  getProcessor: async () => (rootDir, node, value) => {
     return {
       type: "object",
-      value: undefined,
-      level: 2 // remove the middleware resource from the template
+      value
     };
   }
 };

@@ -68,7 +68,7 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
             Type: "AWS::Serverless::Function",
             Properties: {
               Architectures: ["arm64"],
-              CodeUri: { "SOMOD::Function": { name: "resource1" } }
+              CodeUri: { "SOMOD::Function": { type: "Api", name: "resource1" } }
             }
           }
         }

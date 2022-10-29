@@ -82,7 +82,7 @@ export const namespace_output = "Serverless Output";
 export const resourceType_Function = "AWS::Serverless::Function";
 export const resourceType_FunctionLayer = "AWS::Serverless::LayerVersion";
 export const resourceType_FunctionMiddleware =
-  "SOMOD::Serverless::FuntionMiddleware";
+  "SOMOD::Serverless::FunctionMiddleware";
 
 export const custom_resource_prefix = "Custom::";
 

@@ -183,6 +183,254 @@ describe("Test function keyword", () => {
     ]);
   });
 
+  test("the validator with non matching events", async () => {
+    const validator = await keywordFunction.getValidator("", "m1", {});
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              [keywordFunction.keyword]: { type: "Api", name: "func1" }
+            },
+            Events: {
+              e1: {
+                Type: "Api",
+                Properties: {}
+              },
+              e2: {
+                Type: "RestApi",
+                Properties: {}
+              }
+            }
+          }
+        }
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).toEqual([
+      new Error(
+        "All Events in the function 'func1' must match its type 'Api'. Unmatched events are e2."
+      )
+    ]);
+  });
+
+  test("the validator with all matching events", async () => {
+    const validator = await keywordFunction.getValidator("", "m1", {});
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              [keywordFunction.keyword]: { type: "Api", name: "func1" }
+            },
+            Events: {
+              e1: {
+                Type: "Api",
+                Properties: {}
+              },
+              e2: {
+                Type: "Api",
+                Properties: {}
+              }
+            }
+          }
+        }
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).toEqual([]);
+  });
+
+  test("the validator with non matching middlewares", async () => {
+    const allModules: Parameters<typeof keywordFunction.getValidator>[2] = {
+      module1: {
+        moduleName: "module1",
+        location: "",
+        json: {
+          Resources: {
+            M1: {
+              Type: "SOMOD::Serverless::FunctionMiddleware",
+              Properties: {
+                AllowedTypes: ["Api"]
+              }
+            },
+            MyResource1: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: {
+                  [keywordFunction.keyword]: {
+                    type: "Api",
+                    name: "func1",
+                    middlewares: [
+                      { "SOMOD::Ref": { resource: "M1" } },
+                      { "SOMOD::Ref": { module: "module2", resource: "M2" } }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        path: "serverless/template.yaml"
+      },
+      module2: {
+        moduleName: "module2",
+        location: "",
+        json: {
+          Resources: {
+            M2: {
+              Type: "SOMOD::Serverless::FunctionMiddleware",
+              Properties: {
+                AllowedTypes: ["RestApi", "S3"]
+              }
+            }
+          }
+        },
+        path: "serverless/template.yaml"
+      }
+    };
+    const validator = await keywordFunction.getValidator(
+      "",
+      "module1",
+      allModules
+    );
+
+    const obj = allModules["module1"].json;
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).toEqual([
+      new Error(
+        "All middlewares in the function 'func1' must be allowed for type 'Api'. Unmatched middlewares are module2.M2."
+      )
+    ]);
+  });
+
+  test("the validator with matching middlewares", async () => {
+    const allModules: Parameters<typeof keywordFunction.getValidator>[2] = {
+      module1: {
+        moduleName: "module1",
+        location: "",
+        json: {
+          Resources: {
+            M1: {
+              Type: "SOMOD::Serverless::FunctionMiddleware",
+              Properties: {
+                AllowedTypes: ["Api"]
+              }
+            },
+            MyResource1: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: {
+                  [keywordFunction.keyword]: {
+                    type: "Api",
+                    name: "func1",
+                    middlewares: [
+                      { "SOMOD::Ref": { resource: "M1" } },
+                      { "SOMOD::Ref": { module: "module2", resource: "M2" } }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        path: "serverless/template.yaml"
+      },
+      module2: {
+        moduleName: "module2",
+        location: "",
+        json: {
+          Resources: {
+            M2: {
+              Type: "SOMOD::Serverless::FunctionMiddleware",
+              Properties: {
+                AllowedTypes: ["RestApi", "S3", "Api"]
+              }
+            }
+          }
+        },
+        path: "serverless/template.yaml"
+      }
+    };
+    const validator = await keywordFunction.getValidator(
+      "",
+      "module1",
+      allModules
+    );
+
+    const obj = allModules["module1"].json;
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    expect(
+      validator(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).toEqual([]);
+  });
+
   test("the getValidator is calling existsSync and skipping listFiles when existsSync returns false", async () => {
     mockedFunction(existsSync).mockReturnValue(false);
     await keywordFunction.getValidator("/root/dir", "m1", {});

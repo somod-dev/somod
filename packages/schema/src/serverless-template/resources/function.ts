@@ -183,6 +183,8 @@ export const functionResource: JSONSchema7 = {
                 },
                 middlewares: {
                   type: "array",
+                  description:
+                    "Middlewares to be added to this function. Middlewares are applied in the order specified in this Property",
                   minItems: 1,
                   maxItems: 16,
                   items: {

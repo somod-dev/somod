@@ -35,6 +35,7 @@ import { keywordCreateIf } from "../keywords/createIf";
 import { keywordTemplateOutputs } from "../keywords/templateOutputs";
 import { keywordTemplateResources } from "../keywords/templateResources";
 import { Module, ModuleTemplate, ModuleTemplateMap } from "somod-types";
+import { keywordFunctionMiddleware } from "../keywords/functionMiddleware";
 
 const loadBuiltServerlessTemplate = async (
   module: Module
@@ -144,6 +145,7 @@ export const getBaseKeywords = () => [
   keywordExtend,
   keywordFunction,
   keywordFunctionLayer,
+  keywordFunctionMiddleware,
   keywordModuleName,
   keywordOutput,
   keywordRef,
