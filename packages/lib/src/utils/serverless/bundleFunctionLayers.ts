@@ -9,26 +9,30 @@ import {
 } from "../constants";
 import { read } from "../packageJson";
 import { getFunctionLayerLibraries } from "./keywords/functionLayer";
-import { ModuleServerlessTemplate, ModuleServerlessTemplateMap } from "./types";
+import { ModuleHandler } from "../moduleHandler";
+import { ServerlessTemplateHandler } from "./serverlessTemplate/serverlessTemplate";
+import { ServerlessTemplate } from "somod-types";
 
 const path_layerNodeJs = "nodejs";
 
 export const bundleFunctionLayersForModule = async (
   rootDir: string,
-  serverlessTemplate: ModuleServerlessTemplate,
+  moduleName: string,
+  modulePackageLocation: string,
+  serverlessTemplate: ServerlessTemplate,
   verbose = false
 ): Promise<void> => {
-  const layerLibraries = getFunctionLayerLibraries(serverlessTemplate.template);
+  const layerLibraries = getFunctionLayerLibraries(serverlessTemplate);
 
   const devDependencies =
-    (await read(serverlessTemplate.packageLocation)).devDependencies || {};
+    (await read(modulePackageLocation)).devDependencies || {};
 
   const buildFunctionLayersPath = join(
     rootDir,
     path_somodWorkingDir,
     path_serverless,
     path_functionLayers,
-    serverlessTemplate.module
+    moduleName
   );
 
   const npmCommand = process.platform == "win32" ? "npm.cmd" : "npm";
@@ -41,7 +45,7 @@ export const bundleFunctionLayersForModule = async (
     Object.keys(layerLibraries).map(async layerName => {
       try {
         const layerPackageJson = {
-          name: serverlessTemplate.module + "-" + layerName.toLowerCase(),
+          name: moduleName + "-" + layerName.toLowerCase(),
           version: "1.0.0",
           description: `Lambda function layer - ${layerName}`,
           dependencies: Object.fromEntries(
@@ -73,7 +77,7 @@ export const bundleFunctionLayersForModule = async (
         );
       } catch (e) {
         throw new Error(
-          `bundle function layer failed for ${layerName} from ${serverlessTemplate.module} module: ${e.message}`
+          `bundle function layer failed for ${layerName} from ${moduleName} module: ${e.message}`
         );
       }
     })
@@ -82,16 +86,26 @@ export const bundleFunctionLayersForModule = async (
 
 export const bundleFunctionLayers = async (
   dir: string,
-  moduleTemplateMap: ModuleServerlessTemplateMap,
   verbose = false
 ): Promise<void> => {
+  const moduleNodes = await ModuleHandler.getModuleHandler().listModules();
+  const templates =
+    await ServerlessTemplateHandler.getServerlessTemplateHandler().listTemplates();
+  const templateMap = Object.fromEntries(
+    templates.map(t => [t.module, t.template])
+  );
   await Promise.all(
-    Object.keys(moduleTemplateMap).map(async moduleName => {
-      await bundleFunctionLayersForModule(
-        dir,
-        moduleTemplateMap[moduleName],
-        verbose
-      );
+    moduleNodes.map(async moduleNode => {
+      const moduleName = moduleNode.module.name;
+      if (templateMap[moduleName]) {
+        await bundleFunctionLayersForModule(
+          dir,
+          moduleName,
+          moduleNode.module.packageLocation,
+          templateMap[moduleName],
+          verbose
+        );
+      }
     })
   );
 };

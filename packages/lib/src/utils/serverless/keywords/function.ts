@@ -5,7 +5,8 @@ import {
   JSONObjectType,
   JSONPrimitiveNode,
   KeywordDefinition,
-  ModuleTemplate
+  ModuleTemplate,
+  ServerlessTemplate
 } from "somod-types";
 import { existsSync } from "fs";
 import { basename, extname, join } from "path";
@@ -17,7 +18,6 @@ import {
   resourceType_Function
 } from "../../constants";
 import { constructJson, getPath } from "../../jsonTemplate";
-import { ModuleServerlessTemplateMap, ServerlessTemplate } from "../types";
 import { KeywordSomodRef } from "./ref";
 import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
 import { uniq } from "lodash";
@@ -234,7 +234,7 @@ export const checkCustomResourceSchema = async (
 const getLayerLibraries = (
   layers: KeywordSomodRef[],
   moduleName: string,
-  serverlessTemplateMap: ModuleServerlessTemplateMap
+  serverlessTemplateMap: Record<string, ServerlessTemplate>
 ) => {
   const libraries = [];
   layers.forEach(layer => {
@@ -242,7 +242,7 @@ const getLayerLibraries = (
       const layerModule = layer["SOMOD::Ref"].module || moduleName;
       const layerResourceId = layer["SOMOD::Ref"].resource;
       const layerLibraries = getLibrariesFromFunctionLayerResource(
-        serverlessTemplateMap[layerModule].template.Resources[layerResourceId]
+        serverlessTemplateMap[layerModule].Resources[layerResourceId]
       );
       libraries.push(...layerLibraries);
     }
@@ -253,13 +253,13 @@ const getLayerLibraries = (
 const getMiddlewareLayers = (
   middlewares: KeywordSomodRef[],
   moduleName: string,
-  serverlessTemplateMap: ModuleServerlessTemplateMap
+  serverlessTemplateMap: Record<string, ServerlessTemplate>
 ) => {
   const layers: KeywordSomodRef[] = [];
   middlewares.forEach(middleWare => {
     const middlewareModule = middleWare["SOMOD::Ref"].module || moduleName;
     const middlewareResource =
-      serverlessTemplateMap[middlewareModule].template.Resources[
+      serverlessTemplateMap[middlewareModule].Resources[
         middleWare["SOMOD::Ref"].resource
       ];
     layers.push(...(middlewareResource.Properties.Layers as KeywordSomodRef[]));
@@ -269,10 +269,10 @@ const getMiddlewareLayers = (
 
 export const getDeclaredFunctionsWithExcludedLibraries = (
   moduleName: string,
-  serverlessTemplateMap: ModuleServerlessTemplateMap
+  serverlessTemplateMap: Record<string, ServerlessTemplate>
 ) => {
   const declaredFunctions: { name: string; exclude: string[] }[] = [];
-  const serverlessTemplate = serverlessTemplateMap[moduleName].template;
+  const serverlessTemplate = serverlessTemplateMap[moduleName];
   Object.values(serverlessTemplate.Resources).forEach(resource => {
     if (resource.Type == resourceType_Function) {
       const fun = resource.Properties.CodeUri?.[

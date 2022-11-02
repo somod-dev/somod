@@ -12,9 +12,9 @@ import {
   saveJsonFileStore,
   updateJsonFileStore
 } from "nodejs-file-utils";
-import { getParameterNameFromSAMOutputName } from "../../utils/serverless/utils";
 import { existsSync } from "fs";
 import { logWarning } from "nodejs-cli-runner";
+import { ServerlessTemplateHandler } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
 
 const getStackNameFromSamConfig = async (dir: string) => {
   const samConfig = await readFile(join(dir, file_samConfig), {
@@ -59,9 +59,15 @@ export const updateParametersFromSAM = async (
 
   const outputParameterValues: Record<string, string> = {};
 
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
+
   result.Stacks[0].Outputs?.forEach(output => {
-    outputParameterValues[getParameterNameFromSAMOutputName(output.OutputKey)] =
-      output.OutputValue;
+    outputParameterValues[
+      serverlessTemplateHandler.getParameterNameFromSAMOutputName(
+        output.OutputKey
+      )
+    ] = output.OutputValue;
   });
 
   const parametersPath = join(dir, file_parametersJson);

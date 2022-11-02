@@ -1,28 +1,18 @@
 import { KeywordDefinition } from "somod-types";
 import { join } from "path";
 import { file_templateYaml } from "../../utils/constants";
-import { ModuleHandler } from "../../utils/moduleHandler";
 import { prepareSamTemplate } from "../../utils/serverless/serverlessTemplate/prepare";
-import { loadServerlessTemplateMap } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
-import { getNodeRuntimeVersion } from "../../utils/serverless/utils";
 import { saveYamlFileStore, updateYamlFileStore } from "nodejs-file-utils";
+import { ServerlessTemplateHandler } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
 
 export const prepareSAMTemplate = async (
   dir: string,
   pluginKeywords: KeywordDefinition[] = []
 ): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-  const moduleNodes = await moduleHandler.listModules();
-  const moduleTemplateMap = await loadServerlessTemplateMap(
-    moduleNodes.map(m => m.module)
-  );
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
 
-  const samTemplate = await prepareSamTemplate(
-    dir,
-    moduleNodes.map(m => m.module.name),
-    moduleTemplateMap,
-    pluginKeywords
-  );
+  const samTemplate = await prepareSamTemplate(dir, pluginKeywords);
 
   if (samTemplate.Resources && Object.keys(samTemplate.Resources).length > 0) {
     const completeSamTemplate = {
@@ -30,7 +20,7 @@ export const prepareSAMTemplate = async (
       Transform: "AWS::Serverless-2016-10-31",
       Globals: {
         Function: {
-          Runtime: `nodejs${getNodeRuntimeVersion()}.x`,
+          Runtime: `nodejs${serverlessTemplateHandler.getNodeRuntimeVersion()}.x`,
           Handler: "index.default",
           Architectures: ["arm64"]
         }

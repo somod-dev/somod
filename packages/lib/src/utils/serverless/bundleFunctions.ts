@@ -1,5 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { join } from "path";
+import { ServerlessTemplate } from "somod-types";
 import {
   file_index_js,
   path_build,
@@ -7,24 +8,23 @@ import {
   path_serverless,
   path_somodWorkingDir
 } from "../constants";
+import { ModuleHandler } from "../moduleHandler";
 import { getDeclaredFunctionsWithExcludedLibraries } from "./keywords/function";
-import { ModuleServerlessTemplateMap } from "./types";
-import { getNodeRuntimeVersion } from "./utils";
+import { ServerlessTemplateHandler } from "./serverlessTemplate/serverlessTemplate";
 
 export const bundleFunctionsOfModule = async (
   dir: string,
   moduleName: string,
-  moduleTemplateMap: ModuleServerlessTemplateMap,
+  modulePackageLocation: string,
+  moduleTemplateMap: Record<string, ServerlessTemplate>,
   verbose = false,
   sourcemap = false
 ): Promise<void> => {
-  const module = moduleTemplateMap[moduleName];
-
   const declaredFunctionsWithExcludes =
     getDeclaredFunctionsWithExcludedLibraries(moduleName, moduleTemplateMap);
 
   const compiledFunctionsPath = join(
-    module.packageLocation,
+    modulePackageLocation,
     path_build,
     path_serverless,
     path_functions
@@ -34,7 +34,7 @@ export const bundleFunctionsOfModule = async (
     path_somodWorkingDir,
     path_serverless,
     path_functions,
-    module.module
+    moduleName
   );
 
   await Promise.all(
@@ -53,12 +53,15 @@ export const bundleFunctionsOfModule = async (
           platform: "node",
           external: _function.exclude,
           minify: true,
-          target: ["node" + getNodeRuntimeVersion()],
+          target: [
+            "node" +
+              ServerlessTemplateHandler.getServerlessTemplateHandler().getNodeRuntimeVersion()
+          ],
           logLevel: verbose ? "verbose" : "silent"
         });
       } catch (e) {
         throw new Error(
-          `bundle function failed for ${functionFileName} from ${module.module} module: ${e.message}`
+          `bundle function failed for ${functionFileName} from ${moduleName} module: ${e.message}`
         );
       }
     })
@@ -67,19 +70,29 @@ export const bundleFunctionsOfModule = async (
 
 export const bundleFunctions = async (
   dir: string,
-  moduleTemplateMap: ModuleServerlessTemplateMap,
   verbose = false,
   sourcemap = false
 ) => {
+  const moduleNodes = await ModuleHandler.getModuleHandler().listModules();
+  const templates =
+    await ServerlessTemplateHandler.getServerlessTemplateHandler().listTemplates();
+  const templateMap = Object.fromEntries(
+    templates.map(t => [t.module, t.template])
+  );
+
   await Promise.all(
-    Object.keys(moduleTemplateMap).map(async moduleName => {
-      await bundleFunctionsOfModule(
-        dir,
-        moduleName,
-        moduleTemplateMap,
-        verbose,
-        sourcemap
-      );
+    moduleNodes.map(async moduleNode => {
+      const moduleName = moduleNode.module.name;
+      if (templateMap[moduleName]) {
+        await bundleFunctionsOfModule(
+          dir,
+          moduleName,
+          moduleNode.module.packageLocation,
+          templateMap,
+          verbose,
+          sourcemap
+        );
+      }
     })
   );
 };

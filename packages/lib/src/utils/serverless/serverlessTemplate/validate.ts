@@ -1,8 +1,10 @@
 import { KeywordDefinition, KeywordValidator } from "somod-types";
 import ErrorSet from "../../ErrorSet";
 import { parseJson, validateKeywords } from "../../jsonTemplate";
-import { ModuleServerlessTemplateMap } from "../types";
-import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
+import {
+  getBaseKeywords,
+  getModuleServerlessTemplateMap
+} from "./serverlessTemplate";
 
 /**
  * Validate the `serverless/template.yaml` at the root module.
@@ -12,10 +14,9 @@ import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
 export const validateServerlessTemplate = async (
   dir: string,
   rootModuleName: string,
-  moduleTemplateMap: ModuleServerlessTemplateMap,
   pluginKeywords: KeywordDefinition[] = []
 ) => {
-  const moduleContentMap = getModuleContentMap(moduleTemplateMap);
+  const moduleContentMap = await getModuleServerlessTemplateMap();
 
   const keywords = [...getBaseKeywords(), ...pluginKeywords];
 
@@ -34,7 +35,7 @@ export const validateServerlessTemplate = async (
   );
 
   const errors = await validateKeywords(
-    parseJson(moduleTemplateMap[rootModuleName].template),
+    parseJson(moduleContentMap[rootModuleName].json),
     keywordValidators
   );
 

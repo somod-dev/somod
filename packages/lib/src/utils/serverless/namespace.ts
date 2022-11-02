@@ -7,7 +7,7 @@ import {
 } from "../constants";
 import { ModuleHandler } from "../moduleHandler";
 import { keywordRef } from "./keywords/ref";
-import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
+import { ServerlessTemplateHandler } from "./serverlessTemplate/serverlessTemplate";
 
 const detectDuplicateNamespaces = (
   namespaces: string[],
@@ -65,7 +65,10 @@ type FunctionResourceProperties = Record<string, unknown> & {
 
 export const loadApiRouteNamespaces: NamespaceLoader = async module => {
   const namespaces: Record<string, string[]> = {};
-  const moduleServerlessTemplate = await loadServerlessTemplate(module);
+  const moduleServerlessTemplate =
+    await ServerlessTemplateHandler.getServerlessTemplateHandler().getTemplate(
+      module.name
+    );
 
   if (moduleServerlessTemplate) {
     const serverlessTemplate = moduleServerlessTemplate.template;
@@ -114,7 +117,10 @@ export const loadApiRouteNamespaces: NamespaceLoader = async module => {
 
 export const loadOutputNamespaces: NamespaceLoader = async module => {
   const namespaces = [];
-  const moduleServerlessTemplate = await loadServerlessTemplate(module);
+  const moduleServerlessTemplate =
+    await ServerlessTemplateHandler.getServerlessTemplateHandler().getTemplate(
+      module.name
+    );
 
   if (moduleServerlessTemplate) {
     const serverlessTemplate = moduleServerlessTemplate.template;

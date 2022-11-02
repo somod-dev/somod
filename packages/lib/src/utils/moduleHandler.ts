@@ -7,7 +7,7 @@ import { Node, bfs } from "graph-dsa";
 import { freeze } from "./freeze";
 import {
   Module,
-  ModuleHandler as ModuleHandlerAbstractClass,
+  IModuleHandler,
   ModuleNode,
   NamespaceLoader
 } from "somod-types";
@@ -17,7 +17,7 @@ type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
 type MutableModule = DeepWriteable<Module>;
 type MutableModuleNode = DeepWriteable<ModuleNode>;
 
-export class ModuleHandler implements ModuleHandlerAbstractClass {
+export class ModuleHandler implements IModuleHandler {
   private rootDir: string;
   private namespaceLoaders: NamespaceLoader[] = [];
 

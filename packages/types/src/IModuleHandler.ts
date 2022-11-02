@@ -16,19 +16,19 @@ export type ModuleNode = Readonly<{
   children: ModuleNode[];
 }>;
 
-export abstract class ModuleHandler {
-  abstract getRoodModuleNode(): Promise<ModuleNode>;
+export interface IModuleHandler {
+  getRoodModuleNode(): Promise<ModuleNode>;
 
-  abstract getModule(moduleName: string): Promise<ModuleNode>;
+  getModule(moduleName: string): Promise<ModuleNode>;
 
   /**
    * @returns the list of modules , all parents are listed before children
    */
-  abstract listModules(): Promise<ModuleNode[]>;
+  listModules(): Promise<ModuleNode[]>;
 
   /**
    * load and resolve the namespaces
    * @returns Map of NamespaceKey to (Map of namespace to moduleName)
    */
-  abstract getNamespaces(): Promise<Record<string, Record<string, string>>>;
+  getNamespaces(): Promise<Record<string, Record<string, string>>>;
 }

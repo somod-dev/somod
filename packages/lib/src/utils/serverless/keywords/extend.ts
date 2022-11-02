@@ -1,8 +1,10 @@
 import { getPath } from "../../jsonTemplate";
-import { getSAMResourceLogicalId } from "../utils";
-import { SAMTemplate, ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
-import { JSONPrimitiveNode, KeywordDefinition } from "somod-types";
+import {
+  JSONPrimitiveNode,
+  KeywordDefinition,
+  ServerlessTemplate
+} from "somod-types";
 
 type Extend = { module: string; resource: string };
 
@@ -62,29 +64,10 @@ export const keywordExtend: KeywordDefinition<Extend, ServerlessTemplate> = {
     };
   },
 
-  getProcessor: async () => (keyword, node, value) => {
+  getProcessor: async () => () => {
     return {
-      type: "keyword",
-      value: {
-        [keyword]: getSAMResourceLogicalId(value.module, value.resource)
-      }
+      type: "object",
+      value: undefined // removes the resource
     };
   }
-};
-
-export const getExtendedResourceMap = (
-  samTemplate: SAMTemplate
-): Record<string, string> => {
-  const extendedMap: Record<string, string> = {};
-  Object.keys(samTemplate.Resources).forEach(resourceId => {
-    if (
-      samTemplate.Resources[resourceId][keywordExtend.keyword] !== undefined
-    ) {
-      extendedMap[resourceId] = samTemplate.Resources[resourceId][
-        keywordExtend.keyword
-      ] as string;
-    }
-  });
-
-  return extendedMap;
 };
