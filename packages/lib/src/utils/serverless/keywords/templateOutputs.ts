@@ -1,9 +1,8 @@
 import { file_parametersYaml } from "../../constants";
 import { getPath } from "../../jsonTemplate";
 import { listAllParameters } from "../../parameters/namespace";
-import { getSAMOutputName } from "../utils";
-import { ServerlessTemplate } from "../types";
-import { JSONType, KeywordDefinition } from "somod-types";
+import { JSONType, KeywordDefinition, ServerlessTemplate } from "somod-types";
+import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Outputs = Record<string, JSONType>;
 
@@ -39,25 +38,29 @@ export const keywordTemplateOutputs: KeywordDefinition<
     };
   },
 
-  getProcessor: async () => (keyword, node, value) => {
-    if (getPath(node).length == 0) {
+  getProcessor: async () => {
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+    return (keyword, node, value) => {
+      if (getPath(node).length == 0) {
+        return {
+          type: "keyword",
+          value: {
+            [keyword]: Object.fromEntries(
+              Object.keys(value).map(p => [
+                serverlessTemplateHandler.getSAMOutputName(p),
+                { Value: value[p] }
+              ])
+            )
+          }
+        };
+      }
       return {
         type: "keyword",
         value: {
-          [keyword]: Object.fromEntries(
-            Object.keys(value).map(p => [
-              getSAMOutputName(p),
-              { Value: value[p] }
-            ])
-          )
+          [keyword]: value
         }
       };
-    }
-    return {
-      type: "keyword",
-      value: {
-        [keyword]: value
-      }
     };
   }
 };

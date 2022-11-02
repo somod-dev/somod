@@ -1,6 +1,9 @@
-import { KeywordDefinition, ModuleTemplate } from "somod-types";
+import {
+  KeywordDefinition,
+  ModuleTemplate,
+  ServerlessTemplate
+} from "somod-types";
 import { getPath } from "../../jsonTemplate";
-import { ServerlessTemplate } from "../types";
 
 type Output = {
   default: boolean;

@@ -1,8 +1,7 @@
 import { getPath } from "../../jsonTemplate";
-import { getSAMResourceLogicalId } from "../utils";
-import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
-import { KeywordDefinition } from "somod-types";
+import { KeywordDefinition, ServerlessTemplate } from "somod-types";
+import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type DependsOn = { module?: string; resource: string }[];
 
@@ -47,12 +46,19 @@ export const keywordDependsOn: KeywordDefinition<
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => ({
-    type: "keyword",
-    value: {
-      DependsOn: value.map(v =>
-        getSAMResourceLogicalId(v.module || moduleName, v.resource)
-      )
-    }
-  })
+  getProcessor: async (rootDir, moduleName) => {
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+    return (keyword, node, value) => ({
+      type: "keyword",
+      value: {
+        DependsOn: value.map(v =>
+          serverlessTemplateHandler.getSAMResourceLogicalId(
+            v.module || moduleName,
+            v.resource
+          )
+        )
+      }
+    });
+  }
 };

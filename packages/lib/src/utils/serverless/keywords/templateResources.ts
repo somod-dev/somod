@@ -1,7 +1,6 @@
 import { getPath } from "../../jsonTemplate";
-import { getSAMResourceLogicalId } from "../utils";
-import { ServerlessTemplate } from "../types";
-import { JSONType, KeywordDefinition } from "somod-types";
+import { JSONType, KeywordDefinition, ServerlessTemplate } from "somod-types";
+import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Resources = Record<string, JSONType>;
 
@@ -18,25 +17,32 @@ export const keywordTemplateResources: KeywordDefinition<
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
-    if (getPath(node).length == 0) {
+  getProcessor: async (rootDir, moduleName) => {
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+    return (keyword, node, value) => {
+      if (getPath(node).length == 0) {
+        return {
+          type: "keyword",
+          value: {
+            [keyword]: Object.fromEntries(
+              Object.keys(value).map(p => [
+                serverlessTemplateHandler.getSAMResourceLogicalId(
+                  moduleName,
+                  p
+                ),
+                value[p]
+              ])
+            )
+          }
+        };
+      }
       return {
         type: "keyword",
         value: {
-          [keyword]: Object.fromEntries(
-            Object.keys(value).map(p => [
-              getSAMResourceLogicalId(moduleName, p),
-              value[p]
-            ])
-          )
+          [keyword]: value
         }
       };
-    }
-    return {
-      type: "keyword",
-      value: {
-        [keyword]: value
-      }
     };
   }
 };

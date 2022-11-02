@@ -1,11 +1,10 @@
 import { JSONSchema7, validate } from "decorated-ajv";
-import { getSAMResourceLogicalId } from "../utils";
-import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
 import { checkCustomResourceSchema } from "./function";
 import { checkOutput } from "./output";
 import { keywordExtend } from "./extend";
-import { KeywordDefinition } from "somod-types";
+import { KeywordDefinition, ServerlessTemplate } from "somod-types";
+import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Ref = {
   module?: string;
@@ -109,16 +108,23 @@ export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
-    const targetModule = value.module || moduleName;
+  getProcessor: async (rootDir, moduleName) => {
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+    return (keyword, node, value) => {
+      const targetModule = value.module || moduleName;
 
-    const resourceId = getSAMResourceLogicalId(targetModule, value.resource);
-    const refValue = value.attribute
-      ? { "Fn::GetAtt": [resourceId, value.attribute] }
-      : { Ref: resourceId };
-    return {
-      type: "object",
-      value: refValue
+      const resourceId = serverlessTemplateHandler.getSAMResourceLogicalId(
+        targetModule,
+        value.resource
+      );
+      const refValue = value.attribute
+        ? { "Fn::GetAtt": [resourceId, value.attribute] }
+        : { Ref: resourceId };
+      return {
+        type: "object",
+        value: refValue
+      };
     };
   }
 };

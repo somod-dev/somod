@@ -4,7 +4,8 @@ import { basename, extname, join } from "path";
 import {
   JSONObjectNode,
   JSONPrimitiveNode,
-  KeywordDefinition
+  KeywordDefinition,
+  ServerlessTemplate
 } from "somod-types";
 import {
   path_functions,
@@ -13,7 +14,6 @@ import {
   resourceType_FunctionMiddleware
 } from "../../constants";
 import { getPath } from "../../jsonTemplate";
-import { ServerlessTemplate } from "../types";
 
 type FunctionMiddlewareType = string;
 

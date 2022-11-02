@@ -2,7 +2,8 @@ import { readJsonFileStore, unixStylePath } from "nodejs-file-utils";
 import {
   JSONObjectNode,
   JSONPrimitiveNode,
-  KeywordDefinition
+  KeywordDefinition,
+  ServerlessTemplate
 } from "somod-types";
 import { mkdirSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
@@ -14,7 +15,6 @@ import {
   resourceType_FunctionLayer
 } from "../../constants";
 import { getPath } from "../../jsonTemplate";
-import { ServerlessTemplate } from "../types";
 
 type FunctionLayerType = {
   name: string;
