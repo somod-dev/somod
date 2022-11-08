@@ -1,9 +1,6 @@
-import {
-  KeywordDefinition,
-  ModuleTemplate,
-  ServerlessTemplate
-} from "somod-types";
+import { KeywordDefinition } from "somod-types";
 import { getPath } from "../../jsonTemplate";
+import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Access = "module" | "scope" | "public";
 
@@ -31,32 +28,48 @@ export const keywordAccess: KeywordDefinition<Access> = {
 
 export const checkAccess = (
   sourceModule: string,
-  targetTemplate: ModuleTemplate<ServerlessTemplate>,
-  targetResource: string
+  accessedResource: { module?: string; resource: string },
+  usage?: string
 ): Error[] => {
   const errors: Error[] = [];
 
-  const access = (targetTemplate.json.Resources[targetResource][
-    keywordAccess.keyword
-  ] || "scope") as Access;
+  const accessedModule = accessedResource.module || sourceModule;
 
-  if (access == "module" && sourceModule != targetTemplate.moduleName) {
+  const resource =
+    ServerlessTemplateHandler.getServerlessTemplateHandler().getResource(
+      accessedModule,
+      accessedResource.resource
+    );
+
+  if (!resource) {
     errors.push(
       new Error(
-        `Referenced module resource {${targetTemplate.moduleName}, ${targetResource}} can not be accessed (has "module" access).`
+        `${usage || "Referenced"} module resource {${accessedModule}, ${
+          accessedResource.resource
+        }} not found.`
       )
     );
-  }
+  } else {
+    const access = (resource[keywordAccess.keyword] || "scope") as Access;
 
-  if (
-    access == "scope" &&
-    sourceModule.split("/")[0] != targetTemplate.moduleName.split("/")[0]
-  ) {
-    errors.push(
-      new Error(
-        `Referenced module resource {${targetTemplate.moduleName}, ${targetResource}} can not be accessed (has "scope" access).`
-      )
-    );
+    if (access == "module" && sourceModule != accessedModule) {
+      errors.push(
+        new Error(
+          `Referenced module resource {${accessedModule}, ${accessedResource.resource}} can not be accessed (has "module" access).`
+        )
+      );
+    }
+
+    if (
+      access == "scope" &&
+      sourceModule.split("/")[0] != accessedModule.split("/")[0]
+    ) {
+      errors.push(
+        new Error(
+          `Referenced module resource {${accessedModule}, ${accessedResource.resource}} can not be accessed (has "scope" access).`
+        )
+      );
+    }
   }
 
   return errors;

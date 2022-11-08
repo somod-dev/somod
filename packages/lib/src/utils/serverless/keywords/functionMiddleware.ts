@@ -4,8 +4,7 @@ import { basename, extname, join } from "path";
 import {
   JSONObjectNode,
   JSONPrimitiveNode,
-  KeywordDefinition,
-  ServerlessTemplate
+  KeywordDefinition
 } from "somod-types";
 import {
   path_functions,
@@ -38,52 +37,50 @@ const getDefinedFunctionMiddlewares = async (dir: string) => {
   return middlewares;
 };
 
-export const keywordFunctionMiddleware: KeywordDefinition<
-  FunctionMiddlewareType,
-  ServerlessTemplate
-> = {
-  keyword: "SOMOD::FunctionMiddleware",
+export const keywordFunctionMiddleware: KeywordDefinition<FunctionMiddlewareType> =
+  {
+    keyword: "SOMOD::FunctionMiddleware",
 
-  getValidator: async rootDir => {
-    const definedMiddlewares = await getDefinedFunctionMiddlewares(rootDir);
-    return (keyword, node, value) => {
-      const errors: Error[] = [];
+    getValidator: async rootDir => {
+      const definedMiddlewares = await getDefinedFunctionMiddlewares(rootDir);
+      return (keyword, node, value) => {
+        const errors: Error[] = [];
 
-      const path = getPath(node);
-      if (
-        !(
-          path.length == 4 &&
-          path[0] == "Resources" &&
-          path[2] == "Properties" &&
-          path[3] == "CodeUri" &&
-          (
-            (node.parent.node.parent.node as JSONObjectNode).properties
-              ?.Type as JSONPrimitiveNode
-          ).value == resourceType_FunctionMiddleware
-        )
-      ) {
-        errors.push(
-          new Error(
-            `${keyword} is allowed only as value of CodeUri property of ${resourceType_FunctionMiddleware} resource`
+        const path = getPath(node);
+        if (
+          !(
+            path.length == 4 &&
+            path[0] == "Resources" &&
+            path[2] == "Properties" &&
+            path[3] == "CodeUri" &&
+            (
+              (node.parent.node.parent.node as JSONObjectNode).properties
+                ?.Type as JSONPrimitiveNode
+            ).value == resourceType_FunctionMiddleware
           )
-        );
-      } else {
-        if (!definedMiddlewares.includes(value)) {
+        ) {
           errors.push(
             new Error(
-              `Function Middleware ${value} not found. Create the middleware under ${path_serverless}/${path_functions}/${path_middlewares} directory`
+              `${keyword} is allowed only as value of CodeUri property of ${resourceType_FunctionMiddleware} resource`
             )
           );
+        } else {
+          if (!definedMiddlewares.includes(value)) {
+            errors.push(
+              new Error(
+                `Function Middleware ${value} not found. Create the middleware under ${path_serverless}/${path_functions}/${path_middlewares} directory`
+              )
+            );
+          }
         }
-      }
-      return errors;
-    };
-  },
+        return errors;
+      };
+    },
 
-  getProcessor: async () => (rootDir, node, value) => {
-    return {
-      type: "object",
-      value
-    };
-  }
-};
+    getProcessor: async () => (rootDir, node, value) => {
+      return {
+        type: "object",
+        value
+      };
+    }
+  };

@@ -1,15 +1,12 @@
 import { file_parametersYaml } from "../../constants";
 import { getPath } from "../../jsonTemplate";
 import { listAllParameters } from "../../parameters/namespace";
-import { JSONType, KeywordDefinition, ServerlessTemplate } from "somod-types";
+import { JSONType, KeywordDefinition } from "somod-types";
 import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Outputs = Record<string, JSONType>;
 
-export const keywordTemplateOutputs: KeywordDefinition<
-  Outputs,
-  ServerlessTemplate
-> = {
+export const keywordTemplateOutputs: KeywordDefinition<Outputs> = {
   keyword: "Outputs",
 
   getValidator: async () => {

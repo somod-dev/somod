@@ -19,23 +19,26 @@ export type ModuleServerlessTemplate = Readonly<{
 
 export interface IServerlessTemplateHandler {
   /**
-   * returns the template after all the SOMOD::Extend are applied to the resources of template in question
-   * returns null if no template found for given module
+   * Returns the template after all the SOMOD::Extend are applied to the resources of template in question
+   *
+   * Returns null if no template found for given module
    */
   getTemplate(moduleName: string): Promise<ModuleServerlessTemplate | null>;
 
   /**
-   * returns the template after all the SOMOD::Extend are applied to the resources of each template
+   * Returns all templates after all the SOMOD::Extend are applied to the resources of each template
    */
   listTemplates(): Promise<ModuleServerlessTemplate[]>;
 
   /**
    * Returns the base Resource , after all SOMOD::Extend are applied
+   *
+   * Returns null if no resource found
    */
   getResource(
     moduleName: string,
     resourceId: string
-  ): Promise<ServerlessResource>;
+  ): Promise<ServerlessResource | null>;
 
   getNodeRuntimeVersion(): string;
   getSAMResourceLogicalId(moduleName: string, somodResourceId: string): string;

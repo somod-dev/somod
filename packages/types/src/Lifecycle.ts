@@ -1,5 +1,5 @@
 import { IModuleHandler, NamespaceLoader } from "./IModuleHandler";
-import { KeywordDefinition } from "./ModuleJsonTemplate";
+import { KeywordDefinition } from "./KeywordDefinition";
 import { IServerlessTemplateHandler } from "./IServerlessTemplateHandler";
 
 export type Mode = { ui: boolean; serverless: boolean };

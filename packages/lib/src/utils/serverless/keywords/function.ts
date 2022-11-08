@@ -5,7 +5,6 @@ import {
   JSONObjectType,
   JSONPrimitiveNode,
   KeywordDefinition,
-  ModuleTemplate,
   ServerlessTemplate
 } from "somod-types";
 import { existsSync } from "fs";
@@ -21,6 +20,7 @@ import { constructJson, getPath } from "../../jsonTemplate";
 import { KeywordSomodRef } from "./ref";
 import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
 import { uniq } from "lodash";
+import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type FunctionType = {
   type: string;
@@ -45,15 +45,17 @@ const getDefinedFunctions = async (dir: string) => {
   return functions;
 };
 
-export const keywordFunction: KeywordDefinition<
-  FunctionType,
-  ServerlessTemplate
-> = {
+export const keywordFunction: KeywordDefinition<FunctionType> = {
   keyword: "SOMOD::Function",
 
-  getValidator: async (rootDir, moduleName, moduleContentMap) => {
+  getValidator: async (
+    rootDir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
     const definedFunctions = await getDefinedFunctions(rootDir);
-    return (keyword, node, value) => {
+    return async (keyword, node, value) => {
       const errors: Error[] = [];
 
       const path = getPath(node);
@@ -106,13 +108,29 @@ export const keywordFunction: KeywordDefinition<
         }
 
         // middlewares
+        const middlewareAllowedTypes: Record<string, string[]> = {};
+        await Promise.all(
+          (value.middlewares || []).map(async middleware => {
+            const module = middleware["SOMOD::Ref"].module || moduleName;
+            const resource = middleware["SOMOD::Ref"].resource;
+
+            const mResource = await serverlessTemplateHandler.getResource(
+              module,
+              resource
+            );
+            middlewareAllowedTypes[JSON.stringify({ module, resource })] =
+              mResource.Properties.AllowedTypes as string[];
+          })
+        );
+
         const unmatchedMiddlewares = (value.middlewares || []).filter(
           middleware => {
-            const targetModule = middleware["SOMOD::Ref"].module || moduleName;
-            const allowedTypes = moduleContentMap[targetModule].json.Resources[
-              middleware["SOMOD::Ref"].resource
-            ].Properties["AllowedTypes"] as string[];
-            return !allowedTypes.includes(value.type);
+            const module = middleware["SOMOD::Ref"].module || moduleName;
+            const resource = middleware["SOMOD::Ref"].resource;
+
+            return !middlewareAllowedTypes[
+              JSON.stringify({ module, resource })
+            ].includes(value.type);
           }
         );
         if (unmatchedMiddlewares.length > 0) {
@@ -158,8 +176,7 @@ export const keywordFunction: KeywordDefinition<
 
 export const checkCustomResourceSchema = async (
   refNode: JSONObjectNode,
-  targetTemplate: ModuleTemplate<ServerlessTemplate>,
-  targetResource: string
+  currentModuleName: string
 ): Promise<Error[]> => {
   const errors: Error[] = [];
 
@@ -183,15 +200,23 @@ export const checkCustomResourceSchema = async (
     const customResourceNode = refNode.parent.node.parent.node;
     const customResource = constructJson(customResourceNode) as {
       Type: string;
-      Properties: { ServiceToken?: unknown } & Record<string, unknown>;
+      Properties: {
+        ServiceToken: { "SOMOD::Ref": { module?: string; resource: string } };
+      } & Record<string, unknown>;
     };
 
     const _customResourceType = customResource.Type.substring(
       custom_resource_prefix.length
     );
 
-    const codeUriOfTheTargetResource =
-      targetTemplate.json.Resources[targetResource]?.Properties.CodeUri;
+    const functionResource =
+      await ServerlessTemplateHandler.getServerlessTemplateHandler().getResource(
+        customResource.Properties.ServiceToken["SOMOD::Ref"].module ||
+          currentModuleName,
+        customResource.Properties.ServiceToken["SOMOD::Ref"].resource
+      );
+
+    const codeUriOfTheTargetResource = functionResource?.Properties.CodeUri;
 
     const customResourceSchema = codeUriOfTheTargetResource
       ? (codeUriOfTheTargetResource[keywordFunction.keyword] as FunctionType)
@@ -201,7 +226,7 @@ export const checkCustomResourceSchema = async (
     if (customResourceSchema === undefined) {
       errors.push(
         new Error(
-          `Unable to find the schema for the custom resource ${_customResourceType}. The custom resource function ${targetResource} must define the schema for the custom resource.`
+          `Unable to find the schema for the custom resource ${_customResourceType}. The custom resource function ${customResource.Properties.ServiceToken["SOMOD::Ref"].resource} must define the schema for the custom resource.`
         )
       );
     } else {

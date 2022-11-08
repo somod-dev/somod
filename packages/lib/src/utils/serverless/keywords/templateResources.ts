@@ -1,13 +1,10 @@
 import { getPath } from "../../jsonTemplate";
-import { JSONType, KeywordDefinition, ServerlessTemplate } from "somod-types";
+import { JSONType, KeywordDefinition } from "somod-types";
 import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Resources = Record<string, JSONType>;
 
-export const keywordTemplateResources: KeywordDefinition<
-  Resources,
-  ServerlessTemplate
-> = {
+export const keywordTemplateResources: KeywordDefinition<Resources> = {
   keyword: "Resources",
 
   getValidator: async () => {

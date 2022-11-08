@@ -22,10 +22,7 @@ type FunctionLayerType = {
   content?: Record<string, string>;
 };
 
-export const keywordFunctionLayer: KeywordDefinition<
-  FunctionLayerType,
-  ServerlessTemplate
-> = {
+export const keywordFunctionLayer: KeywordDefinition<FunctionLayerType> = {
   keyword: "SOMOD::FunctionLayer",
 
   getValidator: async rootDir => {

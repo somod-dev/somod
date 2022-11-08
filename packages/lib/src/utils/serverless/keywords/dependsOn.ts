@@ -1,17 +1,13 @@
 import { getPath } from "../../jsonTemplate";
 import { checkAccess } from "./access";
-import { KeywordDefinition, ServerlessTemplate } from "somod-types";
-import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
+import { KeywordDefinition } from "somod-types";
 
 type DependsOn = { module?: string; resource: string }[];
 
-export const keywordDependsOn: KeywordDefinition<
-  DependsOn,
-  ServerlessTemplate
-> = {
+export const keywordDependsOn: KeywordDefinition<DependsOn> = {
   keyword: "SOMOD::DependsOn",
 
-  getValidator: async (rootDir, moduleName, moduleContentMap) => {
+  getValidator: async (rootDir, moduleName) => {
     return (keyword, node, value) => {
       const errors: Error[] = [];
 
@@ -24,21 +20,7 @@ export const keywordDependsOn: KeywordDefinition<
         //NOTE: structure of the value is validated by serverless-schema
 
         value.forEach(v => {
-          const targetModuleName = v.module || moduleName;
-          if (!moduleContentMap[targetModuleName]?.json.Resources[v.resource]) {
-            errors.push(
-              new Error(
-                `Dependent module resource {${targetModuleName}, ${v.resource}} not found.`
-              )
-            );
-          }
-          errors.push(
-            ...checkAccess(
-              moduleName,
-              moduleContentMap[targetModuleName],
-              v.resource
-            )
-          );
+          errors.push(...checkAccess(moduleName, v, "Depended"));
         });
       }
 
@@ -46,9 +28,12 @@ export const keywordDependsOn: KeywordDefinition<
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => {
-    const serverlessTemplateHandler =
-      ServerlessTemplateHandler.getServerlessTemplateHandler();
+  getProcessor: async (
+    rootDir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
     return (keyword, node, value) => ({
       type: "keyword",
       value: {

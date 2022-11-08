@@ -1,9 +1,11 @@
 import { KeywordDefinition, KeywordValidator } from "somod-types";
 import ErrorSet from "../../ErrorSet";
 import { parseJson, validateKeywords } from "../../jsonTemplate";
+import { ModuleHandler } from "../../moduleHandler";
 import {
   getBaseKeywords,
-  getModuleServerlessTemplateMap
+  getModuleServerlessTemplateMap,
+  ServerlessTemplateHandler
 } from "./serverlessTemplate";
 
 /**
@@ -27,7 +29,8 @@ export const validateServerlessTemplate = async (
       const validator = await keyword.getValidator(
         dir,
         rootModuleName,
-        moduleContentMap
+        ModuleHandler.getModuleHandler(),
+        ServerlessTemplateHandler.getServerlessTemplateHandler()
       );
 
       keywordValidators[keyword.keyword] = validator;

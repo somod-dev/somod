@@ -7,8 +7,6 @@ import {
   IServerlessTemplateHandler,
   JSONType,
   Module,
-  ModuleTemplate,
-  ModuleTemplateMap,
   ServerlessTemplate
 } from "somod-types";
 import {
@@ -42,35 +40,41 @@ import { keywordResourceName } from "../keywords/resourceName";
 import { keywordTemplateOutputs } from "../keywords/templateOutputs";
 import { keywordTemplateResources } from "../keywords/templateResources";
 
-export const getModuleServerlessTemplateMap = async (): Promise<
-  ModuleTemplateMap<ServerlessTemplate>
-> => {
-  const moduleNodes = await ModuleHandler.getModuleHandler().listModules();
-  const moduleMap = Object.fromEntries(
-    moduleNodes.map(m => [m.module.name, m.module])
-  );
-  const templates =
-    await ServerlessTemplateHandler.getServerlessTemplateHandler().listTemplates();
+type ModuleTemplateMap = Record<
+  string,
+  {
+    moduleName: string;
+    location: string;
+    path: string;
+    json: ServerlessTemplate;
+  }
+>;
 
-  const moduleTemplateMap: Record<
-    string,
-    ModuleTemplate<ServerlessTemplate>
-  > = {};
+export const getModuleServerlessTemplateMap =
+  async (): Promise<ModuleTemplateMap> => {
+    const moduleNodes = await ModuleHandler.getModuleHandler().listModules();
+    const moduleMap = Object.fromEntries(
+      moduleNodes.map(m => [m.module.name, m.module])
+    );
+    const templates =
+      await ServerlessTemplateHandler.getServerlessTemplateHandler().listTemplates();
 
-  templates.map(t => {
-    const m = moduleMap[t.module];
-    moduleTemplateMap[t.module] = freeze({
-      moduleName: t.module,
-      location: m.packageLocation,
-      path: m.root
-        ? `${path_serverless}/${file_templateYaml}`
-        : `${path_build}/${path_serverless}/${file_templateJson}`,
-      json: t.template
+    const moduleTemplateMap: ModuleTemplateMap = {};
+
+    templates.map(t => {
+      const m = moduleMap[t.module];
+      moduleTemplateMap[t.module] = freeze({
+        moduleName: t.module,
+        location: m.packageLocation,
+        path: m.root
+          ? `${path_serverless}/${file_templateYaml}`
+          : `${path_build}/${path_serverless}/${file_templateJson}`,
+        json: t.template
+      });
     });
-  });
 
-  return freeze(moduleTemplateMap);
-};
+    return freeze(moduleTemplateMap);
+  };
 
 export const getBaseKeywords = () => [
   keywordAjvCompile,
@@ -219,6 +223,21 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
               `Extended module resource {${_extend.module}, ${_extend.resource}} not found. Extended from {${moduleTemplate.module}, ${resourceId}}`
             );
           }
+          if (
+            templateMap[targetResource.module].Resources[
+              targetResource.resource
+            ].Type != resource.Type
+          ) {
+            throw new Error(
+              `Can extend only same type of resource. ${
+                resource.Type
+              } can not extend ${
+                templateMap[targetResource.module].Resources[
+                  targetResource.resource
+                ].Type
+              }`
+            );
+          }
           merge(
             templateMap[targetResource.module].Resources[
               targetResource.resource
@@ -261,6 +280,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
   }
 
   async getResource(moduleName: string, resourceId: string) {
+    await this.load();
     const actualResourceId =
       this.extendedResourceMap[
         JSON.stringify({ module: moduleName, resource: resourceId })

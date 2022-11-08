@@ -43,7 +43,8 @@ export const prepareSamTemplate = async (
             const processor = await keyword.getProcessor(
               dir,
               moduleName,
-              moduleTemplateMap
+              ModuleHandler.getModuleHandler(),
+              ServerlessTemplateHandler.getServerlessTemplateHandler()
             );
 
             keywordProcessors[keyword.keyword] = processor;

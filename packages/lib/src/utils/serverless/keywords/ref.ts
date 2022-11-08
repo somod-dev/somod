@@ -1,10 +1,9 @@
 import { JSONSchema7, validate } from "decorated-ajv";
+import { KeywordDefinition } from "somod-types";
+import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 import { checkAccess } from "./access";
 import { checkCustomResourceSchema } from "./function";
 import { checkOutput } from "./output";
-import { keywordExtend } from "./extend";
-import { KeywordDefinition, ServerlessTemplate } from "somod-types";
-import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Ref = {
   module?: string;
@@ -16,10 +15,15 @@ export type KeywordSomodRef = {
   "SOMOD::Ref": Ref;
 };
 
-export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
+export const keywordRef: KeywordDefinition<Ref> = {
   keyword: "SOMOD::Ref",
 
-  getValidator: async (rootDir, moduleName, moduleContentMap) => {
+  getValidator: async (
+    rootDir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
     return async (keyword, node, value) => {
       const errors: Error[] = [];
 
@@ -60,47 +64,31 @@ export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
       if (errors.length == 0) {
         const targetModule = value.module || moduleName;
 
-        if (!moduleContentMap[targetModule]?.json.Resources[value.resource]) {
+        const targetResource = await serverlessTemplateHandler.getResource(
+          targetModule,
+          value.resource
+        );
+
+        if (!targetResource) {
           errors.push(
             new Error(
               `Referenced module resource {${targetModule}, ${value.resource}} not found.`
             )
           );
         } else {
-          if (
-            moduleContentMap[targetModule].json.Resources[value.resource][
-              keywordExtend.keyword
-            ] !== undefined
-          ) {
-            errors.push(
-              new Error(
-                `Can not reference an extended resource {${targetModule}, ${value.resource}}.`
-              )
-            );
-          }
+          errors.push(...checkAccess(moduleName, value));
+
           errors.push(
-            ...checkAccess(
+            ...(await checkOutput(
+              serverlessTemplateHandler,
               moduleName,
-              moduleContentMap[targetModule],
-              value.resource
-            )
-          );
-
-          errors.push(
-            ...checkOutput(
-              moduleContentMap[targetModule],
               value.resource,
+              value.module,
               value.attribute
-            )
-          );
-
-          errors.push(
-            ...(await checkCustomResourceSchema(
-              node,
-              moduleContentMap[targetModule],
-              value.resource
             ))
           );
+
+          errors.push(...(await checkCustomResourceSchema(node, moduleName)));
         }
       }
 

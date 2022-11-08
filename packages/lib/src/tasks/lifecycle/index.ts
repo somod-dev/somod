@@ -1,22 +1,8 @@
 import { ModuleHandler } from "../../utils/moduleHandler";
 import { loadLifeCycleHooks as _loadLifeCycleHooks } from "../../utils/lifeCycle/load";
 import { KeywordDefinition, Mode, LifeCycle } from "somod-types";
-import {
-  getNodeRuntimeVersion,
-  getSAMResourceLogicalId,
-  getSAMResourceName,
-  getSAMOutputName,
-  getParameterNameFromSAMOutputName
-} from "../../utils/serverless/utils";
 import { bundle } from "../../utils/lifeCycle/bundle";
-
-const utils = {
-  getNodeRuntimeVersion,
-  getSAMResourceLogicalId,
-  getSAMResourceName,
-  getSAMOutputName,
-  getParameterNameFromSAMOutputName
-};
+import { ServerlessTemplateHandler } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
 
 export const loadLifeCycleHooks = async () => {
   const lcHooks = await _loadLifeCycleHooks();
@@ -58,7 +44,9 @@ export const runPrebuildLifeCycleHook = async (
   mode: Mode
 ) => {
   const moduleHandler = ModuleHandler.getModuleHandler();
-  await plugin.prebuild(dir, moduleHandler, mode, utils);
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
+  await plugin.prebuild(dir, moduleHandler, serverlessTemplateHandler, mode);
 };
 
 /* istanbul ignore next */
@@ -68,7 +56,9 @@ export const runBuildLifeCycleHook = async (
   mode: Mode
 ) => {
   const moduleHandler = ModuleHandler.getModuleHandler();
-  await plugin.build(dir, moduleHandler, mode, utils);
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
+  await plugin.build(dir, moduleHandler, serverlessTemplateHandler, mode);
 };
 
 /* istanbul ignore next */
@@ -78,7 +68,9 @@ export const runPreprepareLifeCycleHook = async (
   mode: Mode
 ) => {
   const moduleHandler = ModuleHandler.getModuleHandler();
-  await plugin.preprepare(dir, moduleHandler, mode, utils);
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
+  await plugin.preprepare(dir, moduleHandler, serverlessTemplateHandler, mode);
 };
 
 /* istanbul ignore next */
@@ -88,7 +80,9 @@ export const runPrepareLifeCycleHook = async (
   mode: Mode
 ) => {
   const moduleHandler = ModuleHandler.getModuleHandler();
-  await plugin.prepare(dir, moduleHandler, mode, utils);
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
+  await plugin.prepare(dir, moduleHandler, serverlessTemplateHandler, mode);
 };
 
 export const bundleLifeCycleHook = async (dir: string, verbose = false) => {

@@ -1,8 +1,4 @@
-import {
-  KeywordDefinition,
-  ModuleTemplate,
-  ServerlessTemplate
-} from "somod-types";
+import { IServerlessTemplateHandler, KeywordDefinition } from "somod-types";
 import { getPath } from "../../jsonTemplate";
 
 type Output = {
@@ -10,7 +6,7 @@ type Output = {
   attributes: string[];
 };
 
-export const keywordOutput: KeywordDefinition<Output, ServerlessTemplate> = {
+export const keywordOutput: KeywordDefinition<Output> = {
   keyword: "SOMOD::Output",
 
   getValidator: async () => {
@@ -38,22 +34,31 @@ export const keywordOutput: KeywordDefinition<Output, ServerlessTemplate> = {
   }
 };
 
-export const checkOutput = (
-  targetTemplate: ModuleTemplate<ServerlessTemplate>,
-  targetResource: string,
+export const checkOutput = async (
+  serverlessTemplateHandler: IServerlessTemplateHandler,
+  currentModule: string,
+  resource: string,
+  module?: string,
   attribute?: string
-): Error[] => {
+): Promise<Error[]> => {
   const errors: Error[] = [];
 
-  const outputDefinitionInTargetResource = targetTemplate.json.Resources[
-    targetResource
-  ]?.[keywordOutput.keyword] as Output;
+  const targetModule = module || currentModule;
+
+  const targetResource = await serverlessTemplateHandler.getResource(
+    targetModule,
+    resource
+  );
+
+  const outputDefinitionInTargetResource = targetResource?.[
+    keywordOutput.keyword
+  ] as Output;
 
   if (attribute === undefined) {
     if (!outputDefinitionInTargetResource?.default) {
       errors.push(
         new Error(
-          `default must be true in ${keywordOutput.keyword} of ${targetResource} resource in ${targetTemplate.moduleName}.`
+          `default must be true in ${keywordOutput.keyword} of ${resource} resource in ${targetModule}.`
         )
       );
     }
@@ -62,7 +67,7 @@ export const checkOutput = (
   ) {
     errors.push(
       new Error(
-        `attributes must have ${attribute} in ${keywordOutput.keyword} of ${targetResource} resource in ${targetTemplate.moduleName}.`
+        `attributes must have ${attribute} in ${keywordOutput.keyword} of ${resource} resource in ${targetModule}.`
       )
     );
   }
