@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import { NamespaceLoader } from "somod-types";
 import { ModuleHandler } from "../../utils/moduleHandler";
 

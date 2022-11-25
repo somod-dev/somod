@@ -85,6 +85,7 @@ export const runPrepareLifeCycleHook = async (
   await plugin.prepare(dir, moduleHandler, serverlessTemplateHandler, mode);
 };
 
+/* istanbul ignore next */
 export const bundleLifeCycleHook = async (dir: string, verbose = false) => {
   await bundle(dir, verbose);
 };

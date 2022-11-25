@@ -15,7 +15,7 @@ export const bundle = async (dir: string, verbose = false) => {
       platform: "node",
       external: ["tslib"],
       minify: true,
-      target: ["node"],
+      target: ["node14"],
       logLevel: verbose ? "verbose" : "silent",
       ...((packageJson.LifeCycleEsbuildOptions as Record<string, unknown>) ||
         {}),
