@@ -4,7 +4,7 @@ import {
   deleteDir,
   mockedFunction
 } from "../../utils";
-import { prepareSamTemplate } from "../../../src/utils/serverless/serverlessTemplate/prepare";
+import { prepareSamTemplate as prepareSamTemplateUtil } from "../../../src/utils/serverless/serverlessTemplate/prepare";
 import { prepareSAMTemplate } from "../../../src";
 import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { join } from "path";
@@ -25,7 +25,7 @@ describe("test Task prepareSAMTemplate", () => {
   beforeEach(async () => {
     dir = createTempDir("test-somod-lib");
     ModuleHandler.initialize(dir, []);
-    mockedFunction(prepareSamTemplate).mockReset();
+    mockedFunction(prepareSamTemplateUtil).mockReset();
   });
 
   afterEach(() => {
@@ -33,7 +33,7 @@ describe("test Task prepareSAMTemplate", () => {
   });
 
   test("for no resources", async () => {
-    mockedFunction(prepareSamTemplate).mockResolvedValue({ Resources: {} });
+    mockedFunction(prepareSamTemplateUtil).mockResolvedValue({ Resources: {} });
     createFiles(dir, {
       "package.json": JSON.stringify({
         name: "my-module",
@@ -43,25 +43,13 @@ describe("test Task prepareSAMTemplate", () => {
       "serverless/template.yaml": "Resources: {}"
     });
     await expect(prepareSAMTemplate(dir)).resolves.toBeUndefined();
-    expect(prepareSamTemplate).toHaveBeenCalledTimes(1);
-    expect(prepareSamTemplate).toHaveBeenCalledWith(
-      dir,
-      ["my-module"],
-      {
-        "my-module": {
-          module: "my-module",
-          packageLocation: join(dir),
-          root: true,
-          template: { Resources: {} }
-        }
-      },
-      []
-    );
+    expect(prepareSamTemplateUtil).toHaveBeenCalledTimes(1);
+    expect(prepareSamTemplateUtil).toHaveBeenCalledWith(dir, []);
     expect(existsSync(join(dir, "template.yaml"))).not.toBeTruthy();
   });
 
   test("for valid template.yaml", async () => {
-    mockedFunction(prepareSamTemplate).mockResolvedValue({
+    mockedFunction(prepareSamTemplateUtil).mockResolvedValue({
       Resources: {
         R1: { Type: "T1", Properties: {} },
         R2: { Type: "T2", Properties: {} }
@@ -80,26 +68,19 @@ describe("test Task prepareSAMTemplate", () => {
         }
       })
     });
-    await expect(prepareSAMTemplate(dir)).resolves.toBeUndefined();
-    expect(prepareSamTemplate).toHaveBeenCalledTimes(1);
-    expect(prepareSamTemplate).toHaveBeenCalledWith(
-      dir,
-      ["my-module"],
+    await expect(
+      prepareSAMTemplate(dir, [
+        { getProcessor: jest.fn(), getValidator: jest.fn(), keyword: "A" }
+      ])
+    ).resolves.toBeUndefined();
+    expect(prepareSamTemplateUtil).toHaveBeenCalledTimes(1);
+    expect(prepareSamTemplateUtil).toHaveBeenCalledWith(dir, [
       {
-        "my-module": {
-          module: "my-module",
-          packageLocation: join(dir),
-          root: true,
-          template: {
-            Resources: {
-              R1: { Type: "T1", Properties: {} },
-              R2: { Type: "T2", Properties: {} }
-            }
-          }
-        }
-      },
-      []
-    );
+        getProcessor: expect.any(Function),
+        getValidator: expect.any(Function),
+        keyword: "A"
+      }
+    ]);
     await expect(readFile(join(dir, "template.yaml"), "utf8")).resolves.toEqual(
       `AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31

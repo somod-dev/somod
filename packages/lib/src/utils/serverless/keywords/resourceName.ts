@@ -1,5 +1,4 @@
 import { JSONType, KeywordDefinition } from "somod-types";
-import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 export const keyword = "SOMOD::ResourceName";
 
@@ -20,9 +19,12 @@ export const keywordResourceName: KeywordDefinition<string> = {
     return errors;
   },
 
-  getProcessor: async (rootDir, moduleName) => {
-    const serverlessTemplateHandler =
-      ServerlessTemplateHandler.getServerlessTemplateHandler();
+  getProcessor: async (
+    rootDir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
     return (keyword, node, value) => {
       return {
         type: "object",

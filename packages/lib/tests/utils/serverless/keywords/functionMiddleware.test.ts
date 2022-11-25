@@ -45,7 +45,8 @@ describe("Test functionMiddleware keyword", () => {
     const validator = await keywordFunctionMiddleware.getValidator(
       "",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -69,7 +70,8 @@ describe("Test functionMiddleware keyword", () => {
     const validator = await keywordFunctionMiddleware.getValidator(
       "",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -108,7 +110,8 @@ describe("Test functionMiddleware keyword", () => {
     const validator = await keywordFunctionMiddleware.getValidator(
       "",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -147,7 +150,8 @@ describe("Test functionMiddleware keyword", () => {
     const validator = await keywordFunctionMiddleware.getValidator(
       "",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -188,7 +192,7 @@ describe("Test functionMiddleware keyword", () => {
 
   test("the getValidator is calling existsSync and skipping listFiles when existsSync returns false", async () => {
     mockedFunction(existsSync).mockReturnValue(false);
-    await keywordFunctionMiddleware.getValidator("/root/dir", "m1", {});
+    await keywordFunctionMiddleware.getValidator("/root/dir", "m1", null, null);
     expect(existsSync).toHaveBeenCalledTimes(1);
     expect(existsSync).toHaveBeenNthCalledWith(
       1,
@@ -198,7 +202,7 @@ describe("Test functionMiddleware keyword", () => {
   });
 
   test("the getValidator is calling listFiles", async () => {
-    await keywordFunctionMiddleware.getValidator("/root/dir", "m1", {});
+    await keywordFunctionMiddleware.getValidator("/root/dir", "m1", null, null);
     expect(listFiles).toHaveBeenCalledTimes(1);
     expect(listFiles).toHaveBeenNthCalledWith(
       1,
@@ -230,7 +234,8 @@ describe("Test functionMiddleware keyword", () => {
     const processor = await keywordFunctionMiddleware.getProcessor(
       "/root/dir",
       "m1",
-      allModules
+      null,
+      null
     );
 
     const objNode = parseJson(allModules.m1.json) as JSONObjectNode;

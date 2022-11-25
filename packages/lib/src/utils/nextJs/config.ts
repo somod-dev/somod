@@ -9,8 +9,6 @@ import {
   KeywordProcessor,
   KeywordValidator,
   Module,
-  ModuleTemplate,
-  ModuleTemplateMap,
   NamespaceLoader
 } from "somod-types";
 import {
@@ -23,7 +21,6 @@ import {
   path_ui
 } from "../constants";
 import ErrorSet from "../ErrorSet";
-import { freeze } from "../freeze";
 import { parseJson, processKeywords, validateKeywords } from "../jsonTemplate";
 import { keywordAjvCompile } from "../keywords/ajv-compile";
 import { keywordAnd } from "../keywords/and";
@@ -85,39 +82,13 @@ export const loadConfigNamespaces: NamespaceLoader = async module => {
   };
 };
 
-export const getModuleContentMap = async (
-  modules: Module[]
-): Promise<ModuleTemplateMap<Config>> => {
-  const moduleContentMap: Record<string, ModuleTemplate<Config>> = {};
-
-  await Promise.all(
-    modules.map(async module => {
-      const config = await loadConfig(module);
-      moduleContentMap[module.name] = {
-        moduleName: module.name,
-        location: module.packageLocation,
-        path: module.root
-          ? `${path_ui}/${file_configYaml}`
-          : `${path_build}/${path_ui}/${file_configJson}`,
-        json: config
-      };
-    })
-  );
-
-  return freeze(moduleContentMap);
-};
-
 export const validate = async (
   dir: string,
   pluginKeywords: KeywordDefinition[] = []
 ) => {
   const moduleHandler = ModuleHandler.getModuleHandler();
 
-  const moduleNodes = await moduleHandler.listModules();
-  const moduleContentMap = await getModuleContentMap(
-    moduleNodes.map(m => m.module)
-  );
-  const rootModuleName = (await moduleHandler.getRoodModuleNode()).module.name;
+  const rootModule = (await moduleHandler.getRoodModuleNode()).module;
 
   const keywords = [...getBaseKeywords(), ...pluginKeywords];
 
@@ -127,8 +98,9 @@ export const validate = async (
     keywords.map(async keyword => {
       const validator = await keyword.getValidator(
         dir,
-        rootModuleName,
-        moduleContentMap
+        rootModule.name,
+        moduleHandler,
+        null
       );
 
       keywordValidators[keyword.keyword] = validator;
@@ -136,7 +108,7 @@ export const validate = async (
   );
 
   const errors = await validateKeywords(
-    parseJson(moduleContentMap[rootModuleName].json),
+    parseJson(await loadConfig(rootModule)),
     keywordValidators
   );
 
@@ -162,9 +134,6 @@ export const generateCombinedConfig = async (
   const moduleHandler = ModuleHandler.getModuleHandler();
   const allModules = await moduleHandler.listModules();
 
-  const moduleContentMap = await getModuleContentMap(
-    allModules.map(m => m.module)
-  );
   const rootModuleName = (await moduleHandler.getRoodModuleNode()).module.name;
 
   const keywords = [...getBaseKeywords(), ...pluginKeywords];
@@ -176,7 +145,8 @@ export const generateCombinedConfig = async (
       const processor = await keyword.getProcessor(
         dir,
         rootModuleName,
-        moduleContentMap
+        moduleHandler,
+        null
       );
 
       keywordProcessors[keyword.keyword] = processor;
@@ -190,7 +160,7 @@ export const generateCombinedConfig = async (
     allModules.map(async moduleNode => {
       const moduleName = moduleNode.module.name;
       processsedMap[moduleName] = (await processKeywords(
-        parseJson(moduleContentMap[moduleName].json),
+        parseJson(await loadConfig(moduleNode.module)),
         keywordProcessors
       )) as Config;
     })

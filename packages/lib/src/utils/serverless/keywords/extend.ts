@@ -7,8 +7,13 @@ type Extend = { module: string; resource: string };
 export const keywordExtend: KeywordDefinition<Extend> = {
   keyword: "SOMOD::Extend",
 
-  getValidator: async (rootDir, moduleName) => {
-    return (keyword, node, value) => {
+  getValidator: async (
+    rootDir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
+    return async (keyword, node, value) => {
       const errors: Error[] = [];
 
       const path = getPath(node);
@@ -19,15 +24,14 @@ export const keywordExtend: KeywordDefinition<Extend> = {
       } else {
         //NOTE: structure of the value is validated by serverless-schema
 
-        if (value.module == moduleName) {
-          errors.push(
-            new Error(
-              `Can not extend the resource ${value.resource} in the same module ${moduleName}. Edit the resource directly`
-            )
-          );
-        } else {
-          errors.push(...checkAccess(moduleName, value, "Extended"));
-        }
+        errors.push(
+          ...(await checkAccess(
+            serverlessTemplateHandler,
+            moduleName,
+            value,
+            "Extended"
+          ))
+        );
       }
 
       return errors;

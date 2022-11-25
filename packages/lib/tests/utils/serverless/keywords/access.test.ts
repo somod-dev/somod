@@ -1,4 +1,4 @@
-import { JSONObjectNode } from "somod-types";
+import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import {
   checkAccess,
@@ -6,8 +6,8 @@ import {
 } from "../../../../src/utils/serverless/keywords/access";
 
 describe("Test access keyword", () => {
-  const getValidator = () => keywordAccess.getValidator("", "", {});
-  const getProcessor = () => keywordAccess.getProcessor("", "", {});
+  const getValidator = () => keywordAccess.getValidator("", "", null, null);
+  const getProcessor = () => keywordAccess.getProcessor("", "", null, null);
 
   test("the keyword name", () => {
     expect(keywordAccess.keyword).toEqual("SOMOD::Access");
@@ -253,16 +253,36 @@ describe("Test util checkAccess from access keyword for", () => {
       }
       expect(
         checkAccess(
+          {
+            getResource: async () => {
+              return resource;
+            }
+          } as unknown as IServerlessTemplateHandler,
           sourceModule,
           {
-            moduleName: targetModule,
-            location: "/a/b/c/z",
-            path: "",
-            json: { Resources: { MyResource1: resource } }
-          },
-          "MyResource1"
+            module: targetModule,
+            resource: "MyResource1"
+          }
         )
-      ).toEqual(expectedErrors);
+      ).resolves.toEqual(expectedErrors);
     }
   );
+
+  test("with non existing resource", async () => {
+    await expect(
+      checkAccess(
+        {
+          getResource: async () => {
+            return null;
+          }
+        } as unknown as IServerlessTemplateHandler,
+        "m1",
+        {
+          resource: "MyResource1"
+        }
+      )
+    ).resolves.toEqual([
+      new Error("Referenced module resource {m1, MyResource1} not found.")
+    ]);
+  });
 });

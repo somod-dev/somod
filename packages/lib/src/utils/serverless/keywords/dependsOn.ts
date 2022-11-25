@@ -7,8 +7,13 @@ type DependsOn = { module?: string; resource: string }[];
 export const keywordDependsOn: KeywordDefinition<DependsOn> = {
   keyword: "SOMOD::DependsOn",
 
-  getValidator: async (rootDir, moduleName) => {
-    return (keyword, node, value) => {
+  getValidator: async (
+    rootDir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
+    return async (keyword, node, value) => {
       const errors: Error[] = [];
 
       const path = getPath(node);
@@ -19,9 +24,18 @@ export const keywordDependsOn: KeywordDefinition<DependsOn> = {
       } else {
         //NOTE: structure of the value is validated by serverless-schema
 
-        value.forEach(v => {
-          errors.push(...checkAccess(moduleName, v, "Depended"));
-        });
+        await Promise.all(
+          value.map(async v => {
+            errors.push(
+              ...(await checkAccess(
+                serverlessTemplateHandler,
+                moduleName,
+                v,
+                "Depended"
+              ))
+            );
+          })
+        );
       }
 
       return errors;

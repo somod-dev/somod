@@ -1,8 +1,33 @@
-import { createFiles, createTempDir, deleteDir } from "../../utils";
+import {
+  createFiles,
+  createTempDir,
+  deleteDir,
+  mockedFunction
+} from "../../utils";
 import { existsSync } from "fs";
 import { join } from "path";
 import { bundleFunctionLayers } from "../../../src/utils/serverless/bundleFunctionLayers";
 import { keywordFunctionLayer } from "../../../src/utils/serverless/keywords/functionLayer";
+import { ModuleHandler } from "../../../src/utils/moduleHandler";
+import { ServerlessTemplateHandler } from "../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
+import { IServerlessTemplateHandler } from "somod-types";
+
+jest.mock("../../../src/utils/moduleHandler", () => ({
+  __esModule: true,
+  ModuleHandler: {
+    getModuleHandler: jest.fn()
+  }
+}));
+
+jest.mock(
+  "../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
+  () => ({
+    __esModule: true,
+    ServerlessTemplateHandler: {
+      getServerlessTemplateHandler: jest.fn()
+    }
+  })
+);
 
 describe("Test Task bundleFunctionLayers", () => {
   let dir: string;
@@ -20,34 +45,43 @@ describe("Test Task bundleFunctionLayers", () => {
   test("with no layers", async () => {
     createFiles(dir, {
       "package.json": JSON.stringify({
-        name: "waw"
+        name: "m0"
       })
     });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir } }
+      ]
+    } as unknown as ModuleHandler);
 
-    await expect(
-      bundleFunctionLayers(dir, {
-        m0: {
-          module: "m0",
-          packageLocation: dir,
-          template: { Resources: {} }
-        }
-      })
-    ).resolves.toBeUndefined();
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      listTemplates: async () => [{ module: "m0", template: { Resources: {} } }]
+    } as unknown as IServerlessTemplateHandler);
+
+    await expect(bundleFunctionLayers(dir)).resolves.toBeUndefined();
     expect(existsSync(join(dir, "build"))).not.toBeTruthy();
   });
 
   test("with empty layers", async () => {
     createFiles(dir, {
       "package.json": JSON.stringify({
-        name: "waw"
+        name: "m0"
       })
     });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir } }
+      ]
+    } as unknown as ModuleHandler);
 
-    await expect(
-      bundleFunctionLayers(dir, {
-        m0: {
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      listTemplates: async () => [
+        {
           module: "m0",
-          packageLocation: dir,
           template: {
             Resources: {
               L1: {
@@ -61,8 +95,10 @@ describe("Test Task bundleFunctionLayers", () => {
             }
           }
         }
-      })
-    ).resolves.toBeUndefined();
+      ]
+    } as unknown as IServerlessTemplateHandler);
+
+    await expect(bundleFunctionLayers(dir)).resolves.toBeUndefined();
   });
 
   test("with invalid library in layer", async () => {
@@ -74,11 +110,19 @@ describe("Test Task bundleFunctionLayers", () => {
         }
       })
     });
-    await expect(
-      bundleFunctionLayers(dir, {
-        m0: {
+
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir } }
+      ]
+    } as unknown as ModuleHandler);
+
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      listTemplates: async () => [
+        {
           module: "m0",
-          packageLocation: dir,
           template: {
             Resources: {
               L1: {
@@ -95,8 +139,10 @@ describe("Test Task bundleFunctionLayers", () => {
             }
           }
         }
-      })
-    ).rejects.toMatchObject({
+      ]
+    } as unknown as IServerlessTemplateHandler);
+
+    await expect(bundleFunctionLayers(dir)).rejects.toMatchObject({
       message: expect.stringContaining(
         "bundle function layer failed for layer1"
       )
@@ -122,11 +168,19 @@ describe("Test Task bundleFunctionLayers", () => {
         }
       })
     });
-    await expect(
-      bundleFunctionLayers(dir, {
-        m0: {
+
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir } }
+      ]
+    } as unknown as ModuleHandler);
+
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      listTemplates: async () => [
+        {
           module: "m0",
-          packageLocation: dir,
           template: {
             Resources: {
               L1: {
@@ -154,8 +208,10 @@ describe("Test Task bundleFunctionLayers", () => {
             }
           }
         }
-      })
-    ).resolves.toBeUndefined();
+      ]
+    } as unknown as IServerlessTemplateHandler);
+
+    await expect(bundleFunctionLayers(dir)).resolves.toBeUndefined();
 
     expect(
       existsSync(

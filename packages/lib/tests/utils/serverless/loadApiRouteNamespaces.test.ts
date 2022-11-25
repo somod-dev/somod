@@ -1,11 +1,23 @@
-import { createFiles, createTempDir, deleteDir } from "../../utils";
+import { createTempDir, deleteDir, mockedFunction } from "../../utils";
 
 import { loadApiRouteNamespaces } from "../../../src/utils/serverless/namespace";
 import { cloneDeep } from "lodash";
-import { dump } from "js-yaml";
 import { namespace_api_gateway } from "../../../src";
 import { keywordRef } from "../../../src/utils/serverless/keywords/ref";
-import { Module } from "somod-types";
+import { IServerlessTemplateHandler, Module } from "somod-types";
+import { ServerlessTemplateHandler } from "../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
+
+jest.mock(
+  "../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
+  () => {
+    return {
+      __esModule: true,
+      ServerlessTemplateHandler: {
+        getServerlessTemplateHandler: jest.fn()
+      }
+    };
+  }
+);
 
 describe("Test util serverless.loadApiRouteNamespaces", () => {
   let dir: string = null;
@@ -25,46 +37,53 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
     namespaces: {}
   });
 
-  test("with no serverless directory", async () => {
-    createFiles(dir, { "build/": "" });
-    const moduleTemplate = getModuleTemplate(dir);
-    const module = cloneDeep(moduleTemplate);
-    await expect(loadApiRouteNamespaces(module)).resolves.toEqual({});
-  });
-
-  test("with empty serverless directory", async () => {
-    createFiles(dir, { "build/serverless/": "" });
+  test("with no template", async () => {
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      getTemplate: async () => null
+    } as unknown as IServerlessTemplateHandler);
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
     await expect(loadApiRouteNamespaces(module)).resolves.toEqual({});
   });
 
   test("with no http Api", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({ Resources: {} })
-    });
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      getTemplate: async () => ({
+        module: "my-module",
+        template: { Resources: {} }
+      })
+    } as unknown as IServerlessTemplateHandler);
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
     await expect(loadApiRouteNamespaces(module)).resolves.toEqual({});
   });
 
   test("with one http Api", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          MyLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Get: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "GET",
-                    Path: "my-resourceType/getresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      getTemplate: async () => ({
+        module: "my-module",
+        template: {
+          Resources: {
+            MyLambda: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: "",
+                Events: {
+                  Get: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "GET",
+                      Path: "my-resourceType/getresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
                   }
@@ -74,7 +93,8 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
           }
         }
       })
-    });
+    } as unknown as IServerlessTemplateHandler);
+
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
     await expect(loadApiRouteNamespaces(module)).resolves.toEqual({
@@ -85,55 +105,60 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
   });
 
   test("with multiple http Api", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          MyLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Get: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "GET",
-                    Path: "my-resourceType/getresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      getTemplate: async () => ({
+        module: "my-module",
+        template: {
+          Resources: {
+            MyLambda: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: "",
+                Events: {
+                  Get: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "GET",
+                      Path: "my-resourceType/getresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
-                  }
-                },
-                Post: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "POST",
-                    Path: "my-resourceType/postresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+                  },
+                  Post: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "POST",
+                      Path: "my-resourceType/postresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
                   }
                 }
               }
-            }
-          },
-          MyAnotherLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Post: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "POST",
-                    Path: "my-another-resourceType/post",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        module: "my-another-module",
-                        resource: "MyApi1"
+            },
+            MyAnotherLambda: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: "",
+                Events: {
+                  Post: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "POST",
+                      Path: "my-another-resourceType/post",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          module: "my-another-module",
+                          resource: "MyApi1"
+                        }
                       }
                     }
                   }
@@ -143,7 +168,8 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
           }
         }
       })
-    });
+    } as unknown as IServerlessTemplateHandler);
+
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
     await expect(loadApiRouteNamespaces(module)).resolves.toEqual({
@@ -158,55 +184,60 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
   });
 
   test("with multiple http and rest apis", async () => {
-    createFiles(dir, {
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          MyLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Get: {
-                  Type: "Api",
-                  Properties: {
-                    Method: "GET",
-                    Path: "my-resourceType/getresource",
-                    RestApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyRestApi1"
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      getTemplate: async () => ({
+        module: "my-module",
+        template: {
+          Resources: {
+            MyLambda: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: "",
+                Events: {
+                  Get: {
+                    Type: "Api",
+                    Properties: {
+                      Method: "GET",
+                      Path: "my-resourceType/getresource",
+                      RestApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyRestApi1"
+                        }
                       }
                     }
-                  }
-                },
-                Post: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "POST",
-                    Path: "my-resourceType/postresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+                  },
+                  Post: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "POST",
+                      Path: "my-resourceType/postresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
                   }
                 }
               }
-            }
-          },
-          MyAnotherLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Post: {
-                  Type: "Api",
-                  Properties: {
-                    Method: "POST",
-                    Path: "my-another-resourceType/post",
-                    RestApiId: {
-                      [keywordRef.keyword]: {
-                        module: "my-another-module",
-                        resource: "MyRestApi1"
+            },
+            MyAnotherLambda: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: "",
+                Events: {
+                  Post: {
+                    Type: "Api",
+                    Properties: {
+                      Method: "POST",
+                      Path: "my-another-resourceType/post",
+                      RestApiId: {
+                        [keywordRef.keyword]: {
+                          module: "my-another-module",
+                          resource: "MyRestApi1"
+                        }
                       }
                     }
                   }
@@ -216,7 +247,8 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
           }
         }
       })
-    });
+    } as unknown as IServerlessTemplateHandler);
+
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
     await expect(loadApiRouteNamespaces(module)).resolves.toEqual({
@@ -233,70 +265,39 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
   });
 
   test("with http Api in root dir", async () => {
-    createFiles(dir, {
-      "serverless/template.yaml": dump({
-        Resources: {
-          MyLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Get: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "GET",
-                    Path: "my-resourceType/getresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      getTemplate: async () => ({
+        module: "my-module",
+        template: {
+          Resources: {
+            MyLambda: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: "",
+                Events: {
+                  Get: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "GET",
+                      Path: "my-resourceType/getresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
-                  }
-                },
-                Post: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "POST",
-                    Path: "my-resourceType/postresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }),
-      "build/serverless/template.json": JSON.stringify({
-        Resources: {
-          MyLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Get: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "GET",
-                    Path: "my-resourceType/get",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
-                      }
-                    }
-                  }
-                },
-                Put: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "PUT",
-                    Path: "my-resourceType/put",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+                  },
+                  Post: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "POST",
+                      Path: "my-resourceType/postresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
                   }
@@ -306,7 +307,8 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
           }
         }
       })
-    });
+    } as unknown as IServerlessTemplateHandler);
+
     const moduleTemplate = getModuleTemplate(dir);
     //@ts-expect-error this is fine during test
     moduleTemplate.root = true;
@@ -320,54 +322,59 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
   });
 
   test("with repeated http Api in same module", async () => {
-    createFiles(dir, {
-      "serverless/template.yaml": dump({
-        Resources: {
-          MyLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Get: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "GET",
-                    Path: "my-resourceType/getresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+    mockedFunction(
+      ServerlessTemplateHandler.getServerlessTemplateHandler
+    ).mockReturnValue({
+      getTemplate: async () => ({
+        module: "my-module",
+        template: {
+          Resources: {
+            MyLambda: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: "",
+                Events: {
+                  Get: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "GET",
+                      Path: "my-resourceType/getresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
-                  }
-                },
-                Post: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "POST",
-                    Path: "my-resourceType/postresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+                  },
+                  Post: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "POST",
+                      Path: "my-resourceType/postresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
                   }
                 }
               }
-            }
-          },
-          MyAnotherLambda: {
-            Type: "AWS::Serverless::Function",
-            Properties: {
-              CodeUri: "",
-              Events: {
-                Post: {
-                  Type: "HttpApi",
-                  Properties: {
-                    Method: "POST",
-                    Path: "my-resourceType/postresource",
-                    ApiId: {
-                      [keywordRef.keyword]: {
-                        resource: "MyApi1"
+            },
+            MyAnotherLambda: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: "",
+                Events: {
+                  Post: {
+                    Type: "HttpApi",
+                    Properties: {
+                      Method: "POST",
+                      Path: "my-resourceType/postresource",
+                      ApiId: {
+                        [keywordRef.keyword]: {
+                          resource: "MyApi1"
+                        }
                       }
                     }
                   }
@@ -377,7 +384,8 @@ describe("Test util serverless.loadApiRouteNamespaces", () => {
           }
         }
       })
-    });
+    } as unknown as IServerlessTemplateHandler);
+
     const moduleTemplate = getModuleTemplate(dir);
     //@ts-expect-error this is fine during test
     moduleTemplate.root = true;

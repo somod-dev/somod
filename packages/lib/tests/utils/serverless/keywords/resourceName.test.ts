@@ -1,10 +1,14 @@
-import { JSONObjectNode } from "somod-types";
+import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { keywordResourceName } from "../../../../src/utils/serverless/keywords/resourceName";
 
 describe("Test resourceName keyword", () => {
-  const getValidator = () => keywordResourceName.getValidator("", "", {});
-  const getProcessor = () => keywordResourceName.getProcessor("", "m1", {});
+  const getValidator = () =>
+    keywordResourceName.getValidator("", "", null, null);
+  const getProcessor = () =>
+    keywordResourceName.getProcessor("", "m1", null, {
+      getSAMResourceName: (m, r) => `${m}--${r}`
+    } as IServerlessTemplateHandler);
 
   test("the keyword name", () => {
     expect(keywordResourceName.keyword).toEqual("SOMOD::ResourceName");
@@ -79,28 +83,7 @@ describe("Test resourceName keyword", () => {
     ).toMatchInlineSnapshot(`
       Object {
         "type": "object",
-        "value": Object {
-          "Fn::Sub": Array [
-            "somod\${stackId}\${moduleHash}\${somodResourceName}",
-            Object {
-              "moduleHash": "ca0df2c9",
-              "somodResourceName": "myresource",
-              "stackId": Object {
-                "Fn::Select": Array [
-                  2,
-                  Object {
-                    "Fn::Split": Array [
-                      "/",
-                      Object {
-                        "Ref": "AWS::StackId",
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-          ],
-        },
+        "value": "m1--myresource",
       }
     `);
   });

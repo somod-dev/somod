@@ -4,7 +4,6 @@ import { parseJson, validateKeywords } from "../../jsonTemplate";
 import { ModuleHandler } from "../../moduleHandler";
 import {
   getBaseKeywords,
-  getModuleServerlessTemplateMap,
   ServerlessTemplateHandler
 } from "./serverlessTemplate";
 
@@ -18,7 +17,9 @@ export const validateServerlessTemplate = async (
   rootModuleName: string,
   pluginKeywords: KeywordDefinition[] = []
 ) => {
-  const moduleContentMap = await getModuleServerlessTemplateMap();
+  const moduleHandler = ModuleHandler.getModuleHandler();
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
 
   const keywords = [...getBaseKeywords(), ...pluginKeywords];
 
@@ -29,8 +30,8 @@ export const validateServerlessTemplate = async (
       const validator = await keyword.getValidator(
         dir,
         rootModuleName,
-        ModuleHandler.getModuleHandler(),
-        ServerlessTemplateHandler.getServerlessTemplateHandler()
+        moduleHandler,
+        serverlessTemplateHandler
       );
 
       keywordValidators[keyword.keyword] = validator;
@@ -38,7 +39,11 @@ export const validateServerlessTemplate = async (
   );
 
   const errors = await validateKeywords(
-    parseJson(moduleContentMap[rootModuleName].json),
+    parseJson(
+      (
+        await serverlessTemplateHandler.getTemplate(rootModuleName)
+      ).template
+    ),
     keywordValidators
   );
 

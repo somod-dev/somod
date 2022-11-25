@@ -4,6 +4,7 @@ import { merge } from "lodash";
 import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
 import { join } from "path";
 import {
+  IModuleHandler,
   IServerlessTemplateHandler,
   JSONType,
   Module,
@@ -39,42 +40,6 @@ import { keywordRef } from "../keywords/ref";
 import { keywordResourceName } from "../keywords/resourceName";
 import { keywordTemplateOutputs } from "../keywords/templateOutputs";
 import { keywordTemplateResources } from "../keywords/templateResources";
-
-type ModuleTemplateMap = Record<
-  string,
-  {
-    moduleName: string;
-    location: string;
-    path: string;
-    json: ServerlessTemplate;
-  }
->;
-
-export const getModuleServerlessTemplateMap =
-  async (): Promise<ModuleTemplateMap> => {
-    const moduleNodes = await ModuleHandler.getModuleHandler().listModules();
-    const moduleMap = Object.fromEntries(
-      moduleNodes.map(m => [m.module.name, m.module])
-    );
-    const templates =
-      await ServerlessTemplateHandler.getServerlessTemplateHandler().listTemplates();
-
-    const moduleTemplateMap: ModuleTemplateMap = {};
-
-    templates.map(t => {
-      const m = moduleMap[t.module];
-      moduleTemplateMap[t.module] = freeze({
-        moduleName: t.module,
-        location: m.packageLocation,
-        path: m.root
-          ? `${path_serverless}/${file_templateYaml}`
-          : `${path_build}/${path_serverless}/${file_templateJson}`,
-        json: t.template
-      });
-    });
-
-    return freeze(moduleTemplateMap);
-  };
 
 export const getBaseKeywords = () => [
   keywordAjvCompile,
@@ -114,7 +79,7 @@ type ServerlessTemplateRaw = {
 };
 
 export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
-  private moduleHandler: ModuleHandler;
+  private moduleHandler: IModuleHandler;
 
   private serverlessTemplates: Record<string, ServerlessTemplate>;
 
@@ -125,11 +90,11 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
 
   private static handler: IServerlessTemplateHandler;
 
-  private constructor(moduleHandler: ModuleHandler) {
+  private constructor(moduleHandler: IModuleHandler) {
     this.moduleHandler = moduleHandler;
   }
 
-  static getServerlessTemplateHandler(moduleHandler?: ModuleHandler) {
+  static getServerlessTemplateHandler(moduleHandler?: IModuleHandler) {
     if (!this.handler) {
       this.handler = new ServerlessTemplateHandler(
         moduleHandler || ModuleHandler.getModuleHandler()
@@ -210,8 +175,13 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
           resource: resourceId
         };
         if (_extend) {
+          if (_extend.module == moduleTemplate.module) {
+            throw new Error(
+              `Can not extend the resource ${_extend.resource} in the same module ${_extend.module}. Edit the resource directly`
+            );
+          }
           const targetResource =
-            this.extendedResourceMap[
+            resourceMap[
               JSON.stringify({
                 module: _extend.module, // preserve the order to work in JSON stringify
                 resource: _extend.resource
@@ -281,10 +251,9 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
 
   async getResource(moduleName: string, resourceId: string) {
     await this.load();
-    const actualResourceId =
-      this.extendedResourceMap[
-        JSON.stringify({ module: moduleName, resource: resourceId })
-      ];
+    const actualResourceId = this.extendedResourceMap[
+      JSON.stringify({ module: moduleName, resource: resourceId })
+    ] || { module: undefined, resource: undefined };
     const resource =
       this.serverlessTemplates[actualResourceId.module]?.Resources[
         actualResourceId.resource

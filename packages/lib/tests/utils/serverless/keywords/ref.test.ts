@@ -5,7 +5,7 @@ import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
 import { checkCustomResourceSchema } from "../../../../src/utils/serverless/keywords/function";
 import { mockedFunction } from "../../../utils";
 import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";
-import { JSONObjectNode } from "somod-types";
+import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
 
 jest.mock("../../../../src/utils/serverless/keywords/output", () => {
   return {
@@ -35,37 +35,35 @@ type RefType = {
 };
 
 describe("Test ref keyword", () => {
-  const allModules = {
-    m1: {
-      moduleName: "m1",
-      location: "",
-      path: "",
-      json: {
-        Resources: {
-          TargetResource: {
-            Type: "MyResourceType",
-            Properties: {}
-          },
-          ExtendedTargetResource: {
-            Type: "MyResourceType",
-            [keywordExtend.keyword]: {
-              resource: "TargetResource"
-            },
-            Properties: {}
-          }
-        }
+  const template = {
+    Resources: {
+      TargetResource: {
+        Type: "MyResourceType",
+        Properties: {}
+      },
+      ExtendedTargetResource: {
+        Type: "MyResourceType",
+        [keywordExtend.keyword]: {
+          resource: "TargetResource"
+        },
+        Properties: {}
       }
     }
   };
   const getValidator = (currentModule = "m1") =>
-    keywordRef.getValidator("", currentModule, allModules);
-  const getProcessor = () => keywordRef.getProcessor("", "m1", {});
+    keywordRef.getValidator("", currentModule, null, {
+      getResource: async (m, r) => template.Resources[r]
+    } as IServerlessTemplateHandler);
+  const getProcessor = () =>
+    keywordRef.getProcessor("", "m1", null, {
+      getSAMResourceLogicalId: (m, r) => `${m}/${r}`
+    } as IServerlessTemplateHandler);
 
   beforeEach(() => {
     mockedFunction(checkAccess).mockReset();
-    mockedFunction(checkAccess).mockReturnValue([]);
+    mockedFunction(checkAccess).mockResolvedValue([]);
     mockedFunction(checkOutput).mockReset();
-    mockedFunction(checkOutput).mockReturnValue([]);
+    mockedFunction(checkOutput).mockResolvedValue([]);
     mockedFunction(checkCustomResourceSchema).mockReset();
     mockedFunction(checkCustomResourceSchema).mockResolvedValue([]);
   });
@@ -188,18 +186,14 @@ describe("Test ref keyword", () => {
         parseJson(obj) as JSONObjectNode,
         obj[keywordRef.keyword] as unknown as RefType
       )
-    ).resolves.toEqual([
-      new Error(
-        "Can not reference an extended resource {m1, ExtendedTargetResource}."
-      )
-    ]);
+    ).resolves.toEqual([]);
   });
 
   test("the validator calling check access, check output and checkCustomResourceSchema", async () => {
-    mockedFunction(checkAccess).mockReturnValue([
+    mockedFunction(checkAccess).mockResolvedValue([
       new Error("error from checkAccess")
     ]);
-    mockedFunction(checkOutput).mockReturnValue([
+    mockedFunction(checkOutput).mockResolvedValue([
       new Error("error from checkOutput")
     ]);
     mockedFunction(checkCustomResourceSchema).mockResolvedValue([
@@ -227,23 +221,27 @@ describe("Test ref keyword", () => {
     expect(checkAccess).toHaveBeenCalledTimes(1);
     expect(checkAccess).toHaveBeenNthCalledWith(
       1,
+      expect.objectContaining({ getResource: expect.any(Function) }),
       "m1",
-      allModules.m1,
-      "TargetResource"
+      {
+        resource: "TargetResource"
+      }
     );
     expect(checkOutput).toHaveBeenCalledTimes(1);
     expect(checkOutput).toHaveBeenNthCalledWith(
       1,
-      allModules.m1,
+      expect.objectContaining({ getResource: expect.any(Function) }),
+      "m1",
       "TargetResource",
+      undefined,
       undefined
     );
     expect(checkCustomResourceSchema).toHaveBeenCalledTimes(1);
     expect(checkCustomResourceSchema).toHaveBeenNthCalledWith(
       1,
+      expect.objectContaining({ getResource: expect.any(Function) }),
       node,
-      allModules.m1,
-      "TargetResource"
+      "m1"
     );
   });
 
@@ -263,7 +261,7 @@ describe("Test ref keyword", () => {
     ).toEqual({
       type: "object",
       value: {
-        Ref: "rca0df2c9TargetResource"
+        Ref: "m1/TargetResource"
       }
     });
   });
@@ -284,7 +282,7 @@ describe("Test ref keyword", () => {
     ).toEqual({
       type: "object",
       value: {
-        "Fn::GetAtt": ["rca0df2c9TargetResource", "a1"]
+        "Fn::GetAtt": ["m1/TargetResource", "a1"]
       }
     });
   });

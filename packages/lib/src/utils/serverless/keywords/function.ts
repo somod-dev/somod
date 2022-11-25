@@ -1,11 +1,11 @@
 import { listFiles, unixStylePath } from "nodejs-file-utils";
 import { JSONSchema7, validate } from "decorated-ajv";
 import {
+  IServerlessTemplateHandler,
   JSONObjectNode,
   JSONObjectType,
   JSONPrimitiveNode,
-  KeywordDefinition,
-  ServerlessTemplate
+  KeywordDefinition
 } from "somod-types";
 import { existsSync } from "fs";
 import { basename, extname, join } from "path";
@@ -19,8 +19,7 @@ import {
 import { constructJson, getPath } from "../../jsonTemplate";
 import { KeywordSomodRef } from "./ref";
 import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
-import { uniq } from "lodash";
-import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
+import { uniq, uniqBy } from "lodash";
 
 type FunctionType = {
   type: string;
@@ -175,6 +174,7 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
 };
 
 export const checkCustomResourceSchema = async (
+  serverlessTemplateHandler: IServerlessTemplateHandler,
   refNode: JSONObjectNode,
   currentModuleName: string
 ): Promise<Error[]> => {
@@ -209,12 +209,11 @@ export const checkCustomResourceSchema = async (
       custom_resource_prefix.length
     );
 
-    const functionResource =
-      await ServerlessTemplateHandler.getServerlessTemplateHandler().getResource(
-        customResource.Properties.ServiceToken["SOMOD::Ref"].module ||
-          currentModuleName,
-        customResource.Properties.ServiceToken["SOMOD::Ref"].resource
-      );
+    const functionResource = await serverlessTemplateHandler.getResource(
+      customResource.Properties.ServiceToken["SOMOD::Ref"].module ||
+        currentModuleName,
+      customResource.Properties.ServiceToken["SOMOD::Ref"].resource
+    );
 
     const codeUriOfTheTargetResource = functionResource?.Properties.CodeUri;
 
@@ -256,73 +255,106 @@ export const checkCustomResourceSchema = async (
   return errors;
 };
 
-const getLayerLibraries = (
-  layers: KeywordSomodRef[],
+const getLayerLibraries = async (
+  layers: Partial<KeywordSomodRef>[],
   moduleName: string,
-  serverlessTemplateMap: Record<string, ServerlessTemplate>
+  serverlessTemplateHandler: IServerlessTemplateHandler
 ) => {
   const libraries = [];
-  layers.forEach(layer => {
-    if (layer["SOMOD::Ref"]) {
-      const layerModule = layer["SOMOD::Ref"].module || moduleName;
-      const layerResourceId = layer["SOMOD::Ref"].resource;
-      const layerLibraries = getLibrariesFromFunctionLayerResource(
-        serverlessTemplateMap[layerModule].Resources[layerResourceId]
-      );
-      libraries.push(...layerLibraries);
-    }
+  const layerRefs = layers.map(l => l["SOMOD::Ref"]).filter(l => !!l);
+  layerRefs.forEach(l => {
+    l.module = l.module || moduleName;
   });
+
+  const uniqueLayerRefs = uniqBy(layerRefs, l => `${l.module}/${l.resource}`);
+
+  await Promise.all(
+    uniqueLayerRefs.map(async layerRef => {
+      const resource = await serverlessTemplateHandler.getResource(
+        layerRef.module,
+        layerRef.resource
+      );
+      const layerLibraries = getLibrariesFromFunctionLayerResource(resource);
+      libraries.push(...layerLibraries);
+    })
+  );
   return libraries;
 };
 
-const getMiddlewareLayers = (
+const getMiddlewareLayers = async (
   middlewares: KeywordSomodRef[],
   moduleName: string,
-  serverlessTemplateMap: Record<string, ServerlessTemplate>
+  serverlessTemplateHandler: IServerlessTemplateHandler
 ) => {
   const layers: KeywordSomodRef[] = [];
-  middlewares.forEach(middleWare => {
-    const middlewareModule = middleWare["SOMOD::Ref"].module || moduleName;
-    const middlewareResource =
-      serverlessTemplateMap[middlewareModule].Resources[
-        middleWare["SOMOD::Ref"].resource
-      ];
-    layers.push(...(middlewareResource.Properties.Layers as KeywordSomodRef[]));
+
+  const middlewareRefs = middlewares.map(m => m["SOMOD::Ref"]);
+  middlewareRefs.forEach(m => {
+    m.module = m.module || moduleName;
   });
+
+  const uniqueMiddlewareRefs = uniqBy(
+    middlewareRefs,
+    m => `${m.module}/${m.resource}`
+  );
+
+  await Promise.all(
+    uniqueMiddlewareRefs.map(async middleWareRef => {
+      const resource = await serverlessTemplateHandler.getResource(
+        middleWareRef.module,
+        middleWareRef.resource
+      );
+      layers.push(...(resource.Properties.Layers as KeywordSomodRef[]));
+    })
+  );
   return layers;
 };
 
-export const getDeclaredFunctionsWithExcludedLibraries = (
-  moduleName: string,
-  serverlessTemplateMap: Record<string, ServerlessTemplate>
+export const getDeclaredFunctionsWithExcludedLibraries = async (
+  serverlessTemplateHandler: IServerlessTemplateHandler,
+  moduleName: string
 ) => {
   const declaredFunctions: { name: string; exclude: string[] }[] = [];
-  const serverlessTemplate = serverlessTemplateMap[moduleName];
-  Object.values(serverlessTemplate.Resources).forEach(resource => {
-    if (resource.Type == resourceType_Function) {
-      const fun = resource.Properties.CodeUri?.[
-        keywordFunction.keyword
-      ] as FunctionType;
-      const functionName = fun?.name;
-      if (functionName) {
-        const layers: KeywordSomodRef[] = [];
-        layers.push(...(resource.Properties.Layers as KeywordSomodRef[]));
-        layers.push(
-          ...getMiddlewareLayers(
-            fun.middlewares || [],
-            moduleName,
-            serverlessTemplateMap
-          )
-        );
+  const currentServerlessTemplate = await serverlessTemplateHandler.getTemplate(
+    moduleName
+  );
 
-        const exclude: string[] = ["aws-sdk"];
-        exclude.push(
-          ...getLayerLibraries(layers, moduleName, serverlessTemplateMap)
-        );
+  await Promise.all(
+    Object.values(currentServerlessTemplate.template.Resources).map(
+      async resource => {
+        if (resource.Type == resourceType_Function) {
+          const fun = resource.Properties.CodeUri?.[
+            keywordFunction.keyword
+          ] as FunctionType;
+          const functionName = fun?.name;
+          if (functionName) {
+            const layers: KeywordSomodRef[] = [];
+            layers.push(...(resource.Properties.Layers as KeywordSomodRef[]));
+            layers.push(
+              ...(await getMiddlewareLayers(
+                fun.middlewares || [],
+                moduleName,
+                serverlessTemplateHandler
+              ))
+            );
 
-        declaredFunctions.push({ name: functionName, exclude: uniq(exclude) });
+            const exclude: string[] = ["aws-sdk"];
+            exclude.push(
+              ...(await getLayerLibraries(
+                layers,
+                moduleName,
+                serverlessTemplateHandler
+              ))
+            );
+
+            declaredFunctions.push({
+              name: functionName,
+              exclude: uniq(exclude)
+            });
+          }
+        }
       }
-    }
-  });
+    )
+  );
   return declaredFunctions;
 };

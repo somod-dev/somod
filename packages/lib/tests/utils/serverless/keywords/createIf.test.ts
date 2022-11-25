@@ -3,8 +3,8 @@ import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { keywordCreateIf } from "../../../../src/utils/serverless/keywords/createIf";
 
 describe("Test createIf keyword", () => {
-  const getValidator = () => keywordCreateIf.getValidator("", "", {});
-  const getProcessor = () => keywordCreateIf.getProcessor("", "", {});
+  const getValidator = () => keywordCreateIf.getValidator("", "", null, null);
+  const getProcessor = () => keywordCreateIf.getProcessor("", "", null, null);
 
   test("the keyword name", () => {
     expect(keywordCreateIf.keyword).toEqual("SOMOD::CreateIf");

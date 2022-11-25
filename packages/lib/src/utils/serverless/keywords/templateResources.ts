@@ -1,6 +1,5 @@
 import { getPath } from "../../jsonTemplate";
 import { JSONType, KeywordDefinition } from "somod-types";
-import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Resources = Record<string, JSONType>;
 
@@ -14,9 +13,12 @@ export const keywordTemplateResources: KeywordDefinition<Resources> = {
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => {
-    const serverlessTemplateHandler =
-      ServerlessTemplateHandler.getServerlessTemplateHandler();
+  getProcessor: async (
+    rootDir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
     return (keyword, node, value) => {
       if (getPath(node).length == 0) {
         return {

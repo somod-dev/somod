@@ -45,14 +45,6 @@ describe("test Task prepareSAMTemplate", () => {
     expect(validateServerlessTemplateUtil).toHaveBeenCalledWith(
       dir,
       "my-module",
-      {
-        "my-module": {
-          module: "my-module",
-          packageLocation: join(dir),
-          root: true,
-          template: { Resources: {} }
-        }
-      },
       []
     );
     expect(existsSync(join(dir, "template.yaml"))).not.toBeTruthy();
@@ -72,25 +64,22 @@ describe("test Task prepareSAMTemplate", () => {
         }
       })
     });
-    await expect(validateServerlessTemplate(dir)).resolves.toBeUndefined();
+    await expect(
+      validateServerlessTemplate(dir, [
+        { getProcessor: jest.fn(), getValidator: jest.fn(), keyword: "A" }
+      ])
+    ).resolves.toBeUndefined();
     expect(validateServerlessTemplateUtil).toHaveBeenCalledTimes(1);
     expect(validateServerlessTemplateUtil).toHaveBeenCalledWith(
       dir,
       "my-module",
-      {
-        "my-module": {
-          module: "my-module",
-          packageLocation: join(dir),
-          root: true,
-          template: {
-            Resources: {
-              R1: { Type: "T1", Properties: {} },
-              R2: { Type: "T2", Properties: {} }
-            }
-          }
+      [
+        {
+          getProcessor: expect.any(Function),
+          getValidator: expect.any(Function),
+          keyword: "A"
         }
-      },
-      []
+      ]
     );
   });
 });

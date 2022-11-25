@@ -1,226 +1,722 @@
-import { createFiles, createTempDir, deleteDir } from "../../../utils";
+import {
+  createFiles,
+  createTempDir,
+  deleteDir,
+  mockedFunction
+} from "../../../utils";
 import { dump } from "js-yaml";
-import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
 import {
   getBaseKeywords,
-  getModuleContentMap,
-  loadServerlessTemplateMap
+  ServerlessTemplateHandler
 } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { join } from "path";
+import { ModuleHandler } from "../../../../src/utils/moduleHandler";
+import { IModuleHandler, ServerlessTemplate } from "somod-types";
 
-describe("Test util serverlessTemplate", () => {
-  let dir: string;
+jest.mock("../../../../src/utils/moduleHandler", () => {
+  return {
+    __esModule: true,
+    ModuleHandler: {
+      getModuleHandler: jest.fn()
+    }
+  };
+});
+
+describe("Test util serverlessTemplate.getBaseKeywords", () => {
+  test("getBaseKeywords", () => {
+    const keywords = getBaseKeywords();
+    expect(keywords.length).toEqual(22);
+  });
+});
+
+describe("Test util serverlessTemplate.ServerlessTemplateHandler.getServerlessTemplateHandler", () => {
+  beforeEach(() => {
+    mockedFunction(ModuleHandler.getModuleHandler).mockReset();
+  });
+
+  test("without explicit ModuleHandler", () => {
+    expect(
+      ServerlessTemplateHandler.getServerlessTemplateHandler() instanceof
+        ServerlessTemplateHandler
+    ).toBeTruthy();
+
+    expect(ModuleHandler.getModuleHandler).toHaveBeenCalledTimes(1);
+    expect(ModuleHandler.getModuleHandler).toHaveBeenCalledWith();
+  });
+
+  test("with explicit ModuleHandler", () => {
+    expect(
+      ServerlessTemplateHandler.getServerlessTemplateHandler(
+        {} as IModuleHandler
+      ) instanceof ServerlessTemplateHandler
+    ).toBeTruthy();
+
+    expect(ModuleHandler.getModuleHandler).toHaveBeenCalledTimes(0);
+  });
+});
+
+describe("Test util serverlessTemplate.ServerlessTemplateHandler.<instanceMethods>", () => {
+  let dir: string = null;
 
   beforeEach(() => {
     dir = createTempDir("test-somod-lib");
+    ServerlessTemplateHandler["handler"] = undefined; // reset ServerlessHandler everytime
   });
 
   afterEach(() => {
     deleteDir(dir);
   });
 
-  test("loadServerlessTemplateMap", async () => {
+  test("getTemplate for unknown module", async () => {
     createFiles(dir, {
-      "package.json": JSON.stringify({
-        name: "m0",
-        somod: "1.0.0",
-        dependencies: {
-          m1: "^1.0.0",
-          m2: "^1.0.0"
-        }
-      }),
       "serverless/template.yaml": dump({
-        Resources: { R0: { Type: "", Properties: {} } }
-      } as ServerlessTemplate),
-      "node_modules/m1/package.json": JSON.stringify({
-        name: "m1",
-        somod: "1.0.0",
-        dependencies: {
-          m2: "^1.0.0",
-          m3: "^1.0.0"
-        }
-      }),
-      "node_modules/m2/package.json": JSON.stringify({
-        name: "m2",
-        somod: "1.0.0",
-        dependencies: {}
-      }),
-      "node_modules/m2/build/serverless/template.json": JSON.stringify({
-        Resources: { R2: { Type: "", Properties: {} } }
-      } as ServerlessTemplate),
-      "node_modules/m3/package.json": JSON.stringify({
-        name: "m3",
-        somod: "1.0.0",
-        dependencies: {}
-      }),
-      "node_modules/m3/build/serverless/template.json": JSON.stringify({
-        Resources: { R3: { Type: "", Properties: {} } }
+        Resources: { R0: { Type: "T0", Properties: {} } }
       } as ServerlessTemplate)
     });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir, root: true } }
+      ]
+    } as ModuleHandler);
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
 
-    const result = await loadServerlessTemplateMap([
+    await expect(
+      serverlessTemplateHandler.getTemplate("my-module")
+    ).resolves.toBeNull();
+  });
+
+  test("getTemplate for root module", async () => {
+    createFiles(dir, {
+      "serverless/template.yaml": dump({
+        Resources: { R0: { Type: "T0", Properties: {} } }
+      } as ServerlessTemplate),
+      "node_modules/m1/build/serverless/template.json": JSON.stringify({
+        Resources: { R1: { Type: "T1", Properties: {} } }
+      } as ServerlessTemplate)
+    });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir, root: true } },
+        {
+          module: { name: "m1", packageLocation: join(dir, "node_modules/m1") }
+        }
+      ]
+    } as ModuleHandler);
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+
+    await expect(serverlessTemplateHandler.getTemplate("m0")).resolves.toEqual({
+      module: "m0",
+      template: { Resources: { R0: { Type: "T0", Properties: {} } } }
+    });
+  });
+
+  test("getTemplate for one level child module", async () => {
+    createFiles(dir, {
+      "serverless/template.yaml": dump({
+        Resources: { R0: { Type: "T0", Properties: {} } }
+      } as ServerlessTemplate),
+      "node_modules/m1/build/serverless/template.json": JSON.stringify({
+        Resources: { R1: { Type: "T1", Properties: {} } }
+      } as ServerlessTemplate)
+    });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir, root: true } },
+        {
+          module: { name: "m1", packageLocation: join(dir, "node_modules/m1") }
+        }
+      ]
+    } as ModuleHandler);
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+    await expect(serverlessTemplateHandler.getTemplate("m1")).resolves.toEqual({
+      module: "m1",
+      template: { Resources: { R1: { Type: "T1", Properties: {} } } }
+    });
+  });
+
+  test("getTemplate for two level child module", async () => {
+    createFiles(dir, {
+      "serverless/template.yaml": dump({
+        Resources: { R0: { Type: "T0", Properties: {} } }
+      } as ServerlessTemplate),
+      "node_modules/m1/build/serverless/template.json": JSON.stringify({
+        Resources: { R1: { Type: "T1", Properties: {} } }
+      } as ServerlessTemplate),
+      "node_modules/m1/node_modules/m1-1/build/serverless/template.json":
+        JSON.stringify({
+          Resources: { R11: { Type: "T1", Properties: {} } }
+        } as ServerlessTemplate)
+    });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir, root: true } },
+        {
+          module: { name: "m1", packageLocation: join(dir, "node_modules/m1") }
+        },
+        {
+          module: {
+            name: "m1-1",
+            packageLocation: join(dir, "node_modules/m1/node_modules/m1-1")
+          }
+        }
+      ]
+    } as ModuleHandler);
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+    await expect(
+      serverlessTemplateHandler.getTemplate("m1-1")
+    ).resolves.toEqual({
+      module: "m1-1",
+      template: { Resources: { R11: { Type: "T1", Properties: {} } } }
+    });
+  });
+
+  test("getTemplate with extended resources", async () => {
+    createFiles(dir, {
+      "serverless/template.yaml": dump({
+        Resources: {
+          R0: { Type: "T0", Properties: {} },
+          R1: {
+            Type: "T1",
+            "SOMOD::Extend": { module: "m1", resource: "R1" },
+            Properties: { P1: "from-m0", P2: ["from-m0"], P3: { from: "m0" } }
+          }
+        }
+      } as ServerlessTemplate),
+      "node_modules/m1/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          R1: {
+            Type: "T1",
+            "SOMOD::Extend": { module: "m1-1", resource: "R11" },
+            Properties: {
+              P1: "from-m1",
+              P2: ["from-m1"],
+              P3: { from: "m1", another: "m1" },
+              P4: "from-m1",
+              P5: ["from-m1"],
+              P6: { from: "m1" }
+            }
+          }
+        }
+      } as ServerlessTemplate),
+      "node_modules/m1/node_modules/m1-1/build/serverless/template.json":
+        JSON.stringify({
+          Resources: {
+            R11: {
+              Type: "T1",
+              Properties: {
+                P1: "from-m1-1",
+                P2: ["from-m1-1"],
+                P3: { from: "m1-1" },
+                P4: "from-m1-1",
+                P5: ["from-m1-1"],
+                P6: { from: "m1-1" },
+                P7: "from-m1-1",
+                P8: ["from-m1-1"],
+                P9: { from: "m1-1" }
+              }
+            }
+          }
+        } as ServerlessTemplate)
+    });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir, root: true } },
+        {
+          module: { name: "m1", packageLocation: join(dir, "node_modules/m1") }
+        },
+        {
+          module: {
+            name: "m1-1",
+            packageLocation: join(dir, "node_modules/m1/node_modules/m1-1")
+          }
+        }
+      ]
+    } as ModuleHandler);
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+    await expect(serverlessTemplateHandler.getTemplate("m0")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "module": "m0",
+        "template": Object {
+          "Resources": Object {
+            "R0": Object {
+              "Properties": Object {},
+              "Type": "T0",
+            },
+            "R1": Object {
+              "Properties": Object {
+                "P1": "from-m0",
+                "P2": Array [
+                  "from-m0",
+                ],
+                "P3": Object {
+                  "from": "m0",
+                },
+              },
+              "SOMOD::Extend": Object {
+                "module": "m1",
+                "resource": "R1",
+              },
+              "Type": "T1",
+            },
+          },
+        },
+      }
+    `);
+    await expect(serverlessTemplateHandler.getTemplate("m1")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "module": "m1",
+        "template": Object {
+          "Resources": Object {
+            "R1": Object {
+              "Properties": Object {
+                "P1": "from-m1",
+                "P2": Array [
+                  "from-m1",
+                ],
+                "P3": Object {
+                  "another": "m1",
+                  "from": "m1",
+                },
+                "P4": "from-m1",
+                "P5": Array [
+                  "from-m1",
+                ],
+                "P6": Object {
+                  "from": "m1",
+                },
+              },
+              "SOMOD::Extend": Object {
+                "module": "m1-1",
+                "resource": "R11",
+              },
+              "Type": "T1",
+            },
+          },
+        },
+      }
+    `);
+    await expect(serverlessTemplateHandler.getTemplate("m1-1")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "module": "m1-1",
+        "template": Object {
+          "Resources": Object {
+            "R11": Object {
+              "Properties": Object {
+                "P1": "from-m0",
+                "P2": Array [
+                  "from-m0",
+                ],
+                "P3": Object {
+                  "another": "m1",
+                  "from": "m0",
+                },
+                "P4": "from-m1",
+                "P5": Array [
+                  "from-m1",
+                ],
+                "P6": Object {
+                  "from": "m1",
+                },
+                "P7": "from-m1-1",
+                "P8": Array [
+                  "from-m1-1",
+                ],
+                "P9": Object {
+                  "from": "m1-1",
+                },
+              },
+              "Type": "T1",
+            },
+          },
+        },
+      }
+    `);
+  });
+
+  test("listTemplates", async () => {
+    createFiles(dir, {
+      "serverless/template.yaml": dump({
+        Resources: {
+          R0: { Type: "T0", Properties: {} },
+          R1: {
+            Type: "T1",
+            "SOMOD::Extend": { module: "m1", resource: "R1" },
+            Properties: { P1: "from-m0", P2: ["from-m0"], P3: { from: "m0" } }
+          }
+        }
+      } as ServerlessTemplate),
+      "node_modules/m1/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          R0: { Type: "T1", Properties: { P1: "from-m1" } },
+          R1: {
+            Type: "T1",
+            "SOMOD::Extend": { module: "m1-1", resource: "R11" },
+            Properties: {
+              P1: "from-m1",
+              P2: ["from-m1"],
+              P3: { from: "m1", another: "m1" },
+              P4: "from-m1",
+              P5: ["from-m1"],
+              P6: { from: "m1" }
+            }
+          }
+        }
+      } as ServerlessTemplate),
+      "node_modules/m1/node_modules/m1-1/build/serverless/template.json":
+        JSON.stringify({
+          Resources: {
+            R0: { Type: "T1", Properties: { P1: "from-m1-1" } },
+            R11: {
+              Type: "T1",
+              Properties: {
+                P1: "from-m1-1",
+                P2: ["from-m1-1"],
+                P3: { from: "m1-1" },
+                P4: "from-m1-1",
+                P5: ["from-m1-1"],
+                P6: { from: "m1-1" },
+                P7: "from-m1-1",
+                P8: ["from-m1-1"],
+                P9: { from: "m1-1" }
+              }
+            }
+          }
+        } as ServerlessTemplate),
+      "node_modules/m2/build/serverless/template.json": JSON.stringify({
+        Resources: { R2: { Type: "T2", Properties: { P: "hi" } } }
+      } as ServerlessTemplate)
+    });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir, root: true } },
+        {
+          module: { name: "m1", packageLocation: join(dir, "node_modules/m1") }
+        },
+        {
+          module: {
+            name: "m1-1",
+            packageLocation: join(dir, "node_modules/m1/node_modules/m1-1")
+          }
+        },
+        {
+          module: { name: "m2", packageLocation: join(dir, "node_modules/m2") }
+        }
+      ]
+    } as ModuleHandler);
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
+
+    await expect(serverlessTemplateHandler.listTemplates()).resolves.toEqual([
       {
-        name: "m0",
-        namespaces: {},
-        version: "1.0.0",
-        packageLocation: dir,
-        root: true
+        module: "m2",
+        template: {
+          Resources: {
+            R2: {
+              Properties: {
+                P: "hi"
+              },
+              Type: "T2"
+            }
+          }
+        }
       },
       {
-        name: "m1",
-        namespaces: {},
-        version: "1.0.0",
-        packageLocation: join(dir, "node_modules/m1")
+        module: "m1-1",
+        template: {
+          Resources: {
+            R0: {
+              Properties: {
+                P1: "from-m1-1"
+              },
+              Type: "T1"
+            },
+            R11: {
+              Properties: {
+                P1: "from-m0",
+                P2: ["from-m0"],
+                P3: {
+                  another: "m1",
+                  from: "m0"
+                },
+                P4: "from-m1",
+                P5: ["from-m1"],
+                P6: {
+                  from: "m1"
+                },
+                P7: "from-m1-1",
+                P8: ["from-m1-1"],
+                P9: {
+                  from: "m1-1"
+                }
+              },
+              Type: "T1"
+            }
+          }
+        }
       },
       {
-        name: "m2",
-        namespaces: {},
-        version: "1.0.0",
-        packageLocation: join(dir, "node_modules/m2")
+        module: "m1",
+        template: {
+          Resources: {
+            R0: {
+              Properties: {
+                P1: "from-m1"
+              },
+              Type: "T1"
+            },
+            R1: {
+              Properties: {
+                P1: "from-m1",
+                P2: ["from-m1"],
+                P3: {
+                  another: "m1",
+                  from: "m1"
+                },
+                P4: "from-m1",
+                P5: ["from-m1"],
+                P6: {
+                  from: "m1"
+                }
+              },
+              "SOMOD::Extend": {
+                module: "m1-1",
+                resource: "R11"
+              },
+              Type: "T1"
+            }
+          }
+        }
       },
       {
-        name: "m3",
-        namespaces: {},
-        version: "1.0.0",
-        packageLocation: join(dir, "node_modules/m3")
+        module: "m0",
+        template: {
+          Resources: {
+            R0: {
+              Properties: {},
+              Type: "T0"
+            },
+            R1: {
+              Properties: {
+                P1: "from-m0",
+                P2: ["from-m0"],
+                P3: {
+                  from: "m0"
+                }
+              },
+              "SOMOD::Extend": {
+                module: "m1",
+                resource: "R1"
+              },
+              Type: "T1"
+            }
+          }
+        }
       }
     ]);
-
-    expect(result).toEqual({
-      m0: {
-        module: "m0",
-        packageLocation: dir,
-        root: true,
-        template: {
-          Resources: {
-            R0: {
-              Type: "",
-              Properties: {}
-            }
-          }
-        }
-      },
-
-      m2: {
-        module: "m2",
-        packageLocation: join(dir, "node_modules/m2"),
-        root: undefined,
-        template: {
-          Resources: {
-            R2: {
-              Type: "",
-              Properties: {}
-            }
-          }
-        }
-      },
-
-      m3: {
-        module: "m3",
-        packageLocation: join(dir, "node_modules/m3"),
-        root: undefined,
-        template: {
-          Resources: {
-            R3: {
-              Type: "",
-              Properties: {}
-            }
-          }
-        }
-      }
-    });
   });
 
-  test("getModuleContentMap", () => {
-    expect(
-      getModuleContentMap({
-        m0: {
-          module: "m0",
-          packageLocation: dir,
-          root: true,
-          template: {
-            Resources: {
-              R0: {
-                Type: "",
-                Properties: {}
-              }
-            }
+  test("getResource", async () => {
+    createFiles(dir, {
+      "serverless/template.yaml": dump({
+        Resources: {
+          R0: { Type: "T0", Properties: {} },
+          R1: {
+            Type: "T1",
+            "SOMOD::Extend": { module: "m1", resource: "R1" },
+            Properties: { P1: "from-m0", P2: ["from-m0"], P3: { from: "m0" } }
           }
-        },
-
-        m2: {
-          module: "m2",
-          packageLocation: join(dir, "node_modules/m2"),
-          root: undefined,
-          template: {
-            Resources: {
-              R2: {
-                Type: "",
-                Properties: {}
-              }
-            }
-          }
-        },
-
-        m3: {
-          module: "m3",
-          packageLocation: join(dir, "node_modules/m3"),
-          root: undefined,
-          template: {
-            Resources: {
-              R3: {
-                Type: "",
-                Properties: {}
-              }
+        }
+      } as ServerlessTemplate),
+      "node_modules/m1/build/serverless/template.json": JSON.stringify({
+        Resources: {
+          R0: { Type: "T1", Properties: { P1: "from-m1" } },
+          R1: {
+            Type: "T1",
+            "SOMOD::Extend": { module: "m1-1", resource: "R11" },
+            Properties: {
+              P1: "from-m1",
+              P2: ["from-m1"],
+              P3: { from: "m1", another: "m1" },
+              P4: "from-m1",
+              P5: ["from-m1"],
+              P6: { from: "m1" }
             }
           }
         }
-      })
-    ).toEqual({
-      m0: {
-        json: {
+      } as ServerlessTemplate),
+      "node_modules/m1/node_modules/m1-1/build/serverless/template.json":
+        JSON.stringify({
           Resources: {
-            R0: {
-              Properties: {},
-              Type: ""
+            R0: { Type: "T1", Properties: { P1: "from-m1-1" } },
+            R11: {
+              Type: "T1",
+              Properties: {
+                P1: "from-m1-1",
+                P2: ["from-m1-1"],
+                P3: { from: "m1-1" },
+                P4: "from-m1-1",
+                P5: ["from-m1-1"],
+                P6: { from: "m1-1" },
+                P7: "from-m1-1",
+                P8: ["from-m1-1"],
+                P9: { from: "m1-1" }
+              }
             }
           }
-        },
-        location: dir,
-        moduleName: "m0",
-        path: "serverless/template.yaml"
-      },
-      m2: {
-        json: {
-          Resources: {
-            R2: {
-              Properties: {},
-              Type: ""
-            }
-          }
-        },
-        location: join(dir, "node_modules/m2"),
-        moduleName: "m2",
-        path: "build/serverless/template.json"
-      },
-      m3: {
-        json: {
-          Resources: {
-            R3: {
-              Properties: {},
-              Type: ""
-            }
-          }
-        },
-        location: join(dir, "node_modules/m3"),
-        moduleName: "m3",
-        path: "build/serverless/template.json"
-      }
+        } as ServerlessTemplate)
     });
-  });
+    mockedFunction(ModuleHandler.getModuleHandler).mockReturnValue({
+      listModules: async () => [
+        { module: { name: "m0", packageLocation: dir, root: true } },
+        {
+          module: { name: "m1", packageLocation: join(dir, "node_modules/m1") }
+        },
+        {
+          module: {
+            name: "m1-1",
+            packageLocation: join(dir, "node_modules/m1/node_modules/m1-1")
+          }
+        }
+      ]
+    } as ModuleHandler);
+    const serverlessTemplateHandler =
+      ServerlessTemplateHandler.getServerlessTemplateHandler();
 
-  test("getBaseKeywords", () => {
-    const keywords = getBaseKeywords();
-    expect(keywords.length).toEqual(21);
+    await expect(
+      serverlessTemplateHandler.getResource("m100", "R1") // unknown resource
+    ).resolves.toBeNull();
+
+    await expect(
+      serverlessTemplateHandler.getResource("m0", "R100") // unknown resource
+    ).resolves.toBeNull();
+
+    await expect(serverlessTemplateHandler.getResource("m0", "R0")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "Properties": Object {},
+        "Type": "T0",
+      }
+    `);
+
+    await expect(serverlessTemplateHandler.getResource("m0", "R1")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "Properties": Object {
+          "P1": "from-m0",
+          "P2": Array [
+            "from-m0",
+          ],
+          "P3": Object {
+            "another": "m1",
+            "from": "m0",
+          },
+          "P4": "from-m1",
+          "P5": Array [
+            "from-m1",
+          ],
+          "P6": Object {
+            "from": "m1",
+          },
+          "P7": "from-m1-1",
+          "P8": Array [
+            "from-m1-1",
+          ],
+          "P9": Object {
+            "from": "m1-1",
+          },
+        },
+        "Type": "T1",
+      }
+    `);
+
+    await expect(serverlessTemplateHandler.getResource("m1", "R0")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "Properties": Object {
+          "P1": "from-m1",
+        },
+        "Type": "T1",
+      }
+    `);
+
+    await expect(serverlessTemplateHandler.getResource("m1", "R1")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "Properties": Object {
+          "P1": "from-m0",
+          "P2": Array [
+            "from-m0",
+          ],
+          "P3": Object {
+            "another": "m1",
+            "from": "m0",
+          },
+          "P4": "from-m1",
+          "P5": Array [
+            "from-m1",
+          ],
+          "P6": Object {
+            "from": "m1",
+          },
+          "P7": "from-m1-1",
+          "P8": Array [
+            "from-m1-1",
+          ],
+          "P9": Object {
+            "from": "m1-1",
+          },
+        },
+        "Type": "T1",
+      }
+    `);
+
+    await expect(serverlessTemplateHandler.getResource("m1-1", "R0")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "Properties": Object {
+          "P1": "from-m1-1",
+        },
+        "Type": "T1",
+      }
+    `);
+
+    await expect(serverlessTemplateHandler.getResource("m1-1", "R11")).resolves
+      .toMatchInlineSnapshot(`
+      Object {
+        "Properties": Object {
+          "P1": "from-m0",
+          "P2": Array [
+            "from-m0",
+          ],
+          "P3": Object {
+            "another": "m1",
+            "from": "m0",
+          },
+          "P4": "from-m1",
+          "P5": Array [
+            "from-m1",
+          ],
+          "P6": Object {
+            "from": "m1",
+          },
+          "P7": "from-m1-1",
+          "P8": Array [
+            "from-m1-1",
+          ],
+          "P9": Object {
+            "from": "m1-1",
+          },
+        },
+        "Type": "T1",
+      }
+    `);
   });
 });

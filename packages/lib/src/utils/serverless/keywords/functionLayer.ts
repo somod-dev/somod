@@ -102,7 +102,10 @@ export const getFunctionLayerLibraries = (
 ) => {
   const libraries: Record<string, string[]> = {};
   Object.values(serverlessTemplate.Resources).forEach(resource => {
-    if (resource.Type == resourceType_FunctionLayer) {
+    if (
+      resource.Type == resourceType_FunctionLayer &&
+      resource["SOMOD::Extend"] === undefined
+    ) {
       const layer = resource.Properties.ContentUri?.[
         keywordFunctionLayer.keyword
       ] as FunctionLayerType;

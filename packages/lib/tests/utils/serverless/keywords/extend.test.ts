@@ -21,25 +21,25 @@ describe("Test extend keyword", () => {
   });
 
   test("the validator with keyword at top object", async () => {
-    const validator = await keywordExtend.getValidator("", "m1", {});
+    const validator = await keywordExtend.getValidator("", "m1", null, null);
 
     const obj = {
       [keywordExtend.keyword]: {}
     };
 
-    expect(
+    await expect(
       validator(
         keywordExtend.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordExtend.keyword] as { module: string; resource: string }
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("SOMOD::Extend is allowed only as Resource Property")
     ]);
   });
 
   test("the validator with keyword at deep inside a Resource object", async () => {
-    const validator = await keywordExtend.getValidator("", "m1", {});
+    const validator = await keywordExtend.getValidator("", "m1", null, null);
 
     const obj = {
       Resources: {
@@ -54,7 +54,7 @@ describe("Test extend keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordExtend.keyword,
         (
@@ -67,55 +67,41 @@ describe("Test extend keyword", () => {
           resource: string;
         }
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("SOMOD::Extend is allowed only as Resource Property")
     ]);
   });
 
   test("the validator with keyword as a Resource Property", async () => {
-    const allModules = {
-      m0: {
-        moduleName: "m0",
-        location: "",
-        path: "",
-        json: {
-          Resources: {
-            MyResource1: {
-              Type: "Custom::MyCustomType",
-              [keywordExtend.keyword]: { module: "m1", resource: "r1" },
-              Properties: {}
-            }
-          }
-        }
-      },
-      m1: {
-        moduleName: "m1",
-        location: "",
-        path: "",
-        json: {
-          Resources: { r1: { Type: "Custom::MyCustomType", Properties: {} } }
+    const validator = await keywordExtend.getValidator("", "m0", null, null);
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordExtend.keyword]: { module: "m1", resource: "r1" },
+          Properties: {}
         }
       }
     };
+    const objNode = parseJson(obj) as JSONObjectNode;
 
-    const validator = await keywordExtend.getValidator("", "m0", allModules);
-
-    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
-
-    expect(
+    await expect(
       validator(
         keywordExtend.keyword,
         (objNode.properties["Resources"] as JSONObjectNode).properties[
           "MyResource1"
         ] as JSONObjectNode,
-        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+        obj.Resources.MyResource1[keywordExtend.keyword] as {
           module: string;
           resource: string;
         }
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
   });
 
+  // @TODO: move to serverlessTemplateHandler test
+  /*
   test("the validator with extending resource in same module", async () => {
     const allModules = {
       m0: {
@@ -211,146 +197,79 @@ describe("Test extend keyword", () => {
     ]);
   });
 
-  test("the validator with extending non existing resource", async () => {
-    const allModules = {
-      m0: {
-        moduleName: "m0",
-        location: "",
-        path: "",
-        json: {
-          Resources: {
-            MyResource1: {
-              Type: "Custom::MyCustomType",
-              [keywordExtend.keyword]: { module: "m3", resource: "r1" },
-              Properties: {}
-            }
-          }
-        }
-      },
-      m1: {
-        moduleName: "m1",
-        location: "",
-        path: "",
-        json: {
-          Resources: { r1: { Type: "Custom::MyCustomType", Properties: {} } }
-        }
-      }
-    };
-
-    const validator = await keywordExtend.getValidator("", "m0", allModules);
-
-    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
-
-    expect(
-      validator(
-        keywordExtend.keyword,
-        (objNode.properties["Resources"] as JSONObjectNode).properties[
-          "MyResource1"
-        ] as JSONObjectNode,
-        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
-          module: string;
-          resource: string;
-        }
-      )
-    ).toEqual([new Error("Extended module resource {m3, r1} not found.")]);
-  });
+  */
 
   test("the validator calling checkAccess for extended resource", async () => {
-    const allModules = {
-      m0: {
-        moduleName: "m0",
-        location: "",
-        path: "",
-        json: {
-          Resources: {
-            MyResource1: {
-              Type: "Custom::MyCustomType",
-              [keywordExtend.keyword]: { module: "m1", resource: "r1" },
-              Properties: {}
-            }
-          }
-        }
-      },
-      m1: {
-        moduleName: "m1",
-        location: "",
-        path: "",
-        json: {
-          Resources: { r1: { Type: "Custom::MyCustomType", Properties: {} } }
+    const validator = await keywordExtend.getValidator("", "m0", null, null);
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordExtend.keyword]: { module: "m1", resource: "r1" },
+          Properties: {}
         }
       }
     };
+    const objNode = parseJson(obj) as JSONObjectNode;
 
-    const validator = await keywordExtend.getValidator("", "m0", allModules);
-
-    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
-
-    expect(
+    await expect(
       validator(
         keywordExtend.keyword,
         (objNode.properties["Resources"] as JSONObjectNode).properties[
           "MyResource1"
         ] as JSONObjectNode,
-        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+        obj.Resources.MyResource1[keywordExtend.keyword] as {
           module: string;
           resource: string;
         }
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
 
     expect(checkAccess).toHaveBeenCalledTimes(1);
-    expect(checkAccess).toHaveBeenNthCalledWith(1, "m0", allModules.m1, "r1");
+    expect(checkAccess).toHaveBeenNthCalledWith(
+      1,
+      null,
+      "m0",
+      { module: "m1", resource: "r1" },
+      "Extended"
+    );
   });
 
   test("the validator piping the checkAccess errors", async () => {
-    mockedFunction(checkAccess).mockReturnValue([
+    mockedFunction(checkAccess).mockResolvedValue([
       new Error("Error from checkAccess")
     ]);
-    const allModules = {
-      m0: {
-        moduleName: "m0",
-        location: "",
-        path: "",
-        json: {
-          Resources: {
-            MyResource1: {
-              Type: "Custom::MyCustomType",
-              [keywordExtend.keyword]: { module: "m1", resource: "r1" },
-              Properties: {}
-            }
-          }
-        }
-      },
-      m1: {
-        moduleName: "m1",
-        location: "",
-        path: "",
-        json: {
-          Resources: { r1: { Type: "Custom::MyCustomType", Properties: {} } }
+
+    const validator = await keywordExtend.getValidator("", "m0", null, null);
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordExtend.keyword]: { module: "m1", resource: "r1" },
+          Properties: {}
         }
       }
     };
+    const objNode = parseJson(obj) as JSONObjectNode;
 
-    const validator = await keywordExtend.getValidator("", "m0", allModules);
-
-    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
-
-    expect(
+    await expect(
       validator(
         keywordExtend.keyword,
         (objNode.properties["Resources"] as JSONObjectNode).properties[
           "MyResource1"
         ] as JSONObjectNode,
-        allModules.m0.json.Resources.MyResource1[keywordExtend.keyword] as {
+        obj.Resources.MyResource1[keywordExtend.keyword] as {
           module: string;
           resource: string;
         }
       )
-    ).toEqual([new Error("Error from checkAccess")]);
+    ).resolves.toEqual([new Error("Error from checkAccess")]);
   });
 
   test("the processor", async () => {
-    const processor = await keywordExtend.getProcessor("", "m0", {});
+    const processor = await keywordExtend.getProcessor("", "m0", null, null);
 
     const obj = {
       Resources: {
@@ -376,10 +295,8 @@ describe("Test extend keyword", () => {
         }
       )
     ).toEqual({
-      type: "keyword",
-      value: {
-        [keywordExtend.keyword]: "rca0df2c9r1"
-      }
+      type: "object",
+      value: undefined
     });
   });
 });

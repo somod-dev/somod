@@ -1,6 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { join } from "path";
-import { ServerlessTemplate } from "somod-types";
+import { IServerlessTemplateHandler } from "somod-types";
 import {
   file_index_js,
   path_build,
@@ -16,12 +16,15 @@ export const bundleFunctionsOfModule = async (
   dir: string,
   moduleName: string,
   modulePackageLocation: string,
-  moduleTemplateMap: Record<string, ServerlessTemplate>,
+  serverlessTemplateHandler: IServerlessTemplateHandler,
   verbose = false,
   sourcemap = false
 ): Promise<void> => {
   const declaredFunctionsWithExcludes =
-    getDeclaredFunctionsWithExcludedLibraries(moduleName, moduleTemplateMap);
+    await getDeclaredFunctionsWithExcludedLibraries(
+      serverlessTemplateHandler,
+      moduleName
+    );
 
   const compiledFunctionsPath = join(
     modulePackageLocation,
@@ -53,10 +56,7 @@ export const bundleFunctionsOfModule = async (
           platform: "node",
           external: _function.exclude,
           minify: true,
-          target: [
-            "node" +
-              ServerlessTemplateHandler.getServerlessTemplateHandler().getNodeRuntimeVersion()
-          ],
+          target: ["node" + serverlessTemplateHandler.getNodeRuntimeVersion()],
           logLevel: verbose ? "verbose" : "silent"
         });
       } catch (e) {
@@ -73,9 +73,12 @@ export const bundleFunctions = async (
   verbose = false,
   sourcemap = false
 ) => {
-  const moduleNodes = await ModuleHandler.getModuleHandler().listModules();
-  const templates =
-    await ServerlessTemplateHandler.getServerlessTemplateHandler().listTemplates();
+  const moduleHandler = ModuleHandler.getModuleHandler();
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
+
+  const moduleNodes = await moduleHandler.listModules();
+  const templates = await serverlessTemplateHandler.listTemplates();
   const templateMap = Object.fromEntries(
     templates.map(t => [t.module, t.template])
   );
@@ -88,7 +91,7 @@ export const bundleFunctions = async (
           dir,
           moduleName,
           moduleNode.module.packageLocation,
-          templateMap,
+          serverlessTemplateHandler,
           verbose,
           sourcemap
         );

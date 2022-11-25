@@ -1,6 +1,10 @@
 import { keywordTemplateResources } from "../../../../src/utils/serverless/keywords/templateResources";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import { JSONObjectNode, JSONType } from "somod-types";
+import {
+  IServerlessTemplateHandler,
+  JSONObjectNode,
+  JSONType
+} from "somod-types";
 
 type TemplateOutputsType = Record<string, JSONType>;
 
@@ -9,7 +13,8 @@ describe("Test templateOutputs keyword", () => {
     const validator = await keywordTemplateResources.getValidator(
       "dir1",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -33,7 +38,8 @@ describe("Test templateOutputs keyword", () => {
     const validator = await keywordTemplateResources.getValidator(
       "dir1",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -56,7 +62,10 @@ describe("Test templateOutputs keyword", () => {
     const processor = await keywordTemplateResources.getProcessor(
       "dir1",
       "m1",
-      {}
+      null,
+      {
+        getSAMResourceLogicalId: (m, r) => `${m}/${r}`
+      } as IServerlessTemplateHandler
     );
 
     const obj = {
@@ -87,7 +96,10 @@ describe("Test templateOutputs keyword", () => {
     const processor = await keywordTemplateResources.getProcessor(
       "dir1",
       "m1",
-      {}
+      null,
+      {
+        getSAMResourceLogicalId: (m, r) => `${m}/${r}`
+      } as IServerlessTemplateHandler
     );
 
     const obj = {
@@ -107,8 +119,8 @@ describe("Test templateOutputs keyword", () => {
       type: "keyword",
       value: {
         [keywordTemplateResources.keyword]: {
-          rca0df2c9R1: { Type: "T1", Properties: {} },
-          rca0df2c9R2: { Type: "T2", Properties: {} }
+          "m1/R1": { Type: "T1", Properties: {} },
+          "m1/R2": { Type: "T2", Properties: {} }
         }
       }
     });

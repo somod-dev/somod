@@ -2,7 +2,11 @@ import { listAllParameters } from "../../../../src/utils/parameters/namespace";
 import { keywordTemplateOutputs } from "../../../../src/utils/serverless/keywords/templateOutputs";
 import { mockedFunction } from "../../../utils";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import { JSONObjectNode, JSONType } from "somod-types";
+import {
+  IServerlessTemplateHandler,
+  JSONObjectNode,
+  JSONType
+} from "somod-types";
 
 jest.mock("../../../../src/utils/parameters/namespace", () => {
   return {
@@ -24,7 +28,7 @@ describe("Test templateOutputs keyword", () => {
   });
 
   test("the getValidator calls listAllParameters", async () => {
-    await keywordTemplateOutputs.getValidator("dir1", "m1", {});
+    await keywordTemplateOutputs.getValidator("dir1", "m1", null, null);
     expect(listAllParameters).toHaveBeenCalledTimes(1);
     expect(listAllParameters).toHaveBeenNthCalledWith(1);
   });
@@ -33,7 +37,8 @@ describe("Test templateOutputs keyword", () => {
     const validator = await keywordTemplateOutputs.getValidator(
       "dir1",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -55,7 +60,8 @@ describe("Test templateOutputs keyword", () => {
     const validator = await keywordTemplateOutputs.getValidator(
       "dir1",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -75,7 +81,8 @@ describe("Test templateOutputs keyword", () => {
     const validator = await keywordTemplateOutputs.getValidator(
       "dir1",
       "m1",
-      {}
+      null,
+      null
     );
 
     const obj = {
@@ -99,7 +106,8 @@ describe("Test templateOutputs keyword", () => {
     const processor = await keywordTemplateOutputs.getProcessor(
       "dir1",
       "m1",
-      {}
+      null,
+      { getSAMOutputName: p => p } as IServerlessTemplateHandler
     );
 
     const obj = {
@@ -127,7 +135,8 @@ describe("Test templateOutputs keyword", () => {
     const processor = await keywordTemplateOutputs.getProcessor(
       "dir1",
       "m1",
-      {}
+      null,
+      { getSAMOutputName: p => p } as IServerlessTemplateHandler
     );
 
     const obj = {
@@ -144,10 +153,10 @@ describe("Test templateOutputs keyword", () => {
       type: "keyword",
       value: {
         [keywordTemplateOutputs.keyword]: {
-          o7031: {
+          p1: {
             Value: "a"
           },
-          o70312e31: {
+          "p1.1": {
             Value: {
               x: "y"
             }

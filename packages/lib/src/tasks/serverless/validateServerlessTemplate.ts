@@ -12,8 +12,11 @@ export const validateServerlessTemplate = async (
   const templateYamlPath = join(dir, path_serverless, file_templateYaml);
   if (existsSync(templateYamlPath)) {
     const moduleHandler = ModuleHandler.getModuleHandler();
-    const moduleNodes = await moduleHandler.listModules();
-    const rootModuleName = moduleNodes[0].module.name;
-    await _validateServerlessTemplate(dir, rootModuleName, pluginKeywords);
+    const rootModuleNode = await moduleHandler.getRoodModuleNode();
+    await _validateServerlessTemplate(
+      dir,
+      rootModuleNode.module.name,
+      pluginKeywords
+    );
   }
 };

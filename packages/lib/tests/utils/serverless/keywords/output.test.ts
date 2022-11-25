@@ -1,4 +1,4 @@
-import { JSONObjectNode } from "somod-types";
+import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import {
   checkOutput,
@@ -11,8 +11,8 @@ type OutputType = {
 };
 
 describe("Test output keyword", () => {
-  const getValidator = () => keywordOutput.getValidator("", "", {});
-  const getProcessor = () => keywordOutput.getProcessor("", "", {});
+  const getValidator = () => keywordOutput.getValidator("", "", null, null);
+  const getProcessor = () => keywordOutput.getProcessor("", "", null, null);
 
   test("the keyword name", () => {
     expect(keywordOutput.keyword).toEqual("SOMOD::Output");
@@ -190,22 +190,25 @@ describe("Test util checkOutput from output keyword for", () => {
     ]
   ];
 
-  test.each(usecases)("%s", (title, attribute, outputValue, expectedErrors) => {
-    const resource = { Type: "", Properties: {} };
-    if (outputValue) {
-      resource[keywordOutput.keyword] = outputValue;
+  test.each(usecases)(
+    "%s",
+    async (title, attribute, outputValue, expectedErrors) => {
+      const resource = { Type: "", Properties: {} };
+      if (outputValue) {
+        resource[keywordOutput.keyword] = outputValue;
+      }
+      await expect(
+        checkOutput(
+          {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            getResource: async (m, r) => resource
+          } as IServerlessTemplateHandler,
+          "@s/m1",
+          "MyResource1",
+          "@s1/m1",
+          attribute
+        )
+      ).resolves.toEqual(expectedErrors);
     }
-    expect(
-      checkOutput(
-        {
-          moduleName: "@s1/m1",
-          location: "/a/b/c/z",
-          path: "",
-          json: { Resources: { MyResource1: resource } }
-        },
-        "MyResource1",
-        attribute
-      )
-    ).toEqual(expectedErrors);
-  });
+  );
 });

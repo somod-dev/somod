@@ -1,6 +1,5 @@
 import { JSONSchema7, validate } from "decorated-ajv";
 import { KeywordDefinition } from "somod-types";
-import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 import { checkAccess } from "./access";
 import { checkCustomResourceSchema } from "./function";
 import { checkOutput } from "./output";
@@ -76,7 +75,9 @@ export const keywordRef: KeywordDefinition<Ref> = {
             )
           );
         } else {
-          errors.push(...checkAccess(moduleName, value));
+          errors.push(
+            ...(await checkAccess(serverlessTemplateHandler, moduleName, value))
+          );
 
           errors.push(
             ...(await checkOutput(
@@ -88,7 +89,13 @@ export const keywordRef: KeywordDefinition<Ref> = {
             ))
           );
 
-          errors.push(...(await checkCustomResourceSchema(node, moduleName)));
+          errors.push(
+            ...(await checkCustomResourceSchema(
+              serverlessTemplateHandler,
+              node,
+              moduleName
+            ))
+          );
         }
       }
 
@@ -96,9 +103,12 @@ export const keywordRef: KeywordDefinition<Ref> = {
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => {
-    const serverlessTemplateHandler =
-      ServerlessTemplateHandler.getServerlessTemplateHandler();
+  getProcessor: async (
+    rootDir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
     return (keyword, node, value) => {
       const targetModule = value.module || moduleName;
 

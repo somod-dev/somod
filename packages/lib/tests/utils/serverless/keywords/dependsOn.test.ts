@@ -1,5 +1,5 @@
 import { mockedFunction } from "../../../utils";
-import { JSONObjectNode } from "somod-types";
+import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
 import { keywordDependsOn } from "../../../../src/utils/serverless/keywords/dependsOn";
@@ -21,25 +21,25 @@ describe("Test dependsOn keyword", () => {
   });
 
   test("the validator with keyword at top object", async () => {
-    const validator = await keywordDependsOn.getValidator("", "m1", {});
+    const validator = await keywordDependsOn.getValidator("", "m1", null, null);
 
     const obj = {
       [keywordDependsOn.keyword]: []
     };
 
-    expect(
+    await expect(
       validator(
         keywordDependsOn.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordDependsOn.keyword] as { resource: string }[]
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("SOMOD::DependsOn is allowed only as Resource Property")
     ]);
   });
 
   test("the validator with keyword at deep inside a Resource object", async () => {
-    const validator = await keywordDependsOn.getValidator("", "m1", {});
+    const validator = await keywordDependsOn.getValidator("", "m1", null, null);
 
     const obj = {
       Resources: {
@@ -54,7 +54,7 @@ describe("Test dependsOn keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordDependsOn.keyword,
         (
@@ -66,13 +66,13 @@ describe("Test dependsOn keyword", () => {
           resource: string;
         }[]
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("SOMOD::DependsOn is allowed only as Resource Property")
     ]);
   });
 
   test("the validator with keyword as a Resource Property", async () => {
-    const validator = await keywordDependsOn.getValidator("", "m1", {});
+    const validator = await keywordDependsOn.getValidator("", "m1", null, null);
 
     const obj = {
       Resources: {
@@ -86,7 +86,7 @@ describe("Test dependsOn keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordDependsOn.keyword,
         (objNode.properties["Resources"] as JSONObjectNode).properties[
@@ -96,189 +96,105 @@ describe("Test dependsOn keyword", () => {
           resource: string;
         }[]
       )
-    ).toEqual([]);
-  });
-
-  test("the validator with non existing dependency", async () => {
-    const validator = await keywordDependsOn.getValidator("", "m1", {
-      m2: { moduleName: "m2", location: "", path: "", json: { Resources: {} } }
-    });
-
-    const obj = {
-      Resources: {
-        MyResource1: {
-          Type: "Custom::MyCustomType",
-          [keywordDependsOn.keyword]: [{ module: "m3", resource: "r1" }],
-          Properties: {}
-        }
-      }
-    };
-
-    const objNode = parseJson(obj) as JSONObjectNode;
-
-    expect(
-      validator(
-        keywordDependsOn.keyword,
-        (objNode.properties["Resources"] as JSONObjectNode).properties[
-          "MyResource1"
-        ] as JSONObjectNode,
-        obj.Resources.MyResource1[keywordDependsOn.keyword] as {
-          resource: string;
-        }[]
-      )
-    ).toEqual([new Error("Dependent module resource {m3, r1} not found.")]);
-  });
-
-  test("the validator with existing dependency", async () => {
-    const validator = await keywordDependsOn.getValidator("", "m1", {
-      m2: {
-        moduleName: "m2",
-        location: "",
-        path: "",
-        json: { Resources: { r1: { Type: "MyType", Properties: {} } } }
-      }
-    });
-
-    const obj = {
-      Resources: {
-        MyResource1: {
-          Type: "Custom::MyCustomType",
-          [keywordDependsOn.keyword]: [{ module: "m2", resource: "r1" }],
-          Properties: {}
-        }
-      }
-    };
-
-    const objNode = parseJson(obj) as JSONObjectNode;
-
-    expect(
-      validator(
-        keywordDependsOn.keyword,
-        (objNode.properties["Resources"] as JSONObjectNode).properties[
-          "MyResource1"
-        ] as JSONObjectNode,
-        obj.Resources.MyResource1[keywordDependsOn.keyword] as {
-          resource: string;
-        }[]
-      )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
   });
 
   test("the validator calling checkAccess for each depended resource", async () => {
-    const allModules = {
-      m0: {
-        moduleName: "m0",
-        location: "",
-        path: "",
-        json: {
-          Resources: {
-            MyResource1: {
-              Type: "Custom::MyCustomType",
-              [keywordDependsOn.keyword]: [
-                { module: "m1", resource: "resource1" },
-                { module: "m2", resource: "r1" }
-              ],
-              Properties: {}
-            }
-          }
+    const validator = await keywordDependsOn.getValidator("", "m0", null, {
+      getResource: async (m, r) => {
+        const resources = {
+          m1: { resource1: { Type: "MyType", Properties: {} } },
+          m2: { r1: { Type: "MyType", Properties: {} } }
+        };
+        return resources[m][r];
+      }
+    } as IServerlessTemplateHandler);
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordDependsOn.keyword]: [
+            { module: "m1", resource: "resource1" },
+            { module: "m2", resource: "r1" }
+          ],
+          Properties: {}
         }
-      },
-      m1: {
-        moduleName: "m1",
-        location: "",
-        path: "",
-        json: { Resources: { resource1: { Type: "MyType", Properties: {} } } }
-      },
-      m2: {
-        moduleName: "m2",
-        location: "",
-        path: "",
-        json: { Resources: { r1: { Type: "MyType", Properties: {} } } }
       }
     };
-    const validator = await keywordDependsOn.getValidator("", "m0", allModules);
 
-    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
+    const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordDependsOn.keyword,
         (objNode.properties["Resources"] as JSONObjectNode).properties[
           "MyResource1"
         ] as JSONObjectNode,
-        allModules.m0.json.Resources.MyResource1[keywordDependsOn.keyword] as {
+        obj.Resources.MyResource1[keywordDependsOn.keyword] as {
           resource: string;
         }[]
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
 
     expect(checkAccess).toHaveBeenCalledTimes(2);
-    expect(checkAccess).toHaveBeenNthCalledWith(
-      1,
+    expect(checkAccess).toHaveBeenCalledWith(
+      expect.objectContaining({ getResource: expect.any(Function) }),
       "m0",
-      allModules.m1,
-      "resource1"
+      { module: "m1", resource: "resource1" },
+      "Depended"
     );
-    expect(checkAccess).toHaveBeenNthCalledWith(2, "m0", allModules.m2, "r1");
+    expect(checkAccess).toHaveBeenCalledWith(
+      expect.objectContaining({ getResource: expect.any(Function) }),
+      "m0",
+      { module: "m2", resource: "r1" },
+      "Depended"
+    );
   });
 
   test("the validator piping the errors from checkAccess", async () => {
-    mockedFunction(checkAccess).mockReturnValue([
+    mockedFunction(checkAccess).mockResolvedValue([
       new Error("Error from CheckAccess")
     ]);
-    const allModules = {
-      m0: {
-        moduleName: "m0",
-        location: "",
-        path: "",
-        json: {
-          Resources: {
-            MyResource1: {
-              Type: "Custom::MyCustomType",
-              [keywordDependsOn.keyword]: [
-                { module: "m1", resource: "resource1" },
-                { module: "m2", resource: "r1" }
-              ],
-              Properties: {}
-            }
-          }
+
+    const validator = await keywordDependsOn.getValidator("", "m0", null, null);
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "Custom::MyCustomType",
+          [keywordDependsOn.keyword]: [
+            { module: "m1", resource: "resource1" },
+            { module: "m2", resource: "r1" }
+          ],
+          Properties: {}
         }
-      },
-      m1: {
-        moduleName: "m1",
-        location: "",
-        path: "",
-        json: { Resources: { resource1: { Type: "MyType", Properties: {} } } }
-      },
-      m2: {
-        moduleName: "m2",
-        location: "",
-        path: "",
-        json: { Resources: { r1: { Type: "MyType", Properties: {} } } }
       }
     };
-    const validator = await keywordDependsOn.getValidator("", "m0", allModules);
+    const objNode = parseJson(obj) as JSONObjectNode;
 
-    const objNode = parseJson(allModules.m0.json) as JSONObjectNode;
-
-    expect(
+    await expect(
       validator(
         keywordDependsOn.keyword,
         (objNode.properties["Resources"] as JSONObjectNode).properties[
           "MyResource1"
         ] as JSONObjectNode,
-        allModules.m0.json.Resources.MyResource1[keywordDependsOn.keyword] as {
+        obj.Resources.MyResource1[keywordDependsOn.keyword] as {
           resource: string;
         }[]
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error("Error from CheckAccess"),
       new Error("Error from CheckAccess")
     ]);
   });
 
   test("the processor", async () => {
-    const processor = await keywordDependsOn.getProcessor("", "m0", {});
+    const processor = await keywordDependsOn.getProcessor("", "m0", null, {
+      getSAMResourceLogicalId(moduleName, somodResourceId) {
+        return moduleName + somodResourceId;
+      }
+    } as IServerlessTemplateHandler);
 
     const obj = {
       Resources: {
@@ -308,7 +224,7 @@ describe("Test dependsOn keyword", () => {
     ).toEqual({
       type: "keyword",
       value: {
-        DependsOn: ["rca0df2c9resource1", "r29c1b289r1"]
+        DependsOn: ["m1resource1", "m2r1"]
       }
     });
   });

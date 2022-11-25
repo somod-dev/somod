@@ -2,7 +2,6 @@ import { file_parametersYaml } from "../../constants";
 import { getPath } from "../../jsonTemplate";
 import { listAllParameters } from "../../parameters/namespace";
 import { JSONType, KeywordDefinition } from "somod-types";
-import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Outputs = Record<string, JSONType>;
 
@@ -35,9 +34,12 @@ export const keywordTemplateOutputs: KeywordDefinition<Outputs> = {
     };
   },
 
-  getProcessor: async () => {
-    const serverlessTemplateHandler =
-      ServerlessTemplateHandler.getServerlessTemplateHandler();
+  getProcessor: async (
+    rootdir,
+    moduleName,
+    moduleHandler,
+    serverlessTemplateHandler
+  ) => {
     return (keyword, node, value) => {
       if (getPath(node).length == 0) {
         return {

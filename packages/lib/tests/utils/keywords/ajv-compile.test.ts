@@ -3,8 +3,8 @@ import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordAjvCompile } from "../../../src/utils/keywords/ajv-compile";
 
 describe("Test ajv-compile keyword", () => {
-  const getValidator = () => keywordAjvCompile.getValidator("", "", {});
-  const getProcessor = () => keywordAjvCompile.getProcessor("", "", {});
+  const getValidator = () => keywordAjvCompile.getValidator("", "", null, null);
+  const getProcessor = () => keywordAjvCompile.getProcessor("", "", null, null);
 
   test("the keyword name", () => {
     expect(keywordAjvCompile.keyword).toEqual("SOMOD::AjvCompile");

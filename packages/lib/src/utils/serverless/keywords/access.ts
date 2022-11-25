@@ -1,6 +1,5 @@
-import { KeywordDefinition } from "somod-types";
+import { IServerlessTemplateHandler, KeywordDefinition } from "somod-types";
 import { getPath } from "../../jsonTemplate";
-import { ServerlessTemplateHandler } from "../serverlessTemplate/serverlessTemplate";
 
 type Access = "module" | "scope" | "public";
 
@@ -26,20 +25,20 @@ export const keywordAccess: KeywordDefinition<Access> = {
   })
 };
 
-export const checkAccess = (
+export const checkAccess = async (
+  serverlessTemplateHandler: IServerlessTemplateHandler,
   sourceModule: string,
   accessedResource: { module?: string; resource: string },
   usage?: string
-): Error[] => {
+): Promise<Error[]> => {
   const errors: Error[] = [];
 
   const accessedModule = accessedResource.module || sourceModule;
 
-  const resource =
-    ServerlessTemplateHandler.getServerlessTemplateHandler().getResource(
-      accessedModule,
-      accessedResource.resource
-    );
+  const resource = await serverlessTemplateHandler.getResource(
+    accessedModule,
+    accessedResource.resource
+  );
 
   if (!resource) {
     errors.push(

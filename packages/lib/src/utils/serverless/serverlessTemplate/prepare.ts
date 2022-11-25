@@ -10,7 +10,6 @@ import { listAllOutputs } from "../namespace";
 import { SAMTemplate } from "../types";
 import {
   getBaseKeywords,
-  getModuleServerlessTemplateMap,
   ServerlessTemplateHandler
 } from "./serverlessTemplate";
 
@@ -18,7 +17,10 @@ export const prepareSamTemplate = async (
   dir: string,
   pluginKeywords: KeywordDefinition[] = []
 ) => {
-  const moduleTemplateMap = await getModuleServerlessTemplateMap();
+  const moduleHandler = ModuleHandler.getModuleHandler();
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
+
   const processedTemplateMap: Record<string, ServerlessTemplate> = {};
 
   const keywords = [...getBaseKeywords(), ...pluginKeywords];
@@ -27,11 +29,16 @@ export const prepareSamTemplate = async (
     Resources: {}
   };
 
-  const _moduleNames = (
-    await ModuleHandler.getModuleHandler().listModules()
-  ).map(m => m.module.name);
+  const _moduleNames = (await moduleHandler.listModules()).map(
+    m => m.module.name
+  );
 
   _moduleNames.reverse();
+
+  const templates = await serverlessTemplateHandler.listTemplates();
+  const moduleTemplateMap = Object.fromEntries(
+    templates.map(t => [t.module, t.template])
+  );
 
   await Promise.all(
     _moduleNames.map(async moduleName => {
@@ -43,16 +50,15 @@ export const prepareSamTemplate = async (
             const processor = await keyword.getProcessor(
               dir,
               moduleName,
-              ModuleHandler.getModuleHandler(),
-              ServerlessTemplateHandler.getServerlessTemplateHandler()
+              moduleHandler,
+              serverlessTemplateHandler
             );
-
             keywordProcessors[keyword.keyword] = processor;
           })
         );
 
         const processedTemplate = (await processKeywords(
-          parseJson(moduleTemplateMap[moduleName].json),
+          parseJson(moduleTemplateMap[moduleName]),
           keywordProcessors
         )) as SAMTemplate;
 
@@ -73,9 +79,7 @@ export const prepareSamTemplate = async (
     outputNames.forEach(outputName => {
       const moduleName = outputToModuleMap[outputName];
       const samOutputName =
-        ServerlessTemplateHandler.getServerlessTemplateHandler().getSAMOutputName(
-          outputName
-        );
+        serverlessTemplateHandler.getSAMOutputName(outputName);
       const output = processedTemplateMap[moduleName].Outputs[
         samOutputName
       ] as SAMTemplate["Outputs"][string];
