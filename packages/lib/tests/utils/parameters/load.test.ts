@@ -45,7 +45,7 @@ describe("Test Util parameters.loadParameters", () => {
 
   test("for empty parameters in build", async () => {
     createFiles(dir, {
-      "build/parameters.json": JSON.stringify({ Parameters: {} })
+      "build/parameters.json": JSON.stringify({ parameters: {} })
     });
     await expect(
       loadParameters({
@@ -54,14 +54,14 @@ describe("Test Util parameters.loadParameters", () => {
         namespaces: {},
         packageLocation: dir
       })
-    ).resolves.toEqual({ Parameters: {} });
+    ).resolves.toEqual({ parameters: {} });
   });
 
   test("for parameters in build", async () => {
     const parameters = {
-      Parameters: {
-        "my.param": { type: "text", default: "one" },
-        "my.param2": { type: "text", default: "two" }
+      parameters: {
+        "my.param": { type: "string", default: "one" },
+        "my.param2": { type: "string", default: "two" }
       }
     };
     createFiles(dir, {
@@ -79,9 +79,9 @@ describe("Test Util parameters.loadParameters", () => {
 
   test("for parameters in root", async () => {
     const parameters = {
-      Parameters: {
-        "my.param": { type: "text", default: "one" },
-        "my.param2": { type: "text", default: "two" }
+      parameters: {
+        "my.param": { type: "string", default: "one" },
+        "my.param2": { type: "string", default: "two" }
       }
     };
     createFiles(dir, {
@@ -114,15 +114,9 @@ describe("Test Util parameters.loadAllParameterValues", () => {
   test("with failing schema validation", async () => {
     createFiles(dir, {
       "parameters.yaml": dump({
-        Parameters: {
-          "my.param": { type: "text", default: "one" },
-          "my.param2": { type: "text", default: "two" }
-        },
-        Schemas: {
-          "require-param": {
-            type: "object",
-            required: ["my.param"]
-          }
+        parameters: {
+          "my.param": { type: "string", default: "one" },
+          "my.param2": { type: "number", default: "two" }
         }
       } as Parameters),
       "parameters.json": JSON.stringify({
@@ -138,7 +132,7 @@ describe("Test Util parameters.loadAllParameterValues", () => {
     await expect(loadAllParameterValues(dir)).rejects.toEqual(
       new ErrorSet([
         new Error(
-          "parameters.json has following errors\n must have required property 'my.param'"
+          "parameters.json has following errors\n my.param2 must be number"
         )
       ])
     );

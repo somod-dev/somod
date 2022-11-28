@@ -279,7 +279,7 @@ describe("Test Util nextJs.validate", () => {
     createFiles(dir, {
       "ui/config.yaml": dump(config),
       "parameters.yaml": dump({
-        Parameters: { "my.param1": { type: "text", default: "1" } }
+        parameters: { "my.param1": { type: "string", default: "1" } }
       })
     });
     await expect(validate(dir)).resolves.toBeUndefined();

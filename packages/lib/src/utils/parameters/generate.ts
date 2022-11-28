@@ -43,7 +43,7 @@ export const generate = async (
   const parameterDefaultValues: Record<string, unknown> = {};
   Object.keys(parameterToModuleNameMap).map(parameterName => {
     let defaultValue =
-      moduleToParametersMap[parameterToModuleNameMap[parameterName]].Parameters[
+      moduleToParametersMap[parameterToModuleNameMap[parameterName]].parameters[
         parameterName
       ].default;
 

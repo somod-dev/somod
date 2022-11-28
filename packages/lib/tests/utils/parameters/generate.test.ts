@@ -16,9 +16,9 @@ const files = {
     }
   }),
   "parameters.yaml": dump({
-    Parameters: {
+    parameters: {
       "my.param1": {
-        type: "text",
+        type: "string",
         default: "p1"
       }
     }
@@ -29,13 +29,13 @@ const files = {
     somod: "1.0.0"
   }),
   "node_modules/m1/build/parameters.json": JSON.stringify({
-    Parameters: {
+    parameters: {
       "my1.param1": {
-        type: "text",
+        type: "string",
         default: "m1p1"
       },
       "my1.param2": {
-        type: "text"
+        type: "number"
       }
     }
   })

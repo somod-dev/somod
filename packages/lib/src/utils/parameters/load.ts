@@ -7,10 +7,10 @@ import { join } from "path";
 import {
   file_parametersJson,
   file_parametersYaml,
+  namespace_parameter,
   path_build
 } from "../constants";
 import { ModuleHandler } from "../moduleHandler";
-import { listAllParameterSchemas } from "./namespace";
 import { Parameters, ParameterValues } from "./types";
 
 export const loadParameters = async (module: Module): Promise<Parameters> => {
@@ -34,10 +34,13 @@ export const loadParameters = async (module: Module): Promise<Parameters> => {
 export const validateParameterValues = async (
   parameterValues: ParameterValues
 ) => {
-  const schemaToModuleMap = await listAllParameterSchemas();
   const moduleHandler = ModuleHandler.getModuleHandler();
 
-  const moduleNames = uniq(Object.values(schemaToModuleMap));
+  const parameterToModuleNameMap = (await moduleHandler.getNamespaces())[
+    namespace_parameter
+  ];
+
+  const moduleNames = uniq(Object.values(parameterToModuleNameMap));
   const moduleParameters: Record<string, Parameters> = {};
 
   await Promise.all(
@@ -47,20 +50,19 @@ export const validateParameterValues = async (
     })
   );
 
-  const schemas: JSONSchema7[] = [];
-  for (const schemaName in schemaToModuleMap) {
-    const moduleName = schemaToModuleMap[schemaName];
-    schemas.push(moduleParameters[moduleName].Schemas[schemaName]);
+  const parametersSchema: JSONSchema7 = { type: "object", properties: {} };
+  for (const parameterName in parameterToModuleNameMap) {
+    const moduleName = parameterToModuleNameMap[parameterName];
+    parametersSchema.properties[parameterName] =
+      moduleParameters[moduleName].parameters[parameterName];
   }
-  if (schemas.length > 0) {
-    const violations = await validate({ allOf: schemas }, parameterValues);
-    if (violations.length > 0) {
-      throw new Error(
-        `${file_parametersJson} has following errors\n${violations
-          .map(v => " " + (v.path + " " + v.message).trim())
-          .join("\n")}`
-      );
-    }
+  const violations = await validate(parametersSchema, parameterValues);
+  if (violations.length > 0) {
+    throw new Error(
+      `${file_parametersJson} has following errors\n${violations
+        .map(v => " " + (v.path + " " + v.message).trim())
+        .join("\n")}`
+    );
   }
 };
 

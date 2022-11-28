@@ -74,8 +74,6 @@ export const namespace_server_runtime_config = "UI Server Runtime Config";
 export const namespace_api_gateway = "Serverless Api Gateway";
 
 export const namespace_parameter = "Parameter";
-export const namespace_parameterSchema = "Parameter Schema";
-export const namespace_parameterGroup = "Parameter Group";
 
 export const namespace_output = "Serverless Output";
 
