@@ -320,7 +320,9 @@ export const processKeywords = async (
         if (e.level > 0) {
           throw e.next();
         } else {
-          return e.replacement;
+          return e.replacement
+            ? await navigatorWithReplacementHandler(parseJson(e.replacement))
+            : e.replacement;
         }
       } else {
         throw e;

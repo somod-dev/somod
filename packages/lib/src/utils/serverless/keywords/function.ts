@@ -5,6 +5,7 @@ import {
   JSONObjectNode,
   JSONObjectType,
   JSONPrimitiveNode,
+  JSONType,
   KeywordDefinition
 } from "somod-types";
 import { existsSync } from "fs";
@@ -14,12 +15,14 @@ import {
   path_functions,
   path_serverless,
   path_somodWorkingDir,
-  resourceType_Function
+  resourceType_Function,
+  resourceType_FunctionMiddleware
 } from "../../constants";
 import { constructJson, getPath } from "../../jsonTemplate";
 import { KeywordSomodRef } from "./ref";
 import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
-import { uniq, uniqBy } from "lodash";
+import { isEqual, unionWith, uniq, uniqBy } from "lodash";
+import { FunctionMiddlewareProperties } from "./functionMiddleware";
 
 type FunctionType = {
   type: string;
@@ -108,6 +111,7 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
 
         // middlewares
         const middlewareAllowedTypes: Record<string, string[]> = {};
+        const invalidMiddlewares: string[] = [];
         await Promise.all(
           (value.middlewares || []).map(async middleware => {
             const module = middleware["SOMOD::Ref"].module || moduleName;
@@ -117,8 +121,17 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
               module,
               resource
             );
-            middlewareAllowedTypes[JSON.stringify({ module, resource })] =
-              mResource.Properties.AllowedTypes as string[];
+            if (mResource.Type !== resourceType_FunctionMiddleware) {
+              errors.push(
+                new Error(
+                  `Middleware {${module}, ${resource}} used in the function ${value.name} must be of type ${resourceType_FunctionMiddleware}`
+                )
+              );
+              invalidMiddlewares.push(JSON.stringify({ module, resource }));
+            } else {
+              middlewareAllowedTypes[JSON.stringify({ module, resource })] =
+                mResource.Properties.AllowedTypes as string[];
+            }
           })
         );
 
@@ -127,9 +140,12 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
             const module = middleware["SOMOD::Ref"].module || moduleName;
             const resource = middleware["SOMOD::Ref"].resource;
 
-            return !middlewareAllowedTypes[
-              JSON.stringify({ module, resource })
-            ].includes(value.type);
+            const middlewareId = JSON.stringify({ module, resource });
+
+            return (
+              !invalidMiddlewares.includes(middlewareId) &&
+              !middlewareAllowedTypes[middlewareId]?.includes(value.type)
+            );
           }
         );
         if (unmatchedMiddlewares.length > 0) {
@@ -156,10 +172,10 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
-    return {
-      type: "object",
-      value: unixStylePath(
+  getProcessor:
+    async (rootDir, moduleName, moduleHandler, serverlessTemplateHandler) =>
+    async (keyword, node, value) => {
+      const functionPath = unixStylePath(
         join(
           rootDir,
           path_somodWorkingDir,
@@ -168,7 +184,96 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
           moduleName,
           value.name
         )
-      )
+      );
+
+      if (!value.middlewares || value.middlewares.length == 0) {
+        return {
+          type: "object",
+          value: functionPath
+        };
+      }
+
+      const functionProperties = constructJson(node.parent.node) as Pick<
+        FunctionMiddlewareProperties,
+        "Layers" | "Environment"
+      > &
+        Record<string, JSONType>;
+
+      await mergeMiddlewareProperties(
+        moduleName,
+        value.middlewares,
+        functionProperties,
+        serverlessTemplateHandler
+      );
+
+      functionProperties.CodeUri = functionPath;
+
+      return {
+        type: "object",
+        value: functionProperties,
+        level: 1
+      };
+    }
+};
+
+const mergeMiddlewareProperties = async (
+  moduleName: string,
+  middlewares: KeywordSomodRef[],
+  functionProperties: Pick<
+    FunctionMiddlewareProperties,
+    "Layers" | "Environment"
+  >,
+  serverlessTemplateHandler: IServerlessTemplateHandler
+) => {
+  const middlewareProperties: Record<
+    string,
+    Record<string, FunctionMiddlewareProperties>
+  > = {};
+
+  await Promise.all(
+    middlewares.map(async middleware => {
+      const middlewareRef = middleware["SOMOD::Ref"];
+      if (!middlewareRef.module) {
+        middlewareRef.module = moduleName;
+      }
+      const middlewareResource = await serverlessTemplateHandler.getResource(
+        middlewareRef.module,
+        middlewareRef.resource
+      );
+
+      if (!middlewareProperties[middlewareRef.module]) {
+        middlewareProperties[middlewareRef.module] = {};
+      }
+      middlewareProperties[middlewareRef.module][middlewareRef.resource] =
+        middlewareResource.Properties as FunctionMiddlewareProperties;
+    })
+  );
+
+  let combinedMiddlewareLayers: FunctionMiddlewareProperties["Layers"] =
+    functionProperties.Layers || [];
+  let combinedMiddlewareEnvironmentVariables: FunctionMiddlewareProperties["Environment"]["Variables"] =
+    functionProperties.Environment?.Variables || {};
+
+  for (const middleware of middlewares) {
+    const module = middleware["SOMOD::Ref"].module || moduleName;
+    const resource = middleware["SOMOD::Ref"].resource;
+    combinedMiddlewareLayers = [
+      ...combinedMiddlewareLayers,
+      ...(middlewareProperties[module]?.[resource]?.Layers || [])
+    ];
+    combinedMiddlewareEnvironmentVariables = {
+      ...combinedMiddlewareEnvironmentVariables,
+      ...middlewareProperties[module]?.[resource]?.Environment?.Variables
+    };
+  }
+
+  if (combinedMiddlewareLayers.length > 0) {
+    combinedMiddlewareLayers = unionWith(combinedMiddlewareLayers, isEqual);
+    functionProperties.Layers = combinedMiddlewareLayers;
+  }
+  if (Object.keys(combinedMiddlewareEnvironmentVariables).length > 0) {
+    functionProperties.Environment = {
+      Variables: combinedMiddlewareEnvironmentVariables
     };
   }
 };

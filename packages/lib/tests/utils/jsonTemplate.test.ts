@@ -603,4 +603,29 @@ describe("Test util jsonTemplate.processKeywords", () => {
       )
     );
   });
+
+  test("for object replacer with other keywords and level", async () => {
+    const newJson = cloneDeep(json);
+    delete newJson.a.key3;
+    mockedFunction(processors.key3).mockResolvedValue({
+      type: "object",
+      value: newJson,
+      level: 1
+    });
+    mockedFunction(processors.key5).mockResolvedValue({
+      type: "keyword",
+      value: {}
+    });
+
+    const expectedJson = cloneDeep(json);
+    delete expectedJson.a.key3;
+    delete expectedJson.key2.y[0].key5;
+
+    await expect(
+      processKeywords(jsonNode, {
+        key3: processors.key3,
+        key5: processors.key5
+      })
+    ).resolves.toEqual(expectedJson);
+  });
 });

@@ -4,6 +4,7 @@ import { basename, extname, join } from "path";
 import {
   JSONObjectNode,
   JSONPrimitiveNode,
+  JSONType,
   KeywordDefinition
 } from "somod-types";
 import {
@@ -13,6 +14,12 @@ import {
   resourceType_FunctionMiddleware
 } from "../../constants";
 import { getPath } from "../../jsonTemplate";
+
+export type FunctionMiddlewareProperties = {
+  CodeUri: KeywordSomodFunctionMiddleware;
+  Layers?: JSONType[];
+  Environment?: { Variables?: Record<string, JSONType> };
+} & Record<string, JSONType>;
 
 type FunctionMiddlewareType = string;
 
@@ -77,10 +84,11 @@ export const keywordFunctionMiddleware: KeywordDefinition<FunctionMiddlewareType
       };
     },
 
-    getProcessor: async () => (rootDir, node, value) => {
+    getProcessor: async () => () => {
       return {
         type: "object",
-        value
+        value: undefined,
+        level: 2
       };
     }
   };

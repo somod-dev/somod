@@ -256,7 +256,8 @@ describe("Test functionMiddleware keyword", () => {
       )
     ).toEqual({
       type: "object",
-      value: "mw1"
+      value: undefined,
+      level: 2
     });
   });
 });

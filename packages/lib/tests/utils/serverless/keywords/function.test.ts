@@ -5,7 +5,10 @@ import {
   getDeclaredFunctionsWithExcludedLibraries,
   keywordFunction
 } from "../../../../src/utils/serverless/keywords/function";
-import { keywordRef } from "../../../../src/utils/serverless/keywords/ref";
+import {
+  keywordRef,
+  KeywordSomodRef
+} from "../../../../src/utils/serverless/keywords/ref";
 import { join } from "path";
 import {
   IServerlessTemplateHandler,
@@ -17,6 +20,7 @@ import {
 } from "somod-types";
 import { existsSync } from "fs";
 import { listFiles } from "nodejs-file-utils";
+import { resourceType_FunctionMiddleware } from "../../../../src";
 
 jest.mock("nodejs-file-utils", () => {
   const original = jest.requireActual("nodejs-file-utils");
@@ -39,7 +43,7 @@ jest.mock("fs", () => {
 type FunctionType = {
   type: string;
   name: string;
-  exclude?: string[];
+  middlewares?: KeywordSomodRef[];
   customResources?: JSONObjectType;
 };
 
@@ -283,6 +287,71 @@ describe("Test function keyword", () => {
     ).resolves.toEqual([]);
   });
 
+  test("the validator with invalid middlewares", async () => {
+    const allResources: Record<string, Record<string, ServerlessResource>> = {
+      module1: {
+        M1: {
+          Type: "MyOrg::Serverless::Middleware",
+          Properties: {
+            AllowedTypes: ["Api"]
+          }
+        },
+        MyResource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              [keywordFunction.keyword]: {
+                type: "Api",
+                name: "func1",
+                middlewares: [
+                  { "SOMOD::Ref": { resource: "M1" } },
+                  { "SOMOD::Ref": { module: "module2", resource: "M2" } }
+                ]
+              }
+            }
+          }
+        }
+      },
+      module2: {
+        M2: {
+          Type: "SOMOD::Serverless::FunctionMiddleware",
+          Properties: {
+            AllowedTypes: ["RestApi", "S3", "Api"]
+          }
+        }
+      }
+    };
+    const validator = await keywordFunction.getValidator("", "module1", null, {
+      getResource: async (m, r) => {
+        return allResources[m][r];
+      }
+    } as IServerlessTemplateHandler);
+
+    const obj = { Resources: allResources.module1 };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    await expect(
+      validator(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).resolves.toEqual([
+      new Error(
+        "Middleware {module1, M1} used in the function func1 must be of type SOMOD::Serverless::FunctionMiddleware"
+      )
+    ]);
+  });
+
   test("the validator with non matching middlewares", async () => {
     const allResources: Record<string, Record<string, ServerlessResource>> = {
       module1: {
@@ -429,7 +498,7 @@ describe("Test function keyword", () => {
     );
   });
 
-  test("the processor", async () => {
+  test("the processor without middleware", async () => {
     const allModules = {
       m1: {
         moduleName: "m1",
@@ -459,7 +528,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(allModules.m1.json) as JSONObjectNode;
 
-    expect(
+    await expect(
       processor(
         keywordFunction.keyword,
         (
@@ -473,9 +542,305 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual({
+    ).resolves.toEqual({
       type: "object",
       value: "/root/dir/.somod/serverless/functions/m1/func1"
+    });
+  });
+
+  test("the processor with 0 middlewares", async () => {
+    const allModules = {
+      m1: {
+        moduleName: "m1",
+        location: "/a/b/c",
+        path: "serverless/template.yaml",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: {
+                  [keywordFunction.keyword]: { name: "func1", middlewares: [] }
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    const processor = await keywordFunction.getProcessor(
+      "/root/dir",
+      "m1",
+      null,
+      null
+    );
+
+    const objNode = parseJson(allModules.m1.json) as JSONObjectNode;
+
+    await expect(
+      processor(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        allModules.m1.json.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).resolves.toEqual({
+      type: "object",
+      value: "/root/dir/.somod/serverless/functions/m1/func1"
+    });
+  });
+
+  test("the processor with 1 middleware and no middleware properties", async () => {
+    const allModules = {
+      m1: {
+        moduleName: "m1",
+        location: "/a/b/c",
+        path: "serverless/template.yaml",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: {
+                  [keywordFunction.keyword]: {
+                    name: "func1",
+                    middlewares: [{ "SOMOD::Ref": { resource: "M1" } }]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    const processor = await keywordFunction.getProcessor(
+      "/root/dir",
+      "m1",
+      null,
+      {
+        getResource: async () => ({ Type: "", Properties: {} })
+      } as unknown as IServerlessTemplateHandler
+    );
+
+    const objNode = parseJson(allModules.m1.json) as JSONObjectNode;
+
+    await expect(
+      processor(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        allModules.m1.json.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).resolves.toEqual({
+      type: "object",
+      value: { CodeUri: "/root/dir/.somod/serverless/functions/m1/func1" },
+      level: 1
+    });
+  });
+
+  test("the processor with multiple middlewares", async () => {
+    const allModules = {
+      m1: {
+        moduleName: "m1",
+        location: "/a/b/c",
+        path: "serverless/template.yaml",
+        json: {
+          Resources: {
+            MyResource1: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: {
+                  [keywordFunction.keyword]: {
+                    name: "func1",
+                    middlewares: [
+                      { "SOMOD::Ref": { resource: "M1" } },
+                      { "SOMOD::Ref": { module: "m2", resource: "M2" } }
+                    ]
+                  }
+                },
+                Layers: [
+                  "arn:sample",
+                  {
+                    "SOMOD::Ref": {
+                      resource: "L1"
+                    }
+                  },
+                  {
+                    "SOMOD::Ref": {
+                      module: "m2",
+                      resource: "L2"
+                    }
+                  }
+                ],
+                Environment: {
+                  Variables: {
+                    ENV1: {
+                      "SOMOD::Ref": {
+                        module: "m3",
+                        resource: "E1",
+                        attribute: "name"
+                      }
+                    },
+                    ENV2: {
+                      "SOMOD::Parameter": "p1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    const processor = await keywordFunction.getProcessor(
+      "/root/dir",
+      "m1",
+      null,
+      {
+        getResource: async (m: string, r: string) => {
+          const middlewareResources = {
+            m1: {
+              M1: {
+                Type: resourceType_FunctionMiddleware,
+                Properties: {
+                  Layers: [
+                    {
+                      "SOMOD::Ref": {
+                        resource: "L2"
+                      }
+                    },
+                    {
+                      "SOMOD::Ref": {
+                        module: "m2",
+                        resource: "L2"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            m2: {
+              M2: {
+                Type: resourceType_FunctionMiddleware,
+                Properties: {
+                  Layers: [
+                    {
+                      "SOMOD::Ref": {
+                        module: "m3",
+                        resource: "L3"
+                      }
+                    },
+                    {
+                      "SOMOD::Ref": {
+                        module: "m2",
+                        resource: "L2"
+                      }
+                    }
+                  ],
+                  Environment: {
+                    Variables: {
+                      ENV1: {
+                        "SOMOD::Ref": {
+                          module: "m4",
+                          resource: "E2"
+                        }
+                      },
+                      ENV3: "hardcoded-env"
+                    }
+                  }
+                }
+              }
+            }
+          };
+          return middlewareResources[m][r];
+        }
+      } as unknown as IServerlessTemplateHandler
+    );
+
+    const objNode = parseJson(allModules.m1.json) as JSONObjectNode;
+
+    await expect(
+      processor(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        allModules.m1.json.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).resolves.toEqual({
+      type: "object",
+      level: 1,
+      value: {
+        CodeUri: "/root/dir/.somod/serverless/functions/m1/func1",
+        Layers: [
+          "arn:sample", // from function
+          {
+            "SOMOD::Ref": {
+              // from function
+              resource: "L1"
+            }
+          },
+          {
+            "SOMOD::Ref": {
+              // from function, middleware 1 and middleware 2
+              module: "m2",
+              resource: "L2"
+            }
+          },
+          {
+            "SOMOD::Ref": {
+              // from middleware 1
+              resource: "L2"
+            }
+          },
+          {
+            "SOMOD::Ref": {
+              // from middleware 2
+              module: "m3",
+              resource: "L3"
+            }
+          }
+        ],
+        Environment: {
+          Variables: {
+            ENV1: {
+              // from middleware 2 (overrides funtion value)
+              "SOMOD::Ref": {
+                module: "m4",
+                resource: "E2"
+              }
+            },
+            ENV2: {
+              // from function
+              "SOMOD::Parameter": "p1"
+            },
+            ENV3: "hardcoded-env" // from middleware 2
+          }
+        }
+      }
     });
   });
 });

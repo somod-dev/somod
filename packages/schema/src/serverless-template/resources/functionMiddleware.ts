@@ -13,13 +13,13 @@ export const functionMiddlewareResource: JSONSchema7 = {
       properties: {
         Properties: {
           type: "object",
-          required: ["allowedTypes"]
+          required: ["AllowedTypes"]
         }
       }
     }
   ],
   errorMessage: {
-    anyOf: "When not extended, Properties must have allowedTypes"
+    anyOf: "When not extended, Properties must have AllowedTypes"
   },
   properties: {
     Type: { const: "SOMOD::Serverless::FuntionMiddleware" },
