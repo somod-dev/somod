@@ -17,27 +17,37 @@ export type ModuleServerlessTemplate = Readonly<{
   template: ServerlessTemplate;
 }>;
 
+export type ServerlessResourceExtendMap = Readonly<{
+  module: string;
+  resource: string;
+  from: ServerlessResourceExtendMap[];
+}>;
+
 export interface IServerlessTemplateHandler {
   /**
-   * Returns the template after all the SOMOD::Extend are applied to the resources of template in question
-   *
    * Returns null if no template found for given module
    */
-  getTemplate(moduleName: string): Promise<ModuleServerlessTemplate | null>;
+  getTemplate(module: string): Promise<ModuleServerlessTemplate | null>;
 
-  /**
-   * Returns all templates after all the SOMOD::Extend are applied to the resources of each template
-   */
   listTemplates(): Promise<ModuleServerlessTemplate[]>;
 
   /**
-   * Returns the base Resource , after all SOMOD::Extend are applied
+   * returns the ServerlessResourceExtendMap for the original resource that is extended
    *
-   * Returns null if no resource found
+   * returns null if no resource found
+   */
+  getResourceExtendMap(
+    module: string,
+    resource: string
+  ): Promise<ServerlessResourceExtendMap | null>;
+
+  /**
+   * @deprecated
+   * TODO: remove this
    */
   getResource(
-    moduleName: string,
-    resourceId: string
+    module: string,
+    resource: string
   ): Promise<ServerlessResource | null>;
 
   getNodeRuntimeVersion(): string;

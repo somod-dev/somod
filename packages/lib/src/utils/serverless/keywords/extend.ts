@@ -2,7 +2,7 @@ import { getPath } from "../../jsonTemplate";
 import { checkAccess } from "./access";
 import { KeywordDefinition } from "somod-types";
 
-type Extend = { module: string; resource: string };
+export type Extend = { module: string; resource: string };
 
 export const keywordExtend: KeywordDefinition<Extend> = {
   keyword: "SOMOD::Extend",

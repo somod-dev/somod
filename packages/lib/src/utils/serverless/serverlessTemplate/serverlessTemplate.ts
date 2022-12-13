@@ -1,13 +1,12 @@
 import { createHash } from "crypto";
 import { existsSync } from "fs";
-import { merge } from "lodash";
 import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
 import { join } from "path";
 import {
   IModuleHandler,
   IServerlessTemplateHandler,
-  JSONType,
   Module,
+  ServerlessResourceExtendMap,
   ServerlessTemplate
 } from "somod-types";
 import {
@@ -30,7 +29,7 @@ import { ModuleHandler } from "../../moduleHandler";
 import { keywordAccess } from "../keywords/access";
 import { keywordCreateIf } from "../keywords/createIf";
 import { keywordDependsOn } from "../keywords/dependsOn";
-import { keywordExtend } from "../keywords/extend";
+import { Extend, keywordExtend } from "../keywords/extend";
 import { keywordFunction } from "../keywords/function";
 import { keywordFunctionLayer } from "../keywords/functionLayer";
 import { keywordFunctionMiddleware } from "../keywords/functionMiddleware";
@@ -66,26 +65,14 @@ export const getBaseKeywords = () => [
   keywordTemplateResources
 ];
 
-type ServerlessTemplateRaw = {
-  Resources: Record<
-    string,
-    {
-      "SOMOD::Extend"?: { module: string; resource: string };
-      Type: string;
-      Properties: Record<string, JSONType>;
-    } & Record<string, JSONType>
-  >;
-  Outputs?: Record<string, JSONType>;
-};
-
 export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
   private moduleHandler: IModuleHandler;
 
   private serverlessTemplates: Record<string, ServerlessTemplate>;
 
   private extendedResourceMap: Record<
-    string, // stringified JSON { module: string; resource: string } of from resource
-    { module: string; resource: string } // target resource
+    string,
+    Record<string, ServerlessResourceExtendMap>
   > = {};
 
   private static handler: IServerlessTemplateHandler;
@@ -105,7 +92,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
 
   private async loadBuiltServerlessTemplate(
     module: Module
-  ): Promise<ServerlessTemplateRaw | undefined> {
+  ): Promise<ServerlessTemplate | undefined> {
     const templateLocation = join(
       module.packageLocation,
       path_build,
@@ -124,7 +111,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
 
   private async loadSourceServerlessTemplate(
     module: Module
-  ): Promise<ServerlessTemplateRaw | undefined> {
+  ): Promise<ServerlessTemplate | undefined> {
     const templateLocation = join(
       module.packageLocation,
       path_serverless,
@@ -155,73 +142,38 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     );
 
     const templates = allTemplates.filter(t => !!t);
-    templates.reverse();
-    const templateMap = Object.fromEntries(
+    this.serverlessTemplates = Object.fromEntries(
       templates.map(t => [t.module, t.template])
     );
-    const resourceMap: Record<string, { module: string; resource: string }> =
-      {};
+    freeze(this.serverlessTemplates, true);
 
-    templates.forEach(moduleTemplate => {
-      Object.keys(moduleTemplate.template.Resources).forEach(resourceId => {
-        const resource = moduleTemplate.template.Resources[resourceId];
-        const _extend = resource["SOMOD::Extend"];
-        const thisResourceId = JSON.stringify({
-          module: moduleTemplate.module,
-          resource: resourceId
+    templates.reverse();
+    for (const { module, template } of templates) {
+      this.extendedResourceMap[module] = {};
+      for (const resourceId in template.Resources) {
+        const resource = template.Resources[resourceId];
+        this.extendedResourceMap[module][resourceId] = freeze({
+          module,
+          resource: resourceId,
+          from: []
         });
-        resourceMap[thisResourceId] = {
-          module: moduleTemplate.module,
-          resource: resourceId
-        };
-        if (_extend) {
-          if (_extend.module == moduleTemplate.module) {
-            throw new Error(
-              `Can not extend the resource ${_extend.resource} in the same module ${_extend.module}. Edit the resource directly`
-            );
-          }
-          const targetResource =
-            resourceMap[
-              JSON.stringify({
-                module: _extend.module, // preserve the order to work in JSON stringify
-                resource: _extend.resource
-              })
-            ];
 
-          if (targetResource === undefined) {
-            throw new Error(
-              `Extended module resource {${_extend.module}, ${_extend.resource}} not found. Extended from {${moduleTemplate.module}, ${resourceId}}`
-            );
-          }
-          if (
-            templateMap[targetResource.module].Resources[
-              targetResource.resource
-            ].Type != resource.Type
-          ) {
-            throw new Error(
-              `Can extend only same type of resource. ${
-                resource.Type
-              } can not extend ${
-                templateMap[targetResource.module].Resources[
-                  targetResource.resource
-                ].Type
-              }`
-            );
-          }
-          merge(
-            templateMap[targetResource.module].Resources[
-              targetResource.resource
-            ].Properties,
-            resource.Properties
-          );
-          resourceMap[thisResourceId] = targetResource;
+        if (resource[keywordExtend.keyword]) {
+          const { module: extendedModule, resource: extendedResource } =
+            resource[keywordExtend.keyword] as Extend;
+          this.extendedResourceMap[extendedModule]?.[
+            extendedResource
+          ]?.from.push(this.extendedResourceMap[module][resourceId]);
         }
-      });
-    });
-    freeze(templateMap, true);
-    freeze(resourceMap, true);
-    this.serverlessTemplates = templateMap;
-    this.extendedResourceMap = resourceMap;
+      }
+    }
+
+    // freeze all from in extendedResourceMap
+    for (const module in this.extendedResourceMap) {
+      for (const resource in this.extendedResourceMap[module]) {
+        freeze(this.extendedResourceMap[module][resource].from);
+      }
+    }
   }
 
   private async load() {
@@ -249,17 +201,48 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     }));
   }
 
-  async getResource(moduleName: string, resourceId: string) {
+  async getResourceExtendMap(moduleName: string, resourceId: string) {
     await this.load();
-    const actualResourceId = this.extendedResourceMap[
-      JSON.stringify({ module: moduleName, resource: resourceId })
-    ] || { module: undefined, resource: undefined };
     const resource =
-      this.serverlessTemplates[actualResourceId.module]?.Resources[
-        actualResourceId.resource
-      ] || null;
+      this.serverlessTemplates[moduleName]?.Resources[resourceId];
 
-    return resource;
+    if (!resource) {
+      return null;
+    }
+
+    let baseResourceId = { module: moduleName, resource: resourceId };
+    let baseResource = resource;
+    while (baseResource[keywordExtend.keyword]) {
+      const extend = baseResource[keywordExtend.keyword] as Extend;
+      baseResource =
+        this.serverlessTemplates[extend.module]?.Resources[extend.resource];
+      if (baseResource === undefined) {
+        throw new Error(
+          `Extended resource {${extend.module}, ${extend.resource}} not found. Extended from {${baseResourceId.module}, ${baseResourceId.resource}}`
+        );
+      }
+      baseResourceId = extend;
+    }
+
+    return this.extendedResourceMap[baseResourceId.module][
+      baseResourceId.resource
+    ];
+  }
+
+  /**
+   * @deprecated
+   * TODO: remove this
+   */
+  async getResource(module: string, resource: string) {
+    const resourceExtendedMap = await this.getResourceExtendMap(
+      module,
+      resource
+    );
+    return (
+      this.serverlessTemplates[resourceExtendedMap.module]?.Resources[
+        resourceExtendedMap.resource
+      ] || null
+    );
   }
 
   getNodeRuntimeVersion(): string {
