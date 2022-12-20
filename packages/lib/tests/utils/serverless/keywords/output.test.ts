@@ -201,7 +201,7 @@ describe("Test util checkOutput from output keyword for", () => {
         checkOutput(
           {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            getResource: async (m, r) => resource
+            getBaseResource: async (m, r) => resource
           } as IServerlessTemplateHandler,
           "@s/m1",
           "MyResource1",

@@ -254,7 +254,7 @@ describe("Test util checkAccess from access keyword for", () => {
       expect(
         checkAccess(
           {
-            getResource: async () => {
+            getBaseResource: async () => {
               return resource;
             }
           } as unknown as IServerlessTemplateHandler,
@@ -272,7 +272,7 @@ describe("Test util checkAccess from access keyword for", () => {
     await expect(
       checkAccess(
         {
-          getResource: async () => {
+          getBaseResource: async () => {
             return null;
           }
         } as unknown as IServerlessTemplateHandler,

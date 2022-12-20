@@ -35,9 +35,10 @@ export const checkAccess = async (
 
   const accessedModule = accessedResource.module || sourceModule;
 
-  const resource = await serverlessTemplateHandler.getResource(
+  const resource = await serverlessTemplateHandler.getBaseResource(
     accessedModule,
-    accessedResource.resource
+    accessedResource.resource,
+    true
   );
 
   if (!resource) {

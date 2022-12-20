@@ -101,7 +101,7 @@ describe("Test dependsOn keyword", () => {
 
   test("the validator calling checkAccess for each depended resource", async () => {
     const validator = await keywordDependsOn.getValidator("", "m0", null, {
-      getResource: async (m, r) => {
+      getBaseResource: async (m, r) => {
         const resources = {
           m1: { resource1: { Type: "MyType", Properties: {} } },
           m2: { r1: { Type: "MyType", Properties: {} } }
@@ -139,13 +139,13 @@ describe("Test dependsOn keyword", () => {
 
     expect(checkAccess).toHaveBeenCalledTimes(2);
     expect(checkAccess).toHaveBeenCalledWith(
-      expect.objectContaining({ getResource: expect.any(Function) }),
+      expect.objectContaining({ getBaseResource: expect.any(Function) }),
       "m0",
       { module: "m1", resource: "resource1" },
       "Depended"
     );
     expect(checkAccess).toHaveBeenCalledWith(
-      expect.objectContaining({ getResource: expect.any(Function) }),
+      expect.objectContaining({ getBaseResource: expect.any(Function) }),
       "m0",
       { module: "m2", resource: "r1" },
       "Depended"

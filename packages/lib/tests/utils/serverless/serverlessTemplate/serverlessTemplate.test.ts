@@ -349,6 +349,7 @@ describe("Test util serverlessTemplate.ServerlessTemplateHandler.<instanceMethod
     ]);
   });
 
+  /*
   test("getResourceExtendMap", async () => {
     createFiles(dir, {
       "serverless/template.yaml": dump({
@@ -513,5 +514,5 @@ describe("Test util serverlessTemplate.ServerlessTemplateHandler.<instanceMethod
         "resource": "R11",
       }
     `);
-  });
+  }); */
 });

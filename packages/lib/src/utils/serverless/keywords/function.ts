@@ -110,6 +110,7 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
         }
 
         // middlewares
+        // For allowed Type, and middleware type
         const middlewareAllowedTypes: Record<string, string[]> = {};
         const invalidMiddlewares: string[] = [];
         await Promise.all(
@@ -117,9 +118,10 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
             const module = middleware["SOMOD::Ref"].module || moduleName;
             const resource = middleware["SOMOD::Ref"].resource;
 
-            const mResource = await serverlessTemplateHandler.getResource(
+            const mResource = await serverlessTemplateHandler.getBaseResource(
               module,
-              resource
+              resource,
+              true
             );
             if (mResource.Type !== resourceType_FunctionMiddleware) {
               errors.push(
@@ -236,10 +238,12 @@ const mergeMiddlewareProperties = async (
       if (!middlewareRef.module) {
         middlewareRef.module = moduleName;
       }
-      const middlewareResource = await serverlessTemplateHandler.getResource(
-        middlewareRef.module,
-        middlewareRef.resource
-      );
+      const middlewareResource =
+        await serverlessTemplateHandler.getBaseResource(
+          middlewareRef.module,
+          middlewareRef.resource,
+          true
+        );
 
       if (!middlewareProperties[middlewareRef.module]) {
         middlewareProperties[middlewareRef.module] = {};
@@ -314,10 +318,11 @@ export const checkCustomResourceSchema = async (
       custom_resource_prefix.length
     );
 
-    const functionResource = await serverlessTemplateHandler.getResource(
+    const functionResource = await serverlessTemplateHandler.getBaseResource(
       customResource.Properties.ServiceToken["SOMOD::Ref"].module ||
         currentModuleName,
-      customResource.Properties.ServiceToken["SOMOD::Ref"].resource
+      customResource.Properties.ServiceToken["SOMOD::Ref"].resource,
+      true
     );
 
     const codeUriOfTheTargetResource = functionResource?.Properties.CodeUri;
@@ -375,9 +380,10 @@ const getLayerLibraries = async (
 
   await Promise.all(
     uniqueLayerRefs.map(async layerRef => {
-      const resource = await serverlessTemplateHandler.getResource(
+      const resource = await serverlessTemplateHandler.getBaseResource(
         layerRef.module,
-        layerRef.resource
+        layerRef.resource,
+        true
       );
       const layerLibraries = getLibrariesFromFunctionLayerResource(resource);
       libraries.push(...layerLibraries);
@@ -405,9 +411,10 @@ const getMiddlewareLayers = async (
 
   await Promise.all(
     uniqueMiddlewareRefs.map(async middleWareRef => {
-      const resource = await serverlessTemplateHandler.getResource(
+      const resource = await serverlessTemplateHandler.getBaseResource(
         middleWareRef.module,
-        middleWareRef.resource
+        middleWareRef.resource,
+        true
       );
       layers.push(...(resource.Properties.Layers as KeywordSomodRef[]));
     })

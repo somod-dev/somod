@@ -17,12 +17,6 @@ export type ModuleServerlessTemplate = Readonly<{
   template: ServerlessTemplate;
 }>;
 
-export type ServerlessResourceExtendMap = Readonly<{
-  module: string;
-  resource: string;
-  from: ServerlessResourceExtendMap[];
-}>;
-
 export interface IServerlessTemplateHandler {
   /**
    * Returns null if no template found for given module
@@ -32,22 +26,16 @@ export interface IServerlessTemplateHandler {
   listTemplates(): Promise<ModuleServerlessTemplate[]>;
 
   /**
-   * returns the ServerlessResourceExtendMap for the original resource that is extended
-   *
-   * returns null if no resource found
+   * Returns the base resource of extend-resource tree
    */
-  getResourceExtendMap(
+  getBaseResource(
     module: string,
-    resource: string
-  ): Promise<ServerlessResourceExtendMap | null>;
-
-  /**
-   * @deprecated
-   * TODO: remove this
-   */
-  getResource(
-    module: string,
-    resource: string
+    resource: string,
+    merged?: boolean,
+    findResource?: (
+      module: string,
+      resource: string
+    ) => Promise<ServerlessResource>
   ): Promise<ServerlessResource | null>;
 
   getNodeRuntimeVersion(): string;

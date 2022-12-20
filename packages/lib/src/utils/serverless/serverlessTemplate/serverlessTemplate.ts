@@ -1,12 +1,14 @@
 import { createHash } from "crypto";
 import { existsSync } from "fs";
+import JSONObjectMerge from "json-object-merge";
+import { cloneDeep } from "lodash";
 import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
 import { join } from "path";
 import {
   IModuleHandler,
   IServerlessTemplateHandler,
   Module,
-  ServerlessResourceExtendMap,
+  ServerlessResource,
   ServerlessTemplate
 } from "somod-types";
 import {
@@ -65,14 +67,20 @@ export const getBaseKeywords = () => [
   keywordTemplateResources
 ];
 
+type ServerlessResourceExtendTreeNode = {
+  module: string;
+  resource: string;
+  from: ServerlessResourceExtendTreeNode[];
+};
+
 export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
   private moduleHandler: IModuleHandler;
 
   private serverlessTemplates: Record<string, ServerlessTemplate>;
 
-  private extendedResourceMap: Record<
+  private extendedResourceTreeMap: Record<
     string,
-    Record<string, ServerlessResourceExtendMap>
+    Record<string, ServerlessResourceExtendTreeNode>
   > = {};
 
   private static handler: IServerlessTemplateHandler;
@@ -90,7 +98,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     return this.handler;
   }
 
-  private async loadBuiltServerlessTemplate(
+  private async _loadBuiltServerlessTemplate(
     module: Module
   ): Promise<ServerlessTemplate | undefined> {
     const templateLocation = join(
@@ -109,7 +117,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     }
   }
 
-  private async loadSourceServerlessTemplate(
+  private async _loadSourceServerlessTemplate(
     module: Module
   ): Promise<ServerlessTemplate | undefined> {
     const templateLocation = join(
@@ -127,14 +135,14 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     }
   }
 
-  private async loadServerlessTemplates() {
+  private async _loadServerlessTemplates() {
     const moduleNodes = await this.moduleHandler.listModules();
 
     const allTemplates = await Promise.all(
       moduleNodes.map(async moduleNode => {
         const template = moduleNode.module.root
-          ? await this.loadSourceServerlessTemplate(moduleNode.module)
-          : await this.loadBuiltServerlessTemplate(moduleNode.module);
+          ? await this._loadSourceServerlessTemplate(moduleNode.module)
+          : await this._loadBuiltServerlessTemplate(moduleNode.module);
         if (template) {
           return { module: moduleNode.module.name, template };
         }
@@ -149,10 +157,10 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
 
     templates.reverse();
     for (const { module, template } of templates) {
-      this.extendedResourceMap[module] = {};
+      this.extendedResourceTreeMap[module] = {};
       for (const resourceId in template.Resources) {
         const resource = template.Resources[resourceId];
-        this.extendedResourceMap[module][resourceId] = freeze({
+        this.extendedResourceTreeMap[module][resourceId] = freeze({
           module,
           resource: resourceId,
           from: []
@@ -161,29 +169,29 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
         if (resource[keywordExtend.keyword]) {
           const { module: extendedModule, resource: extendedResource } =
             resource[keywordExtend.keyword] as Extend;
-          this.extendedResourceMap[extendedModule]?.[
+          this.extendedResourceTreeMap[extendedModule]?.[
             extendedResource
-          ]?.from.push(this.extendedResourceMap[module][resourceId]);
+          ]?.from.push(this.extendedResourceTreeMap[module][resourceId]);
         }
       }
     }
 
     // freeze all from in extendedResourceMap
-    for (const module in this.extendedResourceMap) {
-      for (const resource in this.extendedResourceMap[module]) {
-        freeze(this.extendedResourceMap[module][resource].from);
+    for (const module in this.extendedResourceTreeMap) {
+      for (const resource in this.extendedResourceTreeMap[module]) {
+        freeze(this.extendedResourceTreeMap[module][resource].from);
       }
     }
   }
 
-  private async load() {
+  private async _load() {
     if (!this.serverlessTemplates) {
-      await this.loadServerlessTemplates();
+      await this._loadServerlessTemplates();
     }
   }
 
   async getTemplate(moduleName: string) {
-    await this.load();
+    await this._load();
     const template = this.serverlessTemplates[moduleName];
     return template
       ? {
@@ -194,15 +202,18 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
   }
 
   async listTemplates() {
-    await this.load();
+    await this._load();
     return Object.keys(this.serverlessTemplates).map(module => ({
       module,
       template: this.serverlessTemplates[module]
     }));
   }
 
-  async getResourceExtendMap(moduleName: string, resourceId: string) {
-    await this.load();
+  private async _getResourceExtendTreeRootNode(
+    moduleName: string,
+    resourceId: string
+  ) {
+    await this._load();
     const resource =
       this.serverlessTemplates[moduleName]?.Resources[resourceId];
 
@@ -224,25 +235,93 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
       baseResourceId = extend;
     }
 
-    return this.extendedResourceMap[baseResourceId.module][
+    return this.extendedResourceTreeMap[baseResourceId.module][
       baseResourceId.resource
     ];
   }
 
-  /**
-   * @deprecated
-   * TODO: remove this
-   */
-  async getResource(module: string, resource: string) {
-    const resourceExtendedMap = await this.getResourceExtendMap(
-      module,
-      resource
+  async getBaseResource(
+    module: string,
+    resource: string,
+    merge = false,
+    findResource: (
+      module: string,
+      resource: string
+    ) => Promise<ServerlessResource> = undefined
+  ) {
+    const resourceExtendedTreeRootNode =
+      await this._getResourceExtendTreeRootNode(module, resource);
+    if (resourceExtendedTreeRootNode === null) {
+      return null;
+    }
+    if (!merge) {
+      return (
+        this.serverlessTemplates[resourceExtendedTreeRootNode.module]
+          ?.Resources[resourceExtendedTreeRootNode.resource] || null
+      );
+    }
+    const _findResource =
+      findResource ||
+      (async (module: string, resource: string) => {
+        return this.serverlessTemplates[module]?.Resources[resource] || null;
+      });
+
+    return this._mergeExtendedResources(
+      resourceExtendedTreeRootNode,
+      _findResource,
+      getBaseKeywords().map(kd => kd.keyword)
     );
-    return (
-      this.serverlessTemplates[resourceExtendedMap.module]?.Resources[
-        resourceExtendedMap.resource
-      ] || null
-    );
+  }
+
+  private async _mergeExtendedResources(
+    resourceExtendTreeRootNode: ServerlessResourceExtendTreeNode,
+    findResource: (
+      module: string,
+      resource: string
+    ) => Promise<ServerlessResource>,
+    keywords: string[] = []
+  ): Promise<ServerlessResource> {
+    type Mutable<Type> = {
+      -readonly [key in keyof Type]: Type[key];
+    };
+
+    const extendedResource = cloneDeep(
+      await findResource(
+        resourceExtendTreeRootNode.module,
+        resourceExtendTreeRootNode.resource
+      )
+    ) as Mutable<ServerlessResource>;
+
+    const rulesToExcludeObjectsWithKeyword: Extend["rules"] =
+      Object.fromEntries(
+        keywords.map(keyword => [`$..[?(@['${keyword}'])]`, "REPLACE"])
+      );
+
+    if (resourceExtendTreeRootNode.from.length > 0) {
+      const queue = [...resourceExtendTreeRootNode.from];
+      while (queue.length > 0) {
+        const currentExtendTreeNode = queue.shift();
+        const currentResource = await findResource(
+          currentExtendTreeNode.module,
+          currentExtendTreeNode.resource
+        );
+        const extendRulesInCurrentResource =
+          (currentResource[keywordExtend.keyword] as Extend)?.rules || {};
+
+        extendedResource.Properties = JSONObjectMerge(
+          extendedResource.Properties,
+          currentResource.Properties,
+          {
+            ...rulesToExcludeObjectsWithKeyword,
+            ...extendRulesInCurrentResource
+          }
+        ) as ServerlessResource["Properties"];
+
+        queue.push(...currentExtendTreeNode.from);
+      }
+    }
+
+    return extendedResource;
   }
 
   getNodeRuntimeVersion(): string {

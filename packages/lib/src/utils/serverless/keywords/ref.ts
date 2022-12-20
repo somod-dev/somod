@@ -63,9 +63,10 @@ export const keywordRef: KeywordDefinition<Ref> = {
       if (errors.length == 0) {
         const targetModule = value.module || moduleName;
 
-        const targetResource = await serverlessTemplateHandler.getResource(
+        const targetResource = await serverlessTemplateHandler.getBaseResource(
           targetModule,
-          value.resource
+          value.resource,
+          true
         );
 
         if (!targetResource) {

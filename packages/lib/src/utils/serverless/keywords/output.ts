@@ -45,9 +45,10 @@ export const checkOutput = async (
 
   const targetModule = module || currentModule;
 
-  const targetResource = await serverlessTemplateHandler.getResource(
+  const targetResource = await serverlessTemplateHandler.getBaseResource(
     targetModule,
-    resource
+    resource,
+    true
   );
 
   const outputDefinitionInTargetResource = targetResource?.[

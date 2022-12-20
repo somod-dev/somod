@@ -1,8 +1,13 @@
 import { getPath } from "../../jsonTemplate";
 import { checkAccess } from "./access";
 import { KeywordDefinition } from "somod-types";
+import { Operation } from "json-object-merge";
 
-export type Extend = { module: string; resource: string };
+export type Extend = {
+  module: string;
+  resource: string;
+  rules?: Record<string, Operation>;
+};
 
 export const keywordExtend: KeywordDefinition<Extend> = {
   keyword: "SOMOD::Extend",
