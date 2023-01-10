@@ -322,8 +322,8 @@ describe("Test function keyword", () => {
       }
     };
     const validator = await keywordFunction.getValidator("", "module1", null, {
-      getBaseResource: async (m, r) => {
-        return allResources[m][r];
+      getResource: async (m, r) => {
+        return { resource: allResources[m][r], propertyModuleMap: {} };
       }
     } as IServerlessTemplateHandler);
 
@@ -387,8 +387,8 @@ describe("Test function keyword", () => {
       }
     };
     const validator = await keywordFunction.getValidator("", "module1", null, {
-      getBaseResource: async (m, r) => {
-        return allResources[m][r];
+      getResource: async (m, r) => {
+        return { resource: allResources[m][r] };
       }
     } as IServerlessTemplateHandler);
 
@@ -452,8 +452,8 @@ describe("Test function keyword", () => {
       }
     };
     const validator = await keywordFunction.getValidator("", "module1", null, {
-      getBaseResource: async (m, r) => {
-        return allResources[m][r];
+      getResource: async (m, r) => {
+        return { resource: allResources[m][r] };
       }
     } as IServerlessTemplateHandler);
 
@@ -627,7 +627,7 @@ describe("Test function keyword", () => {
       "m1",
       null,
       {
-        getBaseResource: async () => ({ Type: "", Properties: {} })
+        getResource: async () => ({ resource: { Type: "", Properties: {} } })
       } as unknown as IServerlessTemplateHandler
     );
 
@@ -714,7 +714,7 @@ describe("Test function keyword", () => {
       "m1",
       null,
       {
-        getBaseResource: async (m: string, r: string) => {
+        getResource: async (m: string, r: string) => {
           const middlewareResources = {
             m1: {
               M1: {
@@ -769,7 +769,7 @@ describe("Test function keyword", () => {
               }
             }
           };
-          return middlewareResources[m][r];
+          return { resource: middlewareResources[m][r] };
         }
       } as unknown as IServerlessTemplateHandler
     );
@@ -983,8 +983,9 @@ describe("Test util getDeclaredFunctionsWithExcludedLibraries in keyword functio
       getDeclaredFunctionsWithExcludedLibraries(
         {
           getTemplate: async m => moduleTemplates[m],
-          getBaseResource: async (m, r) =>
-            moduleTemplates[m].template.Resources[r]
+          getResource: async (m, r) => ({
+            resource: moduleTemplates[m].template.Resources[r]
+          })
         } as IServerlessTemplateHandler,
         "m1"
       )
@@ -1092,8 +1093,8 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
     await expect(
       checkCustomResourceSchema(
         {
-          getBaseResource: async (m, r) => {
-            return moduleTemplates[m]?.Resources[r];
+          getResource: async (m, r) => {
+            return { resource: moduleTemplates[m]?.Resources[r] };
           }
         } as IServerlessTemplateHandler,
         (
@@ -1118,8 +1119,8 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
     await expect(
       checkCustomResourceSchema(
         {
-          getBaseResource: async (m, r) => {
-            return moduleTemplates[m]?.Resources[r];
+          getResource: async (m, r) => {
+            return { resource: moduleTemplates[m]?.Resources[r] };
           }
         } as IServerlessTemplateHandler,
         (
@@ -1144,8 +1145,8 @@ describe("Test util checkCustomResourceSchema in keyword function", () => {
     await expect(
       checkCustomResourceSchema(
         {
-          getBaseResource: async (m, r) => {
-            return moduleTemplates[m]?.Resources[r];
+          getResource: async (m, r) => {
+            return { resource: moduleTemplates[m]?.Resources[r] };
           }
         } as IServerlessTemplateHandler,
         (

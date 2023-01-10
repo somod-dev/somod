@@ -1,4 +1,4 @@
-import { IServerlessTemplateHandler, KeywordDefinition } from "somod-types";
+import { KeywordDefinition, ServerlessResource } from "somod-types";
 import { getPath } from "../../jsonTemplate";
 
 type Output = {
@@ -34,44 +34,27 @@ export const keywordOutput: KeywordDefinition<Output> = {
   }
 };
 
-export const checkOutput = async (
-  serverlessTemplateHandler: IServerlessTemplateHandler,
-  currentModule: string,
-  resource: string,
-  module?: string,
-  attribute?: string
-): Promise<Error[]> => {
-  const errors: Error[] = [];
-
-  const targetModule = module || currentModule;
-
-  const targetResource = await serverlessTemplateHandler.getBaseResource(
-    targetModule,
-    resource,
-    true
-  );
-
-  const outputDefinitionInTargetResource = targetResource?.[
+export const checkOutput = (
+  resource: ServerlessResource,
+  referencedModule: string,
+  referencedResource: string,
+  referencedAttribute?: string
+) => {
+  const outputDefinitionInTargetResource = resource[
     keywordOutput.keyword
   ] as Output;
 
-  if (attribute === undefined) {
+  if (referencedAttribute === undefined) {
     if (!outputDefinitionInTargetResource?.default) {
-      errors.push(
-        new Error(
-          `default must be true in ${keywordOutput.keyword} of ${resource} resource in ${targetModule}.`
-        )
+      throw new Error(
+        `default must be true in ${keywordOutput.keyword} of ${referencedResource} resource in ${referencedModule}.`
       );
     }
   } else if (
-    !outputDefinitionInTargetResource?.attributes.includes(attribute)
+    !outputDefinitionInTargetResource?.attributes.includes(referencedAttribute)
   ) {
-    errors.push(
-      new Error(
-        `attributes must have ${attribute} in ${keywordOutput.keyword} of ${resource} resource in ${targetModule}.`
-      )
+    throw new Error(
+      `attributes must have ${referencedAttribute} in ${keywordOutput.keyword} of ${referencedResource} resource in ${referencedModule}.`
     );
   }
-
-  return errors;
 };

@@ -15,6 +15,37 @@ import {
 } from "../../constants";
 import { getPath } from "../../jsonTemplate";
 
+const validateKeywordPosition = (node: JSONObjectNode) => {
+  const path = getPath(node);
+  if (
+    !(
+      path.length == 4 &&
+      path[0] == "Resources" &&
+      path[2] == "Properties" &&
+      path[3] == "CodeUri" &&
+      (
+        (node.parent.node.parent.node as JSONObjectNode).properties
+          ?.Type as JSONPrimitiveNode
+      ).value == resourceType_FunctionMiddleware
+    )
+  ) {
+    throw new Error(
+      `${keywordFunctionMiddleware.keyword} is allowed only as value of CodeUri property of ${resourceType_FunctionMiddleware} resource`
+    );
+  }
+};
+
+const validateFunctionMiddlewareIsDefined = (
+  definedFunctionMiddlewares: string[],
+  functionMiddlewareName: string
+) => {
+  if (!definedFunctionMiddlewares.includes(functionMiddlewareName)) {
+    throw new Error(
+      `Function Middleware ${functionMiddlewareName} not found. Create the middleware under ${path_serverless}/${path_functions}/${path_middlewares} directory`
+    );
+  }
+};
+
 export type FunctionMiddlewareProperties = {
   CodeUri: KeywordSomodFunctionMiddleware;
   Layers?: JSONType[];
@@ -53,33 +84,13 @@ export const keywordFunctionMiddleware: KeywordDefinition<FunctionMiddlewareType
       return (keyword, node, value) => {
         const errors: Error[] = [];
 
-        const path = getPath(node);
-        if (
-          !(
-            path.length == 4 &&
-            path[0] == "Resources" &&
-            path[2] == "Properties" &&
-            path[3] == "CodeUri" &&
-            (
-              (node.parent.node.parent.node as JSONObjectNode).properties
-                ?.Type as JSONPrimitiveNode
-            ).value == resourceType_FunctionMiddleware
-          )
-        ) {
-          errors.push(
-            new Error(
-              `${keyword} is allowed only as value of CodeUri property of ${resourceType_FunctionMiddleware} resource`
-            )
-          );
-        } else {
-          if (!definedMiddlewares.includes(value)) {
-            errors.push(
-              new Error(
-                `Function Middleware ${value} not found. Create the middleware under ${path_serverless}/${path_functions}/${path_middlewares} directory`
-              )
-            );
-          }
+        try {
+          validateKeywordPosition(node);
+          validateFunctionMiddlewareIsDefined(definedMiddlewares, value);
+        } catch (e) {
+          errors.push(e);
         }
+
         return errors;
       };
     },

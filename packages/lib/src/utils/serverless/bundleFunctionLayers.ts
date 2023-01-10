@@ -1,38 +1,54 @@
 import { childProcess, ChildProcessStreamConfig } from "nodejs-cli-runner";
 import { mkdir, writeFile } from "fs/promises";
-import { join } from "path";
+import { dirname, join } from "path";
 import {
   file_packageJson,
   path_functionLayers,
   path_serverless,
   path_somodWorkingDir
 } from "../constants";
-import { read } from "../packageJson";
-import { getFunctionLayerLibraries } from "./keywords/functionLayer";
+import { getDeclaredFunctionLayers } from "./keywords/functionLayer";
 import { ModuleHandler } from "../moduleHandler";
 import { ServerlessTemplateHandler } from "./serverlessTemplate/serverlessTemplate";
-import { ServerlessTemplate } from "somod-types";
+import { IModuleHandler, IServerlessTemplateHandler } from "somod-types";
+import { read } from "../packageJson";
 
 const path_layerNodeJs = "nodejs";
 
 export const bundleFunctionLayersForModule = async (
   rootDir: string,
   moduleName: string,
-  modulePackageLocation: string,
-  serverlessTemplate: ServerlessTemplate,
+  serverlessTemplateHandler: IServerlessTemplateHandler,
+  moduleHandler: IModuleHandler,
   verbose = false
 ): Promise<void> => {
-  const layerLibraries = getFunctionLayerLibraries(serverlessTemplate);
+  const declaredLayers = await getDeclaredFunctionLayers(
+    serverlessTemplateHandler,
+    moduleName
+  );
 
-  const devDependencies =
-    (await read(modulePackageLocation)).devDependencies || {};
+  const moduleDevDependenciesMap: Record<string, Record<string, string>> = {};
+  declaredLayers.forEach(declaredLayer => {
+    declaredLayer.libraries.forEach(library => {
+      moduleDevDependenciesMap[library.module] = {};
+    });
+  });
+  await Promise.all(
+    Object.keys(moduleDevDependenciesMap).map(async module => {
+      const modulePackageLocation = (await moduleHandler.getModule(module))
+        .module.packageLocation;
+
+      const devDependencies = ((await read(modulePackageLocation))
+        .devDependencies || {}) as Record<string, string>;
+      moduleDevDependenciesMap[module] = devDependencies;
+    })
+  );
 
   const buildFunctionLayersPath = join(
     rootDir,
     path_somodWorkingDir,
     path_serverless,
-    path_functionLayers,
-    moduleName
+    path_functionLayers
   );
 
   const npmCommand = process.platform == "win32" ? "npm.cmd" : "npm";
@@ -42,23 +58,24 @@ export const bundleFunctionLayersForModule = async (
   };
 
   await Promise.all(
-    Object.keys(layerLibraries).map(async layerName => {
+    Object.values(declaredLayers).map(async declaredLayer => {
       try {
         const layerPackageJson = {
-          name: moduleName + "-" + layerName.toLowerCase(),
+          name: declaredLayer.module + "-" + declaredLayer.name.toLowerCase(),
           version: "1.0.0",
-          description: `Lambda function layer - ${layerName}`,
+          description: `Lambda function layer - ${declaredLayer.name}`,
           dependencies: Object.fromEntries(
-            layerLibraries[layerName].map(library => [
-              library,
-              devDependencies[library]
+            declaredLayer.libraries.map(library => [
+              library.name,
+              moduleDevDependenciesMap[library.module][library.name]
             ])
           )
         };
 
         const layerLocation = join(
           buildFunctionLayersPath,
-          layerName,
+          declaredLayer.module,
+          declaredLayer.name,
           path_layerNodeJs
         );
 
@@ -75,9 +92,26 @@ export const bundleFunctionLayersForModule = async (
           streamConfig,
           streamConfig
         );
+
+        await Promise.all(
+          Object.keys(declaredLayer.content).map(async contentPath => {
+            const contentFullPath = join(
+              buildFunctionLayersPath,
+              declaredLayer.module,
+              declaredLayer.name,
+              contentPath
+            );
+
+            await mkdir(dirname(contentFullPath), { recursive: true });
+            await writeFile(
+              contentFullPath,
+              declaredLayer.content[contentPath]
+            );
+          })
+        );
       } catch (e) {
         throw new Error(
-          `bundle function layer failed for ${layerName} from ${moduleName} module: ${e.message}`
+          `bundle function layer failed for ${declaredLayer} from ${moduleName} module: ${e.message}`
         );
       }
     })
@@ -88,9 +122,11 @@ export const bundleFunctionLayers = async (
   dir: string,
   verbose = false
 ): Promise<void> => {
-  const moduleNodes = await ModuleHandler.getModuleHandler().listModules();
-  const templates =
-    await ServerlessTemplateHandler.getServerlessTemplateHandler().listTemplates();
+  const moduleHandler = ModuleHandler.getModuleHandler();
+  const moduleNodes = await moduleHandler.listModules();
+  const serverlessTemplateHandler =
+    ServerlessTemplateHandler.getServerlessTemplateHandler();
+  const templates = await serverlessTemplateHandler.listTemplates();
   const templateMap = Object.fromEntries(
     templates.map(t => [t.module, t.template])
   );
@@ -101,8 +137,8 @@ export const bundleFunctionLayers = async (
         await bundleFunctionLayersForModule(
           dir,
           moduleName,
-          moduleNode.module.packageLocation,
-          templateMap[moduleName],
+          serverlessTemplateHandler,
+          moduleHandler,
           verbose
         );
       }

@@ -52,7 +52,7 @@ describe("Test ref keyword", () => {
   };
   const getValidator = (currentModule = "m1") =>
     keywordRef.getValidator("", currentModule, null, {
-      getBaseResource: async (m, r) => template.Resources[r]
+      getResource: async (m, r) => ({ resource: template.Resources[r] })
     } as IServerlessTemplateHandler);
   const getProcessor = () =>
     keywordRef.getProcessor("", "m1", null, {
@@ -221,7 +221,7 @@ describe("Test ref keyword", () => {
     expect(checkAccess).toHaveBeenCalledTimes(1);
     expect(checkAccess).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ getBaseResource: expect.any(Function) }),
+      expect.objectContaining({ getResource: expect.any(Function) }),
       "m1",
       {
         resource: "TargetResource"
@@ -230,7 +230,7 @@ describe("Test ref keyword", () => {
     expect(checkOutput).toHaveBeenCalledTimes(1);
     expect(checkOutput).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ getBaseResource: expect.any(Function) }),
+      expect.objectContaining({ getResource: expect.any(Function) }),
       "m1",
       "TargetResource",
       undefined,
@@ -239,7 +239,7 @@ describe("Test ref keyword", () => {
     expect(checkCustomResourceSchema).toHaveBeenCalledTimes(1);
     expect(checkCustomResourceSchema).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ getBaseResource: expect.any(Function) }),
+      expect.objectContaining({ getResource: expect.any(Function) }),
       node,
       "m1"
     );

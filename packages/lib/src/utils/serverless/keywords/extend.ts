@@ -1,12 +1,23 @@
 import { getPath } from "../../jsonTemplate";
 import { checkAccess } from "./access";
-import { KeywordDefinition } from "somod-types";
+import { JSONObjectNode, KeywordDefinition } from "somod-types";
 import { Operation } from "json-object-merge";
+import { getReferencedResource } from "./ref";
 
 export type Extend = {
   module: string;
   resource: string;
   rules?: Record<string, Operation>;
+};
+
+const validateKeywordPosition = (node: JSONObjectNode) => {
+  const path = getPath(node);
+  if (!(path.length == 2 && path[0] == "Resources")) {
+    throw new Error(
+      `${keywordExtend.keyword} is allowed only as Resource Property`
+    );
+  }
+  return path;
 };
 
 export const keywordExtend: KeywordDefinition<Extend> = {
@@ -21,22 +32,25 @@ export const keywordExtend: KeywordDefinition<Extend> = {
     return async (keyword, node, value) => {
       const errors: Error[] = [];
 
-      const path = getPath(node);
-      if (!(path.length == 2 && path[0] == "Resources")) {
-        errors.push(
-          new Error(`${keyword} is allowed only as Resource Property`)
-        );
-      } else {
-        //NOTE: structure of the value is validated by serverless-schema
+      try {
+        validateKeywordPosition(node);
 
-        errors.push(
-          ...(await checkAccess(
-            serverlessTemplateHandler,
-            moduleName,
-            value,
-            "Extended"
-          ))
+        const resource = await getReferencedResource(
+          serverlessTemplateHandler,
+          value.module,
+          value.resource,
+          "Extended"
         );
+
+        checkAccess(
+          resource.resource,
+          value.module,
+          value.resource,
+          moduleName,
+          "Extended"
+        );
+      } catch (e) {
+        errors.push(e);
       }
 
       return errors;

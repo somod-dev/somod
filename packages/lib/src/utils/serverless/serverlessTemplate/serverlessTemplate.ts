@@ -1,13 +1,14 @@
 import { createHash } from "crypto";
 import { existsSync } from "fs";
-import JSONObjectMerge from "json-object-merge";
-import { cloneDeep } from "lodash";
+import JSONObjectMerge, { MergedWithReport } from "json-object-merge";
 import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
 import { join } from "path";
 import {
   IModuleHandler,
   IServerlessTemplateHandler,
+  JSONType,
   Module,
+  ResourcePropertyModuleMapNode,
   ServerlessResource,
   ServerlessTemplate
 } from "somod-types";
@@ -82,6 +83,17 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     string,
     Record<string, ServerlessResourceExtendTreeNode>
   > = {};
+
+  private mergedResources: Record<
+    string,
+    Record<
+      string,
+      {
+        resource: ServerlessResource;
+        propertyModuleMap: ResourcePropertyModuleMapNode;
+      }
+    >
+  >;
 
   private static handler: IServerlessTemplateHandler;
 
@@ -213,7 +225,6 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     moduleName: string,
     resourceId: string
   ) {
-    await this._load();
     const resource =
       this.serverlessTemplates[moduleName]?.Resources[resourceId];
 
@@ -240,88 +251,159 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     ];
   }
 
-  async getBaseResource(
-    module: string,
-    resource: string,
-    merge = false,
-    findResource: (
-      module: string,
-      resource: string
-    ) => Promise<ServerlessResource> = undefined
-  ) {
+  async getResource(module: string, resource: string) {
+    await this._load();
+
     const resourceExtendedTreeRootNode =
       await this._getResourceExtendTreeRootNode(module, resource);
     if (resourceExtendedTreeRootNode === null) {
       return null;
     }
-    if (!merge) {
-      return (
-        this.serverlessTemplates[resourceExtendedTreeRootNode.module]
-          ?.Resources[resourceExtendedTreeRootNode.resource] || null
-      );
-    }
-    const _findResource =
-      findResource ||
-      (async (module: string, resource: string) => {
-        return this.serverlessTemplates[module]?.Resources[resource] || null;
-      });
 
-    return this._mergeExtendedResources(
-      resourceExtendedTreeRootNode,
-      _findResource,
-      getBaseKeywords().map(kd => kd.keyword)
-    );
+    return this._mergeExtendedResources(resourceExtendedTreeRootNode);
+  }
+
+  getNearestModuleForResourceProperty(
+    propertyPath: (string | number)[],
+    propertyModuleMap: ResourcePropertyModuleMapNode
+  ): { module: string; depth: number } {
+    let nearestPropertyModuleMap = propertyModuleMap;
+    let i = 0;
+    for (; i < propertyPath.length; i++) {
+      if (nearestPropertyModuleMap.children[propertyPath[i]] === undefined) {
+        break;
+      } else {
+        nearestPropertyModuleMap =
+          nearestPropertyModuleMap.children[propertyPath[i]];
+      }
+    }
+    return {
+      module: nearestPropertyModuleMap.module,
+      depth: i - 1
+    };
   }
 
   private async _mergeExtendedResources(
-    resourceExtendTreeRootNode: ServerlessResourceExtendTreeNode,
-    findResource: (
-      module: string,
-      resource: string
-    ) => Promise<ServerlessResource>,
-    keywords: string[] = []
-  ): Promise<ServerlessResource> {
-    type Mutable<Type> = {
-      -readonly [key in keyof Type]: Type[key];
-    };
+    resourceExtendTreeRootNode: ServerlessResourceExtendTreeNode
+  ) {
+    const { module: rootModule, resource: rootResource } =
+      resourceExtendTreeRootNode;
 
-    const extendedResource = cloneDeep(
-      await findResource(
-        resourceExtendTreeRootNode.module,
-        resourceExtendTreeRootNode.resource
-      )
-    ) as Mutable<ServerlessResource>;
-
-    const rulesToExcludeObjectsWithKeyword: Extend["rules"] =
-      Object.fromEntries(
-        keywords.map(keyword => [`$..[?(@['${keyword}'])]`, "REPLACE"])
-      );
-
-    if (resourceExtendTreeRootNode.from.length > 0) {
-      const queue = [...resourceExtendTreeRootNode.from];
-      while (queue.length > 0) {
-        const currentExtendTreeNode = queue.shift();
-        const currentResource = await findResource(
-          currentExtendTreeNode.module,
-          currentExtendTreeNode.resource
-        );
-        const extendRulesInCurrentResource =
-          (currentResource[keywordExtend.keyword] as Extend)?.rules || {};
-
-        extendedResource.Properties = JSONObjectMerge(
-          extendedResource.Properties,
-          currentResource.Properties,
-          {
-            ...rulesToExcludeObjectsWithKeyword,
-            ...extendRulesInCurrentResource
+    if (this.mergedResources[rootModule]?.[rootResource] === undefined) {
+      const propertyModuleMap: ResourcePropertyModuleMapNode = {
+        module: rootModule,
+        children: {
+          $: {
+            module: rootModule,
+            children: {}
           }
-        ) as ServerlessResource["Properties"];
+        }
+      };
+      let mergedProperties =
+        this.serverlessTemplates[rootModule].Resources[rootResource].Properties;
+      const extendTreeNodeQueue = [...resourceExtendTreeRootNode.from];
+      while (extendTreeNodeQueue.length > 0) {
+        const currentTreeNode = extendTreeNodeQueue.shift();
+        const currentResource =
+          this.serverlessTemplates[currentTreeNode.module].Resources[
+            currentTreeNode.resource
+          ];
+        const mergedResult = JSONObjectMerge(
+          mergedProperties,
+          currentResource.Properties,
+          (currentResource[keywordExtend.keyword] as Extend)?.rules,
+          true
+        ) as MergedWithReport;
+        mergedProperties = mergedResult.merged as Record<string, JSONType>;
 
-        queue.push(...currentExtendTreeNode.from);
+        mergedResult.report.updatedPaths.forEach(updatedPath => {
+          let propertySegmentModuleMapNode = propertyModuleMap;
+          let property = { $: mergedProperties } as JSONType;
+          updatedPath.path.forEach(pathSegment => {
+            if (
+              propertySegmentModuleMapNode.children[pathSegment] === undefined
+            ) {
+              propertySegmentModuleMapNode.children[pathSegment] = {
+                module: propertySegmentModuleMapNode.module,
+                children: {}
+              };
+            }
+            propertySegmentModuleMapNode =
+              propertySegmentModuleMapNode.children[pathSegment];
+            property = property[pathSegment];
+          });
+          switch (updatedPath.operation) {
+            case "APPEND":
+              {
+                const mergedArrayLength = (property as unknown[]).length || 0;
+                for (
+                  let i = mergedArrayLength - updatedPath.count;
+                  i < mergedArrayLength;
+                  i++
+                ) {
+                  propertySegmentModuleMapNode.children[i] = {
+                    module: currentTreeNode.module,
+                    children: {}
+                  };
+                }
+              }
+              break;
+            case "PREPEND":
+              {
+                const prependedCount = updatedPath.count;
+                const mergedArrayLength = (property as unknown[]).length || 0;
+                for (
+                  let i = mergedArrayLength - prependedCount - 1;
+                  i >= 0;
+                  i--
+                ) {
+                  // move the existing properties right
+                  if (propertySegmentModuleMapNode.children[i] !== undefined) {
+                    propertySegmentModuleMapNode.children[i + prependedCount] =
+                      propertySegmentModuleMapNode.children[i];
+                    delete propertySegmentModuleMapNode.children[i];
+                  }
+                }
+                // prepend
+                for (let i = 0; i < prependedCount; i++) {
+                  propertySegmentModuleMapNode.children[i] = {
+                    module: currentTreeNode.module,
+                    children: {}
+                  };
+                }
+              }
+              break;
+            case "REPLACE":
+            case "COMBINE":
+              // NOTE: same effect for REPLACE and COMBINE
+              // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `module` can be re-assigned
+              propertySegmentModuleMapNode.module = currentTreeNode.module;
+              // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `children` can be re-assigned
+              propertySegmentModuleMapNode.children = {};
+              break;
+          }
+        });
+
+        extendTreeNodeQueue.push(...currentTreeNode.from);
       }
+      if (this.mergedResources[rootModule] === undefined) {
+        this.mergedResources[rootModule] = {};
+      }
+      const resource = freeze(
+        {
+          ...this.serverlessTemplates[rootModule].Resources[rootResource],
+          Properties: mergedProperties
+        },
+        true
+      );
+      freeze(propertyModuleMap, true);
+      this.mergedResources[rootModule][rootResource] = {
+        resource,
+        propertyModuleMap: propertyModuleMap.children["$"]
+      };
     }
 
-    return extendedResource;
+    return this.mergedResources[rootModule]?.[rootResource];
   }
 
   getNodeRuntimeVersion(): string {

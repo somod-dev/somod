@@ -17,6 +17,11 @@ export type ModuleServerlessTemplate = Readonly<{
   template: ServerlessTemplate;
 }>;
 
+export type ResourcePropertyModuleMapNode = Readonly<{
+  module: string;
+  children: Record<string | number, ResourcePropertyModuleMapNode>;
+}>;
+
 export interface IServerlessTemplateHandler {
   /**
    * Returns null if no template found for given module
@@ -26,17 +31,20 @@ export interface IServerlessTemplateHandler {
   listTemplates(): Promise<ModuleServerlessTemplate[]>;
 
   /**
-   * Returns the base resource of extend-resource tree
+   * Returns the resource merged with all extended resources
    */
-  getBaseResource(
+  getResource(
     module: string,
-    resource: string,
-    merged?: boolean,
-    findResource?: (
-      module: string,
-      resource: string
-    ) => Promise<ServerlessResource>
-  ): Promise<ServerlessResource | null>;
+    resource: string
+  ): Promise<{
+    resource: ServerlessResource;
+    propertyModuleMap: ResourcePropertyModuleMapNode;
+  } | null>;
+
+  getNearestModuleForResourceProperty(
+    propertyPath: (string | number)[],
+    propertyModuleMap: ResourcePropertyModuleMapNode
+  ): { module: string; depth: number };
 
   getNodeRuntimeVersion(): string;
   getSAMResourceLogicalId(moduleName: string, somodResourceId: string): string;

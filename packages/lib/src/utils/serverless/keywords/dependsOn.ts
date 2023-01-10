@@ -1,8 +1,19 @@
 import { getPath } from "../../jsonTemplate";
 import { checkAccess } from "./access";
-import { KeywordDefinition } from "somod-types";
+import { JSONObjectNode, KeywordDefinition } from "somod-types";
+import { getReferencedResource } from "./ref";
 
-type DependsOn = { module?: string; resource: string }[];
+export type DependsOn = { module?: string; resource: string }[];
+
+const validateKeywordPosition = (node: JSONObjectNode) => {
+  const path = getPath(node);
+  if (!(path.length == 2 && path[0] == "Resources")) {
+    throw new Error(
+      `${keywordDependsOn.keyword} is allowed only as Resource Property`
+    );
+  }
+  return path;
+};
 
 export const keywordDependsOn: KeywordDefinition<DependsOn> = {
   keyword: "SOMOD::DependsOn",
@@ -16,26 +27,33 @@ export const keywordDependsOn: KeywordDefinition<DependsOn> = {
     return async (keyword, node, value) => {
       const errors: Error[] = [];
 
-      const path = getPath(node);
-      if (!(path.length == 2 && path[0] == "Resources")) {
-        errors.push(
-          new Error(`${keyword} is allowed only as Resource Property`)
-        );
-      } else {
-        //NOTE: structure of the value is validated by serverless-schema
+      try {
+        validateKeywordPosition(node);
 
         await Promise.all(
           value.map(async v => {
-            errors.push(
-              ...(await checkAccess(
+            try {
+              const resource = await getReferencedResource(
                 serverlessTemplateHandler,
-                moduleName,
-                v,
+                v.module || moduleName,
+                v.resource,
                 "Depended"
-              ))
-            );
+              );
+
+              checkAccess(
+                resource.resource,
+                v.module || moduleName,
+                v.resource,
+                moduleName,
+                "Depended"
+              );
+            } catch (e) {
+              errors.push(e);
+            }
           })
         );
+      } catch (e) {
+        errors.push(e);
       }
 
       return errors;

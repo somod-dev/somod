@@ -38,7 +38,7 @@
     "esbuild": "^0.14.24",
     "graph-dsa": "^1.0.0",
     "js-yaml": "^4.1.0",
-    "json-object-merge": "^1.0.1",
+    "json-object-merge": "^1.2.0",
     "lodash": "^4.17.21",
     "nodejs-cli-runner": "^1.2.0",
     "nodejs-file-utils": "^1.0.1",

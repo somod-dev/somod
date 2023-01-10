@@ -188,7 +188,15 @@ export const functionResource: JSONSchema7 = {
                   minItems: 1,
                   maxItems: 16,
                   items: {
-                    $ref: "#/definitions/somodRef"
+                    type: "object",
+                    additionalProperties: false,
+                    required: ["resource"],
+                    properties: {
+                      resource: {
+                        $ref: "#/definitions/somodResourceLogicalIdPattern"
+                      },
+                      module: { $ref: "#/definitions/somodModuleNamePattern" }
+                    }
                   }
                 }
               }

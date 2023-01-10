@@ -205,7 +205,7 @@ describe("Test util bundleFunctions", () => {
     ).mockReturnValue({
       listTemplates: async () => [template],
       getTemplate: async () => template,
-      getBaseResource: async (m, r) => template.template.Resources[r],
+      getResource: async (m, r) => template.template.Resources[r],
       getNodeRuntimeVersion: () => "16"
     } as unknown as ServerlessTemplateHandler);
 
