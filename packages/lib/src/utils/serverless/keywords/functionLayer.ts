@@ -54,8 +54,8 @@ const isExtendedFunctionLayer = (node: JSONObjectNode) => {
 export const keywordFunctionLayer: KeywordDefinition<FunctionLayerType> = {
   keyword: "SOMOD::FunctionLayer",
 
-  getValidator: async rootDir => {
-    const modulePackageJsonPath = join(rootDir, file_packageJson);
+  getValidator: async (moduleName, context) => {
+    const modulePackageJsonPath = join(context.dir, file_packageJson);
     const modulePackageJson = await readJsonFileStore(modulePackageJsonPath);
     const moduleDevDependencies = modulePackageJson.devDependencies || {};
 
@@ -82,38 +82,39 @@ export const keywordFunctionLayer: KeywordDefinition<FunctionLayerType> = {
     };
   },
 
-  getProcessor:
-    async (rootDir, moduleName, moduleHandler, serverlessTemplateHandler) =>
-    async (keyword, node, value) => {
-      if (isExtendedFunctionLayer(node)) {
-        return { type: "keyword", value: { [keyword]: value } };
-      }
+  getProcessor: async (moduleName, context) => async (keyword, node, value) => {
+    if (isExtendedFunctionLayer(node)) {
+      return { type: "keyword", value: { [keyword]: value } };
+    }
 
-      const resourceId = node.parent.node.parent.node.parent.node.parent
-        .key as string;
+    const resourceId = node.parent.node.parent.node.parent.node.parent
+      .key as string;
 
-      const functionLayerWithExtendedProperties =
-        await serverlessTemplateHandler.getResource(moduleName, resourceId);
-
-      const valueExtended = functionLayerWithExtendedProperties.resource
-        .Properties.ContentUri?.[
-        keywordFunctionLayer.keyword
-      ] as FunctionLayerType;
-
-      const functionLayerPath = join(
-        rootDir,
-        path_somodWorkingDir,
-        path_serverless,
-        path_functionLayers,
+    const functionLayerWithExtendedProperties =
+      await context.serverlessTemplateHandler.getResource(
         moduleName,
-        valueExtended.name
+        resourceId
       );
 
-      return {
-        type: "object",
-        value: unixStylePath(functionLayerPath)
-      };
-    }
+    const valueExtended = functionLayerWithExtendedProperties.resource
+      .Properties.ContentUri?.[
+      keywordFunctionLayer.keyword
+    ] as FunctionLayerType;
+
+    const functionLayerPath = join(
+      context.dir,
+      path_somodWorkingDir,
+      path_serverless,
+      path_functionLayers,
+      moduleName,
+      valueExtended.name
+    );
+
+    return {
+      type: "object",
+      value: unixStylePath(functionLayerPath)
+    };
+  }
 };
 
 export const getLibrariesFromFunctionLayerResource = (

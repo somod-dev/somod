@@ -7,7 +7,7 @@ import { existsSync } from "fs";
 import { uniq } from "lodash";
 import { join } from "path";
 import { file_parametersJson, namespace_parameter } from "../constants";
-import { ModuleHandler } from "../moduleHandler";
+import { ModuleHandler } from "../module";
 import { loadParameters } from "./load";
 import { Parameters } from "./types";
 

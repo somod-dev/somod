@@ -19,19 +19,11 @@ export const keywordResourceName: KeywordDefinition<string> = {
     return errors;
   },
 
-  getProcessor: async (
-    rootDir,
-    moduleName,
-    moduleHandler,
-    serverlessTemplateHandler
-  ) => {
+  getProcessor: async (moduleName, context) => {
     return (keyword, node, value) => {
       return {
         type: "object",
-        value: serverlessTemplateHandler.getSAMResourceName(
-          moduleName,
-          value
-        ) as JSONType
+        value: context.getSAMResourceName(moduleName, value) as JSONType
       };
     };
   }

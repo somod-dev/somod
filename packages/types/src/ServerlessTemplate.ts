@@ -26,9 +26,9 @@ export interface IServerlessTemplateHandler {
   /**
    * Returns null if no template found for given module
    */
-  getTemplate(module: string): Promise<ModuleServerlessTemplate | null>;
+  getTemplate(module: string): ModuleServerlessTemplate | null;
 
-  listTemplates(): Promise<ModuleServerlessTemplate[]>;
+  listTemplates(): ModuleServerlessTemplate[];
 
   /**
    * Returns the resource merged with all extended resources
@@ -36,17 +36,18 @@ export interface IServerlessTemplateHandler {
   getResource(
     module: string,
     resource: string
-  ): Promise<{
+  ): {
     resource: ServerlessResource;
     propertyModuleMap: ResourcePropertyModuleMapNode;
-  } | null>;
+  } | null;
 
   getNearestModuleForResourceProperty(
     propertyPath: (string | number)[],
     propertyModuleMap: ResourcePropertyModuleMapNode
   ): { module: string; depth: number };
 
-  getNodeRuntimeVersion(): string;
+  get functionNodeRuntimeVersion(): string;
+
   getSAMResourceLogicalId(moduleName: string, somodResourceId: string): string;
   getSAMResourceName(moduleName: string, somodResourceName: string): JSONType;
   getSAMOutputName(parameterName: string): string;

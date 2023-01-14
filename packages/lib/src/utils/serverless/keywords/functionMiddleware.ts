@@ -79,8 +79,10 @@ export const keywordFunctionMiddleware: KeywordDefinition<FunctionMiddlewareType
   {
     keyword: "SOMOD::FunctionMiddleware",
 
-    getValidator: async rootDir => {
-      const definedMiddlewares = await getDefinedFunctionMiddlewares(rootDir);
+    getValidator: async (moduleName, context) => {
+      const definedMiddlewares = await getDefinedFunctionMiddlewares(
+        context.dir
+      );
       return (keyword, node, value) => {
         const errors: Error[] = [];
 

@@ -4,10 +4,11 @@ import { join } from "path";
 import { path_pages, path_pagesData, path_ui } from "../../utils/constants";
 import { get as getExports } from "../../utils/exports";
 import ErrorSet from "../../utils/ErrorSet";
+import { IContext } from "somod-types";
 
-export const validatePageExports = async (dir: string): Promise<void> => {
+export const validatePageExports = async (context: IContext): Promise<void> => {
   const errors: Error[] = [];
-  const pagesDir = join(dir, path_ui, path_pages);
+  const pagesDir = join(context.dir, path_ui, path_pages);
   if (existsSync(pagesDir)) {
     const pages = await listFiles(pagesDir, ".tsx");
 

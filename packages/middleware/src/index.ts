@@ -1,1 +1,1 @@
-export * from "./middleware";
+export { getMiddlewareHandler } from "./middleware";

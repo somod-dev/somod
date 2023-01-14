@@ -17,7 +17,7 @@ export const keywordModuleName: KeywordDefinition<boolean> = {
     return errors;
   },
 
-  getProcessor: async (rootDir, moduleName) => () => {
+  getProcessor: async moduleName => () => {
     return {
       type: "object",
       value: moduleName

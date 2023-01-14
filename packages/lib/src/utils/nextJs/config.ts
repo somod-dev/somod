@@ -4,8 +4,8 @@ import { isString, sortBy, uniqBy } from "lodash";
 import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
 import { dirname, join } from "path";
 import {
+  IContext,
   JSONType,
-  KeywordDefinition,
   KeywordProcessor,
   KeywordValidator,
   Module,
@@ -31,7 +31,6 @@ import { keywordJsonStringify } from "../keywords/json-stringify";
 import { keywordKey } from "../keywords/key";
 import { keywordOr } from "../keywords/or";
 import { keywordParameter } from "../keywords/parameter";
-import { ModuleHandler } from "../moduleHandler";
 
 const getBaseKeywords = () => [
   keywordAjvCompile,
@@ -71,39 +70,37 @@ export const loadConfig = async (module: Module): Promise<Config> => {
 
 export const loadConfigNamespaces: NamespaceLoader = async module => {
   const config = await loadConfig(module);
-  return {
-    [namespace_env_config]: Object.keys(config?.env || {}),
-    [namespace_public_runtime_config]: Object.keys(
-      config?.publicRuntimeConfig || {}
-    ),
-    [namespace_server_runtime_config]: Object.keys(
-      config?.serverRuntimeConfig || {}
-    )
-  };
+  return [
+    { name: namespace_env_config, values: Object.keys(config?.env || {}) },
+    {
+      name: namespace_public_runtime_config,
+      values: Object.keys(config?.publicRuntimeConfig || {})
+    },
+    {
+      name: namespace_server_runtime_config,
+      values: Object.keys(config?.serverRuntimeConfig || {})
+    }
+  ];
 };
 
-export const validate = async (
-  dir: string,
-  pluginKeywords: KeywordDefinition[] = []
-) => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
+export const validate = async (context: IContext) => {
+  const rootModule = context.moduleHandler.getModule(
+    context.moduleHandler.roodModuleName
+  ).module;
 
-  const rootModule = (await moduleHandler.getRoodModuleNode()).module;
-
-  const keywords = [...getBaseKeywords(), ...pluginKeywords];
+  const keywords = [...getBaseKeywords()];
+  context.extensionHandler.uiConfigKeywords.forEach(uiConfigKeywords => {
+    keywords.push(...uiConfigKeywords.value);
+  });
 
   const keywordValidators: Record<string, KeywordValidator> = {};
 
   await Promise.all(
     keywords.map(async keyword => {
-      const validator = await keyword.getValidator(
-        dir,
+      keywordValidators[keyword.keyword] = await keyword.getValidator(
         rootModule.name,
-        moduleHandler,
-        null
+        context
       );
-
-      keywordValidators[keyword.keyword] = validator;
     })
   );
 
@@ -128,32 +125,29 @@ export const build = async (dir: string): Promise<void> => {
 };
 
 export const generateCombinedConfig = async (
-  dir: string,
-  pluginKeywords: KeywordDefinition[] = []
+  context: IContext
 ): Promise<Config> => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-  const allModules = await moduleHandler.listModules();
+  const rootModuleName = context.moduleHandler.roodModuleName;
 
-  const rootModuleName = (await moduleHandler.getRoodModuleNode()).module.name;
-
-  const keywords = [...getBaseKeywords(), ...pluginKeywords];
+  const keywords = [...getBaseKeywords()];
+  context.extensionHandler.uiConfigKeywords.forEach(uiConfigKeywords => {
+    keywords.push(...uiConfigKeywords.value);
+  });
 
   const keywordProcessors: Record<string, KeywordProcessor> = {};
 
   await Promise.all(
     keywords.map(async keyword => {
-      const processor = await keyword.getProcessor(
-        dir,
+      keywordProcessors[keyword.keyword] = await keyword.getProcessor(
         rootModuleName,
-        moduleHandler,
-        null
+        context
       );
-
-      keywordProcessors[keyword.keyword] = processor;
     })
   );
 
   const processsedMap: Record<string, Config> = {};
+
+  const allModules = [...context.moduleHandler.list];
 
   allModules.reverse();
   await Promise.all(
@@ -166,38 +160,35 @@ export const generateCombinedConfig = async (
     })
   );
 
-  const namespaces = await moduleHandler.getNamespaces();
-
   const combinedImageDomains: Config["imageDomains"] = [];
   Object.values(processsedMap).forEach(config => {
     combinedImageDomains.push(...config.imageDomains);
   });
 
   const combinedEnv: Config["env"] = {};
-  Object.keys(namespaces[namespace_env_config]).forEach(envName => {
-    const moduleName = namespaces[namespace_env_config][envName];
-    combinedEnv[envName] = processsedMap[moduleName].env[envName];
+  const envConfigNamespaces =
+    context.namespaceHandler.get(namespace_env_config);
+  envConfigNamespaces.forEach(({ module, value: envName }) => {
+    combinedEnv[envName] = processsedMap[module].env[envName];
   });
 
   const combinedPublicRuntimeConfig: Config["publicRuntimeConfig"] = {};
-  Object.keys(namespaces[namespace_public_runtime_config]).forEach(
-    configName => {
-      const moduleName =
-        namespaces[namespace_public_runtime_config][configName];
-      combinedPublicRuntimeConfig[configName] =
-        processsedMap[moduleName].publicRuntimeConfig[configName];
-    }
+  const publicRuntimeConfigNamespaces = context.namespaceHandler.get(
+    namespace_public_runtime_config
   );
+  publicRuntimeConfigNamespaces.forEach(({ module, value: configName }) => {
+    combinedPublicRuntimeConfig[configName] =
+      processsedMap[module].publicRuntimeConfig[configName];
+  });
 
   const combinedServerRuntimeConfig: Config["serverRuntimeConfig"] = {};
-  Object.keys(namespaces[namespace_server_runtime_config]).forEach(
-    configName => {
-      const moduleName =
-        namespaces[namespace_server_runtime_config][configName];
-      combinedServerRuntimeConfig[configName] =
-        processsedMap[moduleName].serverRuntimeConfig[configName];
-    }
+  const serverRuntimeConfigNamespaces = context.namespaceHandler.get(
+    namespace_server_runtime_config
   );
+  serverRuntimeConfigNamespaces.forEach(({ module, value: configName }) => {
+    combinedServerRuntimeConfig[configName] =
+      processsedMap[module].serverRuntimeConfig[configName];
+  });
 
   return {
     imageDomains: sortBy(

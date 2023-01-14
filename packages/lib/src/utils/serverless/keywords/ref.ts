@@ -52,12 +52,7 @@ const validateKeywordPositionAndSchema = async (
 export const keywordRef: KeywordDefinition<Ref> = {
   keyword: "SOMOD::Ref",
 
-  getValidator: async (
-    rootDir,
-    moduleName,
-    moduleHandler,
-    serverlessTemplateHandler
-  ) => {
+  getValidator: async (moduleName, context) => {
     return async (keyword, node, value) => {
       const errors: Error[] = [];
 
@@ -65,7 +60,7 @@ export const keywordRef: KeywordDefinition<Ref> = {
         await validateKeywordPositionAndSchema(node, value);
 
         const resource = await getReferencedResource(
-          serverlessTemplateHandler,
+          context.serverlessTemplateHandler,
           value.module || moduleName,
           value.resource
         );
@@ -93,16 +88,11 @@ export const keywordRef: KeywordDefinition<Ref> = {
     };
   },
 
-  getProcessor: async (
-    rootDir,
-    moduleName,
-    moduleHandler,
-    serverlessTemplateHandler
-  ) => {
+  getProcessor: async (moduleName, context) => {
     return (keyword, node, value) => {
       const targetModule = value.module || moduleName;
 
-      const resourceId = serverlessTemplateHandler.getSAMResourceLogicalId(
+      const resourceId = context.getSAMResourceLogicalId(
         targetModule,
         value.resource
       );

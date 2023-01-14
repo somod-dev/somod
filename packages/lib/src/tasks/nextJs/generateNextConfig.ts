@@ -1,5 +1,5 @@
 import { unixStylePath } from "nodejs-file-utils";
-import { KeywordDefinition } from "somod-types";
+import { IContext } from "somod-types";
 import { writeFile } from "fs/promises";
 import { join, relative } from "path";
 import { file_dotenv, file_nextConfigJs } from "../../utils/constants";
@@ -66,12 +66,9 @@ module.exports = withNextConfigOverride(__dirname, config);
   await writeFile(join(dir, file_nextConfigJs), nextConfigJsContent);
 };
 
-export const generateNextConfig = async (
-  dir: string,
-  pluginKeywords: KeywordDefinition[] = []
-): Promise<void> => {
-  const config = await generateCombinedConfig(dir, pluginKeywords);
+export const generateNextConfig = async (context: IContext): Promise<void> => {
+  const config = await generateCombinedConfig(context);
 
-  await generateDotEnvFile(dir, config);
-  await generateNextConfigJs(dir, config);
+  await generateDotEnvFile(context.dir, config);
+  await generateNextConfigJs(context.dir, config);
 };

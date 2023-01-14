@@ -2,7 +2,7 @@ import { KeywordDefinition } from "somod-types";
 import { existsSync } from "fs";
 import { join } from "path";
 import { file_templateYaml, path_serverless } from "../../utils/constants";
-import { ModuleHandler } from "../../utils/moduleHandler";
+import { ModuleHandler } from "../../utils/module";
 import { validateServerlessTemplate as _validateServerlessTemplate } from "../../utils/serverless/serverlessTemplate/validate";
 
 export const validateServerlessTemplate = async (

@@ -5,7 +5,7 @@ import {
   EventWithMiddlewareContext
 } from "somod-types";
 
-class MiddlewareContext implements IMiddlewareContext {
+export class MiddlewareContext implements IMiddlewareContext {
   private context: Record<string, unknown> = {};
 
   constructor() {

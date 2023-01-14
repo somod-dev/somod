@@ -8,7 +8,7 @@ import {
   path_somodWorkingDir
 } from "../constants";
 import { getDeclaredFunctionLayers } from "./keywords/functionLayer";
-import { ModuleHandler } from "../moduleHandler";
+import { ModuleHandler } from "../module";
 import { ServerlessTemplateHandler } from "./serverlessTemplate/serverlessTemplate";
 import { IModuleHandler, IServerlessTemplateHandler } from "somod-types";
 import { read } from "../packageJson";

@@ -8,7 +8,7 @@ import {
   path_public,
   path_ui
 } from "../constants";
-import { ModuleHandler } from "../moduleHandler";
+import { ModuleHandler } from "../module";
 
 export const linkAsset = async (from: string, to: string) => {
   await mkdir(dirname(to), { recursive: true });

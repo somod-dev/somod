@@ -1,20 +1,18 @@
 import { join } from "path";
+import { IContext } from "somod-types";
 import { path_build, path_public, path_ui } from "../../utils/constants";
-import { ModuleHandler } from "../../utils/moduleHandler";
 import {
   linkAsset,
   listAllPublicAssets
 } from "../../utils/nextJs/publicAssets";
 
-export const createPublicAssets = async (dir: string): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-
+export const createPublicAssets = async (context: IContext): Promise<void> => {
   const allPublicAssets = await listAllPublicAssets();
 
   await Promise.all(
     Object.keys(allPublicAssets).map(async publicAsset => {
       const moduleName = allPublicAssets[publicAsset];
-      const moduleNode = await moduleHandler.getModule(moduleName);
+      const moduleNode = context.moduleHandler.getModule(moduleName);
       const packageLocation = moduleNode.module.packageLocation;
 
       const sourcePublicAssetPath = join(
@@ -25,7 +23,7 @@ export const createPublicAssets = async (dir: string): Promise<void> => {
         publicAsset
       );
 
-      const publicAssetPath = join(dir, path_public, publicAsset);
+      const publicAssetPath = join(context.dir, path_public, publicAsset);
 
       await linkAsset(sourcePublicAssetPath, publicAssetPath);
     })

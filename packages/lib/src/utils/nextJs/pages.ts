@@ -2,7 +2,7 @@ import { existsSync } from "fs";
 import { mkdir, readdir, stat, writeFile } from "fs/promises";
 import { dirname, join, relative } from "path";
 import { namespace_page, path_build, path_pages, path_ui } from "../constants";
-import { ModuleHandler } from "../moduleHandler";
+import { ModuleHandler } from "../module";
 import { get as getExports } from "../exports";
 import { unixStylePath } from "nodejs-file-utils";
 import { NamespaceLoader } from "somod-types";

@@ -23,12 +23,7 @@ const validateKeywordPosition = (node: JSONObjectNode) => {
 export const keywordExtend: KeywordDefinition<Extend> = {
   keyword: "SOMOD::Extend",
 
-  getValidator: async (
-    rootDir,
-    moduleName,
-    moduleHandler,
-    serverlessTemplateHandler
-  ) => {
+  getValidator: async (moduleName, context) => {
     return async (keyword, node, value) => {
       const errors: Error[] = [];
 
@@ -36,7 +31,7 @@ export const keywordExtend: KeywordDefinition<Extend> = {
         validateKeywordPosition(node);
 
         const resource = await getReferencedResource(
-          serverlessTemplateHandler,
+          context.serverlessTemplateHandler,
           value.module,
           value.resource,
           "Extended"

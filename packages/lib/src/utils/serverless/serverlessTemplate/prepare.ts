@@ -1,41 +1,29 @@
-import {
-  KeywordDefinition,
-  KeywordProcessor,
-  ServerlessTemplate
-} from "somod-types";
+import { IContext, KeywordProcessor, ServerlessTemplate } from "somod-types";
 import { parseJson, processKeywords } from "../../jsonTemplate";
-import { ModuleHandler } from "../../moduleHandler";
 import { listAllOutputs } from "../namespace";
 
 import { SAMTemplate } from "../types";
-import {
-  getBaseKeywords,
-  ServerlessTemplateHandler
-} from "./serverlessTemplate";
+import { getBaseKeywords } from "./serverlessTemplate";
 
-export const prepareSamTemplate = async (
-  dir: string,
-  pluginKeywords: KeywordDefinition[] = []
-) => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-  const serverlessTemplateHandler =
-    ServerlessTemplateHandler.getServerlessTemplateHandler();
-
+export const prepareSamTemplate = async (context: IContext) => {
   const processedTemplateMap: Record<string, ServerlessTemplate> = {};
 
-  const keywords = [...getBaseKeywords(), ...pluginKeywords];
+  const keywords = [
+    ...getBaseKeywords(),
+    ...context.lifecycleHandler.serverlessKeywords.map(k => k.keyword)
+  ];
 
   const samTemplate: SAMTemplate = {
     Resources: {}
   };
 
-  const _moduleNames = (await moduleHandler.listModules()).map(
+  const _moduleNames = (await context.moduleHandler.listModules()).map(
     m => m.module.name
   );
 
   _moduleNames.reverse();
 
-  const templates = await serverlessTemplateHandler.listTemplates();
+  const templates = await context.serverlessTemplateHandler.listTemplates();
   const moduleTemplateMap = Object.fromEntries(
     templates.map(t => [t.module, t.template])
   );
@@ -47,12 +35,7 @@ export const prepareSamTemplate = async (
 
         await Promise.all(
           keywords.map(async keyword => {
-            const processor = await keyword.getProcessor(
-              dir,
-              moduleName,
-              moduleHandler,
-              serverlessTemplateHandler
-            );
+            const processor = await keyword.getProcessor(moduleName, context);
             keywordProcessors[keyword.keyword] = processor;
           })
         );
@@ -78,8 +61,7 @@ export const prepareSamTemplate = async (
     samTemplate.Outputs = {};
     outputNames.forEach(outputName => {
       const moduleName = outputToModuleMap[outputName];
-      const samOutputName =
-        serverlessTemplateHandler.getSAMOutputName(outputName);
+      const samOutputName = context.getSAMOutputName(outputName);
       const output = processedTemplateMap[moduleName].Outputs[
         samOutputName
       ] as SAMTemplate["Outputs"][string];

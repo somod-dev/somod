@@ -13,12 +13,7 @@ export const keywordTemplateResources: KeywordDefinition<Resources> = {
     };
   },
 
-  getProcessor: async (
-    rootDir,
-    moduleName,
-    moduleHandler,
-    serverlessTemplateHandler
-  ) => {
+  getProcessor: async (moduleName, context) => {
     return (keyword, node, value) => {
       if (getPath(node).length == 0) {
         return {
@@ -26,10 +21,7 @@ export const keywordTemplateResources: KeywordDefinition<Resources> = {
           value: {
             [keyword]: Object.fromEntries(
               Object.keys(value).map(p => [
-                serverlessTemplateHandler.getSAMResourceLogicalId(
-                  moduleName,
-                  p
-                ),
+                context.getSAMResourceLogicalId(moduleName, p),
                 value[p]
               ])
             )

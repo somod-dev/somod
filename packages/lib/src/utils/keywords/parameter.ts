@@ -31,8 +31,8 @@ export const keywordParameter: KeywordDefinition<string> = {
     };
   },
 
-  getProcessor: async rootDir => {
-    const parameters = await loadAllParameterValues(rootDir);
+  getProcessor: async (moduleName, context) => {
+    const parameters = await loadAllParameterValues(context.dir);
     return (keyword, node, value) => {
       return {
         type: "object",

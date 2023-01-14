@@ -1,9 +1,8 @@
-import { createHash } from "crypto";
 import { build as esbuild } from "esbuild";
 import { mkdir, writeFile } from "fs/promises";
 import { unixStylePath } from "nodejs-file-utils";
 import { dirname, join, relative } from "path";
-import { IModuleHandler, IServerlessTemplateHandler } from "somod-types";
+import { IContext } from "somod-types";
 import {
   file_index_js,
   path_build,
@@ -12,13 +11,10 @@ import {
   path_serverless,
   path_somodWorkingDir
 } from "../constants";
-import { ModuleHandler } from "../moduleHandler";
 import { getDeclaredFunctions } from "./keywords/function";
-import { ServerlessTemplateHandler } from "./serverlessTemplate/serverlessTemplate";
 
 const createFunctionWithMiddlewares = async (
-  dir: string,
-  moduleHandler: IModuleHandler,
+  context: IContext,
   _function: {
     module: string;
     name: string;
@@ -26,7 +22,7 @@ const createFunctionWithMiddlewares = async (
   }
 ) => {
   const functionLocation = join(
-    dir,
+    context.dir,
     path_somodWorkingDir,
     path_serverless,
     path_functions + "-with-" + path_middlewares,
@@ -36,7 +32,7 @@ const createFunctionWithMiddlewares = async (
 
   const getCodeRelativePath = async (module: string, filePath: string[]) => {
     const codeFilePath = join(
-      (await moduleHandler.getModule(module)).module.packageLocation,
+      (await context.moduleHandler.getModule(module)).module.packageLocation,
       path_build,
       path_serverless,
       path_functions,
@@ -52,14 +48,7 @@ const createFunctionWithMiddlewares = async (
     module: string;
     name: string;
   }) => {
-    // TODO: improve module ID here
-    return (
-      createHash("sha256")
-        .update(middleware.module)
-        .digest()
-        .toString("hex")
-        .substring(0, 8) + middleware.name
-    );
+    return context.getModuleHash(middleware.module) + middleware.name;
   };
 
   const importStatements: string[] = [
@@ -96,20 +85,15 @@ export default handler;
 };
 
 export const bundleFunctionsOfModule = async (
-  dir: string,
   moduleName: string,
-  serverlessTemplateHandler: IServerlessTemplateHandler,
-  moduleHandler: IModuleHandler,
+  context: IContext,
   verbose = false,
   sourcemap = false
 ): Promise<void> => {
-  const declaredFunctions = await getDeclaredFunctions(
-    serverlessTemplateHandler,
-    moduleName
-  );
+  const declaredFunctions = await getDeclaredFunctions(context, moduleName);
 
   const bundledFunctionsPath = join(
-    dir,
+    context.dir,
     path_somodWorkingDir,
     path_serverless,
     path_functions,
@@ -119,8 +103,7 @@ export const bundleFunctionsOfModule = async (
   await Promise.all(
     declaredFunctions.map(async _function => {
       const functionFilePath = await createFunctionWithMiddlewares(
-        dir,
-        moduleHandler,
+        context,
         _function
       );
 
@@ -133,7 +116,7 @@ export const bundleFunctionsOfModule = async (
           platform: "node",
           external: _function.exclude,
           minify: true,
-          target: ["node" + serverlessTemplateHandler.getNodeRuntimeVersion()],
+          target: ["node" + context.functionNodeRuntimeVersion],
           logLevel: verbose ? "verbose" : "silent"
         });
       } catch (e) {
@@ -146,16 +129,12 @@ export const bundleFunctionsOfModule = async (
 };
 
 export const bundleFunctions = async (
-  dir: string,
+  context: IContext,
   verbose = false,
   sourcemap = false
 ) => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-  const serverlessTemplateHandler =
-    ServerlessTemplateHandler.getServerlessTemplateHandler();
-
-  const moduleNodes = await moduleHandler.listModules();
-  const templates = await serverlessTemplateHandler.listTemplates();
+  const moduleNodes = await context.moduleHandler.listModules();
+  const templates = await context.serverlessTemplateHandler.listTemplates();
   const templateMap = Object.fromEntries(
     templates.map(t => [t.module, t.template])
   );
@@ -164,14 +143,7 @@ export const bundleFunctions = async (
     moduleNodes.map(async moduleNode => {
       const moduleName = moduleNode.module.name;
       if (templateMap[moduleName]) {
-        await bundleFunctionsOfModule(
-          dir,
-          moduleName,
-          serverlessTemplateHandler,
-          moduleHandler,
-          verbose,
-          sourcemap
-        );
+        await bundleFunctionsOfModule(moduleName, context, verbose, sourcemap);
       }
     })
   );

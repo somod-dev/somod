@@ -18,12 +18,7 @@ const validateKeywordPosition = (node: JSONObjectNode) => {
 export const keywordDependsOn: KeywordDefinition<DependsOn> = {
   keyword: "SOMOD::DependsOn",
 
-  getValidator: async (
-    rootDir,
-    moduleName,
-    moduleHandler,
-    serverlessTemplateHandler
-  ) => {
+  getValidator: async (moduleName, context) => {
     return async (keyword, node, value) => {
       const errors: Error[] = [];
 
@@ -34,7 +29,7 @@ export const keywordDependsOn: KeywordDefinition<DependsOn> = {
           value.map(async v => {
             try {
               const resource = await getReferencedResource(
-                serverlessTemplateHandler,
+                context.serverlessTemplateHandler,
                 v.module || moduleName,
                 v.resource,
                 "Depended"
@@ -60,20 +55,12 @@ export const keywordDependsOn: KeywordDefinition<DependsOn> = {
     };
   },
 
-  getProcessor: async (
-    rootDir,
-    moduleName,
-    moduleHandler,
-    serverlessTemplateHandler
-  ) => {
+  getProcessor: async (moduleName, context) => {
     return (keyword, node, value) => ({
       type: "keyword",
       value: {
         DependsOn: value.map(v =>
-          serverlessTemplateHandler.getSAMResourceLogicalId(
-            v.module || moduleName,
-            v.resource
-          )
+          context.getSAMResourceLogicalId(v.module || moduleName, v.resource)
         )
       }
     });

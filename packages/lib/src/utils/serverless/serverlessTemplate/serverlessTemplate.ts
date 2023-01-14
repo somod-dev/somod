@@ -1,13 +1,14 @@
-import { createHash } from "crypto";
 import { existsSync } from "fs";
 import JSONObjectMerge, { MergedWithReport } from "json-object-merge";
 import { readJsonFileStore, readYamlFileStore } from "nodejs-file-utils";
 import { join } from "path";
 import {
+  IContext,
   IModuleHandler,
   IServerlessTemplateHandler,
   JSONType,
   Module,
+  ModuleServerlessTemplate,
   ResourcePropertyModuleMapNode,
   ServerlessResource,
   ServerlessTemplate
@@ -28,7 +29,6 @@ import { keywordJsonStringify } from "../../keywords/json-stringify";
 import { keywordKey } from "../../keywords/key";
 import { keywordOr } from "../../keywords/or";
 import { keywordParameter } from "../../keywords/parameter";
-import { ModuleHandler } from "../../moduleHandler";
 import { keywordAccess } from "../keywords/access";
 import { keywordCreateIf } from "../keywords/createIf";
 import { keywordDependsOn } from "../keywords/dependsOn";
@@ -68,26 +68,31 @@ export const getBaseKeywords = () => [
   keywordTemplateResources
 ];
 
-type ServerlessResourceExtendTreeNode = {
+type ResourceIdentifier = {
   module: string;
   resource: string;
-  from: ServerlessResourceExtendTreeNode[];
+};
+
+type ResourceExtendNode = {
+  resource: ResourceIdentifier;
+  from: ResourceExtendNode[];
+  to?: ResourceExtendNode;
+};
+
+type ServerlessResourceWithPropertyModuleMap = {
+  resource: ServerlessResource;
+  propertyModuleMap: ResourcePropertyModuleMapNode;
 };
 
 export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
-  private moduleHandler: IModuleHandler;
+  private static instance: IServerlessTemplateHandler;
 
-  private serverlessTemplates: Record<string, ServerlessTemplate>;
+  private _templateMap: Record<string, ServerlessTemplate> = {};
 
-  private extendedResourceTreeMap: Record<
-    string,
-    Record<string, ServerlessResourceExtendTreeNode>
-  > = {};
-
-  private mergedResources: Record<
-    string,
+  private _resourceMap: Record<
+    string, // module
     Record<
-      string,
+      string, // resource
       {
         resource: ServerlessResource;
         propertyModuleMap: ResourcePropertyModuleMapNode;
@@ -95,22 +100,34 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     >
   >;
 
-  private static handler: IServerlessTemplateHandler;
+  private _getModuleHash: (moduleName: string) => string;
 
-  private constructor(moduleHandler: IModuleHandler) {
-    this.moduleHandler = moduleHandler;
+  private constructor() {
+    // do nothing
   }
 
-  static getServerlessTemplateHandler(moduleHandler?: IModuleHandler) {
-    if (!this.handler) {
-      this.handler = new ServerlessTemplateHandler(
-        moduleHandler || ModuleHandler.getModuleHandler()
+  static async getInstance(context: IContext) {
+    if (this.instance === undefined) {
+      const handler = new ServerlessTemplateHandler();
+
+      handler._templateMap = await this._loadTemplates(context.moduleHandler);
+      const resourceExtendMap = this._generateResourceExtendNodeMap(
+        handler._templateMap
       );
+      handler._resourceMap = this._generateResourceMap(
+        handler._templateMap,
+        resourceExtendMap
+      );
+      freeze(handler._templateMap);
+      freeze(handler._resourceMap);
+      handler._getModuleHash = context.getModuleHash;
+
+      this.instance = handler;
     }
-    return this.handler;
+    return this.instance;
   }
 
-  private async _loadBuiltServerlessTemplate(
+  private static async _loadBuiltServerlessTemplate(
     module: Module
   ): Promise<ServerlessTemplate | undefined> {
     const templateLocation = join(
@@ -129,7 +146,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     }
   }
 
-  private async _loadSourceServerlessTemplate(
+  private static async _loadSourceServerlessTemplate(
     module: Module
   ): Promise<ServerlessTemplate | undefined> {
     const templateLocation = join(
@@ -147,120 +164,263 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     }
   }
 
-  private async _loadServerlessTemplates() {
-    const moduleNodes = await this.moduleHandler.listModules();
+  private static async _loadTemplates(moduleHandler: IModuleHandler) {
+    const moduleServerlessTemplates: ModuleServerlessTemplate[] =
+      await Promise.all(
+        moduleHandler.list.map(async ({ module }) => {
+          const template = module.root
+            ? await this._loadSourceServerlessTemplate(module)
+            : await this._loadBuiltServerlessTemplate(module);
 
-    const allTemplates = await Promise.all(
-      moduleNodes.map(async moduleNode => {
-        const template = moduleNode.module.root
-          ? await this._loadSourceServerlessTemplate(moduleNode.module)
-          : await this._loadBuiltServerlessTemplate(moduleNode.module);
-        if (template) {
-          return { module: moduleNode.module.name, template };
+          return template ? { module: module.name, template } : undefined;
+        })
+      );
+
+    const templateMap: Record<string, ServerlessTemplate> = {};
+    moduleServerlessTemplates.forEach(moduleServerlessTemplate => {
+      if (moduleServerlessTemplate) {
+        templateMap[moduleServerlessTemplate.module] =
+          moduleServerlessTemplate.template;
+      }
+    });
+    return templateMap;
+  }
+
+  private static _generateResourceExtendNodeMap(
+    templateMap: Record<string, ServerlessTemplate>
+  ) {
+    const extendNodeMap: Record<
+      string, // module
+      Record<
+        string, // resource
+        ResourceExtendNode
+      >
+    > = {};
+
+    Object.keys(templateMap).forEach(module => {
+      const resources = templateMap[module].Resources;
+      Object.keys(resources).forEach(resource => {
+        if (extendNodeMap[module] === undefined) {
+          extendNodeMap[module] = {};
         }
-      })
-    );
+        if (extendNodeMap[module][resource] === undefined) {
+          extendNodeMap[module][resource] = {
+            resource: { module, resource },
+            from: []
+          };
+        }
 
-    const templates = allTemplates.filter(t => !!t);
-    this.serverlessTemplates = Object.fromEntries(
-      templates.map(t => [t.module, t.template])
-    );
-    freeze(this.serverlessTemplates, true);
+        if (resources[resource][keywordExtend.keyword] !== undefined) {
+          const to = resources[resource][
+            keywordExtend.keyword
+          ] as ResourceIdentifier;
 
-    templates.reverse();
-    for (const { module, template } of templates) {
-      this.extendedResourceTreeMap[module] = {};
-      for (const resourceId in template.Resources) {
-        const resource = template.Resources[resourceId];
-        this.extendedResourceTreeMap[module][resourceId] = freeze({
-          module,
-          resource: resourceId,
-          from: []
+          if (templateMap[to.module]?.Resources[to.resource] === undefined) {
+            throw new Error(
+              `Extended resource {${to.module}, ${to.resource}} not found. Extended from {${module}, ${resource}}.`
+            );
+          }
+
+          if (extendNodeMap[to.module] === undefined) {
+            extendNodeMap[to.module] = {};
+          }
+          if (extendNodeMap[to.module][to.resource] === undefined) {
+            extendNodeMap[to.module][to.resource] = {
+              resource: to,
+              from: []
+            };
+          }
+
+          extendNodeMap[to.module][to.resource].from.push(
+            extendNodeMap[module][resource]
+          );
+          extendNodeMap[module][resource].to =
+            extendNodeMap[to.module][to.resource];
+        }
+      });
+    });
+
+    return extendNodeMap;
+  }
+
+  private static _generateResourceMap(
+    templateMap: Record<string, ServerlessTemplate>,
+    resourceExtendMap: Record<string, Record<string, ResourceExtendNode>>
+  ): Record<string, Record<string, ServerlessResourceWithPropertyModuleMap>> {
+    const getExtendNodeOfOriginalResource = (
+      module: string,
+      resource: string
+    ) => {
+      while (resourceExtendMap[module][resource].to !== undefined) {
+        module = resourceExtendMap[module][resource].to.resource.module;
+        resource = resourceExtendMap[module][resource].to.resource.resource;
+      }
+      return resourceExtendMap[module][resource];
+    };
+
+    const resourceMap: Record<
+      string,
+      Record<string, ServerlessResourceWithPropertyModuleMap>
+    > = {};
+
+    Object.keys(templateMap).forEach(module => {
+      const template = templateMap[module];
+      if (resourceMap[module] === undefined) {
+        resourceMap[module] = {};
+      }
+      Object.keys(template.Resources).forEach(resource => {
+        const rootNode = getExtendNodeOfOriginalResource(module, resource);
+        const { module: rootModule, resource: rootResource } =
+          rootNode.resource;
+        if (resourceMap[rootModule]?.[rootResource] === undefined) {
+          if (resourceMap[rootModule] === undefined) {
+            resourceMap[rootModule] = {};
+          }
+          resourceMap[rootModule][rootResource] = this._mergeExtendedResource(
+            rootNode,
+            templateMap
+          );
+        }
+        resourceMap[module][resource] = resourceMap[rootModule][rootResource];
+      });
+    });
+
+    return resourceMap;
+  }
+
+  private static _mergeExtendedResource(
+    resourceExtendNode: ResourceExtendNode,
+    templateMap: Record<string, ServerlessTemplate>
+  ) {
+    const { module: rootModule, resource: rootResource } =
+      resourceExtendNode.resource;
+
+    const propertyModuleMap: ResourcePropertyModuleMapNode = {
+      module: rootModule,
+      children: {
+        $: {
+          module: rootModule,
+          children: {}
+        }
+      }
+    };
+    let mergedProperties =
+      templateMap[rootModule].Resources[rootResource].Properties;
+    const extendTreeNodeQueue = [...resourceExtendNode.from];
+    while (extendTreeNodeQueue.length > 0) {
+      const currentTreeNode = extendTreeNodeQueue.shift();
+      const currentResource =
+        templateMap[currentTreeNode.resource.module].Resources[
+          currentTreeNode.resource.resource
+        ];
+      const mergedResult = JSONObjectMerge(
+        mergedProperties,
+        currentResource.Properties,
+        (currentResource[keywordExtend.keyword] as Extend)?.rules,
+        true
+      ) as MergedWithReport;
+      mergedProperties = mergedResult.merged as Record<string, JSONType>;
+
+      mergedResult.report.updatedPaths.forEach(updatedPath => {
+        let propertySegmentModuleMapNode = propertyModuleMap;
+        let property = { $: mergedProperties } as JSONType;
+        updatedPath.path.forEach(pathSegment => {
+          if (
+            propertySegmentModuleMapNode.children[pathSegment] === undefined
+          ) {
+            propertySegmentModuleMapNode.children[pathSegment] = {
+              module: propertySegmentModuleMapNode.module,
+              children: {}
+            };
+          }
+          propertySegmentModuleMapNode =
+            propertySegmentModuleMapNode.children[pathSegment];
+          property = property[pathSegment];
         });
-
-        if (resource[keywordExtend.keyword]) {
-          const { module: extendedModule, resource: extendedResource } =
-            resource[keywordExtend.keyword] as Extend;
-          this.extendedResourceTreeMap[extendedModule]?.[
-            extendedResource
-          ]?.from.push(this.extendedResourceTreeMap[module][resourceId]);
+        switch (updatedPath.operation) {
+          case "APPEND":
+            {
+              const mergedArrayLength = (property as unknown[]).length || 0;
+              for (
+                let i = mergedArrayLength - updatedPath.count;
+                i < mergedArrayLength;
+                i++
+              ) {
+                propertySegmentModuleMapNode.children[i] = {
+                  module: currentTreeNode.resource.module,
+                  children: {}
+                };
+              }
+            }
+            break;
+          case "PREPEND":
+            {
+              const prependedCount = updatedPath.count;
+              const mergedArrayLength = (property as unknown[]).length || 0;
+              for (
+                let i = mergedArrayLength - prependedCount - 1;
+                i >= 0;
+                i--
+              ) {
+                // move the existing properties right
+                if (propertySegmentModuleMapNode.children[i] !== undefined) {
+                  propertySegmentModuleMapNode.children[i + prependedCount] =
+                    propertySegmentModuleMapNode.children[i];
+                  delete propertySegmentModuleMapNode.children[i];
+                }
+              }
+              // prepend
+              for (let i = 0; i < prependedCount; i++) {
+                propertySegmentModuleMapNode.children[i] = {
+                  module: currentTreeNode.resource.module,
+                  children: {}
+                };
+              }
+            }
+            break;
+          case "REPLACE":
+          case "COMBINE":
+            // NOTE: same effect for REPLACE and COMBINE
+            // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `module` can be re-assigned
+            propertySegmentModuleMapNode.module =
+              currentTreeNode.resource.module;
+            // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `children` can be re-assigned
+            propertySegmentModuleMapNode.children = {};
+            break;
         }
-      }
+      });
+
+      extendTreeNodeQueue.push(...currentTreeNode.from);
     }
 
-    // freeze all from in extendedResourceMap
-    for (const module in this.extendedResourceTreeMap) {
-      for (const resource in this.extendedResourceTreeMap[module]) {
-        freeze(this.extendedResourceTreeMap[module][resource].from);
-      }
-    }
+    return {
+      resource: {
+        ...templateMap[rootModule].Resources[rootResource],
+        Properties: mergedProperties
+      },
+      propertyModuleMap: propertyModuleMap.children["$"]
+    };
   }
 
-  private async _load() {
-    if (!this.serverlessTemplates) {
-      await this._loadServerlessTemplates();
-    }
-  }
-
-  async getTemplate(moduleName: string) {
-    await this._load();
-    const template = this.serverlessTemplates[moduleName];
+  getTemplate(module: string) {
+    const template = this._templateMap[module];
     return template
       ? {
-          module: moduleName,
+          module: module,
           template
         }
       : null;
   }
 
-  async listTemplates() {
-    await this._load();
-    return Object.keys(this.serverlessTemplates).map(module => ({
+  listTemplates() {
+    return Object.keys(this._templateMap).map(module => ({
       module,
-      template: this.serverlessTemplates[module]
+      template: this._templateMap[module]
     }));
   }
 
-  private async _getResourceExtendTreeRootNode(
-    moduleName: string,
-    resourceId: string
-  ) {
-    const resource =
-      this.serverlessTemplates[moduleName]?.Resources[resourceId];
-
-    if (!resource) {
-      return null;
-    }
-
-    let baseResourceId = { module: moduleName, resource: resourceId };
-    let baseResource = resource;
-    while (baseResource[keywordExtend.keyword]) {
-      const extend = baseResource[keywordExtend.keyword] as Extend;
-      baseResource =
-        this.serverlessTemplates[extend.module]?.Resources[extend.resource];
-      if (baseResource === undefined) {
-        throw new Error(
-          `Extended resource {${extend.module}, ${extend.resource}} not found. Extended from {${baseResourceId.module}, ${baseResourceId.resource}}`
-        );
-      }
-      baseResourceId = extend;
-    }
-
-    return this.extendedResourceTreeMap[baseResourceId.module][
-      baseResourceId.resource
-    ];
-  }
-
-  async getResource(module: string, resource: string) {
-    await this._load();
-
-    const resourceExtendedTreeRootNode =
-      await this._getResourceExtendTreeRootNode(module, resource);
-    if (resourceExtendedTreeRootNode === null) {
-      return null;
-    }
-
-    return this._mergeExtendedResources(resourceExtendedTreeRootNode);
+  getResource(module: string, resource: string) {
+    return this._resourceMap[module][resource] || null;
   }
 
   getNearestModuleForResourceProperty(
@@ -283,139 +443,12 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     };
   }
 
-  private async _mergeExtendedResources(
-    resourceExtendTreeRootNode: ServerlessResourceExtendTreeNode
-  ) {
-    const { module: rootModule, resource: rootResource } =
-      resourceExtendTreeRootNode;
-
-    if (this.mergedResources[rootModule]?.[rootResource] === undefined) {
-      const propertyModuleMap: ResourcePropertyModuleMapNode = {
-        module: rootModule,
-        children: {
-          $: {
-            module: rootModule,
-            children: {}
-          }
-        }
-      };
-      let mergedProperties =
-        this.serverlessTemplates[rootModule].Resources[rootResource].Properties;
-      const extendTreeNodeQueue = [...resourceExtendTreeRootNode.from];
-      while (extendTreeNodeQueue.length > 0) {
-        const currentTreeNode = extendTreeNodeQueue.shift();
-        const currentResource =
-          this.serverlessTemplates[currentTreeNode.module].Resources[
-            currentTreeNode.resource
-          ];
-        const mergedResult = JSONObjectMerge(
-          mergedProperties,
-          currentResource.Properties,
-          (currentResource[keywordExtend.keyword] as Extend)?.rules,
-          true
-        ) as MergedWithReport;
-        mergedProperties = mergedResult.merged as Record<string, JSONType>;
-
-        mergedResult.report.updatedPaths.forEach(updatedPath => {
-          let propertySegmentModuleMapNode = propertyModuleMap;
-          let property = { $: mergedProperties } as JSONType;
-          updatedPath.path.forEach(pathSegment => {
-            if (
-              propertySegmentModuleMapNode.children[pathSegment] === undefined
-            ) {
-              propertySegmentModuleMapNode.children[pathSegment] = {
-                module: propertySegmentModuleMapNode.module,
-                children: {}
-              };
-            }
-            propertySegmentModuleMapNode =
-              propertySegmentModuleMapNode.children[pathSegment];
-            property = property[pathSegment];
-          });
-          switch (updatedPath.operation) {
-            case "APPEND":
-              {
-                const mergedArrayLength = (property as unknown[]).length || 0;
-                for (
-                  let i = mergedArrayLength - updatedPath.count;
-                  i < mergedArrayLength;
-                  i++
-                ) {
-                  propertySegmentModuleMapNode.children[i] = {
-                    module: currentTreeNode.module,
-                    children: {}
-                  };
-                }
-              }
-              break;
-            case "PREPEND":
-              {
-                const prependedCount = updatedPath.count;
-                const mergedArrayLength = (property as unknown[]).length || 0;
-                for (
-                  let i = mergedArrayLength - prependedCount - 1;
-                  i >= 0;
-                  i--
-                ) {
-                  // move the existing properties right
-                  if (propertySegmentModuleMapNode.children[i] !== undefined) {
-                    propertySegmentModuleMapNode.children[i + prependedCount] =
-                      propertySegmentModuleMapNode.children[i];
-                    delete propertySegmentModuleMapNode.children[i];
-                  }
-                }
-                // prepend
-                for (let i = 0; i < prependedCount; i++) {
-                  propertySegmentModuleMapNode.children[i] = {
-                    module: currentTreeNode.module,
-                    children: {}
-                  };
-                }
-              }
-              break;
-            case "REPLACE":
-            case "COMBINE":
-              // NOTE: same effect for REPLACE and COMBINE
-              // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `module` can be re-assigned
-              propertySegmentModuleMapNode.module = currentTreeNode.module;
-              // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `children` can be re-assigned
-              propertySegmentModuleMapNode.children = {};
-              break;
-          }
-        });
-
-        extendTreeNodeQueue.push(...currentTreeNode.from);
-      }
-      if (this.mergedResources[rootModule] === undefined) {
-        this.mergedResources[rootModule] = {};
-      }
-      const resource = freeze(
-        {
-          ...this.serverlessTemplates[rootModule].Resources[rootResource],
-          Properties: mergedProperties
-        },
-        true
-      );
-      freeze(propertyModuleMap, true);
-      this.mergedResources[rootModule][rootResource] = {
-        resource,
-        propertyModuleMap: propertyModuleMap.children["$"]
-      };
-    }
-
-    return this.mergedResources[rootModule]?.[rootResource];
-  }
-
-  getNodeRuntimeVersion(): string {
+  get functionNodeRuntimeVersion(): string {
     return process.env.SOMOD_SERVERLESS_NODEJS_VERSION || "16";
   }
 
-  private hashModuleName(str: string): string {
-    return createHash("sha256").update(str).digest("hex").substring(0, 8);
-  }
-
   getSAMResourceLogicalId(moduleName: string, somodResourceId: string) {
-    return "r" + this.hashModuleName(moduleName) + somodResourceId;
+    return "r" + this._getModuleHash(moduleName) + somodResourceId;
   }
 
   getSAMResourceName(moduleName: string, somodResourceName: string) {
@@ -426,7 +459,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
           stackId: {
             "Fn::Select": [2, { "Fn::Split": ["/", { Ref: "AWS::StackId" }] }]
           },
-          moduleHash: this.hashModuleName(moduleName),
+          moduleHash: this._getModuleHash(moduleName),
           somodResourceName: somodResourceName
         }
       ]

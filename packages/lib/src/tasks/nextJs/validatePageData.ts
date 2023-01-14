@@ -6,6 +6,7 @@ import { path_pages, path_pagesData, path_ui } from "../../utils/constants";
 import { get as getExports } from "../../utils/exports";
 import { addPageExtention } from "../../utils/nextJs/pages";
 import ErrorSet from "../../utils/ErrorSet";
+import { IContext } from "somod-types";
 
 const doesPageExistsForPageData = (pagesDir: string, pageData: string) => {
   const pageDataPathWithoutExtention = pageData.substring(
@@ -36,10 +37,10 @@ const nextJsDataFetchingMethods = [
   "getStaticProps"
 ];
 
-export const validatePageData = async (dir: string): Promise<void> => {
+export const validatePageData = async (context: IContext): Promise<void> => {
   const errors: Error[] = [];
-  const pagesDir = join(dir, path_ui, path_pages);
-  const pagesDataDir = join(dir, path_ui, path_pagesData);
+  const pagesDir = join(context.dir, path_ui, path_pages);
+  const pagesDataDir = join(context.dir, path_ui, path_pagesData);
   if (existsSync(pagesDataDir)) {
     const pagesData = await listFiles(pagesDataDir, ".ts");
 

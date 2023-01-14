@@ -5,7 +5,7 @@ import {
   namespace_output,
   resourceType_Function
 } from "../constants";
-import { ModuleHandler } from "../moduleHandler";
+import { ModuleHandler } from "../module";
 import { keywordRef } from "./keywords/ref";
 import { ServerlessTemplateHandler } from "./serverlessTemplate/serverlessTemplate";
 

@@ -1,8 +1,9 @@
 import { childProcess, ChildProcessError } from "nodejs-cli-runner";
+import { IContext } from "somod-types";
 import { file_tsConfigSomodJson } from "../../utils/constants";
 
 export const compileTypeScript = async (
-  dir: string,
+  context: IContext,
   noEmit = false
 ): Promise<void> => {
   const args = ["tsc", "--project", file_tsConfigSomodJson];
@@ -11,7 +12,7 @@ export const compileTypeScript = async (
   }
   try {
     await childProcess(
-      dir,
+      context.dir,
       process.platform === "win32" ? "npx.cmd" : "npx",
       args,
       { show: "off", return: "on" },

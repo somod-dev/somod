@@ -1,19 +1,14 @@
-import { IModuleHandler } from "./IModuleHandler";
-import { IServerlessTemplateHandler } from "./IServerlessTemplateHandler";
+import { IContext } from "./Context";
 import { JSONType, KeywordProcessor, KeywordValidator } from "./JsonTemplate";
 
 export type GetValidator<KeywordType extends JSONType = JSONType> = (
-  rootDir: string,
-  currentModuleName: string,
-  moduleHandler: IModuleHandler,
-  serverlessTemplateHandler: IServerlessTemplateHandler
+  rootModuleName: string,
+  context: IContext
 ) => Promise<KeywordValidator<KeywordType>>;
 
 export type GetProcessor<KeywordType extends JSONType = JSONType> = (
-  rootDir: string,
-  currentModuleName: string,
-  moduleHandler: IModuleHandler,
-  serverlessTemplateHandler: IServerlessTemplateHandler
+  roodModuleName: string,
+  context: IContext
 ) => Promise<KeywordProcessor<KeywordType>>;
 
 export type KeywordDefinition<KeywordType extends JSONType = JSONType> = {

@@ -34,12 +34,7 @@ export const keywordTemplateOutputs: KeywordDefinition<Outputs> = {
     };
   },
 
-  getProcessor: async (
-    rootdir,
-    moduleName,
-    moduleHandler,
-    serverlessTemplateHandler
-  ) => {
+  getProcessor: async (moduleName, context) => {
     return (keyword, node, value) => {
       if (getPath(node).length == 0) {
         return {
@@ -47,7 +42,7 @@ export const keywordTemplateOutputs: KeywordDefinition<Outputs> = {
           value: {
             [keyword]: Object.fromEntries(
               Object.keys(value).map(p => [
-                serverlessTemplateHandler.getSAMOutputName(p),
+                context.getSAMOutputName(p),
                 { Value: value[p] }
               ])
             )

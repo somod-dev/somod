@@ -1,5 +1,7 @@
 import { Context } from "aws-lambda";
-import { getMiddlewareHandler, Middleware, MiddlewareContext } from "../src";
+import { Middleware } from "somod-types";
+import { getMiddlewareHandler } from "../src";
+import { MiddlewareContext } from "../src/middleware";
 
 const context: Context = {
   callbackWaitsForEmptyEventLoop: false,

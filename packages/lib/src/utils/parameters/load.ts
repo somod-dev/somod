@@ -10,7 +10,7 @@ import {
   namespace_parameter,
   path_build
 } from "../constants";
-import { ModuleHandler } from "../moduleHandler";
+import { ModuleHandler } from "../module";
 import { Parameters, ParameterValues } from "./types";
 
 export const loadParameters = async (module: Module): Promise<Parameters> => {
