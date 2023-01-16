@@ -8,20 +8,23 @@ import { getBaseKeywords } from "./serverlessTemplate";
  *
  * Assumption is that `serverless/template.yaml` is present in root module
  */
-export const validateServerlessTemplate = async (
-  context: IContext,
-  rootModuleName: string
-) => {
-  const keywords = [
-    ...getBaseKeywords(),
-    ...context.lifecycleHandler.serverlessKeywords.map(k => k.keyword)
-  ];
+export const validateServerlessTemplate = async (context: IContext) => {
+  const keywords = [...getBaseKeywords()];
+
+  context.extensionHandler.serverlessTemplateKeywords.forEach(
+    serverlessTemplateKeywords => {
+      keywords.push(...serverlessTemplateKeywords.value);
+    }
+  );
 
   const keywordValidators: Record<string, KeywordValidator> = {};
 
   await Promise.all(
     keywords.map(async keyword => {
-      const validator = await keyword.getValidator(rootModuleName, context);
+      const validator = await keyword.getValidator(
+        context.moduleHandler.roodModuleName,
+        context
+      );
 
       keywordValidators[keyword.keyword] = validator;
     })
@@ -29,8 +32,8 @@ export const validateServerlessTemplate = async (
 
   const errors = await validateKeywords(
     parseJson(
-      (
-        await context.serverlessTemplateHandler.getTemplate(rootModuleName)
+      context.serverlessTemplateHandler.getTemplate(
+        context.moduleHandler.roodModuleName
       ).template
     ),
     keywordValidators

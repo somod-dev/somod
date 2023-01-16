@@ -1,13 +1,16 @@
 import { existsSync } from "fs";
 import { listFiles } from "nodejs-file-utils";
 import { join } from "path";
+import { IContext } from "somod-types";
 import { path_functions, path_serverless } from "../../utils/constants";
 import ErrorSet from "../../utils/ErrorSet";
 import { get as getExports } from "../../utils/exports";
 
-export const validateFunctionExports = async (dir: string): Promise<void> => {
+export const validateFunctionExports = async (
+  context: IContext
+): Promise<void> => {
   const errors: Error[] = [];
-  const functionsDir = join(dir, path_serverless, path_functions);
+  const functionsDir = join(context.dir, path_serverless, path_functions);
   if (existsSync(functionsDir)) {
     const functions = await listFiles(functionsDir, ".ts");
 

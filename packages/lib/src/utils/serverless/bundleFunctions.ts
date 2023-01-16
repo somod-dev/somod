@@ -116,7 +116,10 @@ export const bundleFunctionsOfModule = async (
           platform: "node",
           external: _function.exclude,
           minify: true,
-          target: ["node" + context.functionNodeRuntimeVersion],
+          target: [
+            "node" +
+              context.serverlessTemplateHandler.functionNodeRuntimeVersion
+          ],
           logLevel: verbose ? "verbose" : "silent"
         });
       } catch (e) {
@@ -133,8 +136,8 @@ export const bundleFunctions = async (
   verbose = false,
   sourcemap = false
 ) => {
-  const moduleNodes = await context.moduleHandler.listModules();
-  const templates = await context.serverlessTemplateHandler.listTemplates();
+  const moduleNodes = context.moduleHandler.list;
+  const templates = context.serverlessTemplateHandler.listTemplates();
   const templateMap = Object.fromEntries(
     templates.map(t => [t.module, t.template])
   );

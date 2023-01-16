@@ -24,13 +24,13 @@ export const keywordExtend: KeywordDefinition<Extend> = {
   keyword: "SOMOD::Extend",
 
   getValidator: async (moduleName, context) => {
-    return async (keyword, node, value) => {
+    return (keyword, node, value) => {
       const errors: Error[] = [];
 
       try {
         validateKeywordPosition(node);
 
-        const resource = await getReferencedResource(
+        const resource = getReferencedResource(
           context.serverlessTemplateHandler,
           value.module,
           value.resource,

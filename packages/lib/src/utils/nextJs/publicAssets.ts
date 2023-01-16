@@ -1,14 +1,14 @@
-import { NamespaceLoader } from "somod-types";
 import { existsSync } from "fs";
-import { readdir, stat, mkdir, copyFile } from "fs/promises";
+import { copyFile, mkdir } from "fs/promises";
+import { listFiles } from "nodejs-file-utils";
 import { dirname, join } from "path";
+import { IContext, NamespaceLoader } from "somod-types";
 import {
   namespace_public,
   path_build,
   path_public,
   path_ui
 } from "../constants";
-import { ModuleHandler } from "../module";
 
 export const linkAsset = async (from: string, to: string) => {
   await mkdir(dirname(to), { recursive: true });
@@ -25,36 +25,18 @@ export const loadPublicAssetNamespaces: NamespaceLoader = async module => {
   const publicAssets: string[] = [];
 
   if (existsSync(baseDir)) {
-    const queue: string[] = [""];
-
-    while (queue.length > 0) {
-      const dirToParse = queue.shift();
-      const children = await readdir(join(baseDir, dirToParse));
-      await Promise.all(
-        children.map(async child => {
-          const stats = await stat(join(baseDir, dirToParse, child));
-          if (stats.isDirectory()) {
-            queue.push(dirToParse + "/" + child);
-          } else {
-            publicAssets.push(dirToParse + "/" + child);
-          }
-        })
-      );
-    }
+    publicAssets.push(...(await listFiles(baseDir)));
   }
-  return {
-    [namespace_public]: publicAssets.map(pa =>
-      pa.startsWith("/") ? pa.substring(1) : pa
-    )
-  };
+
+  return [{ name: namespace_public, values: publicAssets }];
 };
 
-export const listAllPublicAssets = async () => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
+export const getPublicAssetToModuleMap = (context: IContext) => {
+  const publicAssets = context.namespaceHandler.get(namespace_public);
 
-  const publicAssetToModuleMap = (await moduleHandler.getNamespaces())[
-    namespace_public
-  ];
+  const publicAssetToModuleMap = Object.fromEntries(
+    publicAssets.map(p => [p.value, p.module])
+  );
 
   return publicAssetToModuleMap;
 };

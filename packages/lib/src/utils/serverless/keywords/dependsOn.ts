@@ -19,34 +19,32 @@ export const keywordDependsOn: KeywordDefinition<DependsOn> = {
   keyword: "SOMOD::DependsOn",
 
   getValidator: async (moduleName, context) => {
-    return async (keyword, node, value) => {
+    return (keyword, node, value) => {
       const errors: Error[] = [];
 
       try {
         validateKeywordPosition(node);
 
-        await Promise.all(
-          value.map(async v => {
-            try {
-              const resource = await getReferencedResource(
-                context.serverlessTemplateHandler,
-                v.module || moduleName,
-                v.resource,
-                "Depended"
-              );
+        value.map(v => {
+          try {
+            const resource = getReferencedResource(
+              context.serverlessTemplateHandler,
+              v.module || moduleName,
+              v.resource,
+              "Depended"
+            );
 
-              checkAccess(
-                resource.resource,
-                v.module || moduleName,
-                v.resource,
-                moduleName,
-                "Depended"
-              );
-            } catch (e) {
-              errors.push(e);
-            }
-          })
-        );
+            checkAccess(
+              resource.resource,
+              v.module || moduleName,
+              v.resource,
+              moduleName,
+              "Depended"
+            );
+          } catch (e) {
+            errors.push(e);
+          }
+        });
       } catch (e) {
         errors.push(e);
       }
@@ -60,7 +58,10 @@ export const keywordDependsOn: KeywordDefinition<DependsOn> = {
       type: "keyword",
       value: {
         DependsOn: value.map(v =>
-          context.getSAMResourceLogicalId(v.module || moduleName, v.resource)
+          context.serverlessTemplateHandler.getSAMResourceLogicalId(
+            v.module || moduleName,
+            v.resource
+          )
         )
       }
     });

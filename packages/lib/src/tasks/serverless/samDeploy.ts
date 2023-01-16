@@ -1,14 +1,15 @@
 /* istanbul ignore file */
 
 import { childProcess } from "nodejs-cli-runner";
+import { IContext } from "somod-types";
 
 export const samDeploy = async (
-  dir: string,
+  context: IContext,
   verbose = false,
   guided = false
 ): Promise<void> => {
   await childProcess(
-    dir,
+    context.dir,
     process.platform === "win32" ? "sam.cmd" : "sam",
     ["build"],
     { show: verbose ? "on" : "error", return: "off" },
@@ -21,7 +22,7 @@ export const samDeploy = async (
   }
 
   await childProcess(
-    dir,
+    context.dir,
     process.platform === "win32" ? "sam.cmd" : "sam",
     deployArgs,
     { show: verbose || guided ? "on" : "error", return: "off" },

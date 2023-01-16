@@ -1,17 +1,23 @@
 import { difference, isArray, isEqual, isPlainObject, toString } from "lodash";
-import { normalize, join } from "path";
-import { file_tsConfigSomodJson, path_build, path_lib } from "./constants";
+import { join } from "path";
+import {
+  file_tsConfigSomodJson,
+  path_build,
+  path_lib,
+  path_serverless,
+  path_ui
+} from "./constants";
 import { readJsonFileStore, unixStylePath } from "nodejs-file-utils";
 import ErrorSet from "./ErrorSet";
+import { IContext } from "somod-types";
 
-const defaultCompilerOptions = {
+const defaultCompilerOptions: Record<string, unknown> = {
   allowUmdGlobalAccess: true,
   outDir: path_build,
   declaration: true,
   target: "ES5",
   module: "ESNext",
   rootDir: "./",
-  lib: ["ESNext", "DOM", "DOM.Iterable"],
   moduleResolution: "Node",
   esModuleInterop: true,
   importHelpers: true,
@@ -20,21 +26,24 @@ const defaultCompilerOptions = {
 
 const defaultInclude = [path_lib];
 
-export const validate = async (
-  dir: string,
-  compilerOptions: Record<string, unknown>,
-  include: string[]
-): Promise<void> => {
-  const tsConfigPath = normalize(join(dir, file_tsConfigSomodJson));
+export const validate = async (context: IContext): Promise<void> => {
+  const tsConfigPath = join(context.dir, file_tsConfigSomodJson);
   const unixStyleTsConfigPath = unixStylePath(tsConfigPath);
   const tsConfig = await readJsonFileStore(tsConfigPath);
 
   const expectedCompilerOptions = {
-    ...defaultCompilerOptions,
-    ...compilerOptions
+    ...defaultCompilerOptions
   };
 
-  const expectedInclude = [...defaultInclude, ...include];
+  const expectedInclude = [...defaultInclude];
+
+  if (context.isUI) {
+    expectedCompilerOptions.jsx = "react-jsx";
+    expectedInclude.push(path_ui);
+  }
+  if (context.isServerless) {
+    expectedInclude.push(path_serverless);
+  }
 
   const errors: Error[] = [];
 
@@ -44,25 +53,12 @@ export const validate = async (
     );
   } else {
     Object.keys(expectedCompilerOptions).forEach(compilerOption => {
-      let error = false;
-      if (compilerOption == "lib") {
-        if (
-          difference(
-            expectedCompilerOptions[compilerOption],
-            tsConfig.compilerOptions[compilerOption]
-          ).length > 0
-        ) {
-          error = true;
-        }
-      } else if (
+      if (
         !isEqual(
           expectedCompilerOptions[compilerOption],
           tsConfig.compilerOptions[compilerOption]
         )
       ) {
-        error = true;
-      }
-      if (error) {
         errors.push(
           new Error(
             `compilerOptions.${compilerOption} must be '${toString(

@@ -16,8 +16,10 @@ import {
   path_build,
   path_lib
 } from "../../utils/constants";
+import { somodModuleNamePattern } from "somod-schema";
 import { read } from "../../utils/packageJson";
 import { validate as validateJson, Violation } from "decorated-ajv";
+import { IContext } from "somod-types";
 
 const packageJsonSchema: JSONSchema7 = {
   type: "object",
@@ -32,10 +34,7 @@ const packageJsonSchema: JSONSchema7 = {
     key_somod
   ],
   properties: {
-    name: {
-      // TODO: import pattern from common-types-schemas
-      type: "string"
-    },
+    name: somodModuleNamePattern,
     version: {
       type: "string"
     },
@@ -119,8 +118,8 @@ const validateInvalidKeys = (packageJson: Record<string, unknown>) => {
   }
 };
 
-export const validate = async (dir: string): Promise<void> => {
-  const packageJson = await read(dir);
+export const validate = async (context: IContext): Promise<void> => {
+  const packageJson = await read(context.dir);
 
   await schemaValidate(packageJson);
   validateInvalidKeys(packageJson);

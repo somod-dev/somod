@@ -1,13 +1,13 @@
 import { KeywordDefinition, KeywordObjectReplacement } from "somod-types";
 import { file_parametersYaml } from "../constants";
 import { loadAllParameterValues } from "../parameters/load";
-import { listAllParameters } from "../parameters/namespace";
+import { getParameterToModuleMap } from "../parameters/namespace";
 
 export const keywordParameter: KeywordDefinition<string> = {
   keyword: "SOMOD::Parameter",
 
-  getValidator: async () => {
-    const parameters = Object.keys(await listAllParameters());
+  getValidator: async (moduleName, context) => {
+    const parameters = Object.keys(getParameterToModuleMap(context));
     return (keyword, node, value) => {
       const errors: Error[] = [];
       if (Object.keys(node.properties).length > 1) {
@@ -32,7 +32,7 @@ export const keywordParameter: KeywordDefinition<string> = {
   },
 
   getProcessor: async (moduleName, context) => {
-    const parameters = await loadAllParameterValues(context.dir);
+    const parameters = await loadAllParameterValues(context);
     return (keyword, node, value) => {
       return {
         type: "object",

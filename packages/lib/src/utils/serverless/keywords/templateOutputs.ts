@@ -1,6 +1,6 @@
 import { file_parametersYaml } from "../../constants";
 import { getPath } from "../../jsonTemplate";
-import { listAllParameters } from "../../parameters/namespace";
+import { getParameterToModuleMap } from "../../parameters/namespace";
 import { JSONType, KeywordDefinition } from "somod-types";
 
 type Outputs = Record<string, JSONType>;
@@ -8,8 +8,8 @@ type Outputs = Record<string, JSONType>;
 export const keywordTemplateOutputs: KeywordDefinition<Outputs> = {
   keyword: "Outputs",
 
-  getValidator: async () => {
-    const parameters = Object.keys(await listAllParameters());
+  getValidator: async (moduleName, context) => {
+    const parameters = Object.keys(getParameterToModuleMap(context));
     return (keyword, node, value) => {
       const errors: Error[] = [];
 
@@ -42,7 +42,7 @@ export const keywordTemplateOutputs: KeywordDefinition<Outputs> = {
           value: {
             [keyword]: Object.fromEntries(
               Object.keys(value).map(p => [
-                context.getSAMOutputName(p),
+                context.serverlessTemplateHandler.getSAMOutputName(p),
                 { Value: value[p] }
               ])
             )

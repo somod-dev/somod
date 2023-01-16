@@ -1,6 +1,6 @@
 import { IContext, KeywordProcessor, ServerlessTemplate } from "somod-types";
 import { parseJson, processKeywords } from "../../jsonTemplate";
-import { listAllOutputs } from "../namespace";
+import { getOutputToModuleMap } from "../namespace";
 
 import { SAMTemplate } from "../types";
 import { getBaseKeywords } from "./serverlessTemplate";
@@ -8,22 +8,20 @@ import { getBaseKeywords } from "./serverlessTemplate";
 export const prepareSamTemplate = async (context: IContext) => {
   const processedTemplateMap: Record<string, ServerlessTemplate> = {};
 
-  const keywords = [
-    ...getBaseKeywords(),
-    ...context.lifecycleHandler.serverlessKeywords.map(k => k.keyword)
-  ];
+  const keywords = [...getBaseKeywords()];
+  context.extensionHandler.serverlessTemplateKeywords.forEach(k => {
+    keywords.push(...k.value);
+  });
 
   const samTemplate: SAMTemplate = {
     Resources: {}
   };
 
-  const _moduleNames = (await context.moduleHandler.listModules()).map(
-    m => m.module.name
-  );
+  const _moduleNames = context.moduleHandler.list.map(m => m.module.name);
 
   _moduleNames.reverse();
 
-  const templates = await context.serverlessTemplateHandler.listTemplates();
+  const templates = context.serverlessTemplateHandler.listTemplates();
   const moduleTemplateMap = Object.fromEntries(
     templates.map(t => [t.module, t.template])
   );
@@ -55,13 +53,14 @@ export const prepareSamTemplate = async (context: IContext) => {
     })
   );
 
-  const outputToModuleMap = await listAllOutputs();
+  const outputToModuleMap = getOutputToModuleMap(context);
   const outputNames = Object.keys(outputToModuleMap);
   if (outputNames.length > 0) {
     samTemplate.Outputs = {};
     outputNames.forEach(outputName => {
       const moduleName = outputToModuleMap[outputName];
-      const samOutputName = context.getSAMOutputName(outputName);
+      const samOutputName =
+        context.serverlessTemplateHandler.getSAMOutputName(outputName);
       const output = processedTemplateMap[moduleName].Outputs[
         samOutputName
       ] as SAMTemplate["Outputs"][string];

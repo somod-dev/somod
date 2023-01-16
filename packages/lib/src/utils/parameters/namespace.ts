@@ -1,19 +1,19 @@
-import { Module, NamespaceLoader } from "somod-types";
+import { IContext, Module, NamespaceLoader } from "somod-types";
 import { namespace_parameter } from "../constants";
-import { ModuleHandler } from "../module";
 import { loadParameters } from "./load";
 
 export const loadParameterNamespaces: NamespaceLoader = async (
   module: Module
 ) => {
   const parameters = await loadParameters(module);
-  return {
-    [namespace_parameter]: Object.keys(parameters?.parameters || {})
-  };
+  return [{ name: namespace_parameter, values: Object.keys(parameters) }];
 };
 
-export const listAllParameters = async (): Promise<Record<string, string>> => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-  const parameters = (await moduleHandler.getNamespaces())[namespace_parameter];
-  return parameters;
+export const getParameterToModuleMap = (context: IContext) => {
+  const parameters = context.namespaceHandler.get(namespace_parameter);
+  const parameterToModuleMap = Object.fromEntries(
+    parameters.map(p => [p.value, p.module])
+  );
+
+  return parameterToModuleMap;
 };

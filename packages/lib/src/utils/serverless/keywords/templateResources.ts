@@ -21,7 +21,10 @@ export const keywordTemplateResources: KeywordDefinition<Resources> = {
           value: {
             [keyword]: Object.fromEntries(
               Object.keys(value).map(p => [
-                context.getSAMResourceLogicalId(moduleName, p),
+                context.serverlessTemplateHandler.getSAMResourceLogicalId(
+                  moduleName,
+                  p
+                ),
                 value[p]
               ])
             )

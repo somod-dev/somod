@@ -23,7 +23,10 @@ export const keywordResourceName: KeywordDefinition<string> = {
     return (keyword, node, value) => {
       return {
         type: "object",
-        value: context.getSAMResourceName(moduleName, value) as JSONType
+        value: context.serverlessTemplateHandler.getSAMResourceName(
+          moduleName,
+          value
+        ) as JSONType
       };
     };
   }

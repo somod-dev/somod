@@ -1,11 +1,10 @@
 import { existsSync } from "fs";
-import { mkdir, readdir, stat, writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import { dirname, join, relative } from "path";
 import { namespace_page, path_build, path_pages, path_ui } from "../constants";
-import { ModuleHandler } from "../module";
 import { get as getExports } from "../exports";
-import { unixStylePath } from "nodejs-file-utils";
-import { NamespaceLoader } from "somod-types";
+import { listFiles, unixStylePath } from "nodejs-file-utils";
+import { IContext, NamespaceLoader } from "somod-types";
 
 export const removeExtension = (pagePathWithExtension: string) => {
   let extension = "";
@@ -82,37 +81,23 @@ export const loadPageNamespaces: NamespaceLoader = async module => {
     path_pages
   );
   const pages: string[] = [];
-
   if (existsSync(baseDir)) {
-    const queue: string[] = [""];
-
-    while (queue.length > 0) {
-      const dirToParse = queue.shift();
-      const children = await readdir(join(baseDir, dirToParse));
-      await Promise.all(
-        children.map(async child => {
-          const stats = await stat(join(baseDir, dirToParse, child));
-          if (stats.isDirectory()) {
-            queue.push(dirToParse + "/" + child);
-          } else if (child.endsWith(".js") || child.endsWith(".tsx")) {
-            pages.push(removeExtension(dirToParse + "/" + child));
-          }
-        })
-      );
-    }
+    const pageFiles: string[] = await listFiles(
+      baseDir,
+      module.root ? ".tsx" : ".js"
+    );
+    pages.push(...pageFiles.map(removeExtension));
   }
 
-  return {
-    [namespace_page]: pages.map(page =>
-      page.startsWith("/") ? page.substring(1) : page
-    )
-  };
+  return [{ name: namespace_page, values: pages }];
 };
 
-export const listAllPages = async () => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
+export const getPageToModuleMap = (context: IContext) => {
+  const pages = context.namespaceHandler.get(namespace_page);
 
-  const pageToModuleMap = (await moduleHandler.getNamespaces())[namespace_page];
+  const pageToModuleMap = Object.fromEntries(
+    pages.map(p => [p.value, p.module])
+  );
 
   return pageToModuleMap;
 };

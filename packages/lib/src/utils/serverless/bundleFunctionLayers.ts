@@ -1,29 +1,25 @@
-import { childProcess, ChildProcessStreamConfig } from "nodejs-cli-runner";
 import { mkdir, writeFile } from "fs/promises";
+import { childProcess, ChildProcessStreamConfig } from "nodejs-cli-runner";
 import { dirname, join } from "path";
+import { IContext } from "somod-types";
 import {
   file_packageJson,
   path_functionLayers,
   path_serverless,
   path_somodWorkingDir
 } from "../constants";
-import { getDeclaredFunctionLayers } from "./keywords/functionLayer";
-import { ModuleHandler } from "../module";
-import { ServerlessTemplateHandler } from "./serverlessTemplate/serverlessTemplate";
-import { IModuleHandler, IServerlessTemplateHandler } from "somod-types";
 import { read } from "../packageJson";
+import { getDeclaredFunctionLayers } from "./keywords/functionLayer";
 
 const path_layerNodeJs = "nodejs";
 
 export const bundleFunctionLayersForModule = async (
-  rootDir: string,
   moduleName: string,
-  serverlessTemplateHandler: IServerlessTemplateHandler,
-  moduleHandler: IModuleHandler,
+  context: IContext,
   verbose = false
 ): Promise<void> => {
   const declaredLayers = await getDeclaredFunctionLayers(
-    serverlessTemplateHandler,
+    context.serverlessTemplateHandler,
     moduleName
   );
 
@@ -35,8 +31,8 @@ export const bundleFunctionLayersForModule = async (
   });
   await Promise.all(
     Object.keys(moduleDevDependenciesMap).map(async module => {
-      const modulePackageLocation = (await moduleHandler.getModule(module))
-        .module.packageLocation;
+      const modulePackageLocation =
+        context.moduleHandler.getModule(module).module.packageLocation;
 
       const devDependencies = ((await read(modulePackageLocation))
         .devDependencies || {}) as Record<string, string>;
@@ -45,7 +41,7 @@ export const bundleFunctionLayersForModule = async (
   );
 
   const buildFunctionLayersPath = join(
-    rootDir,
+    context.dir,
     path_somodWorkingDir,
     path_serverless,
     path_functionLayers
@@ -119,14 +115,11 @@ export const bundleFunctionLayersForModule = async (
 };
 
 export const bundleFunctionLayers = async (
-  dir: string,
+  context: IContext,
   verbose = false
 ): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-  const moduleNodes = await moduleHandler.listModules();
-  const serverlessTemplateHandler =
-    ServerlessTemplateHandler.getServerlessTemplateHandler();
-  const templates = await serverlessTemplateHandler.listTemplates();
+  const moduleNodes = context.moduleHandler.list;
+  const templates = context.serverlessTemplateHandler.listTemplates();
   const templateMap = Object.fromEntries(
     templates.map(t => [t.module, t.template])
   );
@@ -134,13 +127,7 @@ export const bundleFunctionLayers = async (
     moduleNodes.map(async moduleNode => {
       const moduleName = moduleNode.module.name;
       if (templateMap[moduleName]) {
-        await bundleFunctionLayersForModule(
-          dir,
-          moduleName,
-          serverlessTemplateHandler,
-          moduleHandler,
-          verbose
-        );
+        await bundleFunctionLayersForModule(moduleName, context, verbose);
       }
     })
   );

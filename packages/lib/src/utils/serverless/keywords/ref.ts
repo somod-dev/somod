@@ -59,7 +59,7 @@ export const keywordRef: KeywordDefinition<Ref> = {
       try {
         await validateKeywordPositionAndSchema(node, value);
 
-        const resource = await getReferencedResource(
+        const resource = getReferencedResource(
           context.serverlessTemplateHandler,
           value.module || moduleName,
           value.resource
@@ -92,10 +92,11 @@ export const keywordRef: KeywordDefinition<Ref> = {
     return (keyword, node, value) => {
       const targetModule = value.module || moduleName;
 
-      const resourceId = context.getSAMResourceLogicalId(
-        targetModule,
-        value.resource
-      );
+      const resourceId =
+        context.serverlessTemplateHandler.getSAMResourceLogicalId(
+          targetModule,
+          value.resource
+        );
       const refValue = value.attribute
         ? { "Fn::GetAtt": [resourceId, value.attribute] }
         : { Ref: resourceId };
@@ -107,13 +108,13 @@ export const keywordRef: KeywordDefinition<Ref> = {
   }
 };
 
-export const getReferencedResource = async (
+export const getReferencedResource = (
   serverlessTemplateHandler: IServerlessTemplateHandler,
   module: string,
   resource: string,
   referenceType: "Referenced" | "Extended" | "Depended" = "Referenced"
 ) => {
-  const serverlessResource = await serverlessTemplateHandler.getResource(
+  const serverlessResource = serverlessTemplateHandler.getResource(
     module,
     resource
   );

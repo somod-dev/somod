@@ -3,11 +3,11 @@ import { IContext } from "somod-types";
 import { path_build, path_public, path_ui } from "../../utils/constants";
 import {
   linkAsset,
-  listAllPublicAssets
+  getPublicAssetToModuleMap
 } from "../../utils/nextJs/publicAssets";
 
 export const createPublicAssets = async (context: IContext): Promise<void> => {
-  const allPublicAssets = await listAllPublicAssets();
+  const allPublicAssets = getPublicAssetToModuleMap(context);
 
   await Promise.all(
     Object.keys(allPublicAssets).map(async publicAsset => {

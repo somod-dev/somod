@@ -6,15 +6,17 @@ import { copyDirectory } from "nodejs-file-utils";
 import watch from "../../utils/watch";
 import { sync as rimrafSync } from "rimraf";
 import { linkAsset } from "../../utils/nextJs/publicAssets";
+import { IContext } from "somod-types";
 
 const createTempDir = (): string => {
   return mkdtempSync(join(tmpdir(), "sodaruPackageManagerLib-"));
 };
 
 export const watchRootModulePublicAssets = async (
-  dir: string
+  context: IContext
 ): Promise<() => void> => {
   const backupDir = createTempDir();
+  const dir = context.dir;
 
   const publicAssetsDir = join(dir, path_public);
 

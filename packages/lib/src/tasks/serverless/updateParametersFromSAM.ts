@@ -14,7 +14,7 @@ import {
 } from "nodejs-file-utils";
 import { existsSync } from "fs";
 import { logWarning } from "nodejs-cli-runner";
-import { ServerlessTemplateHandler } from "../../utils/serverless/serverlessTemplate/serverlessTemplate";
+import { IContext } from "somod-types";
 
 const getStackNameFromSamConfig = async (dir: string) => {
   const samConfig = await readFile(join(dir, file_samConfig), {
@@ -39,10 +39,11 @@ const getStackNameFromSamConfig = async (dir: string) => {
 };
 
 export const updateParametersFromSAM = async (
-  dir: string,
+  context: IContext,
   stackName?: string
 ) => {
-  const _stackName = stackName || (await getStackNameFromSamConfig(dir));
+  const _stackName =
+    stackName || (await getStackNameFromSamConfig(context.dir));
 
   const client = new CloudFormationClient({});
   const command = new DescribeStacksCommand({ StackName: _stackName });
@@ -59,18 +60,15 @@ export const updateParametersFromSAM = async (
 
   const outputParameterValues: Record<string, string> = {};
 
-  const serverlessTemplateHandler =
-    ServerlessTemplateHandler.getServerlessTemplateHandler();
-
   result.Stacks[0].Outputs?.forEach(output => {
     outputParameterValues[
-      serverlessTemplateHandler.getParameterNameFromSAMOutputName(
+      context.serverlessTemplateHandler.getParameterNameFromSAMOutputName(
         output.OutputKey
       )
     ] = output.OutputValue;
   });
 
-  const parametersPath = join(dir, file_parametersJson);
+  const parametersPath = join(context.dir, file_parametersJson);
 
   const parameterValues = existsSync(parametersPath)
     ? await readJsonFileStore(parametersPath)

@@ -9,11 +9,11 @@ import {
 import {
   addPageExtention,
   linkPage,
-  listAllPages
+  getPageToModuleMap
 } from "../../utils/nextJs/pages";
 
 export const createPages = async (context: IContext): Promise<void> => {
-  const allPages = await listAllPages();
+  const allPages = getPageToModuleMap(context);
 
   await Promise.all(
     Object.keys(allPages).map(async page => {
