@@ -1,4 +1,6 @@
-import { childProcess, ChildProcessError } from "nodejs-cli-runner";
+import { existsSync } from "fs";
+import { childProcess, logWarning } from "nodejs-cli-runner";
+import { join } from "path";
 import { IContext } from "somod-types";
 import { file_tsConfigSomodJson } from "../../utils/constants";
 
@@ -6,11 +8,11 @@ export const compileTypeScript = async (
   context: IContext,
   noEmit = false
 ): Promise<void> => {
-  const args = ["tsc", "--project", file_tsConfigSomodJson];
-  if (noEmit) {
-    args.push("--noEmit");
-  }
-  try {
+  if (existsSync(join(context.dir, file_tsConfigSomodJson))) {
+    const args = ["tsc", "--project", file_tsConfigSomodJson];
+    if (noEmit) {
+      args.push("--noEmit");
+    }
     await childProcess(
       context.dir,
       process.platform === "win32" ? "npx.cmd" : "npx",
@@ -18,16 +20,9 @@ export const compileTypeScript = async (
       { show: "off", return: "on" },
       { show: "off", return: "on" }
     );
-  } catch (e) {
-    if (
-      !(
-        e instanceof ChildProcessError &&
-        e.result.stdout.startsWith(
-          "error TS18003: No inputs were found in config file"
-        )
-      )
-    ) {
-      throw e;
-    }
+  } else {
+    logWarning(
+      `Skipping TypeScript Compilation : ${file_tsConfigSomodJson} not Found.`
+    );
   }
 };

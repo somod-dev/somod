@@ -2,16 +2,13 @@ import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 
 import { createPages } from "../../../src";
 import { join } from "path";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
-import { loadPageNamespaces } from "../../../src/utils/nextJs/pages";
-import ErrorSet from "../../../src/utils/ErrorSet";
+import { IContext } from "somod-types";
 
 describe("Test Task createPages", () => {
   let dir: string = null;
 
   beforeEach(() => {
     dir = createTempDir("test-somod-lib");
-    ModuleHandler.initialize(dir, [loadPageNamespaces]);
   });
 
   afterEach(() => {
@@ -81,7 +78,41 @@ describe("Test Task createPages", () => {
         "export default function AboutMepage () {return 'a';}"
     });
 
-    await expect(createPages(dir)).resolves.toBeUndefined();
+    await expect(
+      createPages({
+        dir,
+        moduleHandler: {
+          getModule(module) {
+            const moduleLocationMap = {
+              m1: "",
+              m2: "node_modules/m2",
+              m3: "node_modules/m3",
+              m5: "node_modules/m2/node_modules/m5"
+            };
+            return {
+              module: {
+                name: module,
+                root: module == "m1",
+                packageLocation: join(dir, moduleLocationMap[module])
+              }
+            };
+          }
+        } as IContext["moduleHandler"],
+        namespaceHandler: {
+          get() {
+            return [
+              { name: "UI Page", module: "m1", value: "home" },
+              { name: "UI Page", module: "m1", value: "about/us" },
+              { name: "UI Page", module: "m2", value: "about" },
+              { name: "UI Page", module: "m5", value: "contact" },
+              { name: "UI Page", module: "m5", value: "survey" },
+              { name: "UI Page", module: "m3", value: "about/me" }
+            ];
+          },
+          names: []
+        } as IContext["namespaceHandler"]
+      } as IContext)
+    ).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "pages"))).toEqual({
       "home.ts":
@@ -96,55 +127,5 @@ describe("Test Task createPages", () => {
       "about/me.ts":
         'export { default } from "../../node_modules/m3/build/ui/pages/about/me";'
     });
-  });
-
-  test("for unresolved pages", async () => {
-    createFiles(dir, {
-      "package.json": JSON.stringify({
-        name: "m1",
-        version: "1.0.0",
-        somod: "1.3.2",
-        dependencies: {
-          m2: "^1.0.1",
-          m3: "^2.1.0"
-        }
-      }),
-      "node_modules/m2/package.json": JSON.stringify({
-        name: "m2",
-        version: "1.0.10",
-        somod: "1.3.2"
-      }),
-      "node_modules/m3/package.json": JSON.stringify({
-        name: "m3",
-        version: "2.2.0",
-        somod: "1.3.2"
-      }),
-      "ui/pages/about.tsx":
-        "export default function Aboutpage () {return 'a';}",
-      "node_modules/m2/build/ui/pages/about.js":
-        "export default function Aboutpage () {return 'a';}",
-      "node_modules/m2/build/ui/pages/contact.js":
-        "export default function Contactpage () {return 'a';}",
-      "node_modules/m2/build/ui/pages/survey.js":
-        "export default function Surveypage () {return 'a';}",
-
-      "node_modules/m3/build/ui/pages/about.js":
-        "export default function Aboutpage () {return 'a';}",
-      "node_modules/m3/build/ui/pages/contact.js":
-        "export default function Contactpage () {return 'a';}",
-      "node_modules/m3/build/ui/pages/about/me.js":
-        "export default function AbountMepage () {return 'a';}"
-    });
-    await expect(createPages(dir)).rejects.toEqual(
-      new ErrorSet([
-        new Error(
-          `Following namespaces are unresolved
-UI Page
- - contact
-   - m2
-   - m3`
-        )
-      ])
-    );
   });
 });

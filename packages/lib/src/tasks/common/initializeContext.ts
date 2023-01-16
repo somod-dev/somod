@@ -5,6 +5,6 @@ export const initializeContext = async (
   isUI: boolean,
   isServerless: boolean
 ) => {
-  const context = Context.getInstance(dir, isUI, isServerless);
+  const context = await Context.getInstance(dir, isUI, isServerless);
   return context;
 };
