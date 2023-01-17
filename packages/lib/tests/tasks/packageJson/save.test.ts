@@ -7,6 +7,7 @@ import { existsSync } from "fs";
 import { join } from "path";
 import { readJsonFileStore, updateJsonFileStore } from "nodejs-file-utils";
 import { readFile } from "fs/promises";
+import { IContext } from "somod-types";
 
 describe("Test Task savePackageJson", () => {
   let dir: string = null;
@@ -20,7 +21,7 @@ describe("Test Task savePackageJson", () => {
   });
 
   test("for no packageJson", async () => {
-    await expect(savePackageJson(dir)).resolves.toBeUndefined();
+    await expect(savePackageJson({ dir } as IContext)).resolves.toBeUndefined();
     expect(existsSync(join(dir, "package.json"))).toBeFalsy();
   });
 
@@ -30,7 +31,7 @@ describe("Test Task savePackageJson", () => {
         name: "some-package"
       })
     });
-    await expect(savePackageJson(dir)).resolves.toBeUndefined();
+    await expect(savePackageJson({ dir } as IContext)).resolves.toBeUndefined();
   });
 
   test("for packageJson with update", async () => {
@@ -43,7 +44,7 @@ describe("Test Task savePackageJson", () => {
     const packageJsonContent = await readJsonFileStore(packageJsonPath);
     packageJsonContent.version = "1.0.0";
     updateJsonFileStore(packageJsonPath, packageJsonContent);
-    await expect(savePackageJson(dir)).resolves.toBeUndefined();
+    await expect(savePackageJson({ dir } as IContext)).resolves.toBeUndefined();
     await expect(
       readFile(packageJsonPath, { encoding: "utf8" })
     ).resolves.toEqual(
@@ -59,7 +60,7 @@ describe("Test Task savePackageJson", () => {
     });
     const packageJsonPath = join(dir, "package.json");
     await updateSodaruModuleKeyInPackageJson(dir);
-    await expect(savePackageJson(dir)).resolves.toBeUndefined();
+    await expect(savePackageJson({ dir } as IContext)).resolves.toBeUndefined();
     const result = await readFile(packageJsonPath, { encoding: "utf8" });
     expect(JSON.parse(result)).toEqual({
       name: "some-package",

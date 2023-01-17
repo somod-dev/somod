@@ -6,10 +6,10 @@ import {
 } from "../../utils";
 import { validateServerlessTemplate as validateServerlessTemplateUtil } from "../../../src/utils/serverless/serverlessTemplate/validate";
 import { validateServerlessTemplate } from "../../../src";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { join } from "path";
 import { existsSync } from "fs";
 import { dump } from "js-yaml";
+import { IContext } from "somod-types";
 
 jest.mock("../../../src/utils/serverless/serverlessTemplate/validate", () => {
   return {
@@ -18,12 +18,11 @@ jest.mock("../../../src/utils/serverless/serverlessTemplate/validate", () => {
   };
 });
 
-describe("test Task prepareSAMTemplate", () => {
+describe("test Task validateServerlessTemplate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
     dir = createTempDir("test-somod-lib");
-    ModuleHandler.initialize(dir, []);
     mockedFunction(validateServerlessTemplateUtil).mockReset();
   });
 
@@ -40,13 +39,11 @@ describe("test Task prepareSAMTemplate", () => {
       }),
       "serverless/template.yaml": "Resources: {}"
     });
-    await expect(validateServerlessTemplate(dir)).resolves.toBeUndefined();
+    await expect(
+      validateServerlessTemplate({ dir } as IContext)
+    ).resolves.toBeUndefined();
     expect(validateServerlessTemplateUtil).toHaveBeenCalledTimes(1);
-    expect(validateServerlessTemplateUtil).toHaveBeenCalledWith(
-      dir,
-      "my-module",
-      []
-    );
+    expect(validateServerlessTemplateUtil).toHaveBeenCalledWith({ dir });
     expect(existsSync(join(dir, "template.yaml"))).not.toBeTruthy();
   });
 
@@ -65,21 +62,9 @@ describe("test Task prepareSAMTemplate", () => {
       })
     });
     await expect(
-      validateServerlessTemplate(dir, [
-        { getProcessor: jest.fn(), getValidator: jest.fn(), keyword: "A" }
-      ])
+      validateServerlessTemplate({ dir } as IContext)
     ).resolves.toBeUndefined();
     expect(validateServerlessTemplateUtil).toHaveBeenCalledTimes(1);
-    expect(validateServerlessTemplateUtil).toHaveBeenCalledWith(
-      dir,
-      "my-module",
-      [
-        {
-          getProcessor: expect.any(Function),
-          getValidator: expect.any(Function),
-          keyword: "A"
-        }
-      ]
-    );
+    expect(validateServerlessTemplateUtil).toHaveBeenCalledWith({ dir });
   });
 });

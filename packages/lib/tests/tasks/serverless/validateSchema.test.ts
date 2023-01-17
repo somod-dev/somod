@@ -1,5 +1,6 @@
 import { dump } from "js-yaml";
 import { join } from "path";
+import { IContext } from "somod-types";
 import { validateServerlessTemplateWithSchema } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
@@ -19,7 +20,7 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
       "package.json": JSON.stringify({ name: "sample" })
     });
     await expect(
-      validateServerlessTemplateWithSchema(dir)
+      validateServerlessTemplateWithSchema({ dir } as IContext)
     ).resolves.toBeUndefined();
   });
 
@@ -29,7 +30,7 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
       "serverless/": ""
     });
     await expect(
-      validateServerlessTemplateWithSchema(dir)
+      validateServerlessTemplateWithSchema({ dir } as IContext)
     ).resolves.toBeUndefined();
   });
 
@@ -38,7 +39,9 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
       "package.json": JSON.stringify({ name: "sample" }),
       "serverless/template.yaml": ""
     });
-    await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
+    await expect(
+      validateServerlessTemplateWithSchema({ dir } as IContext)
+    ).rejects.toEqual(
       new Error(
         join(dir, "serverless/template.yaml") +
           " has following errors\n must be object"
@@ -51,7 +54,9 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
       "package.json": JSON.stringify({ name: "sample" }),
       "serverless/template.yaml": "Resources:\n  "
     });
-    await expect(validateServerlessTemplateWithSchema(dir)).rejects.toEqual(
+    await expect(
+      validateServerlessTemplateWithSchema({ dir } as IContext)
+    ).rejects.toEqual(
       new Error(
         join(dir, "serverless/template.yaml") +
           " has following errors\n Resources must be object"
@@ -75,7 +80,7 @@ describe("Test Task validateServerlessTemplateWithSchema", () => {
       })
     });
     await expect(
-      validateServerlessTemplateWithSchema(dir)
+      validateServerlessTemplateWithSchema({ dir } as IContext)
     ).resolves.toBeUndefined();
   });
 });

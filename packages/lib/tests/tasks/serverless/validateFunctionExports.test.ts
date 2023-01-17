@@ -1,3 +1,4 @@
+import { IContext } from "somod-types";
 import { validateFunctionExports } from "../../../src";
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
@@ -14,17 +15,23 @@ describe("Test task validateFunctionExports", () => {
 
   test("for no functions directory", async () => {
     createFiles(dir, { "serverless/": "" });
-    await expect(validateFunctionExports(dir)).resolves.toBeUndefined();
+    await expect(
+      validateFunctionExports({ dir } as IContext)
+    ).resolves.toBeUndefined();
   });
 
   test("for empty functions directory", async () => {
     createFiles(dir, { "serverless/functions/": "" });
-    await expect(validateFunctionExports(dir)).resolves.toBeUndefined();
+    await expect(
+      validateFunctionExports({ dir } as IContext)
+    ).resolves.toBeUndefined();
   });
 
   test("for invalid file", async () => {
     createFiles(dir, { "serverless/functions/aaaa.ts": "<h1>cfd</h1>" });
-    await expect(validateFunctionExports(dir)).rejects.toMatchObject({
+    await expect(
+      validateFunctionExports({ dir } as IContext)
+    ).rejects.toMatchObject({
       message: expect.stringContaining(
         "serverless/functions/aaaa.ts must have a default export"
       )
@@ -38,6 +45,8 @@ describe("Test task validateFunctionExports", () => {
       "serverless/functions/about/me.ts": "export default function AboutMe() {}"
     });
 
-    await expect(validateFunctionExports(dir)).resolves.toBeUndefined();
+    await expect(
+      validateFunctionExports({ dir } as IContext)
+    ).resolves.toBeUndefined();
   });
 });

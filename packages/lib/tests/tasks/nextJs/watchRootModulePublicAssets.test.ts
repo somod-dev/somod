@@ -4,6 +4,7 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { helper, sleep } from "../../utils/watch.test";
+import { IContext } from "somod-types";
 
 describe("Test Task watchRootModulePublicAssets", () => {
   let dir: string = null;
@@ -19,7 +20,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
   });
 
   test("for no ui dir", async () => {
-    closeHandle = await watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets({ dir } as IContext);
     await sleep(100);
     expect(existsSync(dir + "/public")).toBeFalsy();
   });
@@ -27,7 +28,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
   test("for no ui/public dir", async () => {
     createFiles(dir, { "ui/": "" });
     await sleep(100);
-    closeHandle = await watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets({ dir } as IContext);
     await sleep(100);
     expect(existsSync(dir + "/public")).toBeFalsy();
   });
@@ -35,7 +36,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
   test("for empty ui/public dir", async () => {
     createFiles(dir, { "ui/public/": "" });
     await sleep(100);
-    closeHandle = await watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets({ dir } as IContext);
     await sleep(100);
     expect(existsSync(dir + "/public")).toBeFalsy();
   });
@@ -43,7 +44,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
   test("for existing public asset", async () => {
     createFiles(dir, { "ui/public/a.html": "dkjfhdsfkadhk" });
     await sleep(100);
-    closeHandle = await watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets({ dir } as IContext);
     await sleep(100);
 
     expect(existsSync(join(dir, "public", "a.html"))).toBeFalsy();
@@ -51,7 +52,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
 
   test("for new public after watch", async () => {
     // start watching
-    closeHandle = await watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets({ dir } as IContext);
     await sleep(100);
 
     // new file
@@ -112,7 +113,7 @@ describe("Test Task watchRootModulePublicAssets", () => {
     sleep(100);
 
     // start watching
-    closeHandle = await watchRootModulePublicAssets(dir);
+    closeHandle = await watchRootModulePublicAssets({ dir } as IContext);
     await sleep(100);
 
     // create file

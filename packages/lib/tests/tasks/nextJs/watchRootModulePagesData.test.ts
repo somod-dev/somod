@@ -4,6 +4,7 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { helper, sleep } from "../../utils/watch.test";
+import { IContext } from "somod-types";
 
 describe("Test Task watchRootModulePagesData", () => {
   let dir: string = null;
@@ -19,7 +20,7 @@ describe("Test Task watchRootModulePagesData", () => {
   });
 
   test("for no ui dir", async () => {
-    closeHandle = await watchRootModulePagesData(dir);
+    closeHandle = await watchRootModulePagesData({ dir } as IContext);
     await sleep(100);
     expect(existsSync(dir + "/pages")).toBeFalsy();
   });
@@ -27,7 +28,7 @@ describe("Test Task watchRootModulePagesData", () => {
   test("for no ui/pages-data dir", async () => {
     createFiles(dir, { "ui/": "" });
     await sleep(100);
-    closeHandle = await watchRootModulePagesData(dir);
+    closeHandle = await watchRootModulePagesData({ dir } as IContext);
     await sleep(100);
     expect(existsSync(dir + "/pages")).toBeFalsy();
   });
@@ -35,7 +36,7 @@ describe("Test Task watchRootModulePagesData", () => {
   test("for empty ui/pages-data dir", async () => {
     createFiles(dir, { "ui/pages-data/": "" });
     await sleep(100);
-    closeHandle = await watchRootModulePagesData(dir);
+    closeHandle = await watchRootModulePagesData({ dir } as IContext);
     await sleep(100);
     expect(existsSync(dir + "/pages")).toBeFalsy();
   });
@@ -45,7 +46,7 @@ describe("Test Task watchRootModulePagesData", () => {
       "ui/pages-data/a.ts": "export const getStaticPaths = () => {}"
     });
     await sleep(100);
-    closeHandle = await watchRootModulePagesData(dir);
+    closeHandle = await watchRootModulePagesData({ dir } as IContext);
     await sleep(100);
 
     expect(existsSync(join(dir, "pages", "a.ts"))).toBeFalsy();
@@ -53,9 +54,11 @@ describe("Test Task watchRootModulePagesData", () => {
 
   test("for pages data without page", async () => {
     await sleep(100);
-    const closePageWatch = await watchRootModulePages(dir);
+    const closePageWatch = await watchRootModulePages({ dir } as IContext);
     await sleep(100);
-    const closePageDataWatch = await watchRootModulePagesData(dir);
+    const closePageDataWatch = await watchRootModulePagesData({
+      dir
+    } as IContext);
     await sleep(100);
 
     closeHandle = () => {
@@ -76,9 +79,11 @@ describe("Test Task watchRootModulePagesData", () => {
 
   test("for new pages-data after watch", async () => {
     // start watching
-    const closePageWatch = await watchRootModulePages(dir);
+    const closePageWatch = await watchRootModulePages({ dir } as IContext);
     await sleep(100);
-    const closePageDataWatch = await watchRootModulePagesData(dir);
+    const closePageDataWatch = await watchRootModulePagesData({
+      dir
+    } as IContext);
     await sleep(100);
 
     closeHandle = () => {
@@ -128,9 +133,11 @@ describe("Test Task watchRootModulePagesData", () => {
     console.error = jest.fn();
 
     // start watching
-    const closePageWatch = await watchRootModulePages(dir);
+    const closePageWatch = await watchRootModulePages({ dir } as IContext);
     await sleep(100);
-    const closePageDataWatch = await watchRootModulePagesData(dir);
+    const closePageDataWatch = await watchRootModulePagesData({
+      dir
+    } as IContext);
     await sleep(100);
 
     closeHandle = () => {
