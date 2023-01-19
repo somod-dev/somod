@@ -2,9 +2,8 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { build } from "../../../src/utils/parameters/build";
-import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
+import { IContext } from "somod-types";
 
 describe("Test Util parameters.build", () => {
   let dir: string = null;
@@ -18,7 +17,6 @@ describe("Test Util parameters.build", () => {
         somod: "1.0.0"
       })
     });
-    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {
@@ -26,7 +24,7 @@ describe("Test Util parameters.build", () => {
   });
 
   test("for no parameters.yaml", async () => {
-    await expect(build(dir)).rejects.toMatchObject({
+    await expect(build({ dir } as IContext)).rejects.toMatchObject({
       message: `ENOENT: no such file or directory, open '${join(
         dir,
         "parameters.yaml"
@@ -36,7 +34,7 @@ describe("Test Util parameters.build", () => {
 
   test("for empty parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": "" });
-    await build(dir);
+    await build({ dir } as IContext);
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}");
@@ -44,7 +42,7 @@ describe("Test Util parameters.build", () => {
 
   test("for empty object in parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": dump({}) });
-    await expect(build(dir)).resolves.toBeUndefined();
+    await expect(build({ dir } as IContext)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}");
@@ -52,7 +50,7 @@ describe("Test Util parameters.build", () => {
 
   test("for no parameters in parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": dump({ parameters: {} }) });
-    await expect(build(dir)).resolves.toBeUndefined();
+    await expect(build({ dir } as IContext)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual('{"parameters":{}}');
@@ -65,7 +63,7 @@ describe("Test Util parameters.build", () => {
     createFiles(dir, {
       "parameters.yaml": dump(parameters)
     });
-    await expect(build(dir)).resolves.toBeUndefined();
+    await expect(build({ dir } as IContext)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(JSON.stringify(parameters));

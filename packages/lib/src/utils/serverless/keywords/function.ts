@@ -36,7 +36,7 @@ import JSONObjectMerge from "json-object-merge";
 import { keywordFunctionMiddleware } from "./functionMiddleware";
 import { freeze } from "../../freeze";
 
-type FunctionType = {
+export type FunctionType = {
   type: string;
   name: string;
   customResources?: JSONObjectType;
@@ -88,9 +88,9 @@ export class MergedFunctionResourceContainer {
     resource: string
   ) {
     if (this.store[module]?.[resource] === undefined) {
-      const originalFunctionResource = (
-        await context.serverlessTemplateHandler.getTemplate(module)
-      )?.template.Resources[resource];
+      const originalFunctionResource =
+        context.serverlessTemplateHandler.getTemplate(module)?.template
+          .Resources[resource];
 
       if (originalFunctionResource === undefined) {
         throw new Error(
@@ -137,8 +137,10 @@ export class MergedFunctionResourceContainer {
     module: string,
     resource: string
   ): Promise<FinalFunctionResource> {
-    const extendedFuncResource =
-      await context.serverlessTemplateHandler.getResource(module, resource);
+    const extendedFuncResource = context.serverlessTemplateHandler.getResource(
+      module,
+      resource
+    );
 
     const code: FinalFunctionResource["code"] = {
       function: {
@@ -154,8 +156,10 @@ export class MergedFunctionResourceContainer {
       middlewares: []
     };
 
-    const extendedFuncResourceWithExtensions =
-      await this._applyExtensionProperties(context, extendedFuncResource);
+    const extendedFuncResourceWithExtensions = this._applyExtensionProperties(
+      context,
+      extendedFuncResource
+    );
 
     const extendedFuncResourcePropertiesWithModuleRefCorrected =
       await this._correctModuleReference(
@@ -178,7 +182,7 @@ export class MergedFunctionResourceContainer {
 
     for (const middleware of middlewares) {
       const extendedMiddlewareResource =
-        await context.serverlessTemplateHandler.getResource(
+        context.serverlessTemplateHandler.getResource(
           middleware.module,
           middleware.resource
         );
@@ -230,7 +234,7 @@ export class MergedFunctionResourceContainer {
     };
   }
 
-  private static async _applyExtensionProperties(
+  private static _applyExtensionProperties(
     context: IContext,
     extendedFuncResource: {
       resource: ServerlessResource;
@@ -284,14 +288,14 @@ export class MergedFunctionResourceContainer {
       });
     });
 
-    const propertiesWithExtensions = (await JSONObjectMerge(
+    const propertiesWithExtensions = JSONObjectMerge(
       extendedFuncResource.resource.Properties,
       extensionProperties,
       {
         [`$.CodeUri.${keywordFunction.keyword}.middlewares`]: "APPEND",
         "$.Layers": "APPEND"
       }
-    )) as ServerlessResource["Properties"];
+    ) as ServerlessResource["Properties"];
 
     return freeze(
       {
@@ -438,7 +442,7 @@ const validateAllEventsMatchTheFunctionType = (
   }
 };
 
-const validateMiddlewares = async (
+const validateMiddlewares = (
   serverlessTemplateHandler: IServerlessTemplateHandler,
   moduleName: string,
   node: JSONObjectNode,
@@ -446,34 +450,30 @@ const validateMiddlewares = async (
   functionType: string,
   middlewares?: FunctionType["middlewares"]
 ) => {
-  const middlewareResources = await Promise.all(
-    (middlewares || []).map(async middlewareRef => {
-      const module = middlewareRef.module || moduleName;
-      const resource = middlewareRef.resource;
-      const middlewareResource = await serverlessTemplateHandler.getResource(
-        module,
-        resource
+  const middlewareResources = (middlewares || []).map(middlewareRef => {
+    const module = middlewareRef.module || moduleName;
+    const resource = middlewareRef.resource;
+    const middlewareResource = serverlessTemplateHandler.getResource(
+      module,
+      resource
+    );
+
+    if (middlewareResource === null) {
+      throw new Error(
+        `Middleware {${module}, ${resource}} used in the function ${functionName} must exist`
       );
+    }
 
-      if (middlewareResource === null) {
-        throw new Error(
-          `Middleware {${module}, ${resource}} used in the function ${functionName} must exist`
-        );
-      }
+    if (middlewareResource.resource.Type !== resourceType_FunctionMiddleware) {
+      throw new Error(
+        `Middleware {${module}, ${resource}} used in the function ${functionName} must be of type ${resourceType_FunctionMiddleware}`
+      );
+    }
 
-      if (
-        middlewareResource.resource.Type !== resourceType_FunctionMiddleware
-      ) {
-        throw new Error(
-          `Middleware {${module}, ${resource}} used in the function ${functionName} must be of type ${resourceType_FunctionMiddleware}`
-        );
-      }
+    checkAccess(middlewareResource.resource, module, resource, moduleName);
 
-      checkAccess(middlewareResource.resource, module, resource, moduleName);
-
-      return { module, resource, resourceObj: middlewareResource.resource };
-    })
-  );
+    return { module, resource, resourceObj: middlewareResource.resource };
+  });
 
   const unmatchedMiddlewares = middlewareResources.filter(
     middleware =>
@@ -495,7 +495,7 @@ const isExtendedFunction = (node: JSONObjectNode) => {
   return (
     (node.parent.node.parent.node as JSONObjectNode).properties?.[
       keywordExtend.keyword
-    ] === undefined
+    ] !== undefined
   );
 };
 
@@ -504,7 +504,7 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
 
   getValidator: async (moduleName, context) => {
     const definedFunctions = await getDefinedFunctions(context.dir);
-    return async (keyword, node, value) => {
+    return (keyword, node, value) => {
       const errors: Error[] = [];
 
       try {
@@ -697,7 +697,7 @@ export const getDeclaredFunctions = async (
 
   const declaredFunctions: DeclaredFunction[] = [];
   const currentServerlessTemplate =
-    await context.serverlessTemplateHandler.getTemplate(moduleName);
+    context.serverlessTemplateHandler.getTemplate(moduleName);
 
   await Promise.all(
     Object.keys(currentServerlessTemplate.template.Resources).map(

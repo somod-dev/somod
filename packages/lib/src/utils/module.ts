@@ -82,7 +82,7 @@ export class ModuleHandler implements IModuleHandler {
           moduleName: module.name,
           dependencies: allDependencies
         });
-        allDependencies.map(async dependency => {
+        allDependencies.map(dependency => {
           const dependencyPackageLocation = this._findModulePackageLocation(
             dependency,
             packageDir

@@ -6,7 +6,12 @@ export const loadParameterNamespaces: NamespaceLoader = async (
   module: Module
 ) => {
   const parameters = await loadParameters(module);
-  return [{ name: namespace_parameter, values: Object.keys(parameters) }];
+  return [
+    {
+      name: namespace_parameter,
+      values: Object.keys(parameters?.parameters || {})
+    }
+  ];
 };
 
 export const getParameterToModuleMap = (context: IContext) => {

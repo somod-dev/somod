@@ -3,8 +3,8 @@ import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordOr } from "../../../src/utils/keywords/or";
 
 describe("Test or keyword", () => {
-  const getValidator = () => keywordOr.getValidator("", "", null, null);
-  const getProcessor = () => keywordOr.getProcessor("", "", null, null);
+  const getValidator = () => keywordOr.getValidator("", null);
+  const getProcessor = () => keywordOr.getProcessor("", null);
 
   test("the keyword name", () => {
     expect(keywordOr.keyword).toEqual("SOMOD::Or");

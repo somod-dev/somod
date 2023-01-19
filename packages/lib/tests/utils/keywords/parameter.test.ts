@@ -1,4 +1,4 @@
-import { listAllParameters } from "../../../src/utils/parameters/namespace";
+import { getParameterToModuleMap } from "../../../src/utils/parameters/namespace";
 import { loadAllParameterValues } from "../../../src/utils/parameters/load";
 import { keywordParameter } from "../../../src/utils/keywords/parameter";
 import { mockedFunction } from "../../utils";
@@ -8,7 +8,7 @@ import { JSONObjectNode } from "somod-types";
 jest.mock("../../../src/utils/parameters/namespace", () => {
   return {
     __esModule: true,
-    listAllParameters: jest.fn()
+    getParameterToModuleMap: jest.fn()
   };
 });
 
@@ -21,8 +21,8 @@ jest.mock("../../../src/utils/parameters/load", () => {
 
 describe("Test parameter keyword", () => {
   beforeEach(() => {
-    mockedFunction(listAllParameters).mockReset();
-    mockedFunction(listAllParameters).mockResolvedValue({
+    mockedFunction(getParameterToModuleMap).mockReset();
+    mockedFunction(getParameterToModuleMap).mockReturnValue({
       p1: "m1",
       "p1.1": "m1",
       p2: "m2"
@@ -37,18 +37,13 @@ describe("Test parameter keyword", () => {
   });
 
   test("the getValidator calls listAllParameters", async () => {
-    await keywordParameter.getValidator("dir1", "m1", null, null);
-    expect(listAllParameters).toHaveBeenCalledTimes(1);
-    expect(listAllParameters).toHaveBeenNthCalledWith(1);
+    await keywordParameter.getValidator("dir1", null);
+    expect(getParameterToModuleMap).toHaveBeenCalledTimes(1);
+    expect(getParameterToModuleMap).toHaveBeenCalledWith(null);
   });
 
   test("the validator with additional properties", async () => {
-    const validator = await keywordParameter.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordParameter.getValidator("dir1", null);
 
     const obj = {
       [keywordParameter.keyword]: "p1",
@@ -69,12 +64,7 @@ describe("Test parameter keyword", () => {
   });
 
   test("the validator with non string parameter", async () => {
-    const validator = await keywordParameter.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordParameter.getValidator("dir1", null);
 
     const obj = {
       [keywordParameter.keyword]: ["p1"]
@@ -90,12 +80,7 @@ describe("Test parameter keyword", () => {
   });
 
   test("the validator with missing parameter", async () => {
-    const validator = await keywordParameter.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordParameter.getValidator("dir1", null);
 
     const obj = {
       [keywordParameter.keyword]: "p3"
@@ -115,12 +100,7 @@ describe("Test parameter keyword", () => {
   });
 
   test("the validator with valid parameter", async () => {
-    const validator = await keywordParameter.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordParameter.getValidator("dir1", null);
 
     const obj = {
       [keywordParameter.keyword]: "p1.1"
@@ -136,18 +116,13 @@ describe("Test parameter keyword", () => {
   });
 
   test("the getProcessor calls loadAllParameterValues", async () => {
-    await keywordParameter.getProcessor("dir1", "m1", null, null);
+    await keywordParameter.getProcessor("dir1", null);
     expect(loadAllParameterValues).toHaveBeenCalledTimes(1);
-    expect(loadAllParameterValues).toHaveBeenNthCalledWith(1, "dir1");
+    expect(loadAllParameterValues).toHaveBeenCalledWith(null);
   });
 
   test("the processor with missing parameter", async () => {
-    const processor = await keywordParameter.getProcessor(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const processor = await keywordParameter.getProcessor("dir1", null);
 
     const obj = {
       [keywordParameter.keyword]: "p3"
@@ -163,12 +138,7 @@ describe("Test parameter keyword", () => {
   });
 
   test("the processor with valid parameter", async () => {
-    const processor = await keywordParameter.getProcessor(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const processor = await keywordParameter.getProcessor("dir1", null);
 
     const obj = {
       [keywordParameter.keyword]: "p1.1"

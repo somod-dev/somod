@@ -1,13 +1,12 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { dump } from "js-yaml";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import {
   loadAllParameterValues,
   loadParameters
 } from "../../../src/utils/parameters/load";
-import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
 import { Parameters } from "../../../src/utils/parameters/types";
 import ErrorSet from "../../../src/utils/ErrorSet";
+import { IContext } from "somod-types";
 
 describe("Test Util parameters.loadParameters", () => {
   let dir: string = null;
@@ -25,7 +24,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir
       })
     ).resolves.toEqual({});
@@ -36,7 +34,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir,
         root: true
       })
@@ -51,7 +48,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir
       })
     ).resolves.toEqual({ parameters: {} });
@@ -71,7 +67,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir
       })
     ).resolves.toEqual(parameters);
@@ -91,7 +86,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir,
         root: true
       })
@@ -104,7 +98,6 @@ describe("Test Util parameters.loadAllParameterValues", () => {
 
   beforeEach(async () => {
     dir = createTempDir("test-somod-lib");
-    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {
@@ -129,7 +122,34 @@ describe("Test Util parameters.loadAllParameterValues", () => {
         somod: "1.0.0"
       })
     });
-    await expect(loadAllParameterValues(dir)).rejects.toEqual(
+    await expect(
+      loadAllParameterValues({
+        dir,
+        moduleHandler: {
+          getModule: (name => {
+            const map = {
+              "my-module": {
+                module: {
+                  name: "my-module",
+                  packageLocation: dir,
+                  version: "v1.0.0",
+                  root: true
+                },
+                children: [],
+                parents: []
+              }
+            };
+            return map[name];
+          }) as IContext["moduleHandler"]["getModule"]
+        },
+        namespaceHandler: {
+          get: (() => [
+            { name: "Parameter", value: "my.param", module: "my-module" },
+            { name: "Parameter", value: "my.param2", module: "my-module" }
+          ]) as IContext["namespaceHandler"]["get"]
+        }
+      } as IContext)
+    ).rejects.toEqual(
       new ErrorSet([
         new Error(
           "parameters.json has following errors\n my.param2 must be number"

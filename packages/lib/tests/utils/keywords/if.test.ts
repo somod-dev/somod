@@ -3,8 +3,8 @@ import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordIf } from "../../../src/utils/keywords/if";
 
 describe("Test if keyword", () => {
-  const getValidator = () => keywordIf.getValidator("", "", null, null);
-  const getProcessor = () => keywordIf.getProcessor("", "", null, null);
+  const getValidator = () => keywordIf.getValidator("", null);
+  const getProcessor = () => keywordIf.getProcessor("", null);
 
   test("the keyword name", () => {
     expect(keywordIf.keyword).toEqual("SOMOD::If");

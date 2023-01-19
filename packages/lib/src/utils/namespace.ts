@@ -32,13 +32,13 @@ export class NamespaceHandler implements INamespaceHandler {
       const moduleToAllChildrenMap = this._getModuleNameToAllChildrenMap(
         context.moduleHandler
       );
-      this._resolveNamespaces(
+      const resolvedNamespaces = this._resolveNamespaces(
         namespaceNameToValueToModulesMap,
         moduleToAllChildrenMap
       );
 
       const namespaces: Record<string, ModuleNamespace[]> = {};
-      moduleNamespaces.forEach(moduleNamespace => {
+      resolvedNamespaces.forEach(moduleNamespace => {
         const name = moduleNamespace.name;
         if (namespaces[name] === undefined) {
           namespaces[name] = [];
@@ -133,7 +133,7 @@ export class NamespaceHandler implements INamespaceHandler {
   private static _resolveNamespaces(
     namespaceToValueToModulesMap: Record<string, Record<string, string[]>>,
     moduleNameToAllChildrenMap: Record<string, string[]>
-  ): Record<string, Record<string, string>> {
+  ): ModuleNamespace[] {
     const unresolvedNamespaces: Record<string, string[]> = {};
 
     Object.keys(namespaceToValueToModulesMap).forEach(name => {
@@ -187,24 +187,24 @@ export class NamespaceHandler implements INamespaceHandler {
       );
     }
 
-    const namespaceToModuleMap: Record<string, Record<string, string>> = {};
-    Object.keys(namespaceToValueToModulesMap).forEach(namespaceName => {
-      namespaceToModuleMap[namespaceName] = {};
-      Object.keys(namespaceToValueToModulesMap[namespaceName]).forEach(
-        namespace => {
-          namespaceToModuleMap[namespaceName][namespace] =
-            namespaceToValueToModulesMap[namespaceName][namespace][0];
-        }
-      );
+    const resolvedNamespaces: ModuleNamespace[] = [];
+    Object.keys(namespaceToValueToModulesMap).forEach(name => {
+      Object.keys(namespaceToValueToModulesMap[name]).forEach(value => {
+        resolvedNamespaces.push({
+          name,
+          value,
+          module: namespaceToValueToModulesMap[name][value][0]
+        });
+      });
     });
 
-    return namespaceToModuleMap;
+    return resolvedNamespaces;
   }
 
   get names(): string[] {
     return Object.keys(this._namespaces);
   }
   get(name: string): ModuleNamespace[] {
-    return this._namespaces[name];
+    return this._namespaces[name] || [];
   }
 }

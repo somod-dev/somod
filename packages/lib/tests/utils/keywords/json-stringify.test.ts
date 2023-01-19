@@ -3,10 +3,8 @@ import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordJsonStringify } from "../../../src/utils/keywords/json-stringify";
 
 describe("Test json-stringify keyword", () => {
-  const getValidator = () =>
-    keywordJsonStringify.getValidator("", "", null, null);
-  const getProcessor = () =>
-    keywordJsonStringify.getProcessor("", "", null, null);
+  const getValidator = () => keywordJsonStringify.getValidator("", null);
+  const getProcessor = () => keywordJsonStringify.getProcessor("", null);
 
   test("the keyword name", () => {
     expect(keywordJsonStringify.keyword).toEqual("SOMOD::JsonStringify");

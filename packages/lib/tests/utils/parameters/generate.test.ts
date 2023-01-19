@@ -2,19 +2,10 @@ import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { generate } from "../../../src/utils/parameters/generate";
-import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
+import { IContext, ModuleNamespace } from "somod-types";
 
 const files = {
-  "package.json": JSON.stringify({
-    name: "my-module",
-    version: "1.0.0",
-    somod: "1.0.0",
-    dependencies: {
-      m1: "^1.0.0"
-    }
-  }),
   "parameters.yaml": dump({
     parameters: {
       "my.param1": {
@@ -22,11 +13,6 @@ const files = {
         default: "p1"
       }
     }
-  }),
-  "node_modules/m1/package.json": JSON.stringify({
-    name: "m1",
-    version: "1.0.0",
-    somod: "1.0.0"
   }),
   "node_modules/m1/build/parameters.json": JSON.stringify({
     parameters: {
@@ -41,12 +27,46 @@ const files = {
   })
 };
 
+const getContext = (dir: string, parameters: ModuleNamespace[]) =>
+  ({
+    dir,
+    moduleHandler: {
+      getModule: (name => {
+        const map = {
+          "my-module": {
+            module: {
+              name: "my-module",
+              packageLocation: dir,
+              version: "v1.0.0",
+              root: true
+            },
+            children: [],
+            parents: []
+          },
+          m1: {
+            module: {
+              name: "m1",
+              packageLocation: join(dir, "node_modules/m1"),
+              version: "v1.0.0",
+              root: false
+            },
+            children: [],
+            parents: []
+          }
+        };
+        return map[name];
+      }) as IContext["moduleHandler"]["getModule"]
+    },
+    namespaceHandler: {
+      get: (() => parameters) as IContext["namespaceHandler"]["get"]
+    }
+  } as IContext);
+
 describe("Test Util parameters.generate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
     dir = createTempDir("test-somod-lib");
-    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {
@@ -54,14 +74,7 @@ describe("Test Util parameters.generate", () => {
   });
 
   test("for no parameters.yaml", async () => {
-    createFiles(dir, {
-      "package.json": JSON.stringify({
-        name: "my-module",
-        version: "1.0.0",
-        somod: "1.0.0"
-      })
-    });
-    await expect(generate(dir)).resolves.toBeUndefined();
+    await expect(generate(getContext(dir, []))).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}\n");
@@ -76,7 +89,13 @@ describe("Test Util parameters.generate", () => {
       }),
       "parameters.yaml": files["parameters.yaml"]
     });
-    await expect(generate(dir)).resolves.toBeUndefined();
+    await expect(
+      generate(
+        getContext(dir, [
+          { name: "Parameter", value: "my.param1", module: "my-module" }
+        ])
+      )
+    ).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(JSON.stringify({ "my.param1": "p1" }, null, 2) + "\n");
@@ -84,7 +103,15 @@ describe("Test Util parameters.generate", () => {
 
   test("for parameters in dependency too", async () => {
     createFiles(dir, files);
-    await expect(generate(dir)).resolves.toBeUndefined();
+    await expect(
+      generate(
+        getContext(dir, [
+          { name: "Parameter", value: "my.param1", module: "my-module" },
+          { name: "Parameter", value: "my1.param1", module: "m1" },
+          { name: "Parameter", value: "my1.param2", module: "m1" }
+        ])
+      )
+    ).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(
@@ -105,7 +132,15 @@ describe("Test Util parameters.generate", () => {
       ),
       ...files
     });
-    await expect(generate(dir)).resolves.toBeUndefined();
+    await expect(
+      generate(
+        getContext(dir, [
+          { name: "Parameter", value: "my.param1", module: "my-module" },
+          { name: "Parameter", value: "my1.param1", module: "m1" },
+          { name: "Parameter", value: "my1.param2", module: "m1" }
+        ])
+      )
+    ).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(
@@ -131,7 +166,16 @@ describe("Test Util parameters.generate", () => {
       ),
       ...files
     });
-    await expect(generate(dir, true)).resolves.toBeUndefined();
+    await expect(
+      generate(
+        getContext(dir, [
+          { name: "Parameter", value: "my.param1", module: "my-module" },
+          { name: "Parameter", value: "my1.param1", module: "m1" },
+          { name: "Parameter", value: "my1.param2", module: "m1" }
+        ]),
+        true
+      )
+    ).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(

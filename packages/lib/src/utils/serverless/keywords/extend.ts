@@ -1,6 +1,11 @@
 import { getPath } from "../../jsonTemplate";
 import { checkAccess } from "./access";
-import { JSONObjectNode, KeywordDefinition } from "somod-types";
+import {
+  IServerlessTemplateHandler,
+  JSONObjectNode,
+  JSONPrimitiveNode,
+  KeywordDefinition
+} from "somod-types";
 import { Operation } from "json-object-merge";
 import { getReferencedResource } from "./ref";
 
@@ -20,6 +25,35 @@ const validateKeywordPosition = (node: JSONObjectNode) => {
   return path;
 };
 
+const makeSureTheResourceIsNotExtendedInSameModule = (
+  moduleName: string,
+  value: Extend
+) => {
+  if (value.module === moduleName) {
+    throw new Error(
+      `Can not extend the resource ${value.resource} in the same module ${moduleName}. Edit the resource directly`
+    );
+  }
+};
+
+const makeSureTheResourceExtendsSameType = (
+  node: JSONObjectNode,
+  value: Extend,
+  serverlessTemplateHandler: IServerlessTemplateHandler
+) => {
+  const fromType = (node.properties["Type"] as JSONPrimitiveNode).value;
+  const toType = serverlessTemplateHandler.getResource(
+    value.module,
+    value.resource
+  ).resource.Type;
+
+  if (fromType !== toType) {
+    throw new Error(
+      `Can extend only same type of resource. ${fromType} can not extend ${toType}`
+    );
+  }
+};
+
 export const keywordExtend: KeywordDefinition<Extend> = {
   keyword: "SOMOD::Extend",
 
@@ -29,6 +63,12 @@ export const keywordExtend: KeywordDefinition<Extend> = {
 
       try {
         validateKeywordPosition(node);
+        makeSureTheResourceIsNotExtendedInSameModule(moduleName, value);
+        makeSureTheResourceExtendsSameType(
+          node,
+          value,
+          context.serverlessTemplateHandler
+        );
 
         const resource = getReferencedResource(
           context.serverlessTemplateHandler,

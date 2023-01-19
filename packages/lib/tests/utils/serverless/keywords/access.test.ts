@@ -1,4 +1,4 @@
-import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
+import { JSONObjectNode } from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import {
   checkAccess,
@@ -6,8 +6,8 @@ import {
 } from "../../../../src/utils/serverless/keywords/access";
 
 describe("Test access keyword", () => {
-  const getValidator = () => keywordAccess.getValidator("", "", null, null);
-  const getProcessor = () => keywordAccess.getProcessor("", "", null, null);
+  const getValidator = () => keywordAccess.getValidator("", null);
+  const getProcessor = () => keywordAccess.getProcessor("", null);
 
   test("the keyword name", () => {
     expect(keywordAccess.keyword).toEqual("SOMOD::Access");
@@ -118,32 +118,36 @@ describe("Test access keyword", () => {
 });
 
 describe("Test util checkAccess from access keyword for", () => {
-  const usecases: [string, string, string, string | null, Error[]][] = [
+  const usecases: [string, string, string, string | null, Error][] = [
     // no keyword
     [
       "no scope in source, no keyword",
       "m1",
       "@s1/m1",
       null,
-      [
-        new Error(
-          'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "scope" access).'
-        )
-      ]
+
+      new Error(
+        'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "scope" access).'
+      )
     ],
     [
       "difference scope in source, no keyword",
       "@s2/m1",
       "@s1/m1",
       null,
-      [
-        new Error(
-          'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "scope" access).'
-        )
-      ]
+
+      new Error(
+        'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "scope" access).'
+      )
     ],
-    ["same scope in source, no keyword", "@s1/m2", "@s1/m1", null, []],
-    ["same scope & module in source, no keyword", "@s1/m1", "@s1/m1", null, []],
+    ["same scope in source, no keyword", "@s1/m2", "@s1/m1", null, undefined],
+    [
+      "same scope & module in source, no keyword",
+      "@s1/m1",
+      "@s1/m1",
+      null,
+      undefined
+    ],
 
     // keyword = scope
     [
@@ -151,30 +155,34 @@ describe("Test util checkAccess from access keyword for", () => {
       "m1",
       "@s1/m1",
       "scope",
-      [
-        new Error(
-          'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "scope" access).'
-        )
-      ]
+
+      new Error(
+        'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "scope" access).'
+      )
     ],
     [
       "difference scope in source, keyword = scope",
       "@s2/m1",
       "@s1/m1",
       "scope",
-      [
-        new Error(
-          'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "scope" access).'
-        )
-      ]
+
+      new Error(
+        'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "scope" access).'
+      )
     ],
-    ["same scope in source, keyword = scope", "@s1/m2", "@s1/m1", "scope", []],
+    [
+      "same scope in source, keyword = scope",
+      "@s1/m2",
+      "@s1/m1",
+      "scope",
+      undefined
+    ],
     [
       "same scope & module in source, keyword = scope",
       "@s1/m1",
       "@s1/m1",
       "scope",
-      []
+      undefined
     ],
 
     // keyword = module
@@ -183,106 +191,84 @@ describe("Test util checkAccess from access keyword for", () => {
       "m1",
       "@s1/m1",
       "module",
-      [
-        new Error(
-          'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "module" access).'
-        )
-      ]
+
+      new Error(
+        'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "module" access).'
+      )
     ],
     [
       "difference scope in source, keyword = module",
       "@s2/m1",
       "@s1/m1",
       "module",
-      [
-        new Error(
-          'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "module" access).'
-        )
-      ]
+
+      new Error(
+        'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "module" access).'
+      )
     ],
     [
       "same scope in source, keyword = module",
       "@s1/m2",
       "@s1/m1",
       "module",
-      [
-        new Error(
-          'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "module" access).'
-        )
-      ]
+
+      new Error(
+        'Referenced module resource {@s1/m1, MyResource1} can not be accessed (has "module" access).'
+      )
     ],
     [
       "same scope & module in source, keyword = module",
       "@s1/m1",
       "@s1/m1",
       "module",
-      []
+      undefined
     ],
 
     // keyword = public
-    ["no scope in source, keyword = public", "m1", "@s1/m1", "public", []],
+    [
+      "no scope in source, keyword = public",
+      "m1",
+      "@s1/m1",
+      "public",
+      undefined
+    ],
     [
       "difference scope in source, keyword = public",
       "@s2/m1",
       "@s1/m1",
       "public",
-      []
+      undefined
     ],
     [
       "same scope in source, keyword = public",
       "@s1/m2",
       "@s1/m1",
       "public",
-      []
+      undefined
     ],
     [
       "same scope & module in source, keyword = public",
       "@s1/m1",
       "@s1/m1",
       "public",
-      []
+      undefined
     ]
   ];
 
   test.each(usecases)(
     "%s",
-    (title, sourceModule, targetModule, accessValue, expectedErrors) => {
+    (title, sourceModule, targetModule, accessValue, expectedError) => {
       const resource = { Type: "", Properties: {} };
       if (accessValue) {
         resource[keywordAccess.keyword] = accessValue;
       }
-      expect(
-        checkAccess(
-          {
-            getResource: async () => {
-              return resource;
-            }
-          } as unknown as IServerlessTemplateHandler,
-          sourceModule,
-          {
-            module: targetModule,
-            resource: "MyResource1"
-          }
-        )
-      ).resolves.toEqual(expectedErrors);
+      let error;
+      try {
+        checkAccess(resource, targetModule, "MyResource1", sourceModule);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toEqual(expectedError);
     }
   );
-
-  test("with non existing resource", async () => {
-    await expect(
-      checkAccess(
-        {
-          getResource: async () => {
-            return null;
-          }
-        } as unknown as IServerlessTemplateHandler,
-        "m1",
-        {
-          resource: "MyResource1"
-        }
-      )
-    ).resolves.toEqual([
-      new Error("Referenced module resource {m1, MyResource1} not found.")
-    ]);
-  });
 });

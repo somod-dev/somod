@@ -1,16 +1,15 @@
-import { createFiles, createTempDir, deleteDir } from "../../utils";
+import { createFiles, createTempDir, deleteDir } from "../utils";
 import { Module, ModuleNode } from "somod-types";
 import { join, normalize } from "path";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
+import { ModuleHandler } from "../../src/utils/module";
 
 const getRootModuleNode = async (dir: string) => {
-  ModuleHandler.initialize(dir, []);
-  return await ModuleHandler.getModuleHandler().getRoodModuleNode();
+  const moduleHandler = await ModuleHandler.getInstance(dir);
+  return moduleHandler.getModule(moduleHandler.roodModuleName);
 };
 
 const listModules = async (dir: string) => {
-  ModuleHandler.initialize(dir, []);
-  return await ModuleHandler.getModuleHandler().listModules();
+  return (await ModuleHandler.getInstance(dir)).list;
 };
 
 describe("Test util getRootModuleNode with invalid input", () => {
@@ -32,7 +31,7 @@ describe("Test util getRootModuleNode with invalid input", () => {
 
   test("empty string", async () => {
     await expect(getRootModuleNode("")).rejects.toEqual(
-      new Error("Not a module")
+      new Error(" is not a SOMOD module")
     );
   });
 
@@ -53,7 +52,7 @@ describe("Test util getRootModuleNode with invalid input", () => {
       "package.json": '{"name":"m1"}'
     });
     await expect(getRootModuleNode(dir)).rejects.toEqual(
-      new Error("Not a module")
+      new Error(dir + " is not a SOMOD module")
     );
   });
 
@@ -67,7 +66,7 @@ describe("Test util getRootModuleNode with invalid input", () => {
       })
     });
     await expect(getRootModuleNode(dir)).rejects.toEqual(
-      new Error(`Package m1 not found from ${normalize(dir)}`)
+      new Error(`Module m1 not found from ${normalize(dir)}`)
     );
   });
 
@@ -163,6 +162,7 @@ const template = (
     });
     afterEach(() => {
       deleteDir(dir);
+      ModuleHandler["instance"] = undefined;
     });
     test("test", async () => {
       const actual = await getRootModuleNode(dir);
@@ -194,7 +194,6 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {},
         root: true
       }
     },
@@ -225,7 +224,6 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {},
         root: true
       }
     },
@@ -264,7 +262,6 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {},
         root: true
       }
     },
@@ -304,20 +301,19 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {},
         root: true
       },
       m2: {
         name: "m2",
         version: "0.0.2",
         packageLocation: "node_modules/m2",
-        namespaces: {}
+        root: false
       },
       m3: {
         name: "m3",
         version: "0.0.3",
         packageLocation: "node_modules/m3",
-        namespaces: {}
+        root: false
       }
     },
     parents: {
@@ -373,14 +369,13 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {},
         root: true
       },
       m2: {
         name: "m2",
         version: "0.0.2",
         packageLocation: "node_modules/m2",
-        namespaces: {}
+        root: false
       }
     },
     parents: {
@@ -425,20 +420,19 @@ template(
         name: "m1",
         version: "0.0.1",
         packageLocation: "",
-        namespaces: {},
         root: true
       },
       "@s/m2": {
         name: "@s/m2",
         version: "0.0.2",
         packageLocation: "node_modules/@s/m2",
-        namespaces: {}
+        root: false
       },
       m3: {
         name: "m3",
         version: "0.0.3",
         packageLocation: "node_modules/m3",
-        namespaces: {}
+        root: false
       }
     },
     parents: {

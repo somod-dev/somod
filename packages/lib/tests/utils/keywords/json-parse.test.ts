@@ -3,8 +3,8 @@ import { parseJson } from "../../../src/utils/jsonTemplate";
 import { keywordJsonParse } from "../../../src/utils/keywords/json-parse";
 
 describe("Test json-parse keyword", () => {
-  const getValidator = () => keywordJsonParse.getValidator("", "", null, null);
-  const getProcessor = () => keywordJsonParse.getProcessor("", "", null, null);
+  const getValidator = () => keywordJsonParse.getValidator("", null);
+  const getProcessor = () => keywordJsonParse.getProcessor("", null);
 
   test("the keyword name", () => {
     expect(keywordJsonParse.keyword).toEqual("SOMOD::JsonParse");

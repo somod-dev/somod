@@ -14,7 +14,7 @@ const loadExtension = async (pluginModule: string): Promise<Extension> => {
   return exports;
 };
 
-export const loadExtensions = async (
+const loadExtensions = async (
   moduleHandler: IModuleHandler
 ): Promise<{ name: string; extension: Extension }[]> => {
   const modules = moduleHandler.list;

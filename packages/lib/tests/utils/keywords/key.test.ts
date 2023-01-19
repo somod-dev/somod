@@ -5,8 +5,8 @@ import { keywordKey } from "../../../src/utils/keywords/key";
 type ValueType = [JSONObjectType | JSONArrayType, string | number];
 
 describe("Test key keyword", () => {
-  const getValidator = () => keywordKey.getValidator("", "", null, null);
-  const getProcessor = () => keywordKey.getProcessor("", "", null, null);
+  const getValidator = () => keywordKey.getValidator("", null);
+  const getProcessor = () => keywordKey.getProcessor("", null);
 
   test("the keyword name", () => {
     expect(keywordKey.keyword).toEqual("SOMOD::Key");

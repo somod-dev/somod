@@ -47,7 +47,7 @@ const isExtendedFunctionLayer = (node: JSONObjectNode) => {
   return (
     (node.parent.node.parent.node as JSONObjectNode).properties?.[
       keywordExtend.keyword
-    ] === undefined
+    ] !== undefined
   );
 };
 
