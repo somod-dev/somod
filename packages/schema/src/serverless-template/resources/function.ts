@@ -136,7 +136,18 @@ export const functionResource: JSONSchema7 = {
       properties: {
         Properties: {
           type: "object",
-          oneOf: [{ required: ["CodeUri"] }, { required: ["InlineCode"] }]
+          oneOf: [{ required: ["CodeUri"] }, { required: ["InlineCode"] }],
+          properties: {
+            CodeUri: {
+              type: "object",
+              properties: {
+                "SOMOD::Function": {
+                  type: "object",
+                  required: ["type", "name"]
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -160,7 +171,6 @@ export const functionResource: JSONSchema7 = {
             "SOMOD::Function": {
               type: "object",
               additionalProperties: false,
-              required: ["type", "name"],
               properties: {
                 type: { $ref: "#/definitions/functionTypes" },
                 name: {

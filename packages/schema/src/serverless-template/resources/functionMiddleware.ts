@@ -13,19 +13,29 @@ export const functionMiddlewareResource: JSONSchema7 = {
       properties: {
         Properties: {
           type: "object",
-          required: ["AllowedTypes"]
+          required: ["CodeUri"],
+          properties: {
+            CodeUri: {
+              type: "object",
+              properties: {
+                "SOMOD::FunctionMiddleware": {
+                  type: "object",
+                  required: ["name"]
+                }
+              }
+            }
+          }
         }
       }
     }
   ],
   errorMessage: {
-    anyOf: "When not extended, Properties must have AllowedTypes"
+    anyOf: "When not extended, Properties must have CodeUri"
   },
   properties: {
     Type: { const: "SOMOD::Serverless::FuntionMiddleware" },
     Properties: {
       type: "object",
-      required: ["CodeUri"],
       properties: {
         CodeUri: {
           type: "object",
@@ -33,19 +43,24 @@ export const functionMiddlewareResource: JSONSchema7 = {
           additionalProperties: false,
           properties: {
             "SOMOD::FunctionMiddleware": {
-              type: "string",
-              description:
-                "The name of the function middleware, this is the file name of es module under 'serverless/functions/middlewares' directory (without file extension)",
-              pattern: "^[a-zA-Z]+[a-zA-Z0-9]*$"
+              type: "object",
+              properties: {
+                name: {
+                  type: "string",
+                  description:
+                    "The name of the function middleware, this is the file name of es module under 'serverless/functions/middlewares' directory (without file extension)",
+                  pattern: "^[a-zA-Z]+[a-zA-Z0-9]*$"
+                },
+                allowedTypes: {
+                  type: "array",
+                  description:
+                    "Type of the funtion to which this middleware can be applied to. If not specified or left empty, the middleware is allowed for all type of functions",
+                  items: {
+                    $ref: "#/definitions/functionTypes"
+                  }
+                }
+              }
             }
-          }
-        },
-        AllowedTypes: {
-          type: "array",
-          description:
-            "Type of the funtion to which this middleware can be applied to",
-          items: {
-            $ref: "#/definitions/functionTypes"
           }
         },
         Environment: {

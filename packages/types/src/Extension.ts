@@ -4,12 +4,6 @@ import { NamespaceLoader } from "./Namespace";
 
 type Hook = (context: IContext) => Promise<void>;
 
-type ExtensionFunctionLayer = { layer: string; allowedTypes: string[] };
-type ExtensionFunctionMiddleware = {
-  middleware: string;
-  allowedTypes: string[];
-};
-
 export type Extension = {
   prebuild?: Hook;
   build?: Hook;
@@ -20,8 +14,8 @@ export type Extension = {
   uiConfigKeywords?: KeywordDefinition[];
   serverlessTemplateKeywords?: KeywordDefinition[];
 
-  functionLayers?: ExtensionFunctionLayer[];
-  functionMiddlewares?: ExtensionFunctionMiddleware[];
+  functionLayers?: string[];
+  functionMiddlewares?: string[];
 };
 
 export type ExtensionValue<T> = {
@@ -39,8 +33,8 @@ export interface IExtensionHandler {
   get uiConfigKeywords(): ExtensionValue<KeywordDefinition[]>[];
   get serverlessTemplateKeywords(): ExtensionValue<KeywordDefinition[]>[];
 
-  get functionLayers(): ExtensionValue<ExtensionFunctionLayer[]>[];
-  get functionMiddlewares(): ExtensionValue<ExtensionFunctionMiddleware[]>[];
+  get functionLayers(): ExtensionValue<string[]>[];
+  get functionMiddlewares(): ExtensionValue<string[]>[];
 
   get<T>(key: string): ExtensionValue<T>[];
 }

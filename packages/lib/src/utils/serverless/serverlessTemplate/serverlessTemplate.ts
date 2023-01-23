@@ -84,106 +84,14 @@ type ServerlessResourceWithPropertyModuleMap = {
   propertyModuleMap: ResourcePropertyModuleMapNode;
 };
 
-export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
-  private static instance: IServerlessTemplateHandler;
-
-  private _templateMap: Record<string, ServerlessTemplate> = {};
-
-  private _resourceMap: Record<
-    string, // module
-    Record<
-      string, // resource
-      {
-        resource: ServerlessResource;
-        propertyModuleMap: ResourcePropertyModuleMapNode;
-      }
-    >
-  >;
-
-  private _getModuleHash: (moduleName: string) => string;
-
-  private constructor() {
-    // do nothing
-  }
-
-  static async getInstance(context: IContext) {
-    if (this.instance === undefined) {
-      const handler = new ServerlessTemplateHandler();
-
-      handler._templateMap = await this._loadTemplates(context.moduleHandler);
-      const resourceExtendMap = this._generateResourceExtendNodeMap(
-        handler._templateMap
-      );
-      handler._resourceMap = this._generateResourceMap(
-        handler._templateMap,
-        resourceExtendMap
-      );
-      freeze(handler._templateMap);
-      freeze(handler._resourceMap);
-      handler._getModuleHash = context.getModuleHash;
-
-      this.instance = handler;
-    }
-    return this.instance;
-  }
-
-  private static async _loadBuiltServerlessTemplate(
-    module: Module
-  ): Promise<ServerlessTemplate | undefined> {
-    const templateLocation = join(
-      module.packageLocation,
-      path_build,
-      path_serverless,
-      file_templateJson
+export class ExtendUtil {
+  static getResourceMap(templateMap: Record<string, ServerlessTemplate>) {
+    const resourceExtendMap = this._generateResourceExtendNodeMap(templateMap);
+    const resourceMap = this._generateResourceMap(
+      templateMap,
+      resourceExtendMap
     );
-
-    if (existsSync(templateLocation)) {
-      const template = (await readJsonFileStore(
-        templateLocation
-      )) as ServerlessTemplate;
-
-      return template;
-    }
-  }
-
-  private static async _loadSourceServerlessTemplate(
-    module: Module
-  ): Promise<ServerlessTemplate | undefined> {
-    const templateLocation = join(
-      module.packageLocation,
-      path_serverless,
-      file_templateYaml
-    );
-
-    if (existsSync(templateLocation)) {
-      const template = (await readYamlFileStore(
-        templateLocation
-      )) as ServerlessTemplate;
-
-      return template;
-    }
-  }
-
-  private static async _loadTemplates(moduleHandler: IModuleHandler) {
-    const moduleServerlessTemplates: ModuleServerlessTemplate[] =
-      await Promise.all(
-        moduleHandler.list.map(async ({ module }) => {
-          const template = module.root
-            ? await this._loadSourceServerlessTemplate(module)
-            : await this._loadBuiltServerlessTemplate(module);
-
-          return template ? { module: module.name, template } : undefined;
-        })
-      );
-
-    const templateMap: Record<string, ServerlessTemplate> = {};
-    moduleServerlessTemplates.forEach(moduleServerlessTemplate => {
-      if (moduleServerlessTemplate) {
-        templateMap[moduleServerlessTemplate.module] =
-          moduleServerlessTemplate.template;
-      }
-    });
-    return templateMap;
+    return resourceMap;
   }
 
   private static _generateResourceExtendNodeMap(
@@ -252,8 +160,11 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
       resource: string
     ) => {
       while (resourceExtendMap[module][resource].to !== undefined) {
-        module = resourceExtendMap[module][resource].to.resource.module;
-        resource = resourceExtendMap[module][resource].to.resource.resource;
+        const _module = resourceExtendMap[module][resource].to.resource.module;
+        const _resource =
+          resourceExtendMap[module][resource].to.resource.resource;
+        module = _module;
+        resource = _resource;
       }
       return resourceExtendMap[module][resource];
     };
@@ -402,6 +313,129 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     };
   }
 
+  static getNearestModuleForResourceProperty(
+    propertyPath: (string | number)[],
+    propertyModuleMap: ResourcePropertyModuleMapNode
+  ): { module: string; depth: number } {
+    const _propertyPath = [...propertyPath];
+    if (_propertyPath[0] === "$") {
+      _propertyPath.shift();
+    }
+
+    let nearestPropertyModuleMap = propertyModuleMap;
+
+    let i = 0;
+    for (; i < _propertyPath.length; i++) {
+      if (nearestPropertyModuleMap.children[_propertyPath[i]] === undefined) {
+        break;
+      } else {
+        nearestPropertyModuleMap =
+          nearestPropertyModuleMap.children[_propertyPath[i]];
+      }
+    }
+    return {
+      module: nearestPropertyModuleMap.module,
+      depth: i - 1
+    };
+  }
+}
+
+export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
+  private static instance: IServerlessTemplateHandler;
+
+  private _templateMap: Record<string, ServerlessTemplate> = {};
+
+  private _resourceMap: Record<
+    string, // module
+    Record<
+      string, // resource
+      {
+        resource: ServerlessResource;
+        propertyModuleMap: ResourcePropertyModuleMapNode;
+      }
+    >
+  >;
+
+  private _getModuleHash: (moduleName: string) => string;
+
+  private constructor() {
+    // do nothing
+  }
+
+  static async getInstance(context: IContext) {
+    if (this.instance === undefined) {
+      const handler = new ServerlessTemplateHandler();
+
+      handler._templateMap = await this._loadTemplates(context.moduleHandler);
+      handler._resourceMap = ExtendUtil.getResourceMap(handler._templateMap);
+      freeze(handler._templateMap);
+      freeze(handler._resourceMap);
+      handler._getModuleHash = context.getModuleHash;
+
+      this.instance = handler;
+    }
+    return this.instance;
+  }
+
+  private static async _loadBuiltServerlessTemplate(
+    module: Module
+  ): Promise<ServerlessTemplate | undefined> {
+    const templateLocation = join(
+      module.packageLocation,
+      path_build,
+      path_serverless,
+      file_templateJson
+    );
+
+    if (existsSync(templateLocation)) {
+      const template = (await readJsonFileStore(
+        templateLocation
+      )) as ServerlessTemplate;
+
+      return template;
+    }
+  }
+
+  private static async _loadSourceServerlessTemplate(
+    module: Module
+  ): Promise<ServerlessTemplate | undefined> {
+    const templateLocation = join(
+      module.packageLocation,
+      path_serverless,
+      file_templateYaml
+    );
+
+    if (existsSync(templateLocation)) {
+      const template = (await readYamlFileStore(
+        templateLocation
+      )) as ServerlessTemplate;
+
+      return template;
+    }
+  }
+
+  private static async _loadTemplates(moduleHandler: IModuleHandler) {
+    const moduleServerlessTemplates: ModuleServerlessTemplate[] =
+      await Promise.all(
+        moduleHandler.list.map(async ({ module }) => {
+          const template = module.root
+            ? await this._loadSourceServerlessTemplate(module)
+            : await this._loadBuiltServerlessTemplate(module);
+
+          return template ? { module: module.name, template } : undefined;
+        })
+      );
+
+    const templateMap: Record<string, ServerlessTemplate> = {};
+    moduleServerlessTemplates.forEach(moduleServerlessTemplate => {
+      if (moduleServerlessTemplate) {
+        templateMap[moduleServerlessTemplate.module] =
+          moduleServerlessTemplate.template;
+      }
+    });
+    return templateMap;
+  }
+
   getTemplate(module: string) {
     const template = this._templateMap[module];
     return template
@@ -427,20 +461,10 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     propertyPath: (string | number)[],
     propertyModuleMap: ResourcePropertyModuleMapNode
   ): { module: string; depth: number } {
-    let nearestPropertyModuleMap = propertyModuleMap;
-    let i = 0;
-    for (; i < propertyPath.length; i++) {
-      if (nearestPropertyModuleMap.children[propertyPath[i]] === undefined) {
-        break;
-      } else {
-        nearestPropertyModuleMap =
-          nearestPropertyModuleMap.children[propertyPath[i]];
-      }
-    }
-    return {
-      module: nearestPropertyModuleMap.module,
-      depth: i - 1
-    };
+    return ExtendUtil.getNearestModuleForResourceProperty(
+      propertyPath,
+      propertyModuleMap
+    );
   }
 
   get functionNodeRuntimeVersion(): string {

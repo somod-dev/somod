@@ -52,7 +52,10 @@ export type FunctionMiddlewareProperties = {
   Environment?: { Variables?: Record<string, JSONType> };
 } & Record<string, JSONType>;
 
-type FunctionMiddlewareType = string;
+type FunctionMiddlewareType = {
+  name: string;
+  allowedTypes?: string[];
+};
 
 export type KeywordSomodFunctionMiddleware = {
   "SOMOD::FunctionMiddleware": FunctionMiddlewareType;
@@ -88,7 +91,7 @@ export const keywordFunctionMiddleware: KeywordDefinition<FunctionMiddlewareType
 
         try {
           validateKeywordPosition(node);
-          validateFunctionMiddlewareIsDefined(definedMiddlewares, value);
+          validateFunctionMiddlewareIsDefined(definedMiddlewares, value.name);
         } catch (e) {
           errors.push(e);
         }

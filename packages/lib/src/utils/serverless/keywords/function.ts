@@ -1,18 +1,16 @@
-import { listFiles, unixStylePath } from "nodejs-file-utils";
 import { JSONSchema7, validate } from "decorated-ajv";
+import { existsSync } from "fs";
+import { uniq, uniqBy } from "lodash";
+import { listFiles, unixStylePath } from "nodejs-file-utils";
+import { basename, extname, join } from "path";
 import {
+  IContext,
   IServerlessTemplateHandler,
   JSONObjectNode,
-  JSONObjectType,
   JSONPrimitiveNode,
   KeywordDefinition,
-  ServerlessResource,
-  ResourcePropertyModuleMapNode,
-  JSONArrayType,
-  IContext
+  ServerlessResource
 } from "somod-types";
-import { existsSync } from "fs";
-import { basename, extname, join } from "path";
 import {
   custom_resource_prefix,
   path_functions,
@@ -21,362 +19,16 @@ import {
   resourceType_Function,
   resourceType_FunctionMiddleware
 } from "../../constants";
-import {
-  constructJson,
-  getPath,
-  parseJson,
-  processKeywords
-} from "../../jsonTemplate";
-import { keywordRef, KeywordSomodRef } from "./ref";
-import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
-import { isEqual, uniq, uniqBy } from "lodash";
+import { constructJson, getPath } from "../../jsonTemplate";
 import { checkAccess } from "./access";
 import { keywordExtend } from "./extend";
-import JSONObjectMerge from "json-object-merge";
+import {
+  FunctionType,
+  MergedFunctionResourceContainer
+} from "./function-helper";
+import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
 import { keywordFunctionMiddleware } from "./functionMiddleware";
-import { freeze } from "../../freeze";
-
-export type FunctionType = {
-  type: string;
-  name: string;
-  customResources?: JSONObjectType;
-  middlewares?: { module?: string; resource: string }[];
-};
-
-export type FinalFunctionResource = {
-  resource: ServerlessResource;
-  code: {
-    function: { module: string; name?: string };
-    middlewares: { module: string; name: string }[];
-  };
-};
-
-/**
- * A Container class to create and store the Function Resource Properties (merged from different sources).
- *
- * The store is in-memory store
- *
- * The Final Properties of a Function Resource comes from different modules and resource.
- * The order of merging is
- *   - Original Function
- *   - From Extended Function Resources (In the order of module dependency)
- *   - Middlewares from the extensions (In the order of module dependency)
- *   - Layers from from the extensions (In the order of module dependency)
- *   - All middleware Properties (The middlewares are choosen from the result of previous step)
- *       - Each Middleware is merged with Extended Middleware resources
- *
- * Stores Final function resource
- *
- */
-export class MergedFunctionResourceContainer {
-  static store: Record<string, Record<string, FinalFunctionResource>> = {};
-
-  /**
-   *
-   * @param module module name
-   * @param resource resource id
-   * @returns Final function resource (the optional `module` property inside `SOMOD::Function.middlewares` and `SOMOD::Ref` keyword will be added with the right module)
-   * @throws Error when the Resource specified with `module` and `resource`
-   *    - does not exists OR
-   *    - not of type `AWS::Serverless::Function` OR
-   *    - has `SOMOD::Extend` keyword OR
-   *    - not have `SOMOD::Function` keyword in its `CodeUri` property
-   */
-  static async getFinalFunctionResource(
-    context: IContext,
-    module: string,
-    resource: string
-  ) {
-    if (this.store[module]?.[resource] === undefined) {
-      const originalFunctionResource =
-        context.serverlessTemplateHandler.getTemplate(module)?.template
-          .Resources[resource];
-
-      if (originalFunctionResource === undefined) {
-        throw new Error(
-          `Function Resource {${module}, ${resource}} does not exist.`
-        );
-      }
-
-      if (originalFunctionResource.Type !== resourceType_Function) {
-        throw new Error(
-          `Function Resource {${module}, ${resource}} must be of type ${resourceType_Function}`
-        );
-      }
-
-      if (originalFunctionResource[keywordExtend.keyword] !== undefined) {
-        throw new Error(
-          `Function Resource {${module}, ${resource}} must not contain ${keywordExtend.keyword} keyword`
-        );
-      }
-
-      if (
-        originalFunctionResource.Properties.CodeUri?.[
-          keywordFunction.keyword
-        ] === undefined
-      ) {
-        throw new Error(
-          `Function Resource {${module}, ${resource}} must not contain ${keywordFunction.keyword} keyword in its CodeUri Property`
-        );
-      }
-
-      if (!this.store[module]) {
-        this.store[module] = {};
-      }
-      this.store[module][resource] = await this._getFinalFunctionResource(
-        context,
-        module,
-        resource
-      );
-    }
-    return this.store[module][resource];
-  }
-
-  private static async _getFinalFunctionResource(
-    context: IContext,
-    module: string,
-    resource: string
-  ): Promise<FinalFunctionResource> {
-    const extendedFuncResource = context.serverlessTemplateHandler.getResource(
-      module,
-      resource
-    );
-
-    const code: FinalFunctionResource["code"] = {
-      function: {
-        module:
-          context.serverlessTemplateHandler.getNearestModuleForResourceProperty(
-            ["CodeUri", keywordFunction.keyword, "name"],
-            extendedFuncResource.propertyModuleMap
-          ).module,
-        name: extendedFuncResource.resource.Properties.CodeUri[
-          keywordFunction.keyword
-        ].name
-      },
-      middlewares: []
-    };
-
-    const extendedFuncResourceWithExtensions = this._applyExtensionProperties(
-      context,
-      extendedFuncResource
-    );
-
-    const extendedFuncResourcePropertiesWithModuleRefCorrected =
-      await this._correctModuleReference(
-        context.serverlessTemplateHandler,
-        extendedFuncResourceWithExtensions.resource.Properties,
-        extendedFuncResourceWithExtensions.propertyModuleMap
-      );
-
-    const middlewares = ((
-      extendedFuncResourcePropertiesWithModuleRefCorrected as JSONObjectType & {
-        CodeUri?: KeywordSomodFunction;
-      }
-    ).CodeUri?.["SOMOD::Function"]?.middlewares || []) as {
-      module: string;
-      resource: string;
-    }[];
-
-    let propertiesMergedWithMiddlewares =
-      extendedFuncResourcePropertiesWithModuleRefCorrected as ServerlessResource["Properties"];
-
-    for (const middleware of middlewares) {
-      const extendedMiddlewareResource =
-        context.serverlessTemplateHandler.getResource(
-          middleware.module,
-          middleware.resource
-        );
-
-      code.middlewares.push({
-        module:
-          context.serverlessTemplateHandler.getNearestModuleForResourceProperty(
-            ["CodeUri", keywordFunctionMiddleware.keyword, "name"],
-            extendedMiddlewareResource.propertyModuleMap
-          ).module,
-        name: extendedMiddlewareResource.resource.Properties.CodeUri?.[
-          keywordFunctionMiddleware.keyword
-        ]?.name
-      });
-
-      const extendedMiddlewareResourceProperties = {
-        ...extendedMiddlewareResource.resource.Properties
-      };
-      delete extendedMiddlewareResourceProperties.CodeUri; // don't merge the CodeUri property
-
-      const extendedMiddlewareResourcePropertiesWithModuleRefCorrected =
-        await this._correctModuleReference(
-          context.serverlessTemplateHandler,
-          extendedMiddlewareResourceProperties,
-          extendedMiddlewareResource.propertyModuleMap
-        );
-
-      propertiesMergedWithMiddlewares = JSONObjectMerge(
-        propertiesMergedWithMiddlewares,
-        extendedMiddlewareResourcePropertiesWithModuleRefCorrected,
-        { "$.Layers": "APPEND" }
-      ) as JSONObjectType;
-    }
-
-    const mergedProperties =
-      propertiesMergedWithMiddlewares as ServerlessResource["Properties"] & {
-        Layers?: JSONArrayType;
-      };
-    if (mergedProperties.Layers) {
-      mergedProperties.Layers = uniqBy(mergedProperties.Layers, isEqual);
-    }
-
-    return {
-      code,
-      resource: {
-        ...extendedFuncResourceWithExtensions.resource,
-        Properties: propertiesMergedWithMiddlewares
-      }
-    };
-  }
-
-  private static _applyExtensionProperties(
-    context: IContext,
-    extendedFuncResource: {
-      resource: ServerlessResource;
-      propertyModuleMap: ResourcePropertyModuleMapNode;
-    }
-  ) {
-    const functionType =
-      extendedFuncResource.resource.Properties.CodeUri[keywordFunction.keyword]
-        .type;
-
-    const extensionProperties = {
-      CodeUri: {
-        [keywordFunction.keyword]: {
-          middlewares: []
-        }
-      },
-      Layers: []
-    };
-
-    context.extensionHandler.functionMiddlewares.forEach(
-      extnFuncMiddlewares => {
-        extnFuncMiddlewares.value.forEach(extnFuncMiddleware => {
-          if (
-            extnFuncMiddleware.allowedTypes.includes(functionType) ||
-            extnFuncMiddleware.allowedTypes.includes("ALL")
-          ) {
-            extensionProperties.CodeUri[
-              keywordFunction.keyword
-            ].middlewares.push({
-              module: extnFuncMiddlewares.extension,
-              resource: extnFuncMiddleware.middleware
-            });
-          }
-        });
-      }
-    );
-
-    context.extensionHandler.functionLayers.forEach(extnFuncLayers => {
-      extnFuncLayers.value.forEach(extnFuncLayer => {
-        if (
-          extnFuncLayer.allowedTypes.includes(functionType) ||
-          extnFuncLayer.allowedTypes.includes("ALL")
-        ) {
-          extensionProperties.Layers.push({
-            [keywordRef.keyword]: {
-              module: extnFuncLayers.extension,
-              resource: extnFuncLayer.layer
-            }
-          });
-        }
-      });
-    });
-
-    const propertiesWithExtensions = JSONObjectMerge(
-      extendedFuncResource.resource.Properties,
-      extensionProperties,
-      {
-        [`$.CodeUri.${keywordFunction.keyword}.middlewares`]: "APPEND",
-        "$.Layers": "APPEND"
-      }
-    ) as ServerlessResource["Properties"];
-
-    return freeze(
-      {
-        resource: {
-          ...extendedFuncResource.resource,
-          Properties: propertiesWithExtensions
-        },
-        propertyModuleMap: extendedFuncResource.propertyModuleMap
-      },
-      true
-    );
-  }
-
-  private static async _correctModuleReference(
-    serverlessTemplateHandler: IServerlessTemplateHandler,
-    properties: JSONObjectType,
-    propertyModuleMap: ResourcePropertyModuleMapNode
-  ) {
-    // assumption is that the placement of keywords is correct and validated before code execution is reached here
-
-    const updatedProperties = await processKeywords(parseJson(properties), {
-      [keywordFunction.keyword]: (keyword, node, value: FunctionType) => {
-        const keywordPath = getPath(node);
-        keywordPath.push("middlewares");
-        const moduleForMiddlewaresProperty =
-          serverlessTemplateHandler.getNearestModuleForResourceProperty(
-            keywordPath,
-            propertyModuleMap
-          );
-
-        const updatedValue = {
-          ...value,
-          middlewares: value.middlewares?.map((middleware, i) => {
-            let module = middleware.module;
-            if (module == undefined) {
-              if (moduleForMiddlewaresProperty.depth < keywordPath.length - 1) {
-                module = moduleForMiddlewaresProperty.module;
-              } else {
-                const moduleForThisMiddleware =
-                  serverlessTemplateHandler.getNearestModuleForResourceProperty(
-                    [...keywordPath, i],
-                    propertyModuleMap
-                  );
-                module = moduleForThisMiddleware.module;
-              }
-            }
-            return { module, resource: middleware.resource };
-          })
-        };
-
-        return { type: "keyword", value: { [keyword]: updatedValue } };
-      },
-      [keywordExtend.keyword]: (
-        keyword,
-        node,
-        value: KeywordSomodRef["SOMOD::Ref"]
-      ) => {
-        const updatedValue = { ...value };
-        if (updatedValue.module === undefined) {
-          const keywordPath = getPath(node);
-          const moduleForThisRef =
-            serverlessTemplateHandler.getNearestModuleForResourceProperty(
-              keywordPath,
-              propertyModuleMap
-            );
-          updatedValue.module = moduleForThisRef.module;
-        }
-        return {
-          type: "keyword",
-          value: { [keyword]: updatedValue }
-        };
-      }
-    });
-
-    return updatedProperties;
-  }
-}
-
-export type KeywordSomodFunction = {
-  "SOMOD::Function": FunctionType;
-};
+import { keywordRef, KeywordSomodRef } from "./ref";
 
 const getDefinedFunctions = async (dir: string) => {
   const functionsDir = join(dir, path_serverless, path_functions);
@@ -475,12 +127,13 @@ const validateMiddlewares = (
     return { module, resource, resourceObj: middlewareResource.resource };
   });
 
-  const unmatchedMiddlewares = middlewareResources.filter(
-    middleware =>
-      !(middleware.resourceObj.Properties.AllowedTypes as string[]).includes(
-        functionType
-      )
-  );
+  const unmatchedMiddlewares = middlewareResources.filter(middleware => {
+    const allowedTypes = middleware.resourceObj.Properties.CodeUri?.[
+      keywordFunctionMiddleware.keyword
+    ]?.allowedTypes || [functionType];
+
+    return !(allowedTypes.length == 0 || allowedTypes.includes(functionType));
+  });
 
   if (unmatchedMiddlewares.length > 0) {
     throw new Error(

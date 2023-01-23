@@ -21,6 +21,7 @@ type FunctionLayerType = {
   name: string;
   libraries?: string[];
   content?: Record<string, string>;
+  allowedTypes?: string[];
 };
 
 const validateKeywordPosition = (node: JSONObjectNode) => {
