@@ -21,6 +21,8 @@ const createFunctionWithMiddlewares = async (
     middlewares: { module: string; name: string }[];
   }
 ) => {
+  // NOTE: This path must match the generated function path in the Template
+  // Refer code in ./keywords/function.ts
   const functionLocation = join(
     context.dir,
     path_somodWorkingDir,
@@ -30,9 +32,9 @@ const createFunctionWithMiddlewares = async (
     _function.name + ".js"
   );
 
-  const getCodeRelativePath = async (module: string, filePath: string[]) => {
+  const getCodeRelativePath = (module: string, filePath: string[]) => {
     const codeFilePath = join(
-      (await context.moduleHandler.getModule(module)).module.packageLocation,
+      context.moduleHandler.getModule(module).module.packageLocation,
       path_build,
       path_serverless,
       path_functions,
@@ -53,7 +55,7 @@ const createFunctionWithMiddlewares = async (
 
   const importStatements: string[] = [
     'import { getMiddlewareHandler } from "somod-middleware";',
-    `import lambdaFn from "${await getCodeRelativePath(_function.module, [
+    `import lambdaFn from "${getCodeRelativePath(_function.module, [
       _function.name
     ])}";`
   ];
@@ -63,7 +65,7 @@ const createFunctionWithMiddlewares = async (
       importStatements.push(
         `import ${getMiddlewareImportName(
           middleware
-        )} from "${await getCodeRelativePath(middleware.module, [
+        )} from "${getCodeRelativePath(middleware.module, [
           path_middlewares,
           middleware.name
         ])}";`

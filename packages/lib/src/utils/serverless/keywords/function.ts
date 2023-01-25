@@ -185,24 +185,6 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
       return { type: "keyword", value: { [keyword]: value } };
     }
 
-    const functionPath = unixStylePath(
-      join(
-        context.dir,
-        path_somodWorkingDir,
-        path_serverless,
-        path_functions,
-        moduleName,
-        value.name
-      )
-    );
-
-    if (!value.middlewares || value.middlewares.length == 0) {
-      return {
-        type: "object",
-        value: functionPath
-      };
-    }
-
     const resourceId = node.parent.node.parent.node.parent.node.parent
       .key as string;
     const mergedFunctionResource =
@@ -211,6 +193,19 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
         moduleName,
         resourceId
       );
+
+    // NOTE: This path must match the bundled funtion location
+    // refer code in ../bundleFunctions.ts
+    const functionPath = unixStylePath(
+      join(
+        context.dir,
+        path_somodWorkingDir,
+        path_serverless,
+        path_functions,
+        mergedFunctionResource.code.function.module,
+        mergedFunctionResource.code.function.name
+      )
+    );
 
     return {
       type: "object",
@@ -286,7 +281,7 @@ export const checkCustomResourceSchema = async (
   }
 };
 
-const getLayerLibraries = async (
+const getLayerLibraries = (
   layers: Partial<KeywordSomodRef>[],
   moduleName: string,
   serverlessTemplateHandler: IServerlessTemplateHandler
@@ -299,18 +294,16 @@ const getLayerLibraries = async (
 
   const uniqueLayerRefs = uniqBy(layerRefs, l => `${l.module}/${l.resource}`);
 
-  await Promise.all(
-    uniqueLayerRefs.map(async layerRef => {
-      const resource = await serverlessTemplateHandler.getResource(
-        layerRef.module,
-        layerRef.resource
-      );
-      const layerLibraries = getLibrariesFromFunctionLayerResource(
-        resource.resource
-      );
-      libraries.push(...layerLibraries);
-    })
-  );
+  uniqueLayerRefs.forEach(layerRef => {
+    const resource = serverlessTemplateHandler.getResource(
+      layerRef.module,
+      layerRef.resource
+    );
+    const layerLibraries = getLibrariesFromFunctionLayerResource(
+      resource.resource
+    );
+    libraries.push(...layerLibraries);
+  });
   return libraries;
 };
 
@@ -373,16 +366,16 @@ export const getDeclaredFunctions = async (
           ] as FunctionType;
           const functionName = fun?.name;
           if (functionName) {
-            const layers = finalFuncResource.resource.Properties
-              .Layers as KeywordSomodRef[];
+            const layers = (finalFuncResource.resource.Properties.Layers ||
+              []) as KeywordSomodRef[];
 
             const exclude: string[] = ["aws-sdk"];
             exclude.push(
-              ...(await getLayerLibraries(
+              ...getLayerLibraries(
                 layers,
                 moduleName,
                 context.serverlessTemplateHandler
-              ))
+              )
             );
 
             declaredFunctions.push({

@@ -32,7 +32,7 @@ export type FunctionType = {
 export type FinalFunctionResource = {
   resource: ServerlessResource;
   code: {
-    function: { module: string; name?: string };
+    function: { module: string; name: string };
     middlewares: { module: string; name: string }[];
   };
 };
