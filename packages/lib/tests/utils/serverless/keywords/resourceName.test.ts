@@ -1,14 +1,19 @@
-import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
+import {
+  IContext,
+  IServerlessTemplateHandler,
+  JSONObjectNode
+} from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { keywordResourceName } from "../../../../src/utils/serverless/keywords/resourceName";
 
 describe("Test resourceName keyword", () => {
-  const getValidator = () =>
-    keywordResourceName.getValidator("", "", null, null);
+  const getValidator = () => keywordResourceName.getValidator("", null);
   const getProcessor = () =>
-    keywordResourceName.getProcessor("", "m1", null, {
-      getSAMResourceName: (m, r) => `${m}--${r}`
-    } as IServerlessTemplateHandler);
+    keywordResourceName.getProcessor("m1", {
+      serverlessTemplateHandler: {
+        getSAMResourceName: (m, r) => `${m}--${r}`
+      } as IServerlessTemplateHandler
+    } as IContext);
 
   test("the keyword name", () => {
     expect(keywordResourceName.keyword).toEqual("SOMOD::ResourceName");

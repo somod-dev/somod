@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { listFiles } from "nodejs-file-utils";
 import { join } from "path";
-import { JSONObjectNode } from "somod-types";
+import { IContext, JSONObjectNode } from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { keywordFunctionMiddleware } from "../../../../src/utils/serverless/keywords/functionMiddleware";
 import { mockedFunction } from "../../../utils";
@@ -24,8 +24,6 @@ jest.mock("fs", () => {
   };
 });
 
-type FunctionMiddlewareType = string;
-
 describe("Test functionMiddleware keyword", () => {
   beforeEach(() => {
     mockedFunction(listFiles).mockReset();
@@ -42,15 +40,12 @@ describe("Test functionMiddleware keyword", () => {
   });
 
   test("the validator with keyword at top object", async () => {
-    const validator = await keywordFunctionMiddleware.getValidator(
-      "",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordFunctionMiddleware.getValidator("m1", {
+      dir: ""
+    } as IContext);
 
     const obj = {
-      [keywordFunctionMiddleware.keyword]: ""
+      [keywordFunctionMiddleware.keyword]: { name: "" }
     };
 
     expect(
@@ -67,19 +62,16 @@ describe("Test functionMiddleware keyword", () => {
   });
 
   test("the validator with keyword at deep inside a Resource object", async () => {
-    const validator = await keywordFunctionMiddleware.getValidator(
-      "",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordFunctionMiddleware.getValidator("m1", {
+      dir: ""
+    } as IContext);
 
     const obj = {
       Resources: {
         MyResource1: {
           Type: "SOMOD::Serverless::FunctionMiddleware",
           Properties: {
-            [keywordFunctionMiddleware.keyword]: ""
+            [keywordFunctionMiddleware.keyword]: { name: "" }
           }
         }
       }
@@ -95,9 +87,7 @@ describe("Test functionMiddleware keyword", () => {
             "MyResource1"
           ] as JSONObjectNode
         ).properties["Properties"] as JSONObjectNode,
-        obj.Resources.MyResource1.Properties[
-          keywordFunctionMiddleware.keyword
-        ] as FunctionMiddlewareType
+        obj.Resources.MyResource1.Properties[keywordFunctionMiddleware.keyword]
       )
     ).toEqual([
       new Error(
@@ -107,12 +97,9 @@ describe("Test functionMiddleware keyword", () => {
   });
 
   test("the validator with keyword at CodeUri Property", async () => {
-    const validator = await keywordFunctionMiddleware.getValidator(
-      "",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordFunctionMiddleware.getValidator("m1", {
+      dir: ""
+    } as IContext);
 
     const obj = {
       Resources: {
@@ -120,7 +107,7 @@ describe("Test functionMiddleware keyword", () => {
           Type: "SOMOD::Serverless::FunctionMiddleware",
           Properties: {
             CodeUri: {
-              [keywordFunctionMiddleware.keyword]: "mw1"
+              [keywordFunctionMiddleware.keyword]: { name: "mw1" }
             }
           }
         }
@@ -141,18 +128,15 @@ describe("Test functionMiddleware keyword", () => {
         ).properties["CodeUri"] as JSONObjectNode,
         obj.Resources.MyResource1.Properties.CodeUri[
           keywordFunctionMiddleware.keyword
-        ] as FunctionMiddlewareType
+        ]
       )
     ).toEqual([]);
   });
 
   test("the validator with non existing function middleware", async () => {
-    const validator = await keywordFunctionMiddleware.getValidator(
-      "",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordFunctionMiddleware.getValidator("m1", {
+      dir: ""
+    } as IContext);
 
     const obj = {
       Resources: {
@@ -160,7 +144,7 @@ describe("Test functionMiddleware keyword", () => {
           Type: "SOMOD::Serverless::FunctionMiddleware",
           Properties: {
             CodeUri: {
-              [keywordFunctionMiddleware.keyword]: "middleware1"
+              [keywordFunctionMiddleware.keyword]: { name: "middleware1" }
             }
           }
         }
@@ -181,7 +165,7 @@ describe("Test functionMiddleware keyword", () => {
         ).properties["CodeUri"] as JSONObjectNode,
         obj.Resources.MyResource1.Properties.CodeUri[
           keywordFunctionMiddleware.keyword
-        ] as FunctionMiddlewareType
+        ]
       )
     ).toEqual([
       new Error(
@@ -192,7 +176,9 @@ describe("Test functionMiddleware keyword", () => {
 
   test("the getValidator is calling existsSync and skipping listFiles when existsSync returns false", async () => {
     mockedFunction(existsSync).mockReturnValue(false);
-    await keywordFunctionMiddleware.getValidator("/root/dir", "m1", null, null);
+    await keywordFunctionMiddleware.getValidator("m1", {
+      dir: "/root/dir"
+    } as IContext);
     expect(existsSync).toHaveBeenCalledTimes(1);
     expect(existsSync).toHaveBeenNthCalledWith(
       1,
@@ -202,7 +188,9 @@ describe("Test functionMiddleware keyword", () => {
   });
 
   test("the getValidator is calling listFiles", async () => {
-    await keywordFunctionMiddleware.getValidator("/root/dir", "m1", null, null);
+    await keywordFunctionMiddleware.getValidator("m1", {
+      dir: "/root/dir"
+    } as IContext);
     expect(listFiles).toHaveBeenCalledTimes(1);
     expect(listFiles).toHaveBeenNthCalledWith(
       1,
@@ -222,7 +210,7 @@ describe("Test functionMiddleware keyword", () => {
               Type: "SOMOD::Serverless::FunctionMiddleware",
               Properties: {
                 CodeUri: {
-                  [keywordFunctionMiddleware.keyword]: "mw1"
+                  [keywordFunctionMiddleware.keyword]: { name: "mw1" }
                 }
               }
             }
@@ -231,12 +219,9 @@ describe("Test functionMiddleware keyword", () => {
       }
     };
 
-    const processor = await keywordFunctionMiddleware.getProcessor(
-      "/root/dir",
-      "m1",
-      null,
-      null
-    );
+    const processor = await keywordFunctionMiddleware.getProcessor("m1", {
+      dir: "/root/dir"
+    } as IContext);
 
     const objNode = parseJson(allModules.m1.json) as JSONObjectNode;
 
@@ -252,7 +237,7 @@ describe("Test functionMiddleware keyword", () => {
         ).properties["CodeUri"] as JSONObjectNode,
         allModules.m1.json.Resources.MyResource1.Properties.CodeUri[
           keywordFunctionMiddleware.keyword
-        ] as FunctionMiddlewareType
+        ]
       )
     ).toEqual({
       type: "object",

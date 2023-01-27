@@ -5,7 +5,7 @@ import {
   IServerlessTemplateHandler,
   JSONArrayType,
   JSONObjectType,
-  ResourcePropertyModuleMapNode,
+  ResourcePropertySourceNode,
   ServerlessResource
 } from "somod-types";
 import { resourceType_Function } from "../../constants";
@@ -129,11 +129,10 @@ export class MergedFunctionResourceContainer {
 
     const code: FinalFunctionResource["code"] = {
       function: {
-        module:
-          context.serverlessTemplateHandler.getNearestModuleForResourceProperty(
-            ["CodeUri", functionKeyword, "name"],
-            extendedFuncResource.propertyModuleMap
-          ).module,
+        module: context.serverlessTemplateHandler.getResourcePropertySource(
+          ["CodeUri", functionKeyword, "name"],
+          extendedFuncResource.propertySourceMap
+        ).module,
         name: extendedFuncResource.resource.Properties.CodeUri[functionKeyword]
           .name
       },
@@ -172,11 +171,10 @@ export class MergedFunctionResourceContainer {
         );
 
       code.middlewares.push({
-        module:
-          context.serverlessTemplateHandler.getNearestModuleForResourceProperty(
-            ["CodeUri", keywordFunctionMiddleware.keyword, "name"],
-            extendedMiddlewareResource.propertyModuleMap
-          ).module,
+        module: context.serverlessTemplateHandler.getResourcePropertySource(
+          ["CodeUri", keywordFunctionMiddleware.keyword, "name"],
+          extendedMiddlewareResource.propertySourceMap
+        ).module,
         name: extendedMiddlewareResource.resource.Properties.CodeUri?.[
           keywordFunctionMiddleware.keyword
         ]?.name
@@ -191,7 +189,7 @@ export class MergedFunctionResourceContainer {
         await this._correctModuleReference(
           context.serverlessTemplateHandler,
           extendedMiddlewareResourceProperties,
-          extendedMiddlewareResource.propertyModuleMap
+          extendedMiddlewareResource.propertySourceMap
         );
 
       propertiesMergedWithMiddlewares = JSONObjectMerge(
@@ -222,7 +220,7 @@ export class MergedFunctionResourceContainer {
     context: IContext,
     extendedFuncResource: {
       resource: ServerlessResource;
-      propertyModuleMap: ResourcePropertyModuleMapNode;
+      propertySourceMap: ResourcePropertySourceNode;
     }
   ) {
     const functionType =
@@ -296,7 +294,7 @@ export class MergedFunctionResourceContainer {
           ...extendedFuncResource.resource,
           Properties: propertiesWithExtensions
         },
-        propertyModuleMap: extendedFuncResource.propertyModuleMap
+        propertyModuleMap: extendedFuncResource.propertySourceMap
       },
       true
     );
@@ -305,7 +303,7 @@ export class MergedFunctionResourceContainer {
   private static async _correctModuleReference(
     serverlessTemplateHandler: IServerlessTemplateHandler,
     properties: JSONObjectType,
-    propertyModuleMap: ResourcePropertyModuleMapNode
+    propertyModuleMap: ResourcePropertySourceNode
   ) {
     // assumption is that the placement of keywords is correct and validated before code execution is reached here
 
@@ -323,11 +321,10 @@ export class MergedFunctionResourceContainer {
           middlewares: value.middlewares?.map((middleware, i) => {
             let module = middleware.module;
             if (module == undefined) {
-              module =
-                serverlessTemplateHandler.getNearestModuleForResourceProperty(
-                  [...keywordPath, i],
-                  propertyModuleMap
-                ).module;
+              module = serverlessTemplateHandler.getResourcePropertySource(
+                [...keywordPath, i],
+                propertyModuleMap
+              ).module;
             }
             return { module, resource: middleware.resource };
           })
@@ -344,7 +341,7 @@ export class MergedFunctionResourceContainer {
         if (updatedValue.module === undefined) {
           const keywordPath = getPath(node);
           const moduleForThisRef =
-            serverlessTemplateHandler.getNearestModuleForResourceProperty(
+            serverlessTemplateHandler.getResourcePropertySource(
               keywordPath,
               propertyModuleMap
             );

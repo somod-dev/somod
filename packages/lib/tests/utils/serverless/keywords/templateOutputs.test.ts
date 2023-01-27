@@ -1,17 +1,13 @@
-import { listAllParameters } from "../../../../src/utils/parameters/namespace";
+import { getParameterToModuleMap } from "../../../../src/utils/parameters/namespace";
 import { keywordTemplateOutputs } from "../../../../src/utils/serverless/keywords/templateOutputs";
 import { mockedFunction } from "../../../utils";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import {
-  IServerlessTemplateHandler,
-  JSONObjectNode,
-  JSONType
-} from "somod-types";
+import { IContext, JSONObjectNode, JSONType } from "somod-types";
 
 jest.mock("../../../../src/utils/parameters/namespace", () => {
   return {
     __esModule: true,
-    listAllParameters: jest.fn()
+    getParameterToModuleMap: jest.fn()
   };
 });
 
@@ -19,27 +15,28 @@ type TemplateOutputsType = Record<string, JSONType>;
 
 describe("Test templateOutputs keyword", () => {
   beforeEach(() => {
-    mockedFunction(listAllParameters).mockReset();
-    mockedFunction(listAllParameters).mockResolvedValue({
+    mockedFunction(getParameterToModuleMap).mockReset();
+    mockedFunction(getParameterToModuleMap).mockReturnValue({
       p1: "m1",
       "p1.1": "m1",
       p2: "m2"
     });
   });
 
-  test("the getValidator calls listAllParameters", async () => {
-    await keywordTemplateOutputs.getValidator("dir1", "m1", null, null);
-    expect(listAllParameters).toHaveBeenCalledTimes(1);
-    expect(listAllParameters).toHaveBeenNthCalledWith(1);
+  test("the getValidator calls getParameterToModuleMap", async () => {
+    await keywordTemplateOutputs.getValidator("m1", {
+      dir: "dir1"
+    } as IContext);
+    expect(getParameterToModuleMap).toHaveBeenCalledTimes(1);
+    expect(getParameterToModuleMap).toHaveBeenNthCalledWith(1, {
+      dir: "dir1"
+    });
   });
 
   test("the validator with keyword at deep inside the template", async () => {
-    const validator = await keywordTemplateOutputs.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordTemplateOutputs.getValidator("m1", {
+      dir: "dir1"
+    } as IContext);
 
     const obj = {
       A: {
@@ -57,12 +54,9 @@ describe("Test templateOutputs keyword", () => {
   });
 
   test("the validator with keyword at the top of the template", async () => {
-    const validator = await keywordTemplateOutputs.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordTemplateOutputs.getValidator("m1", {
+      dir: "dir1"
+    } as IContext);
 
     const obj = {
       [keywordTemplateOutputs.keyword]: { p1: "a", "p1.1": { x: "y" } }
@@ -78,12 +72,9 @@ describe("Test templateOutputs keyword", () => {
   });
 
   test("the validator with missing parameter", async () => {
-    const validator = await keywordTemplateOutputs.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordTemplateOutputs.getValidator("m1", {
+      dir: "dir1"
+    } as IContext);
 
     const obj = {
       [keywordTemplateOutputs.keyword]: { p3: "waw", p2: "waw" }
@@ -103,12 +94,10 @@ describe("Test templateOutputs keyword", () => {
   });
 
   test("the processor for the keyword deep inside the template", async () => {
-    const processor = await keywordTemplateOutputs.getProcessor(
-      "dir1",
-      "m1",
-      null,
-      { getSAMOutputName: p => p } as IServerlessTemplateHandler
-    );
+    const processor = await keywordTemplateOutputs.getProcessor("m1", {
+      dir: "dir1",
+      serverlessTemplateHandler: { getSAMOutputName: p => p }
+    } as IContext);
 
     const obj = {
       A: {
@@ -132,12 +121,10 @@ describe("Test templateOutputs keyword", () => {
   });
 
   test("the processor with valid outputs", async () => {
-    const processor = await keywordTemplateOutputs.getProcessor(
-      "dir1",
-      "m1",
-      null,
-      { getSAMOutputName: p => p } as IServerlessTemplateHandler
-    );
+    const processor = await keywordTemplateOutputs.getProcessor("m1", {
+      dir: "dir1",
+      serverlessTemplateHandler: { getSAMOutputName: p => p }
+    } as IContext);
 
     const obj = {
       [keywordTemplateOutputs.keyword]: { p1: "a", "p1.1": { x: "y" } }

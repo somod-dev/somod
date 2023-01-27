@@ -6,7 +6,7 @@ import {
   KeywordDefinition,
   ServerlessTemplate
 } from "somod-types";
-import { join } from "path";
+import { dirname, join } from "path";
 import {
   file_packageJson,
   path_functionLayers,
@@ -16,6 +16,7 @@ import {
 } from "../../constants";
 import { getPath } from "../../jsonTemplate";
 import { keywordExtend } from "./extend";
+import { mkdir, writeFile } from "fs/promises";
 
 type FunctionLayerType = {
   name: string;
@@ -84,31 +85,44 @@ export const keywordFunctionLayer: KeywordDefinition<FunctionLayerType> = {
   },
 
   getProcessor: async (moduleName, context) => async (keyword, node, value) => {
+    const resourceId = node.parent.node.parent.node.parent.key as string;
+
+    // save the layer content in working directory
+    await Promise.all(
+      Object.keys(value.content || {}).map(async contentPath => {
+        const fullContentPath = join(
+          context.dir,
+          path_somodWorkingDir,
+          path_serverless,
+          "." + path_functionLayers,
+          moduleName,
+          resourceId,
+          contentPath
+        );
+        await mkdir(dirname(fullContentPath), { recursive: true });
+        await writeFile(fullContentPath, value.content[contentPath]);
+      })
+    );
+
     if (isExtendedFunctionLayer(node)) {
       return { type: "keyword", value: { [keyword]: value } };
     }
 
-    const resourceId = node.parent.node.parent.node.parent.node.parent
-      .key as string;
-
     const functionLayerWithExtendedProperties =
-      await context.serverlessTemplateHandler.getResource(
-        moduleName,
-        resourceId
-      );
-
-    const valueExtended = functionLayerWithExtendedProperties.resource
-      .Properties.ContentUri?.[
-      keywordFunctionLayer.keyword
-    ] as FunctionLayerType;
+      context.serverlessTemplateHandler.getResource(moduleName, resourceId);
 
     const functionLayerPath = join(
       context.dir,
       path_somodWorkingDir,
       path_serverless,
       path_functionLayers,
-      moduleName,
-      valueExtended.name
+      context.serverlessTemplateHandler.getResourcePropertySource(
+        ["ContentUri", keywordFunctionLayer.keyword, "name"],
+        functionLayerWithExtendedProperties.propertySourceMap
+      ).module,
+      functionLayerWithExtendedProperties.resource.Properties.ContentUri?.[
+        keywordFunctionLayer.keyword
+      ].name
     );
 
     return {
@@ -127,7 +141,7 @@ export const getLibrariesFromFunctionLayerResource = (
   return layer?.libraries || [];
 };
 
-export const getDeclaredFunctionLayers = async (
+export const getDeclaredFunctionLayers = (
   serverlessTemplateHandler: IServerlessTemplateHandler,
   moduleName: string
 ) => {
@@ -135,54 +149,66 @@ export const getDeclaredFunctionLayers = async (
     module: string;
     name: string;
     libraries: { name: string; module: string }[];
-    content: Record<string, string>;
+    content: { path: string; module: string; resource: string }[];
   };
 
-  const serverlessTemplate = (
-    await serverlessTemplateHandler.getTemplate(moduleName)
-  ).template;
+  const serverlessTemplate =
+    serverlessTemplateHandler.getTemplate(moduleName).template;
 
   const declaredLayers: DeclaredLayer[] = [];
 
-  await Promise.all(
-    Object.keys(serverlessTemplate.Resources).map(async resourceId => {
-      const resource = serverlessTemplate.Resources[resourceId];
-      if (
-        resource.Type == resourceType_FunctionLayer &&
-        resource[keywordExtend.keyword] === undefined
-      ) {
-        const extendedLayerResource =
-          await serverlessTemplateHandler.getResource(moduleName, resourceId);
+  Object.keys(serverlessTemplate.Resources).forEach(resourceId => {
+    const resource = serverlessTemplate.Resources[resourceId];
+    if (
+      resource.Type == resourceType_FunctionLayer &&
+      resource[keywordExtend.keyword] === undefined
+    ) {
+      const extendedLayerResource = serverlessTemplateHandler.getResource(
+        moduleName,
+        resourceId
+      );
 
-        const layer = extendedLayerResource.resource.Properties.ContentUri?.[
-          keywordFunctionLayer.keyword
-        ] as FunctionLayerType;
+      const layer = extendedLayerResource.resource.Properties.ContentUri?.[
+        keywordFunctionLayer.keyword
+      ] as FunctionLayerType;
 
-        const layerName = layer?.name;
+      const layerName = layer?.name;
 
-        if (layerName) {
-          declaredLayers.push({
-            module:
-              serverlessTemplateHandler.getNearestModuleForResourceProperty(
-                ["ContentUri", keywordFunctionLayer.keyword, "name"],
-                extendedLayerResource.propertyModuleMap
-              ).module,
-            name: layerName,
-            libraries: await Promise.all(
-              (layer.libraries || []).map(async library => {
-                const libraryModule =
-                  serverlessTemplateHandler.getNearestModuleForResourceProperty(
-                    ["ContentUri", keywordFunctionLayer.keyword, "name"],
-                    extendedLayerResource.propertyModuleMap
-                  ).module;
-                return { name: library, module: libraryModule };
-              })
-            ),
-            content: layer.content || {}
-          });
-        }
+      if (layerName) {
+        declaredLayers.push({
+          module: serverlessTemplateHandler.getResourcePropertySource(
+            ["ContentUri", keywordFunctionLayer.keyword, "name"],
+            extendedLayerResource.propertySourceMap
+          ).module,
+          name: layerName,
+          libraries: (layer.libraries || []).map((library, i) => {
+            const libraryModule =
+              serverlessTemplateHandler.getResourcePropertySource(
+                ["ContentUri", keywordFunctionLayer.keyword, "libraries", i],
+                extendedLayerResource.propertySourceMap
+              ).module;
+            return { name: library, module: libraryModule };
+          }),
+          content: Object.keys(layer.content || {}).map(contentPath => {
+            const contentSource =
+              serverlessTemplateHandler.getResourcePropertySource(
+                [
+                  "ContentUri",
+                  keywordFunctionLayer.keyword,
+                  "content",
+                  contentPath
+                ],
+                extendedLayerResource.propertySourceMap
+              );
+            return {
+              path: contentPath,
+              module: contentSource.module,
+              resource: contentSource.resource
+            };
+          })
+        });
       }
-    })
-  );
+    }
+  });
   return declaredLayers;
 };

@@ -14,7 +14,7 @@ type Module = {
   template: ServerlessTemplate;
 };
 
-const getContext = (modules: Module[]) => {
+export const getContext = (modules: Module[]) => {
   const templateMap = Object.fromEntries(
     modules.map(m => [m.name, m.template])
   );
@@ -44,8 +44,7 @@ const getContext = (modules: Module[]) => {
     serverlessTemplateHandler: {
       getTemplate: module => ({ module, template: templateMap[module] }),
       getResource: (module, resource) => resourceMap[module][resource],
-      getNearestModuleForResourceProperty:
-        ExtendUtil.getNearestModuleForResourceProperty
+      getResourcePropertySource: ExtendUtil.getResourcePropertySource
     },
     extensionHandler: {
       functionLayers: extensionFunctionLayers,

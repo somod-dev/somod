@@ -185,8 +185,7 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
       return { type: "keyword", value: { [keyword]: value } };
     }
 
-    const resourceId = node.parent.node.parent.node.parent.node.parent
-      .key as string;
+    const resourceId = node.parent.node.parent.node.parent.key as string;
     const mergedFunctionResource =
       await MergedFunctionResourceContainer.getFinalFunctionResource(
         context,

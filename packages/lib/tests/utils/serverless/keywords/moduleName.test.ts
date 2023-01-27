@@ -3,9 +3,8 @@ import { parseJson } from "../../../../src/utils/jsonTemplate";
 import { keywordModuleName } from "../../../../src/utils/serverless/keywords/moduleName";
 
 describe("Test moduleName keyword", () => {
-  const getValidator = () => keywordModuleName.getValidator("", "", null, null);
-  const getProcessor = () =>
-    keywordModuleName.getProcessor("", "m1", null, null);
+  const getValidator = () => keywordModuleName.getValidator("", null);
+  const getProcessor = () => keywordModuleName.getProcessor("m1", null);
 
   test("the keyword name", () => {
     expect(keywordModuleName.keyword).toEqual("SOMOD::ModuleName");

@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "fs/promises";
+import { copyFile, mkdir, writeFile } from "fs/promises";
 import { childProcess, ChildProcessStreamConfig } from "nodejs-cli-runner";
 import { dirname, join } from "path";
 import { IContext } from "somod-types";
@@ -18,7 +18,7 @@ export const bundleFunctionLayersForModule = async (
   context: IContext,
   verbose = false
 ): Promise<void> => {
-  const declaredLayers = await getDeclaredFunctionLayers(
+  const declaredLayers = getDeclaredFunctionLayers(
     context.serverlessTemplateHandler,
     moduleName
   );
@@ -90,19 +90,26 @@ export const bundleFunctionLayersForModule = async (
         );
 
         await Promise.all(
-          Object.keys(declaredLayer.content).map(async contentPath => {
-            const contentFullPath = join(
+          declaredLayer.content.map(async ({ path, module, resource }) => {
+            const contentSourcePath = join(
+              context.dir,
+              path_somodWorkingDir,
+              path_serverless,
+              "." + path_functionLayers,
+              module,
+              resource,
+              path
+            );
+
+            const contentTargetPath = join(
               buildFunctionLayersPath,
               declaredLayer.module,
               declaredLayer.name,
-              contentPath
+              path
             );
 
-            await mkdir(dirname(contentFullPath), { recursive: true });
-            await writeFile(
-              contentFullPath,
-              declaredLayer.content[contentPath]
-            );
+            await mkdir(dirname(contentTargetPath), { recursive: true });
+            await copyFile(contentSourcePath, contentTargetPath);
           })
         );
       } catch (e) {

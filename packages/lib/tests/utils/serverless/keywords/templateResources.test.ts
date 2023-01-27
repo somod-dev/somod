@@ -1,21 +1,14 @@
 import { keywordTemplateResources } from "../../../../src/utils/serverless/keywords/templateResources";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import {
-  IServerlessTemplateHandler,
-  JSONObjectNode,
-  JSONType
-} from "somod-types";
+import { IContext, JSONObjectNode, JSONType } from "somod-types";
 
 type TemplateOutputsType = Record<string, JSONType>;
 
 describe("Test templateOutputs keyword", () => {
   test("the validator with keyword at deep inside the template", async () => {
-    const validator = await keywordTemplateResources.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordTemplateResources.getValidator("m1", {
+      dir: "dir1"
+    } as IContext);
 
     const obj = {
       A: {
@@ -35,12 +28,9 @@ describe("Test templateOutputs keyword", () => {
   });
 
   test("the validator with keyword at the top of the template", async () => {
-    const validator = await keywordTemplateResources.getValidator(
-      "dir1",
-      "m1",
-      null,
-      null
-    );
+    const validator = await keywordTemplateResources.getValidator("m1", {
+      dir: "dir1"
+    } as IContext);
 
     const obj = {
       [keywordTemplateResources.keyword]: {
@@ -59,14 +49,12 @@ describe("Test templateOutputs keyword", () => {
   });
 
   test("the processor for the keyword deep inside the template", async () => {
-    const processor = await keywordTemplateResources.getProcessor(
-      "dir1",
-      "m1",
-      null,
-      {
+    const processor = await keywordTemplateResources.getProcessor("m1", {
+      dir: "dir1",
+      serverlessTemplateHandler: {
         getSAMResourceLogicalId: (m, r) => `${m}/${r}`
-      } as IServerlessTemplateHandler
-    );
+      }
+    } as IContext);
 
     const obj = {
       A: {
@@ -93,14 +81,12 @@ describe("Test templateOutputs keyword", () => {
   });
 
   test("the processor with valid outputs", async () => {
-    const processor = await keywordTemplateResources.getProcessor(
-      "dir1",
-      "m1",
-      null,
-      {
+    const processor = await keywordTemplateResources.getProcessor("m1", {
+      dir: "dir1",
+      serverlessTemplateHandler: {
         getSAMResourceLogicalId: (m, r) => `${m}/${r}`
-      } as IServerlessTemplateHandler
-    );
+      }
+    } as IContext);
 
     const obj = {
       [keywordTemplateResources.keyword]: {

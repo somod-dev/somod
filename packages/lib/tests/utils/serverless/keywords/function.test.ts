@@ -345,7 +345,7 @@ describe("Test function keyword", () => {
       dir: "",
       serverlessTemplateHandler: {
         getResource: (m, r) => {
-          return { resource: resources[m][r], propertyModuleMap: {} };
+          return { resource: resources[m][r], propertySourceMap: {} };
         }
       } as IServerlessTemplateHandler
     } as IContext);

@@ -17,9 +17,10 @@ export type ModuleServerlessTemplate = Readonly<{
   template: ServerlessTemplate;
 }>;
 
-export type ResourcePropertyModuleMapNode = Readonly<{
+export type ResourcePropertySourceNode = Readonly<{
   module: string;
-  children: Record<string | number, ResourcePropertyModuleMapNode>;
+  resource: string;
+  children: Record<string | number, ResourcePropertySourceNode>;
 }>;
 
 export interface IServerlessTemplateHandler {
@@ -38,13 +39,13 @@ export interface IServerlessTemplateHandler {
     resource: string
   ): {
     resource: ServerlessResource;
-    propertyModuleMap: ResourcePropertyModuleMapNode;
+    propertySourceMap: ResourcePropertySourceNode;
   } | null;
 
-  getNearestModuleForResourceProperty(
+  getResourcePropertySource(
     propertyPath: (string | number)[],
-    propertyModuleMap: ResourcePropertyModuleMapNode
-  ): { module: string; depth: number };
+    propertyModuleMap: ResourcePropertySourceNode
+  ): { module: string; resource: string; depth: number };
 
   get functionNodeRuntimeVersion(): string;
 

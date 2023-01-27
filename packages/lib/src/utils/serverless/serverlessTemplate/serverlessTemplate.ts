@@ -9,7 +9,7 @@ import {
   JSONType,
   Module,
   ModuleServerlessTemplate,
-  ResourcePropertyModuleMapNode,
+  ResourcePropertySourceNode,
   ServerlessResource,
   ServerlessTemplate
 } from "somod-types";
@@ -79,9 +79,9 @@ type ResourceExtendNode = {
   to?: ResourceExtendNode;
 };
 
-type ServerlessResourceWithPropertyModuleMap = {
+type ServerlessResourceWithPropertySourceMap = {
   resource: ServerlessResource;
-  propertyModuleMap: ResourcePropertyModuleMapNode;
+  propertySourceMap: ResourcePropertySourceNode;
 };
 
 export class ExtendUtil {
@@ -154,7 +154,7 @@ export class ExtendUtil {
   private static _generateResourceMap(
     templateMap: Record<string, ServerlessTemplate>,
     resourceExtendMap: Record<string, Record<string, ResourceExtendNode>>
-  ): Record<string, Record<string, ServerlessResourceWithPropertyModuleMap>> {
+  ): Record<string, Record<string, ServerlessResourceWithPropertySourceMap>> {
     const getExtendNodeOfOriginalResource = (
       module: string,
       resource: string
@@ -171,7 +171,7 @@ export class ExtendUtil {
 
     const resourceMap: Record<
       string,
-      Record<string, ServerlessResourceWithPropertyModuleMap>
+      Record<string, ServerlessResourceWithPropertySourceMap>
     > = {};
 
     Object.keys(templateMap).forEach(module => {
@@ -206,11 +206,13 @@ export class ExtendUtil {
     const { module: rootModule, resource: rootResource } =
       resourceExtendNode.resource;
 
-    const propertyModuleMap: ResourcePropertyModuleMapNode = {
+    const propertySourceMap: ResourcePropertySourceNode = {
       module: rootModule,
+      resource: rootResource,
       children: {
         $: {
           module: rootModule,
+          resource: rootResource,
           children: {}
         }
       }
@@ -233,19 +235,20 @@ export class ExtendUtil {
       mergedProperties = mergedResult.merged as Record<string, JSONType>;
 
       mergedResult.report.updatedPaths.forEach(updatedPath => {
-        let propertySegmentModuleMapNode = propertyModuleMap;
+        let propertySegmentSourceMapNode = propertySourceMap;
         let property = { $: mergedProperties } as JSONType;
         updatedPath.path.forEach(pathSegment => {
           if (
-            propertySegmentModuleMapNode.children[pathSegment] === undefined
+            propertySegmentSourceMapNode.children[pathSegment] === undefined
           ) {
-            propertySegmentModuleMapNode.children[pathSegment] = {
-              module: propertySegmentModuleMapNode.module,
+            propertySegmentSourceMapNode.children[pathSegment] = {
+              module: propertySegmentSourceMapNode.module,
+              resource: propertySegmentSourceMapNode.resource,
               children: {}
             };
           }
-          propertySegmentModuleMapNode =
-            propertySegmentModuleMapNode.children[pathSegment];
+          propertySegmentSourceMapNode =
+            propertySegmentSourceMapNode.children[pathSegment];
           property = property[pathSegment];
         });
         switch (updatedPath.operation) {
@@ -257,8 +260,9 @@ export class ExtendUtil {
                 i < mergedArrayLength;
                 i++
               ) {
-                propertySegmentModuleMapNode.children[i] = {
+                propertySegmentSourceMapNode.children[i] = {
                   module: currentTreeNode.resource.module,
+                  resource: currentTreeNode.resource.resource,
                   children: {}
                 };
               }
@@ -274,16 +278,17 @@ export class ExtendUtil {
                 i--
               ) {
                 // move the existing properties right
-                if (propertySegmentModuleMapNode.children[i] !== undefined) {
-                  propertySegmentModuleMapNode.children[i + prependedCount] =
-                    propertySegmentModuleMapNode.children[i];
-                  delete propertySegmentModuleMapNode.children[i];
+                if (propertySegmentSourceMapNode.children[i] !== undefined) {
+                  propertySegmentSourceMapNode.children[i + prependedCount] =
+                    propertySegmentSourceMapNode.children[i];
+                  delete propertySegmentSourceMapNode.children[i];
                 }
               }
               // prepend
               for (let i = 0; i < prependedCount; i++) {
-                propertySegmentModuleMapNode.children[i] = {
+                propertySegmentSourceMapNode.children[i] = {
                   module: currentTreeNode.resource.module,
+                  resource: currentTreeNode.resource.resource,
                   children: {}
                 };
               }
@@ -293,10 +298,13 @@ export class ExtendUtil {
           case "COMBINE":
             // NOTE: same effect for REPLACE and COMBINE
             // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `module` can be re-assigned
-            propertySegmentModuleMapNode.module =
+            propertySegmentSourceMapNode.module =
               currentTreeNode.resource.module;
+            // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `module` can be re-assigned
+            propertySegmentSourceMapNode.resource =
+              currentTreeNode.resource.resource;
             // @ts-expect-error propertyModuleMap is not freezed yet, so readonly property `children` can be re-assigned
-            propertySegmentModuleMapNode.children = {};
+            propertySegmentSourceMapNode.children = {};
             break;
         }
       });
@@ -309,14 +317,14 @@ export class ExtendUtil {
         ...templateMap[rootModule].Resources[rootResource],
         Properties: mergedProperties
       },
-      propertyModuleMap: propertyModuleMap.children["$"]
+      propertySourceMap: propertySourceMap.children["$"]
     };
   }
 
-  static getNearestModuleForResourceProperty(
+  static getResourcePropertySource(
     propertyPath: (string | number)[],
-    propertyModuleMap: ResourcePropertyModuleMapNode
-  ): { module: string; depth: number } {
+    propertyModuleMap: ResourcePropertySourceNode
+  ): { module: string; resource: string; depth: number } {
     const _propertyPath = [...propertyPath];
     if (_propertyPath[0] === "$") {
       _propertyPath.shift();
@@ -335,6 +343,7 @@ export class ExtendUtil {
     }
     return {
       module: nearestPropertyModuleMap.module,
+      resource: nearestPropertyModuleMap.resource,
       depth: i - 1
     };
   }
@@ -351,7 +360,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
       string, // resource
       {
         resource: ServerlessResource;
-        propertyModuleMap: ResourcePropertyModuleMapNode;
+        propertySourceMap: ResourcePropertySourceNode;
       }
     >
   >;
@@ -457,11 +466,11 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
     return this._resourceMap[module][resource] || null;
   }
 
-  getNearestModuleForResourceProperty(
+  getResourcePropertySource(
     propertyPath: (string | number)[],
-    propertyModuleMap: ResourcePropertyModuleMapNode
-  ): { module: string; depth: number } {
-    return ExtendUtil.getNearestModuleForResourceProperty(
+    propertyModuleMap: ResourcePropertySourceNode
+  ): { module: string; resource: string; depth: number } {
+    return ExtendUtil.getResourcePropertySource(
       propertyPath,
       propertyModuleMap
     );

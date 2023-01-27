@@ -1,4 +1,4 @@
-import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
+import { JSONObjectNode } from "somod-types";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
 import {
   checkOutput,
@@ -11,8 +11,8 @@ type OutputType = {
 };
 
 describe("Test output keyword", () => {
-  const getValidator = () => keywordOutput.getValidator("", "", null, null);
-  const getProcessor = () => keywordOutput.getProcessor("", "", null, null);
+  const getValidator = () => keywordOutput.getValidator("", null);
+  const getProcessor = () => keywordOutput.getProcessor("", null);
 
   test("the keyword name", () => {
     expect(keywordOutput.keyword).toEqual("SOMOD::Output");
@@ -129,28 +129,24 @@ describe("Test util checkOutput from output keyword for", () => {
     string,
     string | undefined,
     OutputType | undefined,
-    Error[]
+    Error | undefined
   ][] = [
     // no keyword
     [
       "expecting default with out keyword",
       undefined,
       null,
-      [
-        new Error(
-          "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
-        )
-      ]
+      new Error(
+        "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
+      )
     ],
     [
       "expecting attribute with out keyword",
       "x",
       null,
-      [
-        new Error(
-          "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
-        )
-      ]
+      new Error(
+        "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
+      )
     ],
 
     // default = false
@@ -158,17 +154,15 @@ describe("Test util checkOutput from output keyword for", () => {
       "expecting default with default = false",
       undefined,
       { default: false, attributes: [] },
-      [
-        new Error(
-          "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
-        )
-      ]
+      new Error(
+        "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
+      )
     ],
     [
       "expecting default with default = true",
       undefined,
       { default: true, attributes: [] },
-      []
+      undefined
     ],
 
     // attributes
@@ -176,39 +170,32 @@ describe("Test util checkOutput from output keyword for", () => {
       "expecting non existing attribute",
       "x",
       { default: false, attributes: ["y"] },
-      [
-        new Error(
-          "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
-        )
-      ]
+      new Error(
+        "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
+      )
     ],
     [
       "expecting existing attribute",
       "x",
       { default: false, attributes: ["x", "y"] },
-      []
+      undefined
     ]
   ];
 
   test.each(usecases)(
     "%s",
-    async (title, attribute, outputValue, expectedErrors) => {
+    async (title, attribute, outputValue, expectedError) => {
       const resource = { Type: "", Properties: {} };
       if (outputValue) {
         resource[keywordOutput.keyword] = outputValue;
       }
-      await expect(
-        checkOutput(
-          {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            getResource: async (m, r) => ({ resource })
-          } as IServerlessTemplateHandler,
-          "@s/m1",
-          "MyResource1",
-          "@s1/m1",
-          attribute
-        )
-      ).resolves.toEqual(expectedErrors);
+      let error = undefined;
+      try {
+        checkOutput(resource, "@s1/m1", "MyResource1", attribute);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toEqual(expectedError);
     }
   );
 });

@@ -5,7 +5,11 @@ import { checkAccess } from "../../../../src/utils/serverless/keywords/access";
 import { checkCustomResourceSchema } from "../../../../src/utils/serverless/keywords/function";
 import { mockedFunction } from "../../../utils";
 import { keywordExtend } from "../../../../src/utils/serverless/keywords/extend";
-import { IServerlessTemplateHandler, JSONObjectNode } from "somod-types";
+import {
+  IContext,
+  IServerlessTemplateHandler,
+  JSONObjectNode
+} from "somod-types";
 
 jest.mock("../../../../src/utils/serverless/keywords/output", () => {
   return {
@@ -51,21 +55,28 @@ describe("Test ref keyword", () => {
     }
   };
   const getValidator = (currentModule = "m1") =>
-    keywordRef.getValidator("", currentModule, null, {
-      getResource: async (m, r) => ({ resource: template.Resources[r] })
-    } as IServerlessTemplateHandler);
+    keywordRef.getValidator(currentModule, {
+      serverlessTemplateHandler: {
+        getResource: (m, r) =>
+          template.Resources[r]
+            ? {
+                resource: template.Resources[r],
+                propertySourceMap: { module: m, resource: r, children: {} }
+              }
+            : null
+      } as IServerlessTemplateHandler
+    } as IContext);
   const getProcessor = () =>
-    keywordRef.getProcessor("", "m1", null, {
-      getSAMResourceLogicalId: (m, r) => `${m}/${r}`
-    } as IServerlessTemplateHandler);
+    keywordRef.getProcessor("m1", {
+      serverlessTemplateHandler: {
+        getSAMResourceLogicalId: (m, r) => `${m}/${r}`
+      } as IServerlessTemplateHandler
+    } as IContext);
 
   beforeEach(() => {
     mockedFunction(checkAccess).mockReset();
-    mockedFunction(checkAccess).mockResolvedValue([]);
     mockedFunction(checkOutput).mockReset();
-    mockedFunction(checkOutput).mockResolvedValue([]);
     mockedFunction(checkCustomResourceSchema).mockReset();
-    mockedFunction(checkCustomResourceSchema).mockResolvedValue([]);
   });
 
   test("the keyword name", () => {
@@ -189,16 +200,10 @@ describe("Test ref keyword", () => {
     ).resolves.toEqual([]);
   });
 
-  test("the validator calling check access, check output and checkCustomResourceSchema", async () => {
-    mockedFunction(checkAccess).mockResolvedValue([
-      new Error("error from checkAccess")
-    ]);
-    mockedFunction(checkOutput).mockResolvedValue([
-      new Error("error from checkOutput")
-    ]);
-    mockedFunction(checkCustomResourceSchema).mockResolvedValue([
-      new Error("error from checkCustomResourceSchema")
-    ]);
+  test("the validator calling check access", async () => {
+    mockedFunction(checkAccess).mockImplementation(() => {
+      throw new Error("error from checkAccess");
+    });
 
     const validator = await getValidator();
 
@@ -212,36 +217,98 @@ describe("Test ref keyword", () => {
 
     await expect(
       validator(keywordRef.keyword, node, obj[keywordRef.keyword])
-    ).resolves.toEqual([
-      new Error("error from checkAccess"),
-      new Error("error from checkOutput"),
-      new Error("error from checkCustomResourceSchema")
-    ]);
+    ).resolves.toEqual([new Error("error from checkAccess")]);
 
     expect(checkAccess).toHaveBeenCalledTimes(1);
     expect(checkAccess).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ getResource: expect.any(Function) }),
+      template.Resources.TargetResource,
       "m1",
-      {
+      "TargetResource",
+      "m1"
+    );
+    expect(checkOutput).toHaveBeenCalledTimes(0);
+    expect(checkCustomResourceSchema).toHaveBeenCalledTimes(0);
+  });
+
+  test("the validator calling check output", async () => {
+    mockedFunction(checkOutput).mockImplementation(() => {
+      throw new Error("error from checkOutput");
+    });
+
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: {
         resource: "TargetResource"
       }
+    };
+
+    const node = parseJson(obj) as JSONObjectNode;
+
+    await expect(
+      validator(keywordRef.keyword, node, obj[keywordRef.keyword])
+    ).resolves.toEqual([new Error("error from checkOutput")]);
+
+    expect(checkAccess).toHaveBeenCalledTimes(1);
+    expect(checkAccess).toHaveBeenNthCalledWith(
+      1,
+      template.Resources.TargetResource,
+      "m1",
+      "TargetResource",
+      "m1"
     );
     expect(checkOutput).toHaveBeenCalledTimes(1);
     expect(checkOutput).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ getResource: expect.any(Function) }),
+      template.Resources.TargetResource,
       "m1",
       "TargetResource",
-      undefined,
+      undefined
+    );
+    expect(checkCustomResourceSchema).toHaveBeenCalledTimes(0);
+  });
+
+  test("the validator calling checkCustomResourceSchema", async () => {
+    mockedFunction(checkCustomResourceSchema).mockImplementation(() => {
+      throw new Error("error from checkCustomResourceSchema");
+    });
+
+    const validator = await getValidator();
+
+    const obj = {
+      [keywordRef.keyword]: {
+        resource: "TargetResource"
+      }
+    };
+
+    const node = parseJson(obj) as JSONObjectNode;
+
+    await expect(
+      validator(keywordRef.keyword, node, obj[keywordRef.keyword])
+    ).resolves.toEqual([new Error("error from checkCustomResourceSchema")]);
+
+    expect(checkAccess).toHaveBeenCalledTimes(1);
+    expect(checkAccess).toHaveBeenNthCalledWith(
+      1,
+      template.Resources.TargetResource,
+      "m1",
+      "TargetResource",
+      "m1"
+    );
+    expect(checkOutput).toHaveBeenCalledTimes(1);
+    expect(checkOutput).toHaveBeenNthCalledWith(
+      1,
+      template.Resources.TargetResource,
+      "m1",
+      "TargetResource",
       undefined
     );
     expect(checkCustomResourceSchema).toHaveBeenCalledTimes(1);
     expect(checkCustomResourceSchema).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ getResource: expect.any(Function) }),
-      node,
-      "m1"
+      template.Resources.TargetResource,
+      node
     );
   });
 
