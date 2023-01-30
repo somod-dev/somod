@@ -4,7 +4,7 @@ import {
   resourceType_FunctionLayer,
   resourceType_FunctionMiddleware
 } from "../../../../src";
-import { ExtendUtil } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
+import { ExtendUtil } from "../../../../src/utils/serverless/keywords/extend-helper";
 import { MergedFunctionResourceContainer } from "../../../../src/utils/serverless/keywords/function-helper";
 
 type Module = {
