@@ -7,6 +7,7 @@ import {
 import { getBaseKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { validateServerlessTemplate } from "../../../../src/utils/serverless/serverlessTemplate/validate";
 import ErrorSet from "../../../../src/utils/ErrorSet";
+import { IContext } from "somod-types";
 
 jest.mock(
   "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
@@ -17,22 +18,7 @@ jest.mock(
     return {
       __esModule: true,
       ...original,
-      getBaseKeywords: jest.fn(),
-      ServerlessTemplateHandler: {
-        getServerlessTemplateHandler: () => ({
-          getTemplate: async () => ({
-            module: "m0",
-            template: {
-              Resources: {
-                R0: {
-                  Type: "",
-                  Properties: {}
-                }
-              }
-            }
-          })
-        })
-      }
+      getBaseKeywords: jest.fn()
     };
   }
 );
@@ -40,15 +26,6 @@ jest.mock(
 jest.mock("../../../../src/utils/jsonTemplate", () => {
   const original = jest.requireActual("../../../../src/utils/jsonTemplate");
   return { __esModule: true, ...original, validateKeywords: jest.fn() };
-});
-
-jest.mock("../../../../src/utils/moduleHandler", () => {
-  return {
-    __esModule: true,
-    ModuleHandler: {
-      getModuleHandler: () => ({})
-    }
-  };
 });
 
 describe("test util serverlessTemplate.validate", () => {
@@ -71,7 +48,25 @@ describe("test util serverlessTemplate.validate", () => {
     mockedFunction(validateKeywords).mockResolvedValue([]);
 
     await expect(
-      validateServerlessTemplate("/a", "m0", [])
+      validateServerlessTemplate({
+        extensionHandler: { serverlessTemplateKeywords: [] },
+        moduleHandler: { roodModuleName: "m0" },
+        serverlessTemplateHandler: {
+          getTemplate: (() => {
+            return {
+              module: "m0",
+              template: {
+                Resources: {
+                  R0: {
+                    Type: "",
+                    Properties: {}
+                  }
+                }
+              }
+            };
+          }) as IContext["serverlessTemplateHandler"]["getTemplate"]
+        }
+      } as IContext)
     ).resolves.toBeUndefined();
 
     expect(getBaseKeywords).toHaveBeenCalledTimes(1);
@@ -106,7 +101,27 @@ describe("test util serverlessTemplate.validate", () => {
       )
     ]);
 
-    await expect(validateServerlessTemplate("/a", "m0")).rejects.toEqual(
+    await expect(
+      validateServerlessTemplate({
+        extensionHandler: { serverlessTemplateKeywords: [] },
+        moduleHandler: { roodModuleName: "m0" },
+        serverlessTemplateHandler: {
+          getTemplate: (() => {
+            return {
+              module: "m0",
+              template: {
+                Resources: {
+                  R0: {
+                    Type: "",
+                    Properties: {}
+                  }
+                }
+              }
+            };
+          }) as IContext["serverlessTemplateHandler"]["getTemplate"]
+        }
+      } as IContext)
+    ).rejects.toEqual(
       new ErrorSet([new Error("Error at  : There is an error in template")])
     );
 

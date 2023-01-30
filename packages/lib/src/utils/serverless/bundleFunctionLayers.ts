@@ -114,7 +114,7 @@ export const bundleFunctionLayersForModule = async (
         );
       } catch (e) {
         throw new Error(
-          `bundle function layer failed for ${declaredLayer} from ${moduleName} module: ${e.message}`
+          `bundle function layer failed for ${declaredLayer.name} from ${moduleName} module: ${e.message}`
         );
       }
     })

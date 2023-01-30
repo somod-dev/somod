@@ -6,12 +6,8 @@ import {
 } from "../../../../src/utils/jsonTemplate";
 import { getBaseKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { prepareSamTemplate } from "../../../../src/utils/serverless/serverlessTemplate/prepare";
-import { listAllOutputs } from "../../../../src/utils/serverless/namespace";
-import {
-  IModuleHandler,
-  IServerlessTemplateHandler,
-  ServerlessTemplate
-} from "somod-types";
+import { getOutputToModuleMap } from "../../../../src/utils/serverless/namespace";
+import { IContext, ServerlessTemplate } from "somod-types";
 
 const moduleTemplates = [
   {
@@ -75,34 +71,10 @@ jest.mock(
   () => {
     return {
       __esModule: true,
-      getBaseKeywords: jest.fn(),
-      ServerlessTemplateHandler: {
-        getServerlessTemplateHandler: () =>
-          ({
-            getSAMOutputName: p => "sam-" + p,
-            listTemplates: async () => moduleTemplates
-          } as IServerlessTemplateHandler)
-      }
+      getBaseKeywords: jest.fn()
     };
   }
 );
-
-jest.mock("../../../../src/utils/moduleHandler", () => {
-  return {
-    __esModule: true,
-    ModuleHandler: {
-      getModuleHandler: () =>
-        ({
-          listModules: async () => [
-            { module: { name: "m0" } },
-            { module: { name: "m1" } },
-            { module: { name: "m2" } },
-            { module: { name: "m3" } }
-          ]
-        } as IModuleHandler)
-    }
-  };
-});
 
 jest.mock("../../../../src/utils/jsonTemplate", () => {
   const original = jest.requireActual("../../../../src/utils/jsonTemplate");
@@ -113,7 +85,7 @@ jest.mock("../../../../src/utils/serverless/namespace", () => {
   const original = jest.requireActual(
     "../../../../src/utils/serverless/namespace"
   );
-  return { __esModule: true, ...original, listAllOutputs: jest.fn() };
+  return { __esModule: true, ...original, getOutputToModuleMap: jest.fn() };
 });
 
 describe("test util serverlessTemplate.prepare", () => {
@@ -130,8 +102,8 @@ describe("test util serverlessTemplate.prepare", () => {
       }
     ]);
     mockedFunction(processKeywords).mockReset();
-    mockedFunction(listAllOutputs).mockReset();
-    mockedFunction(listAllOutputs).mockResolvedValue({
+    mockedFunction(getOutputToModuleMap).mockReset();
+    mockedFunction(getOutputToModuleMap).mockReturnValue({
       p1: "m0",
       p2: "m3",
       p3: "m3"
@@ -169,9 +141,24 @@ describe("test util serverlessTemplate.prepare", () => {
       }
     };
 
-    await expect(prepareSamTemplate("/a", [])).resolves.toEqual(
-      expectedSamTemplate
-    );
+    await expect(
+      prepareSamTemplate({
+        dir: "/a",
+        extensionHandler: { serverlessTemplateKeywords: [] },
+        moduleHandler: {
+          list: [
+            { module: { name: "m0" } },
+            { module: { name: "m1" } },
+            { module: { name: "m2" } },
+            { module: { name: "m3" } }
+          ]
+        },
+        serverlessTemplateHandler: {
+          getSAMOutputName: p => "sam-" + p,
+          listTemplates: () => moduleTemplates
+        }
+      } as IContext)
+    ).resolves.toEqual(expectedSamTemplate);
 
     expect(getBaseKeywords).toHaveBeenCalledTimes(1);
     expect(processKeywords).toHaveBeenCalledTimes(3);

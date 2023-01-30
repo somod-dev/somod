@@ -21,13 +21,11 @@ const createFunctionWithMiddlewares = async (
     middlewares: { module: string; name: string }[];
   }
 ) => {
-  // NOTE: This path must match the generated function path in the Template
-  // Refer code in ./keywords/function.ts
   const functionLocation = join(
     context.dir,
     path_somodWorkingDir,
     path_serverless,
-    path_functions + "-with-" + path_middlewares,
+    "." + path_functions,
     _function.module,
     _function.name + ".js"
   );
@@ -98,8 +96,7 @@ export const bundleFunctionsOfModule = async (
     context.dir,
     path_somodWorkingDir,
     path_serverless,
-    path_functions,
-    moduleName
+    path_functions
   );
 
   await Promise.all(
@@ -113,7 +110,14 @@ export const bundleFunctionsOfModule = async (
         await esbuild({
           entryPoints: [functionFilePath],
           bundle: true,
-          outfile: join(bundledFunctionsPath, _function.name, file_index_js),
+          // NOTE: This path must match the generated function path in the Template
+          // Refer code in ./keywords/function.ts
+          outfile: join(
+            bundledFunctionsPath,
+            _function.module,
+            _function.name,
+            file_index_js
+          ),
           sourcemap: sourcemap ? "inline" : false,
           platform: "node",
           external: _function.exclude,

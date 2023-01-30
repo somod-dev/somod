@@ -181,7 +181,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
   }
 
   getResource(module: string, resource: string) {
-    return this._resourceMap[module][resource] || null;
+    return this._resourceMap[module]?.[resource] || null;
   }
 
   getResourcePropertySource(
