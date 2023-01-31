@@ -6,17 +6,15 @@ import { copyDirectory } from "nodejs-file-utils";
 import { linkPage, removeExtension } from "../../utils/nextJs/pages";
 import watch from "../../utils/watch";
 import { sync as rimrafSync } from "rimraf";
-import { IContext } from "somod-types";
 
 const createTempDir = (): string => {
   return mkdtempSync(join(tmpdir(), "somod-"));
 };
 
 export const watchRootModulePages = async (
-  context: IContext
+  dir: string
 ): Promise<() => void> => {
   const backupDir = createTempDir();
-  const dir = context.dir;
 
   const pagesDir = join(dir, path_pages);
 

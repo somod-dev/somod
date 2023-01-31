@@ -1,14 +1,12 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join, normalize, relative } from "path";
-import { IContext } from "somod-types";
 import Watchpack from "watchpack";
 import { path_pages, path_pagesData, path_ui } from "../../utils/constants";
 import { addPageExtention } from "../../utils/nextJs/pages";
 
 export const watchRootModulePagesData = async (
-  context: IContext
+  dir: string
 ): Promise<() => void> => {
-  const dir = context.dir;
   const watchDir = join(dir, path_ui, path_pagesData);
   const wp = new Watchpack({});
   const normalizedWatchDir = normalize(watchDir);

@@ -1,5 +1,7 @@
-import { CommonOptions, taskRunner, Command } from "nodejs-cli-runner";
+import { Command, CommonOptions, taskRunner } from "nodejs-cli-runner";
 import {
+  bundleFunctionLayers,
+  bundleFunctions,
   createPages,
   createPublicAssets,
   deletePagesAndPublicDir,
@@ -10,16 +12,10 @@ import {
   findRootDir,
   generateNextConfig,
   generateRootParameters,
-  prepareSAMTemplate,
+  initializeContext,
   path_pages,
   path_public,
-  initializeModuleHandler,
-  bundleFunctions,
-  bundleFunctionLayers,
-  loadLifeCycleHooks,
-  appendNamespaceLoaders,
-  runPrepareLifeCycleHook,
-  runPreprepareLifeCycleHook
+  prepareSAMTemplate
 } from "somod-lib";
 import {
   addSOMODCommandTypeOptions,
@@ -37,49 +33,32 @@ export const PrepareAction = async ({
 
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
-  await taskRunner(
-    `Initialize ModuleHandler`,
-    initializeModuleHandler,
-    { verbose, progressIndicator: true },
-    dir
+  const context = await taskRunner(
+    `Initialize Context`,
+    initializeContext,
+    {
+      verbose,
+      progressIndicator: true
+    },
+    dir,
+    ui,
+    serverless
   );
 
-  const moduleLifeCycleHooks = await loadLifeCycleHooks();
-
-  try {
-    await appendNamespaceLoaders(moduleLifeCycleHooks.namespaceLoaders);
-  } catch (e) {
-    // NOTE:  This is the case when called from deploy,
-    // In deploy, build command is called before prepare, so the namespaces are already resolved in the build step.
-    if (
-      e.message !=
-      "new namespaces can not be appended after namespace are resolved"
-    ) {
-      throw e;
-    }
+  for (const preprepareHook of context.extensionHandler.preprepareHooks) {
+    await taskRunner(
+      `Run PrePrepare Hook of ${preprepareHook.extension}`,
+      preprepareHook.value,
+      { verbose, progressIndicator: true },
+      context
+    );
   }
-
-  await Promise.all(
-    moduleLifeCycleHooks.preprepare.map(plugin =>
-      taskRunner(
-        `Run PrePrepare Hook of ${plugin.name}`,
-        runPreprepareLifeCycleHook,
-        { verbose, progressIndicator: true },
-        dir,
-        plugin.lifeCycle,
-        {
-          ui,
-          serverless
-        }
-      )
-    )
-  );
 
   await taskRunner(
     `Create/Update /${file_parametersJson}`,
     generateRootParameters,
     { verbose, progressIndicator: true },
-    dir
+    context
   );
 
   if (ui) {
@@ -87,27 +66,26 @@ export const PrepareAction = async ({
       `Deleting /${path_pages} and /${path_public}`,
       deletePagesAndPublicDir,
       { verbose, progressIndicator: true },
-      dir
+      context
     );
     await taskRunner(
       `Create /${path_pages}`,
       createPages,
       { verbose, progressIndicator: true },
-      dir
+      context
     );
     await taskRunner(
       `Create /${path_public}`,
       createPublicAssets,
       { verbose, progressIndicator: true },
-      dir
+      context
     );
 
     await taskRunner(
       `Gernerate /${file_nextConfigJs} and /${file_dotenv}`,
       generateNextConfig,
       { verbose, progressIndicator: true },
-      dir,
-      moduleLifeCycleHooks.uiKeywords
+      context
     );
   }
   if (serverless) {
@@ -115,14 +93,15 @@ export const PrepareAction = async ({
       `Bundle Serverless Functions`,
       bundleFunctions,
       { verbose, progressIndicator: true },
-      dir
+      context,
+      verbose
     );
 
     await taskRunner(
       `Bundle Serverless FunctionLayers`,
       bundleFunctionLayers,
       { verbose, progressIndicator: true },
-      dir,
+      context,
       verbose
     );
 
@@ -130,26 +109,20 @@ export const PrepareAction = async ({
       `Generate /${file_templateYaml}`,
       prepareSAMTemplate,
       { verbose, progressIndicator: true },
-      dir,
-      moduleLifeCycleHooks.serverlessKeywords
+      context
     );
   }
 
-  await Promise.all(
-    moduleLifeCycleHooks.prepare.map(plugin =>
-      taskRunner(
-        `Run Prepare Hook of ${plugin.name}`,
-        runPrepareLifeCycleHook,
-        { verbose, progressIndicator: true },
-        dir,
-        plugin.lifeCycle,
-        {
-          ui,
-          serverless
-        }
-      )
-    )
-  );
+  const prepareHooks = [...context.extensionHandler.prepareHooks];
+  prepareHooks.reverse();
+  for (const prepareHook of prepareHooks) {
+    await taskRunner(
+      `Run Prepare Hook of ${prepareHook.extension}`,
+      prepareHook.value,
+      { verbose, progressIndicator: true },
+      context
+    );
+  }
 };
 
 const prepareCommand = new Command("prepare");

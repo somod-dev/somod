@@ -29,8 +29,6 @@ export class Context implements IContext {
 
   static async getInstance(dir: string, isUI: boolean, isServerless: boolean) {
     if (this.instance === undefined) {
-      // TODO: sanitize the dir here
-
       const context = new Context();
       context._dir = normalize(dir);
       context._isUI = isUI;

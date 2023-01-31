@@ -2,6 +2,7 @@ import { CommonOptions, taskRunner, Command, Option } from "nodejs-cli-runner";
 import {
   file_parametersJson,
   findRootDir,
+  initializeContext,
   updateParametersFromSAM
 } from "somod-lib";
 
@@ -15,11 +16,23 @@ export const UpdateParamsAction = async ({
 }: UpdateParamsOptions): Promise<void> => {
   const dir = findRootDir();
 
+  const context = await taskRunner(
+    `Initialize Context`,
+    initializeContext,
+    {
+      verbose,
+      progressIndicator: true
+    },
+    dir,
+    false,
+    true
+  );
+
   await taskRunner(
     `Updating /${file_parametersJson}`,
     updateParametersFromSAM,
     { verbose, progressIndicator: true },
-    dir,
+    context,
     stackName
   );
 };
