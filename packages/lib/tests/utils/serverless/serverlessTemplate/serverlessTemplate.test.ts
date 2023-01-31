@@ -6,6 +6,7 @@ import {
 } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { join } from "path";
 import { IContext, ServerlessTemplate } from "somod-types";
+import { createHash } from "crypto";
 
 describe("Test util serverlessTemplate.getBaseKeywords", () => {
   test("getBaseKeywords", () => {
@@ -313,103 +314,62 @@ describe("Test util serverlessTemplate.ServerlessTemplateHandler.<instanceMethod
         },
       }
     `);
-    expect(serverlessTemplateHandler.getResource("m0", "R1"))
-      .toMatchInlineSnapshot(`
-      Object {
-        "propertySourceMap": Object {
-          "children": Object {
-            "P1": Object {
-              "children": Object {},
-              "module": "m0",
-              "resource": "R1",
+    const expectedResource = {
+      propertySourceMap: {
+        children: {
+          P1: { children: {}, module: "m0", resource: "R1" },
+          P2: {
+            children: {
+              "0": { children: {}, module: "m0", resource: "R1" }
             },
-            "P2": Object {
-              "children": Object {
-                "0": Object {
-                  "children": Object {},
-                  "module": "m0",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P3": Object {
-              "children": Object {
-                "another": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-                "from": Object {
-                  "children": Object {},
-                  "module": "m0",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P4": Object {
-              "children": Object {},
-              "module": "m1",
-              "resource": "R1",
-            },
-            "P5": Object {
-              "children": Object {
-                "0": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P6": Object {
-              "children": Object {
-                "from": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
+            module: "m1-1",
+            resource: "R11"
           },
-          "module": "m1-1",
-          "resource": "R11",
-        },
-        "resource": Object {
-          "Properties": Object {
-            "P1": "from-m0",
-            "P2": Array [
-              "from-m0",
-            ],
-            "P3": Object {
-              "another": "m1",
-              "from": "m0",
+          P3: {
+            children: {
+              another: { children: {}, module: "m1", resource: "R1" },
+              from: { children: {}, module: "m0", resource: "R1" }
             },
-            "P4": "from-m1",
-            "P5": Array [
-              "from-m1",
-            ],
-            "P6": Object {
-              "from": "m1",
-            },
-            "P7": "from-m1-1",
-            "P8": Array [
-              "from-m1-1",
-            ],
-            "P9": Object {
-              "from": "m1-1",
-            },
+            module: "m1-1",
+            resource: "R11"
           },
-          "Type": "T1",
+          P4: { children: {}, module: "m1", resource: "R1" },
+          P5: {
+            children: {
+              "0": { children: {}, module: "m1", resource: "R1" }
+            },
+            module: "m1-1",
+            resource: "R11"
+          },
+          P6: {
+            children: {
+              from: { children: {}, module: "m1", resource: "R1" }
+            },
+            module: "m1-1",
+            resource: "R11"
+          }
         },
+        module: "m1-1",
+        resource: "R11"
+      },
+      resource: {
+        Properties: {
+          P1: "from-m0",
+          P2: ["from-m0"],
+          P3: { another: "m1", from: "m0" },
+          P4: "from-m1",
+          P5: ["from-m1"],
+          P6: { from: "m1" },
+          P7: "from-m1-1",
+          P8: ["from-m1-1"],
+          P9: { from: "m1-1" }
+        },
+        Type: "T1"
       }
-    `);
+    };
+    expect(serverlessTemplateHandler.getResource("m0", "R1")).toEqual(
+      expectedResource
+    );
     expect(serverlessTemplateHandler.getResource("m1", "R0"))
       .toMatchInlineSnapshot(`
       Object {
@@ -426,103 +386,9 @@ describe("Test util serverlessTemplate.ServerlessTemplateHandler.<instanceMethod
         },
       }
     `);
-    expect(serverlessTemplateHandler.getResource("m1", "R1"))
-      .toMatchInlineSnapshot(`
-      Object {
-        "propertySourceMap": Object {
-          "children": Object {
-            "P1": Object {
-              "children": Object {},
-              "module": "m0",
-              "resource": "R1",
-            },
-            "P2": Object {
-              "children": Object {
-                "0": Object {
-                  "children": Object {},
-                  "module": "m0",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P3": Object {
-              "children": Object {
-                "another": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-                "from": Object {
-                  "children": Object {},
-                  "module": "m0",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P4": Object {
-              "children": Object {},
-              "module": "m1",
-              "resource": "R1",
-            },
-            "P5": Object {
-              "children": Object {
-                "0": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P6": Object {
-              "children": Object {
-                "from": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-          },
-          "module": "m1-1",
-          "resource": "R11",
-        },
-        "resource": Object {
-          "Properties": Object {
-            "P1": "from-m0",
-            "P2": Array [
-              "from-m0",
-            ],
-            "P3": Object {
-              "another": "m1",
-              "from": "m0",
-            },
-            "P4": "from-m1",
-            "P5": Array [
-              "from-m1",
-            ],
-            "P6": Object {
-              "from": "m1",
-            },
-            "P7": "from-m1-1",
-            "P8": Array [
-              "from-m1-1",
-            ],
-            "P9": Object {
-              "from": "m1-1",
-            },
-          },
-          "Type": "T1",
-        },
-      }
-    `);
+    expect(serverlessTemplateHandler.getResource("m1", "R1")).toEqual(
+      expectedResource
+    );
     expect(serverlessTemplateHandler.getResource("m1-1", "R0"))
       .toMatchInlineSnapshot(`
       Object {
@@ -539,103 +405,9 @@ describe("Test util serverlessTemplate.ServerlessTemplateHandler.<instanceMethod
         },
       }
     `);
-    expect(serverlessTemplateHandler.getResource("m1-1", "R11"))
-      .toMatchInlineSnapshot(`
-      Object {
-        "propertySourceMap": Object {
-          "children": Object {
-            "P1": Object {
-              "children": Object {},
-              "module": "m0",
-              "resource": "R1",
-            },
-            "P2": Object {
-              "children": Object {
-                "0": Object {
-                  "children": Object {},
-                  "module": "m0",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P3": Object {
-              "children": Object {
-                "another": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-                "from": Object {
-                  "children": Object {},
-                  "module": "m0",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P4": Object {
-              "children": Object {},
-              "module": "m1",
-              "resource": "R1",
-            },
-            "P5": Object {
-              "children": Object {
-                "0": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-            "P6": Object {
-              "children": Object {
-                "from": Object {
-                  "children": Object {},
-                  "module": "m1",
-                  "resource": "R1",
-                },
-              },
-              "module": "m1-1",
-              "resource": "R11",
-            },
-          },
-          "module": "m1-1",
-          "resource": "R11",
-        },
-        "resource": Object {
-          "Properties": Object {
-            "P1": "from-m0",
-            "P2": Array [
-              "from-m0",
-            ],
-            "P3": Object {
-              "another": "m1",
-              "from": "m0",
-            },
-            "P4": "from-m1",
-            "P5": Array [
-              "from-m1",
-            ],
-            "P6": Object {
-              "from": "m1",
-            },
-            "P7": "from-m1-1",
-            "P8": Array [
-              "from-m1-1",
-            ],
-            "P9": Object {
-              "from": "m1-1",
-            },
-          },
-          "Type": "T1",
-        },
-      }
-    `);
+    expect(serverlessTemplateHandler.getResource("m1-1", "R11")).toEqual(
+      expectedResource
+    );
     expect(serverlessTemplateHandler.getResource("m2", "R2"))
       .toMatchInlineSnapshot(`
       Object {
@@ -652,5 +424,82 @@ describe("Test util serverlessTemplate.ServerlessTemplateHandler.<instanceMethod
         },
       }
     `);
+
+    expect(
+      serverlessTemplateHandler.getResourcePropertySource(
+        ["$", "P3", "from"],
+        expectedResource.propertySourceMap
+      )
+    ).toEqual({ depth: 1, module: "m0", resource: "R1" });
+    expect(
+      serverlessTemplateHandler.getResourcePropertySource(
+        ["$", "P3", "another"],
+        expectedResource.propertySourceMap
+      )
+    ).toEqual({ depth: 1, module: "m1", resource: "R1" });
+    expect(
+      serverlessTemplateHandler.getResourcePropertySource(
+        ["$", "P3", "another", "deep-path"],
+        expectedResource.propertySourceMap
+      )
+    ).toEqual({ depth: 1, module: "m1", resource: "R1" });
+    expect(
+      serverlessTemplateHandler.getResourcePropertySource(
+        ["$", "P4"],
+        expectedResource.propertySourceMap
+      )
+    ).toEqual({ depth: 0, module: "m1", resource: "R1" });
+    expect(
+      serverlessTemplateHandler.getResourcePropertySource(
+        ["$", "P9", "from"],
+        expectedResource.propertySourceMap
+      )
+    ).toEqual({ depth: -1, module: "m1-1", resource: "R11" });
+  });
+
+  test("test serverlessTemplateHandler utilities", async () => {
+    const serverlessTemplateHandler =
+      await ServerlessTemplateHandler.getInstance({
+        moduleHandler: {
+          list: [{ module: { name: "m0", packageLocation: dir, root: true } }]
+        },
+        getModuleHash: moduleName =>
+          createHash("sha256").update(moduleName).digest("hex").substring(0, 8)
+      } as IContext);
+
+    expect(serverlessTemplateHandler.functionNodeRuntimeVersion).toEqual("16");
+    expect(
+      serverlessTemplateHandler.getSAMResourceLogicalId("m1", "r1")
+    ).toEqual("rca0df2c9r1");
+    expect(serverlessTemplateHandler.getSAMResourceName("m1", "r1")).toEqual({
+      "Fn::Sub": [
+        "somod${stackId}${moduleHash}${somodResourceName}",
+        {
+          moduleHash: "ca0df2c9",
+          somodResourceName: "r1",
+          stackId: {
+            "Fn::Select": [
+              2,
+              {
+                "Fn::Split": [
+                  "/",
+                  {
+                    Ref: "AWS::StackId"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    });
+    expect(serverlessTemplateHandler.getSAMOutputName("my.param1")).toEqual(
+      "o6d792e706172616d31"
+    );
+    expect(
+      serverlessTemplateHandler.getParameterNameFromSAMOutputName(
+        "o6d792e706172616d31"
+      )
+    ).toEqual("my.param1");
   });
 });

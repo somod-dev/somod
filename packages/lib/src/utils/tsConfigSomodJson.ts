@@ -77,9 +77,9 @@ export const validate = async (context: IContext): Promise<void> => {
     if (missingIncludes.length > 0) {
       errors.push(
         new Error(
-          `include must contain ${missingIncludes.join(
-            ", "
-          )} in ${unixStyleTsConfigPath}`
+          `include must contain ${missingIncludes
+            .map(i => `'${i}'`)
+            .join(", ")} in ${unixStyleTsConfigPath}`
         )
       );
     }
