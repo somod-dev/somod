@@ -35,21 +35,6 @@ jest.mock(
 );
 
 describe("test util ContextHandler", () => {
-  beforeEach(() => {
-    mockedFunction(ModuleHandler.getInstance).mockResolvedValue(
-      {} as IModuleHandler
-    );
-    mockedFunction(ExtensionHandler.getInstance).mockResolvedValue(
-      {} as IExtensionHandler
-    );
-    mockedFunction(NamespaceHandler.getInstance).mockResolvedValue(
-      {} as INamespaceHandler
-    );
-    mockedFunction(ServerlessTemplateHandler.getInstance).mockResolvedValue(
-      {} as IServerlessTemplateHandler
-    );
-  });
-
   afterEach(() => {
     Context["instance"] = undefined;
     mockedFunction(ModuleHandler.getInstance).mockReset();
@@ -57,12 +42,38 @@ describe("test util ContextHandler", () => {
     mockedFunction(NamespaceHandler.getInstance).mockReset();
     mockedFunction(ServerlessTemplateHandler.getInstance).mockReset();
   });
+
   test("test", async () => {
+    const order = [];
+    mockedFunction(ModuleHandler.getInstance).mockImplementation(async () => {
+      order.push("moduleHandler");
+      return {} as IModuleHandler;
+    });
+    mockedFunction(ExtensionHandler.getInstance).mockImplementation(
+      async () => {
+        order.push("extensionHandler");
+        return {} as IExtensionHandler;
+      }
+    );
+    mockedFunction(NamespaceHandler.getInstance).mockImplementation(
+      async () => {
+        order.push("namespaceHandler");
+        return {} as INamespaceHandler;
+      }
+    );
+    mockedFunction(ServerlessTemplateHandler.getInstance).mockImplementation(
+      async () => {
+        order.push("serverlessTemplateHandler");
+        return {} as IServerlessTemplateHandler;
+      }
+    );
     const context = await Context.getInstance("/root/dir", true, false);
-    expect(ModuleHandler.getInstance).toHaveBeenCalledTimes(1);
-    expect(ExtensionHandler.getInstance).toHaveBeenCalledTimes(1);
-    expect(NamespaceHandler.getInstance).toHaveBeenCalledTimes(1);
-    expect(ServerlessTemplateHandler.getInstance).toHaveBeenCalledTimes(1);
+    expect(order).toEqual([
+      "moduleHandler",
+      "serverlessTemplateHandler",
+      "extensionHandler",
+      "namespaceHandler"
+    ]);
 
     expect(context.dir).toEqual("/root/dir");
     expect(context.getModuleHash("@my-scoope/my-module")).toEqual("ab1e8d28");

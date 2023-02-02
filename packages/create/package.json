@@ -45,7 +45,7 @@
     "prepack": "sed -i \"s|VERSION|$GITHUB_REF_NAME|g\" bin/create-somod.js && sed -i \"s|OTLP_URL|$OTLP_URL|g\" bin/create-somod.js && sed -i \"s|OTLP_KEY_NAME|$OTLP_KEY_NAME|g\" bin/create-somod.js && sed -i \"s|OTLP_KEY_VALUE|$OTLP_KEY_VALUE|g\" bin/create-somod.js"
   },
   "dependencies": {
-    "cli-opentelemetry": "^1.2.2"
+    "cli-opentelemetry": "^1.2.3"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.179",

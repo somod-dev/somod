@@ -35,12 +35,14 @@ export class Context implements IContext {
       context._isServerless = isServerless;
 
       context._moduleHandler = await ModuleHandler.getInstance(context._dir);
+
+      context._serverlessTemplateHandler =
+        await ServerlessTemplateHandler.getInstance(context);
+
       context._extensionHandler = await ExtensionHandler.getInstance(
         context._moduleHandler
       );
       context._namespaceHandler = await NamespaceHandler.getInstance(context);
-      context._serverlessTemplateHandler =
-        await ServerlessTemplateHandler.getInstance(context);
 
       this.instance = context;
     }
