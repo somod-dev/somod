@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../../../schema/schemas/parameters/index.json
+
+parameters:
+  ManagementApiURI:
+    type: string
+    description: Notification service management API endpoint
+    format: url
+  WebSocketURI:
+    type: string
+    description: Notification service websocket API endpoint
+    format: url

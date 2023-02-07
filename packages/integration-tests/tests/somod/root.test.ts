@@ -1,25 +1,19 @@
-import { mkdir, symlink } from "fs/promises";
-import { createTempDir, deleteDir } from "nodejs-file-utils";
-import { join } from "path";
-import { execute } from "../utils";
+import { createFiles, createTempDir, deleteDir } from "nodejs-file-utils";
+import { execPromise, execute } from "../utils";
 
 describe("Test the somod command", () => {
   let dir: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     dir = createTempDir("test-somod-somod");
-    await mkdir(join(dir, "node_modules/.bin"), { recursive: true });
-    await symlink(
-      join(__dirname, "../../"),
-      join(dir, "node_modules", "somod")
-    );
-    await symlink(
-      join(dir, "node_modules", "somod", "bin", "somod.js"),
-      join(dir, "node_modules", ".bin", "somod")
-    );
-  });
+    createFiles(dir, {
+      ".npmrc": "registry=http://localhost:8000",
+      "package.json": JSON.stringify({ name: "sample", version: "1.0.0" })
+    });
+    await execPromise("npm i somod", dir);
+  }, 60000);
 
-  afterEach(() => {
+  afterAll(() => {
     deleteDir(dir);
   });
 

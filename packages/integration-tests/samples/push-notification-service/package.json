@@ -1,0 +1,17 @@
+{
+  "name": "push-notification-service",
+  "version": "1.0.0",
+  "somod": "1.15.0",
+  "description": "Sample somod module for integration testing",
+  "module": "build/lib/index.js",
+  "typings": "build/lib/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "sideEffects": false,
+  "dependencies": {},
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.110",
+    "aws-sdk": "^2.1310.0"
+  }
+}
