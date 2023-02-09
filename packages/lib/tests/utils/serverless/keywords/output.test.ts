@@ -6,8 +6,8 @@ import {
 } from "../../../../src/utils/serverless/keywords/output";
 
 type OutputType = {
-  default: boolean;
-  attributes: string[];
+  default?: boolean;
+  attributes?: string[];
 };
 
 describe("Test output keyword", () => {
@@ -127,23 +127,16 @@ describe("Test output keyword", () => {
 describe("Test util checkOutput from output keyword for", () => {
   const usecases: [
     string,
-    string | undefined,
-    OutputType | undefined,
-    Error | undefined
+    string | undefined, // attribute
+    OutputType | undefined, // output
+    Error | undefined // expected error
   ][] = [
     // no keyword
-    [
-      "expecting default with out keyword",
-      undefined,
-      null,
-      new Error(
-        "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
-      )
-    ],
+    ["expecting default with out keyword", undefined, undefined, undefined],
     [
       "expecting attribute with out keyword",
       "x",
-      null,
+      undefined,
       new Error(
         "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
       )
@@ -153,7 +146,7 @@ describe("Test util checkOutput from output keyword for", () => {
     [
       "expecting default with default = false",
       undefined,
-      { default: false, attributes: [] },
+      { default: false },
       new Error(
         "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
       )

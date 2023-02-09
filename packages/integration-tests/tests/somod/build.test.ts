@@ -1,13 +1,14 @@
-import { realpath, writeFile } from "fs/promises";
+import { existsSync } from "fs";
+import { realpath, rename, writeFile } from "fs/promises";
 import {
   createFiles,
   createTempDir,
   deleteDir,
+  readFiles,
   readJsonFileStore
 } from "nodejs-file-utils";
 import { join } from "path";
-import { execPromise, execute } from "../utils";
-import chalk from "chalk";
+import { copySource, execPromise, execute } from "../utils";
 
 describe("Test the somod command build", () => {
   let dir: string;
@@ -39,14 +40,15 @@ describe("Test the somod command build", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
+        "stderr": "",
         "stdout": "Usage: somod build [options]
 
       Options:
         --ui           only ui
         --serverless   only serverless
         -v, --verbose  enable verbose
-        -h, --help     display help for command",
+        -h, --help     display help for command
+      ",
       }
     `);
   });
@@ -69,12 +71,10 @@ describe("Test the somod command build", () => {
     );
     expect(result).toEqual({
       failed: true,
-      stderr: chalk.red(
-        `Initialize Context :- Failed\n${await realpath(
-          dir
-        )} is not a SOMOD module`
-      ),
-      stdout: undefined
+      stderr: `Initialize Context :- Failed\n${await realpath(
+        dir
+      )} is not a SOMOD module\n`,
+      stdout: ""
     });
   });
 
@@ -98,14 +98,15 @@ describe("Test the somod command build", () => {
     expect(result).toMatchInlineSnapshot(`
       Object {
         "failed": true,
-        "stderr": "[31mValidate package.json :- Failed[39m
-      [31mpackage.json has following errors[39m
-      [31m must have required property 'description'[39m
-      [31m must have required property 'module'[39m
-      [31m must have required property 'typings'[39m
-      [31m must have required property 'files'[39m
-      [31m must have required property 'sideEffects'[39m",
-        "stdout": undefined,
+        "stderr": "Validate package.json :- Failed
+      package.json has following errors
+       must have required property 'description'
+       must have required property 'module'
+       must have required property 'typings'
+       must have required property 'files'
+       must have required property 'sideEffects'
+      ",
+        "stdout": "",
       }
     `);
   });
@@ -134,14 +135,15 @@ describe("Test the somod command build", () => {
     expect(result).toMatchInlineSnapshot(`
       Object {
         "failed": true,
-        "stderr": "[31mValidate package.json :- Failed[39m
-      [31mpackage.json has following errors[39m
-      [31m module must be build/lib/index.js[39m
-      [31m typings must be build/lib/index.d.ts[39m
-      [31m files.0 must be equal to constant[39m
-      [31m files must contain build[39m
-      [31m sideEffects must be false[39m",
-        "stdout": undefined,
+        "stderr": "Validate package.json :- Failed
+      package.json has following errors
+       module must be build/lib/index.js
+       typings must be build/lib/index.d.ts
+       files.0 must be equal to constant
+       files must contain build
+       sideEffects must be false
+      ",
+        "stdout": "",
       }
     `);
   });
@@ -172,11 +174,12 @@ describe("Test the somod command build", () => {
     expect(result).toMatchInlineSnapshot(`
       Object {
         "failed": true,
-        "stderr": "[31mValidate package.json :- Failed[39m
-      [31mpackage.json has following errors[39m
-      [31m main must not exist[39m
-      [31m jsnext:main must not exist[39m",
-        "stdout": undefined,
+        "stderr": "Validate package.json :- Failed
+      package.json has following errors
+       main must not exist
+       jsnext:main must not exist
+      ",
+        "stdout": "",
       }
     `);
   });
@@ -204,8 +207,8 @@ describe("Test the somod command build", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": "[33mSkipping TypeScript Compilation : tsconfig.somod.json not Found.[39m",
-        "stdout": undefined,
+        "stderr": "",
+        "stdout": "",
       }
     `);
   });
@@ -233,47 +236,49 @@ describe("Test the somod command build", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": "[33mSkipping TypeScript Compilation : tsconfig.somod.json not Found.[39m",
+        "stderr": "Skipping TypeScript Compilation : tsconfig.somod.json not Found.
+      ",
         "stdout": "Initialize Context :- Started
-      [32mInitialize Context :- Completed[39m
+      Initialize Context :- Completed
       Validate package.json :- Started
       Validate tsconfig.somod.json :- Started
       Validate parameters.yaml with schema :- Started
-      [32mValidate tsconfig.somod.json :- Completed[39m
-      [32mValidate parameters.yaml with schema :- Completed[39m
-      [32mValidate package.json :- Completed[39m
+      Validate tsconfig.somod.json :- Completed
+      Validate parameters.yaml with schema :- Completed
+      Validate package.json :- Completed
       Validate ui/config.yaml with schema :- Started
       Validate ui/config.yaml :- Started
       Validate exports in ui/pages :- Started
       Validate exports in ui/pages-data :- Started
-      [32mValidate ui/config.yaml with schema :- Completed[39m
-      [32mValidate ui/config.yaml :- Completed[39m
-      [32mValidate exports in ui/pages :- Completed[39m
-      [32mValidate exports in ui/pages-data :- Completed[39m
+      Validate ui/config.yaml with schema :- Completed
+      Validate ui/config.yaml :- Completed
+      Validate exports in ui/pages :- Completed
+      Validate exports in ui/pages-data :- Completed
       Validate serverless/template.yaml with schema :- Started
-      [32mValidate serverless/template.yaml with schema :- Completed[39m
+      Validate serverless/template.yaml with schema :- Completed
       Validate serverless/template.yaml :- Started
-      [32mValidate serverless/template.yaml :- Completed[39m
+      Validate serverless/template.yaml :- Completed
       Validate exports in serverless/functions :- Started
-      [32mValidate exports in serverless/functions :- Completed[39m
+      Validate exports in serverless/functions :- Completed
       Delete build directory :- Started
-      [32mDelete build directory :- Completed[39m
+      Delete build directory :- Completed
       Compile Typescript :- Started
-      [32mCompile Typescript :- Completed[39m
+      Compile Typescript :- Completed
       Bundle Extensions :- Started
-      [32mBundle Extensions :- Completed[39m
+      Bundle Extensions :- Completed
       Build ui/public :- Started
-      [32mBuild ui/public :- Completed[39m
+      Build ui/public :- Completed
       Build ui/config.yaml :- Started
-      [32mBuild ui/config.yaml :- Completed[39m
+      Build ui/config.yaml :- Completed
       Build serverless/template.yaml :- Started
-      [32mBuild serverless/template.yaml :- Completed[39m
+      Build serverless/template.yaml :- Completed
       Build parameters.yaml :- Started
-      [32mBuild parameters.yaml :- Completed[39m
+      Build parameters.yaml :- Completed
       Set somod version in package.json :- Started
-      [32mSet somod version in package.json :- Completed[39m
+      Set somod version in package.json :- Completed
       Save package.json :- Started
-      [32mSave package.json :- Completed[39m",
+      Save package.json :- Completed
+      ",
       }
     `);
   });
@@ -301,39 +306,41 @@ describe("Test the somod command build", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": "[33mSkipping TypeScript Compilation : tsconfig.somod.json not Found.[39m",
+        "stderr": "Skipping TypeScript Compilation : tsconfig.somod.json not Found.
+      ",
         "stdout": "Initialize Context :- Started
-      [32mInitialize Context :- Completed[39m
+      Initialize Context :- Completed
       Validate package.json :- Started
       Validate tsconfig.somod.json :- Started
       Validate parameters.yaml with schema :- Started
-      [32mValidate tsconfig.somod.json :- Completed[39m
-      [32mValidate parameters.yaml with schema :- Completed[39m
-      [32mValidate package.json :- Completed[39m
+      Validate tsconfig.somod.json :- Completed
+      Validate parameters.yaml with schema :- Completed
+      Validate package.json :- Completed
       Validate ui/config.yaml with schema :- Started
       Validate ui/config.yaml :- Started
       Validate exports in ui/pages :- Started
       Validate exports in ui/pages-data :- Started
-      [32mValidate ui/config.yaml with schema :- Completed[39m
-      [32mValidate ui/config.yaml :- Completed[39m
-      [32mValidate exports in ui/pages :- Completed[39m
-      [32mValidate exports in ui/pages-data :- Completed[39m
+      Validate ui/config.yaml with schema :- Completed
+      Validate ui/config.yaml :- Completed
+      Validate exports in ui/pages :- Completed
+      Validate exports in ui/pages-data :- Completed
       Delete build directory :- Started
-      [32mDelete build directory :- Completed[39m
+      Delete build directory :- Completed
       Compile Typescript :- Started
-      [32mCompile Typescript :- Completed[39m
+      Compile Typescript :- Completed
       Bundle Extensions :- Started
-      [32mBundle Extensions :- Completed[39m
+      Bundle Extensions :- Completed
       Build ui/public :- Started
-      [32mBuild ui/public :- Completed[39m
+      Build ui/public :- Completed
       Build ui/config.yaml :- Started
-      [32mBuild ui/config.yaml :- Completed[39m
+      Build ui/config.yaml :- Completed
       Build parameters.yaml :- Started
-      [32mBuild parameters.yaml :- Completed[39m
+      Build parameters.yaml :- Completed
       Set somod version in package.json :- Started
-      [32mSet somod version in package.json :- Completed[39m
+      Set somod version in package.json :- Completed
       Save package.json :- Started
-      [32mSave package.json :- Completed[39m",
+      Save package.json :- Completed
+      ",
       }
     `);
   });
@@ -361,36 +368,276 @@ describe("Test the somod command build", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": "[33mSkipping TypeScript Compilation : tsconfig.somod.json not Found.[39m",
+        "stderr": "Skipping TypeScript Compilation : tsconfig.somod.json not Found.
+      ",
         "stdout": "Initialize Context :- Started
-      [32mInitialize Context :- Completed[39m
+      Initialize Context :- Completed
       Validate package.json :- Started
       Validate tsconfig.somod.json :- Started
       Validate parameters.yaml with schema :- Started
-      [32mValidate tsconfig.somod.json :- Completed[39m
-      [32mValidate parameters.yaml with schema :- Completed[39m
-      [32mValidate package.json :- Completed[39m
+      Validate tsconfig.somod.json :- Completed
+      Validate parameters.yaml with schema :- Completed
+      Validate package.json :- Completed
       Validate serverless/template.yaml with schema :- Started
-      [32mValidate serverless/template.yaml with schema :- Completed[39m
+      Validate serverless/template.yaml with schema :- Completed
       Validate serverless/template.yaml :- Started
-      [32mValidate serverless/template.yaml :- Completed[39m
+      Validate serverless/template.yaml :- Completed
       Validate exports in serverless/functions :- Started
-      [32mValidate exports in serverless/functions :- Completed[39m
+      Validate exports in serverless/functions :- Completed
       Delete build directory :- Started
-      [32mDelete build directory :- Completed[39m
+      Delete build directory :- Completed
       Compile Typescript :- Started
-      [32mCompile Typescript :- Completed[39m
+      Compile Typescript :- Completed
       Bundle Extensions :- Started
-      [32mBundle Extensions :- Completed[39m
+      Bundle Extensions :- Completed
       Build serverless/template.yaml :- Started
-      [32mBuild serverless/template.yaml :- Completed[39m
+      Build serverless/template.yaml :- Completed
       Build parameters.yaml :- Started
-      [32mBuild parameters.yaml :- Completed[39m
+      Build parameters.yaml :- Completed
       Set somod version in package.json :- Started
-      [32mSet somod version in package.json :- Completed[39m
+      Set somod version in package.json :- Completed
       Save package.json :- Started
-      [32mSave package.json :- Completed[39m",
+      Save package.json :- Completed
+      ",
       }
     `);
+  });
+});
+
+describe("test the somod build command on sample serverless-module", () => {
+  let dir: string;
+  let buildDir: string;
+
+  const sampleModulePath = join(
+    __dirname,
+    "../../samples/push-notification-service"
+  );
+
+  beforeAll(async () => {
+    dir = createTempDir("test-somod-somod");
+    createFiles(dir, {
+      ".npmrc": "registry=http://localhost:8000"
+    });
+    await copySource(sampleModulePath, dir, [
+      "build",
+      "node_modules",
+      ".aws-sam",
+      ".somod"
+    ]);
+    await execPromise("npm i somod", dir);
+    buildDir = join(dir, "build");
+  }, 60000);
+
+  test("build without verbose", async () => {
+    const result = await execute(
+      dir,
+      "npx",
+      ["somod", "build", "--serverless"],
+      { return: "on", show: "off" },
+      { return: "on", show: "off" }
+    );
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        "stderr": "",
+        "stdout": "",
+      }
+    `);
+    expect(readFiles(buildDir)).toEqual(
+      readFiles(join(sampleModulePath, "build"))
+    );
+    deleteDir(buildDir);
+  });
+
+  test("build with verbose", async () => {
+    const result = await execute(
+      dir,
+      "npx",
+      ["somod", "build", "--serverless", "-v"],
+      { return: "on", show: "off" },
+      { return: "on", show: "off" }
+    );
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        "stderr": "",
+        "stdout": "Initialize Context :- Started
+      Initialize Context :- Completed
+      Validate package.json :- Started
+      Validate tsconfig.somod.json :- Started
+      Validate parameters.yaml with schema :- Started
+      Validate parameters.yaml with schema :- Completed
+      Validate package.json :- Completed
+      Validate tsconfig.somod.json :- Completed
+      Validate serverless/template.yaml with schema :- Started
+      Validate serverless/template.yaml with schema :- Completed
+      Validate serverless/template.yaml :- Started
+      Validate serverless/template.yaml :- Completed
+      Validate exports in serverless/functions :- Started
+      Validate exports in serverless/functions :- Completed
+      Delete build directory :- Started
+      Delete build directory :- Completed
+      Compile Typescript :- Started
+      Compile Typescript :- Completed
+      Bundle Extensions :- Started
+      Bundle Extensions :- Completed
+      Build serverless/template.yaml :- Started
+      Build serverless/template.yaml :- Completed
+      Build parameters.yaml :- Started
+      Build parameters.yaml :- Completed
+      Set somod version in package.json :- Started
+      Set somod version in package.json :- Completed
+      Save package.json :- Started
+      Save package.json :- Completed
+      ",
+      }
+    `);
+
+    expect(readFiles(buildDir)).toEqual(
+      readFiles(join(sampleModulePath, "build"))
+    );
+    deleteDir(buildDir);
+  });
+
+  test("build without tsconfig.somod.json", async () => {
+    await rename(
+      join(dir, "tsconfig.somod.json"),
+      join(dir, "tsconfig.somod.json.bkup")
+    );
+    const result = await execute(
+      dir,
+      "npx",
+      ["somod", "build", "--serverless", "-v"],
+      { return: "on", show: "off" },
+      { return: "on", show: "off" }
+    );
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        "stderr": "Skipping TypeScript Compilation : tsconfig.somod.json not Found.
+      ",
+        "stdout": "Initialize Context :- Started
+      Initialize Context :- Completed
+      Validate package.json :- Started
+      Validate tsconfig.somod.json :- Started
+      Validate parameters.yaml with schema :- Started
+      Validate tsconfig.somod.json :- Completed
+      Validate parameters.yaml with schema :- Completed
+      Validate package.json :- Completed
+      Validate serverless/template.yaml with schema :- Started
+      Validate serverless/template.yaml with schema :- Completed
+      Validate serverless/template.yaml :- Started
+      Validate serverless/template.yaml :- Completed
+      Validate exports in serverless/functions :- Started
+      Validate exports in serverless/functions :- Completed
+      Delete build directory :- Started
+      Delete build directory :- Completed
+      Compile Typescript :- Started
+      Compile Typescript :- Completed
+      Bundle Extensions :- Started
+      Bundle Extensions :- Completed
+      Build serverless/template.yaml :- Started
+      Build serverless/template.yaml :- Completed
+      Build parameters.yaml :- Started
+      Build parameters.yaml :- Completed
+      Set somod version in package.json :- Started
+      Set somod version in package.json :- Completed
+      Save package.json :- Started
+      Save package.json :- Completed
+      ",
+      }
+    `);
+
+    const expectedBuildFiles = readFiles(join(sampleModulePath, "build"));
+    Object.keys(expectedBuildFiles).forEach(buildFilePath => {
+      if (buildFilePath.startsWith("serverless/functions")) {
+        delete expectedBuildFiles[buildFilePath];
+      }
+    });
+    expect(readFiles(buildDir)).toEqual(expectedBuildFiles);
+    deleteDir(buildDir);
+    await rename(
+      join(dir, "tsconfig.somod.json.bkup"),
+      join(dir, "tsconfig.somod.json")
+    );
+  });
+
+  test("build without a serverless function code", async () => {
+    await rename(
+      join(dir, "serverless/functions/ondisconnect.ts"),
+      join(dir, "serverless/functions/ondisconnect.ts.bkup")
+    );
+    const result = await execute(
+      dir,
+      "npx",
+      ["somod", "build", "--serverless", "-v"],
+      { return: "on", show: "off" },
+      { return: "on", show: "off" }
+    );
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        "failed": true,
+        "stderr": "Validate serverless/template.yaml :- Failed
+      Error at Resources.OnDisconnectFunction.Properties.CodeUri : Function ondisconnect not found. Create the function under serverless/functions directory
+      ",
+        "stdout": "Initialize Context :- Started
+      Initialize Context :- Completed
+      Validate package.json :- Started
+      Validate tsconfig.somod.json :- Started
+      Validate parameters.yaml with schema :- Started
+      Validate parameters.yaml with schema :- Completed
+      Validate package.json :- Completed
+      Validate tsconfig.somod.json :- Completed
+      Validate serverless/template.yaml with schema :- Started
+      Validate serverless/template.yaml with schema :- Completed
+      Validate serverless/template.yaml :- Started
+      ",
+      }
+    `);
+
+    expect(existsSync(join(dir, "build"))).not.toBeTruthy();
+    await rename(
+      join(dir, "serverless/functions/ondisconnect.ts.bkup"),
+      join(dir, "serverless/functions/ondisconnect.ts")
+    );
+  });
+
+  test("build without a parameters", async () => {
+    await rename(
+      join(dir, "parameters.yaml"),
+      join(dir, "parameters.yaml.bkup")
+    );
+    const result = await execute(
+      dir,
+      "npx",
+      ["somod", "build", "--serverless", "-v"],
+      { return: "on", show: "off" },
+      { return: "on", show: "off" }
+    );
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        "failed": true,
+        "stderr": "Validate serverless/template.yaml :- Failed
+      Error at Resources.OnConnectFunction.Properties.Environment.Variables.AUTH_END_POINT : parameter auth.token.endpoint referenced by SOMOD::Parameter does not exist. Define auth.token.endpoint in /parameters.yaml
+      Error at  : parameter pns.publish.endpoint referenced by Outputs does not exist. Define pns.publish.endpoint in /parameters.yaml
+      Error at  : parameter pns.subscribe.endpoint referenced by Outputs does not exist. Define pns.subscribe.endpoint in /parameters.yaml
+      ",
+        "stdout": "Initialize Context :- Started
+      Initialize Context :- Completed
+      Validate package.json :- Started
+      Validate tsconfig.somod.json :- Started
+      Validate parameters.yaml with schema :- Started
+      Validate parameters.yaml with schema :- Completed
+      Validate package.json :- Completed
+      Validate tsconfig.somod.json :- Completed
+      Validate serverless/template.yaml with schema :- Started
+      Validate serverless/template.yaml with schema :- Completed
+      Validate serverless/template.yaml :- Started
+      ",
+      }
+    `);
+
+    expect(existsSync(join(dir, "build"))).not.toBeTruthy();
+    await rename(
+      join(dir, "parameters.yaml.bkup"),
+      join(dir, "parameters.yaml")
+    );
   });
 });

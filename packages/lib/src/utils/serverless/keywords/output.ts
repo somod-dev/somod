@@ -2,8 +2,8 @@ import { KeywordDefinition, ServerlessResource } from "somod-types";
 import { getPath } from "../../jsonTemplate";
 
 type Output = {
-  default: boolean;
-  attributes: string[];
+  default?: boolean;
+  attributes?: string[];
 };
 
 export const keywordOutput: KeywordDefinition<Output> = {
@@ -45,13 +45,13 @@ export const checkOutput = (
   ] as Output;
 
   if (referencedAttribute === undefined) {
-    if (!outputDefinitionInTargetResource?.default) {
+    if (outputDefinitionInTargetResource?.default === false) {
       throw new Error(
         `default must be true in ${keywordOutput.keyword} of ${referencedResource} resource in ${referencedModule}.`
       );
     }
   } else if (
-    !outputDefinitionInTargetResource?.attributes.includes(referencedAttribute)
+    !outputDefinitionInTargetResource?.attributes?.includes(referencedAttribute)
   ) {
     throw new Error(
       `attributes must have ${referencedAttribute} in ${keywordOutput.keyword} of ${referencedResource} resource in ${referencedModule}.`

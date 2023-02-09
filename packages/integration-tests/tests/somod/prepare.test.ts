@@ -7,7 +7,6 @@ import {
 } from "nodejs-file-utils";
 import { join } from "path";
 import { execPromise, execute } from "../utils";
-import chalk from "chalk";
 
 describe("Test the somod command prepare", () => {
   let dir: string;
@@ -39,14 +38,15 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
+        "stderr": "",
         "stdout": "Usage: somod prepare [options]
 
       Options:
         --ui           only ui
         --serverless   only serverless
         -v, --verbose  enable verbose
-        -h, --help     display help for command",
+        -h, --help     display help for command
+      ",
       }
     `);
   });
@@ -68,12 +68,10 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toEqual({
       failed: true,
-      stderr: chalk.red(
-        `Initialize Context :- Failed\n${await realpath(
-          dir
-        )} is not a SOMOD module`
-      ),
-      stdout: undefined
+      stderr: `Initialize Context :- Failed\n${await realpath(
+        dir
+      )} is not a SOMOD module\n`,
+      stdout: ""
     });
   });
 
@@ -95,8 +93,8 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
-        "stdout": undefined,
+        "stderr": "",
+        "stdout": "",
       }
     `);
   });
@@ -124,8 +122,8 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
-        "stdout": undefined,
+        "stderr": "",
+        "stdout": "",
       }
     `);
   });
@@ -155,8 +153,8 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
-        "stdout": undefined,
+        "stderr": "",
+        "stdout": "",
       }
     `);
   });
@@ -184,8 +182,8 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
-        "stdout": undefined,
+        "stderr": "",
+        "stdout": "",
       }
     `);
   });
@@ -213,25 +211,26 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
+        "stderr": "",
         "stdout": "Initialize Context :- Started
-      [32mInitialize Context :- Completed[39m
+      Initialize Context :- Completed
       Create/Update /parameters.json :- Started
-      [32mCreate/Update /parameters.json :- Completed[39m
+      Create/Update /parameters.json :- Completed
       Deleting /pages and /public :- Started
-      [32mDeleting /pages and /public :- Completed[39m
+      Deleting /pages and /public :- Completed
       Create /pages :- Started
-      [32mCreate /pages :- Completed[39m
+      Create /pages :- Completed
       Create /public :- Started
-      [32mCreate /public :- Completed[39m
+      Create /public :- Completed
       Gernerate /next.config.js and /.env :- Started
-      [32mGernerate /next.config.js and /.env :- Completed[39m
+      Gernerate /next.config.js and /.env :- Completed
       Bundle Serverless Functions :- Started
-      [32mBundle Serverless Functions :- Completed[39m
+      Bundle Serverless Functions :- Completed
       Bundle Serverless FunctionLayers :- Started
-      [32mBundle Serverless FunctionLayers :- Completed[39m
+      Bundle Serverless FunctionLayers :- Completed
       Generate /template.yaml :- Started
-      [32mGenerate /template.yaml :- Completed[39m",
+      Generate /template.yaml :- Completed
+      ",
       }
     `);
   });
@@ -259,19 +258,20 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
+        "stderr": "",
         "stdout": "Initialize Context :- Started
-      [32mInitialize Context :- Completed[39m
+      Initialize Context :- Completed
       Create/Update /parameters.json :- Started
-      [32mCreate/Update /parameters.json :- Completed[39m
+      Create/Update /parameters.json :- Completed
       Deleting /pages and /public :- Started
-      [32mDeleting /pages and /public :- Completed[39m
+      Deleting /pages and /public :- Completed
       Create /pages :- Started
-      [32mCreate /pages :- Completed[39m
+      Create /pages :- Completed
       Create /public :- Started
-      [32mCreate /public :- Completed[39m
+      Create /public :- Completed
       Gernerate /next.config.js and /.env :- Started
-      [32mGernerate /next.config.js and /.env :- Completed[39m",
+      Gernerate /next.config.js and /.env :- Completed
+      ",
       }
     `);
   });
@@ -299,17 +299,18 @@ describe("Test the somod command prepare", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
+        "stderr": "",
         "stdout": "Initialize Context :- Started
-      [32mInitialize Context :- Completed[39m
+      Initialize Context :- Completed
       Create/Update /parameters.json :- Started
-      [32mCreate/Update /parameters.json :- Completed[39m
+      Create/Update /parameters.json :- Completed
       Bundle Serverless Functions :- Started
-      [32mBundle Serverless Functions :- Completed[39m
+      Bundle Serverless Functions :- Completed
       Bundle Serverless FunctionLayers :- Started
-      [32mBundle Serverless FunctionLayers :- Completed[39m
+      Bundle Serverless FunctionLayers :- Completed
       Generate /template.yaml :- Started
-      [32mGenerate /template.yaml :- Completed[39m",
+      Generate /template.yaml :- Completed
+      ",
       }
     `);
   });

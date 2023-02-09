@@ -77,42 +77,47 @@ const forward = (req, res) => {
 };
 
 const server = createServer((req, res) => {
-  //console.log(req.method, req.url);
+  try {
+    //console.log(req.method, req.url);
 
-  const urlSegments = req.url.split("/");
+    const urlSegments = req.url.split("/");
 
-  if (
-    req.method == "GET" &&
-    urlSegments.length == 2 &&
-    packageMap[urlSegments[1]]
-  ) {
-    //console.log("Get manifest for " + urlSegments[1]);
-    getManifest(urlSegments[1]).then(
-      manifest => {
+    if (
+      req.method == "GET" &&
+      urlSegments.length == 2 &&
+      packageMap[urlSegments[1]]
+    ) {
+      //console.log("Get manifest for " + urlSegments[1]);
+      getManifest(urlSegments[1]).then(
+        manifest => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.write(JSON.stringify(manifest));
+          res.end();
+        },
+        e => {
+          res.statusCode = 500;
+          res.write(e.message);
+          res.end;
+        }
+      );
+    } else if (
+      req.method == "GET" &&
+      urlSegments.length == 4 &&
+      packageMap[urlSegments[1]] &&
+      urlSegments[3].endsWith(".tgz")
+    ) {
+      //console.log("Get tarball for " + urlSegments[3]);
+      getTarball(urlSegments[3]).then(tarball => {
         res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        res.write(JSON.stringify(manifest));
+        res.write(tarball);
         res.end();
-      },
-      e => {
-        res.statusCode = 500;
-        res.write(e.message);
-        res.end;
-      }
-    );
-  } else if (
-    req.method == "GET" &&
-    urlSegments.length == 4 &&
-    urlSegments[3].endsWith(".tgz")
-  ) {
-    //console.log("Get tarball for " + urlSegments[3]);
-    getTarball(urlSegments[3]).then(tarball => {
-      res.statusCode = 200;
-      res.write(tarball);
-      res.end();
-    });
-  } else {
-    forward(req, res);
+      });
+    } else {
+      forward(req, res);
+    }
+  } catch (e) {
+    console.error("PROXY SERVER ERROR : ", e);
   }
 });
 

@@ -57,6 +57,15 @@ describe("Test Task compileTypeScript", () => {
     ).resolves.toBeUndefined();
 
     expect(childProcess).toHaveBeenCalledTimes(0);
+    expect(logWarning).toHaveBeenCalledTimes(0);
+  });
+
+  test("for no tsconfig.somod.json and when verbose = true", async () => {
+    await expect(
+      compileTypeScript({ dir } as IContext, true)
+    ).resolves.toBeUndefined();
+
+    expect(childProcess).toHaveBeenCalledTimes(0);
     expect(logWarning).toHaveBeenCalledTimes(1);
     expect(logWarning).toHaveBeenCalledWith(
       "Skipping TypeScript Compilation : tsconfig.somod.json not Found."
@@ -81,23 +90,6 @@ describe("Test Task compileTypeScript", () => {
       dir,
       npxCommand,
       ["tsc", "--project", "tsconfig.somod.json"],
-      { show: "off", return: "on" },
-      { show: "off", return: "on" }
-    );
-    expect(logWarning).toHaveBeenCalledTimes(0);
-  });
-
-  test("noEmit enabled", async () => {
-    createFiles(dir, { "tsconfig.somod.json": "{}" });
-    await expect(
-      compileTypeScript({ dir } as IContext, true)
-    ).resolves.toBeUndefined();
-
-    expect(childProcess).toHaveBeenCalledTimes(1);
-    expect(childProcess).toHaveBeenCalledWith(
-      dir,
-      npxCommand,
-      ["tsc", "--project", "tsconfig.somod.json", "--noEmit"],
       { show: "off", return: "on" },
       { show: "off", return: "on" }
     );

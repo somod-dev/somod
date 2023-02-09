@@ -27,7 +27,7 @@ describe("Test the somod command", () => {
     );
     expect(result).toMatchInlineSnapshot(`
       Object {
-        "stderr": undefined,
+        "stderr": "",
         "stdout": "Usage: somod [options] [command]
 
       Options:
@@ -39,7 +39,8 @@ describe("Test the somod command", () => {
         prepare [options]
         deploy [options]
         start [options]
-        update-params [options]",
+        update-params [options]
+      ",
       }
     `);
   });

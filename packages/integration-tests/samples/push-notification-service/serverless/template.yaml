@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../../../../schema/schemas/serverless-template/index.json
+# yaml-language-server: $schema=../../../../schema/schemas/serverless-template/index.json
 
 Resources:
   ManagementApi:
@@ -25,11 +25,12 @@ Resources:
       RouteKey: $connect
       AuthorizationType: NONE
       OperationName: ConnectRoute
-      Target: !Join
-        - "/"
-        - - "integrations"
-          - SOMOD::Ref:
-              resource: ConnectInteg
+      Target:
+        Fn::Join:
+          - "/"
+          - - "integrations"
+            - SOMOD::Ref:
+                resource: ConnectInteg
   ConnectInteg:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
@@ -49,11 +50,12 @@ Resources:
       RouteKey: $disconnect
       AuthorizationType: NONE
       OperationName: DisconnectRoute
-      Target: !Join
-        - "/"
-        - - "integrations"
-          - SOMOD::Ref:
-              resource: DisconnectInteg
+      Target:
+        Fn::Join:
+          - "/"
+          - - "integrations"
+            - SOMOD::Ref:
+                resource: DisconnectInteg
   DisconnectInteg:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
@@ -96,7 +98,32 @@ Resources:
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: True
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "groupId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: byGroupId
+          KeySchema:
+            - AttributeName: groupId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: True
   MessagesTable:
+    SOMOD::Output:
+      default: true
+      attributes:
+        - StreamArn
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -121,14 +148,24 @@ Resources:
       MemorySize: 256
       Environment:
         Variables:
-          TABLE_NAME:
+          CONNECTIONS_TABLE_NAME:
             SOMOD::Ref:
               resource: ConnectionsTable
+          USERS_TABLE_NAME:
+            SOMOD::Ref:
+              resource: UsersTable
+          AUTH_END_POINT:
+            SOMOD::Parameter: auth.token.endpoint
+
       Policies:
         - DynamoDBCrudPolicy:
             TableName:
               SOMOD::Ref:
                 resource: ConnectionsTable
+        - DynamoDBCrudPolicy:
+            TableName:
+              SOMOD::Ref:
+                resource: UsersTable
   OnConnectPermission:
     Type: AWS::Lambda::Permission
     DependsOn:
@@ -178,15 +215,29 @@ Resources:
       MemorySize: 256
       Environment:
         Variables:
-          TABLE_NAME:
+          CONNECTIONS_TABLE_NAME:
             SOMOD::Ref:
               resource: ConnectionsTable
-          CONNECTIONS_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
+          USERS_TABLE_NAME:
+            SOMOD::Ref:
+              resource: UsersTable
+          CONNECTIONS_ENDPOINT:
+            Fn::Sub:
+              - "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
+              - WebSocketApi:
+                  SOMOD::Ref:
+                    resource: WebSocketApi
+                Stage:
+                  SOMOD::Ref:
+                    resource: Stage
       Events:
         StreamFromMessagesTable:
           Type: DynamoDB
           Properties:
-            Stream: !GetAtt MessagesTable.StreamArn
+            Stream:
+              SOMOD::Ref:
+                resource: MessagesTable
+                attribute: StreamArn
             BatchSize: 1
             StartingPosition: LATEST
             MaximumRetryAttempts: 3
@@ -196,12 +247,21 @@ Resources:
             TableName:
               SOMOD::Ref:
                 resource: ConnectionsTable
+        - DynamoDBCrudPolicy:
+            TableName:
+              SOMOD::Ref:
+                resource: UsersTable
         - Statement:
             - Effect: Allow
               Action:
                 - "execute-api:ManageConnections"
               Resource:
-                - !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*"
+                - Fn::Sub:
+                    - "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*"
+                    - WebSocketApi:
+                        SOMOD::Ref:
+                          resource: WebSocketApi
+
       Timeout: 300 # 5 minutes
 
   ReceiveMessageFunction:
@@ -233,14 +293,14 @@ Resources:
                 resource: MessagesTable
 
 Outputs:
-  ManagementApiURI:
+  pns.publish.endpoint:
     Fn::Sub:
       - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/"
       - ApiId:
           SOMOD::Ref:
             resource: ManagementApi
 
-  WebSocketURI:
+  pns.subscribe.endpoint:
     Fn::Sub:
       - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
       - ApiId:
