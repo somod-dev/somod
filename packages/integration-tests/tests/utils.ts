@@ -5,6 +5,7 @@ import {
   ChildProcessError,
   ChildProcessResult
 } from "nodejs-cli-runner";
+import { deleteDir } from "nodejs-file-utils";
 import { join } from "path";
 
 const removeAnsciColor = (strWithColor: string) => {
@@ -39,6 +40,15 @@ export const execPromise = (cmd: string, dir: string) => {
       }
     });
   });
+};
+
+export const cleanUp = async (dir: string, exclude: string[]) => {
+  const paths = await readdir(dir);
+  for (const path of paths) {
+    if (!exclude.includes(path)) {
+      deleteDir(join(dir, path));
+    }
+  }
 };
 
 export const copySource = async (

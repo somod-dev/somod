@@ -18,7 +18,7 @@ import {
 } from "../../../src/utils/nextJs/config";
 import { IContext } from "somod-types";
 
-describe("Test Util nextjs.loadConfig", () => {
+describe("Test Util nextjs.config.loadConfig", () => {
   let dir: string = null;
 
   beforeEach(async () => {
@@ -117,7 +117,7 @@ describe("Test Util nextjs.loadConfig", () => {
   });
 });
 
-describe("Test Util nextjs.loadConfigNamespaces", () => {
+describe("Test Util nextjs.config.loadConfigNamespaces", () => {
   let dir: string = null;
 
   beforeEach(async () => {
@@ -177,7 +177,16 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
 
   test("for config in build", async () => {
     const config: Config = {
-      env: { ENV_1: { "SOMOD::Parameter": "my.env1" } },
+      env: {
+        ENV_1: {
+          "SOMOD::If": [
+            // a complex parameter
+            { "SOMOD::Equals": [{ "SOMOD::Parameter": "my.env0" }, "Hi"] },
+            { "SOMOD::Parameter": "my.env1" },
+            { "SOMOD::Parameter": "my.env2" }
+          ]
+        }
+      },
       imageDomains: ["sodaru.com", { "SOMOD::Parameter": "my.customdomain" }],
       publicRuntimeConfig: { theme: { "SOMOD::Parameter": "my.theme" } },
       serverRuntimeConfig: { siteKey: { "SOMOD::Parameter": "my.siteKey" } }
@@ -236,7 +245,7 @@ describe("Test Util nextjs.loadConfigNamespaces", () => {
   });
 });
 
-describe("Test Util nextJs.validate", () => {
+describe("Test Util nextJs.config.validate", () => {
   let dir: string = null;
 
   beforeEach(async () => {
@@ -339,6 +348,50 @@ describe("Test Util nextJs.validate", () => {
     ).resolves.toBeUndefined();
   });
 
+  test("for a complex config in ui/config.yaml", async () => {
+    const config: Config = {
+      env: {
+        MY_ENV1: {
+          "SOMOD::If": [
+            // a complex parameter
+            { "SOMOD::Equals": [{ "SOMOD::Parameter": "my.env0" }, "Hi"] },
+            { "SOMOD::Parameter": "my.env1" },
+            { "SOMOD::Parameter": "my.env2" }
+          ]
+        }
+      }
+    };
+    createFiles(dir, {
+      "ui/config.yaml": dump(config)
+    });
+    await expect(
+      validate({
+        dir,
+        moduleHandler: {
+          getModule: (() => ({
+            module: {
+              name: "m1",
+              packageLocation: dir,
+              version: "v1.0.0",
+              root: true
+            },
+            children: [],
+            parents: []
+          })) as IContext["moduleHandler"]["getModule"],
+          roodModuleName: "m1"
+        },
+        extensionHandler: { uiConfigKeywords: [] },
+        namespaceHandler: {
+          get: (() => [
+            { name: "Parameter", value: "my.env0", module: "m1" },
+            { name: "Parameter", value: "my.env1", module: "m1" },
+            { name: "Parameter", value: "my.env2", module: "m1" }
+          ]) as IContext["namespaceHandler"]["get"]
+        }
+      } as IContext)
+    ).resolves.toBeUndefined();
+  });
+
   test("for invalid parameter in ui/config.yaml", async () => {
     createFiles(dir, {
       "ui/config.yaml": dump({
@@ -375,7 +428,7 @@ describe("Test Util nextJs.validate", () => {
   });
 });
 
-describe("Test Util nextJs.build", () => {
+describe("Test Util nextJs.config.build", () => {
   let dir: string = null;
 
   beforeEach(async () => {
@@ -441,9 +494,34 @@ describe("Test Util nextJs.build", () => {
       readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
     ).resolves.toEqual(JSON.stringify(config));
   });
+
+  test("for a complex config in ui/config.yaml", async () => {
+    const config: Config = {
+      env: {
+        MY_ENV1: {
+          "SOMOD::If": [
+            // a complex parameter
+            { "SOMOD::Equals": [{ "SOMOD::Parameter": "my.env0" }, "Hi"] },
+            { "SOMOD::Parameter": "my.env1" },
+            { "SOMOD::Parameter": "my.env2" }
+          ]
+        }
+      }
+    };
+    createFiles(dir, {
+      "ui/config.yaml": dump(config),
+      "parameters.yaml": dump({
+        Parameters: { "my.param1": { type: "text", default: "1" } }
+      })
+    });
+    await expect(build(dir)).resolves.toBeUndefined();
+    await expect(
+      readFile(join(dir, "build/ui/config.json"), { encoding: "utf8" })
+    ).resolves.toEqual(JSON.stringify(config));
+  });
 });
 
-describe("test util nextJs.generateCombinedConfig", () => {
+describe("test util nextJs.config.generateCombinedConfig", () => {
   let dir: string = null;
 
   beforeEach(async () => {
@@ -477,7 +555,12 @@ describe("test util nextJs.generateCombinedConfig", () => {
         imageDomains: [{ "SOMOD::Parameter": "m1.p2" }],
         publicRuntimeConfig: {
           myPRC2: {
-            "SOMOD::Parameter": "m1.p3"
+            "SOMOD::If": [
+              // a complex config
+              { "SOMOD::Equals": [{ "SOMOD::Parameter": "m1.p3" }, "M1_P3"] },
+              { "SOMOD::Parameter": "m1.p3" },
+              { "SOMOD::Parameter": "m1.p2" }
+            ]
           }
         }
       }),

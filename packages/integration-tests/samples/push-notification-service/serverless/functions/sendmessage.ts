@@ -24,21 +24,19 @@ const getApigwManagementApi = (endpoint: string) => {
   return apigwManagementApiConnections[endpoint];
 };
 
-const getUsersOfFacility = async (facilityId: string): Promise<string[]> => {
-  const usersOfFacility = await ddb
+const getUsersOfGroup = async (groupId: string): Promise<string[]> => {
+  const usersOfGroup = await ddb
     .query({
       TableName: process.env.USERS_TABLE_NAME as string,
-      IndexName: "byFacilityId",
-      KeyConditionExpression: "facilityId = :facilityId",
+      IndexName: "byGroupId",
+      KeyConditionExpression: "groupId = :groupId",
       ExpressionAttributeValues: {
-        ":facilityId": facilityId
+        ":groupId": groupId
       }
     })
     .promise();
 
-  return (usersOfFacility.Items || [])?.map(
-    userOfFacility => userOfFacility.userId
-  );
+  return (usersOfGroup.Items || [])?.map(userOfGroup => userOfGroup.userId);
 };
 
 const listConnections = async (): Promise<Connection[]> => {
@@ -77,14 +75,14 @@ const handleRecord = async (record: DynamoDBRecord) => {
   ) as {
     messageId: string;
     message: unknown;
-    audience: { userId?: string; facilityId?: string };
+    audience: { userId?: string; groupId?: string };
   };
 
   const users: string[] = [];
   if (message.audience.userId) {
     users.push(message.audience.userId);
-  } else if (message.audience.facilityId) {
-    users.push(...(await getUsersOfFacility(message.audience.facilityId)));
+  } else if (message.audience.groupId) {
+    users.push(...(await getUsersOfGroup(message.audience.groupId)));
   }
 
   const connections = await listConnections();

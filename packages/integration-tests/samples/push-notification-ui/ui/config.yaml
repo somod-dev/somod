@@ -1,0 +1,5 @@
+# yaml-language-server: $schema=../../../../schema/schemas/ui-config/index.json
+
+env:
+  NEXT_PUBLIC_PNS_PUBLISH_ENDPOINT:
+    SOMOD::Parameter: pns.publish.endpoint

@@ -29,17 +29,17 @@ const handler: APIGatewayProxyHandlerV2 = async event => {
   }
   if (
     body.audience?.userId === undefined &&
-    body.audience?.facilityId === undefined
+    body.audience?.groupId === undefined
   ) {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        error: "audience property must have 'userId' or 'facilityId'"
+        error: "audience property must have 'userId' or 'groupId'"
       }),
       headers: { "Content-Type": "application/json" }
     };
   }
-  // TODO: typecheck for userId and facilityId
+  // TODO: typecheck for userId and groupId
 
   const messageId = v1();
 

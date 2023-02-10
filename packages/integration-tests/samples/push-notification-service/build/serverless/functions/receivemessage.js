@@ -28,11 +28,11 @@ var handler = function (event) { return __awaiter(void 0, void 0, void 0, functi
                         }];
                 }
                 if (((_a = body.audience) === null || _a === void 0 ? void 0 : _a.userId) === undefined &&
-                    ((_b = body.audience) === null || _b === void 0 ? void 0 : _b.facilityId) === undefined) {
+                    ((_b = body.audience) === null || _b === void 0 ? void 0 : _b.groupId) === undefined) {
                     return [2 /*return*/, {
                             statusCode: 400,
                             body: JSON.stringify({
-                                error: "audience property must have 'userId' or 'facilityId'"
+                                error: "audience property must have 'userId' or 'groupId'"
                             }),
                             headers: { "Content-Type": "application/json" }
                         }];

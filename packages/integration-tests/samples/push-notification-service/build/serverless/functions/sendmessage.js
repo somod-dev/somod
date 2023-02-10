@@ -14,24 +14,24 @@ var getApigwManagementApi = function (endpoint) {
     }
     return apigwManagementApiConnections[endpoint];
 };
-var getUsersOfFacility = function (facilityId) { return __awaiter(void 0, void 0, void 0, function () {
-    var usersOfFacility;
+var getUsersOfGroup = function (groupId) { return __awaiter(void 0, void 0, void 0, function () {
+    var usersOfGroup;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0: return [4 /*yield*/, ddb
                     .query({
                     TableName: process.env.USERS_TABLE_NAME,
-                    IndexName: "byFacilityId",
-                    KeyConditionExpression: "facilityId = :facilityId",
+                    IndexName: "byGroupId",
+                    KeyConditionExpression: "groupId = :groupId",
                     ExpressionAttributeValues: {
-                        ":facilityId": facilityId
+                        ":groupId": groupId
                     }
                 })
                     .promise()];
             case 1:
-                usersOfFacility = _b.sent();
-                return [2 /*return*/, (_a = (usersOfFacility.Items || [])) === null || _a === void 0 ? void 0 : _a.map(function (userOfFacility) { return userOfFacility.userId; })];
+                usersOfGroup = _b.sent();
+                return [2 /*return*/, (_a = (usersOfGroup.Items || [])) === null || _a === void 0 ? void 0 : _a.map(function (userOfGroup) { return userOfGroup.userId; })];
         }
     });
 }); };
@@ -86,10 +86,10 @@ var handleRecord = function (record) { return __awaiter(void 0, void 0, void 0, 
                 users.push(message.audience.userId);
                 return [3 /*break*/, 3];
             case 1:
-                if (!message.audience.facilityId) return [3 /*break*/, 3];
+                if (!message.audience.groupId) return [3 /*break*/, 3];
                 _b = (_a = users.push).apply;
                 _c = [users];
-                return [4 /*yield*/, getUsersOfFacility(message.audience.facilityId)];
+                return [4 /*yield*/, getUsersOfGroup(message.audience.groupId)];
             case 2:
                 _b.apply(_a, _c.concat([(_e.sent())]));
                 _e.label = 3;
