@@ -9,6 +9,9 @@
     "build"
   ],
   "sideEffects": false,
+  "scripts": {
+    "build": "npx somod build --serverless -v"
+  },
   "dependencies": {},
   "devDependencies": {
     "@types/aws-lambda": "^8.10.110",

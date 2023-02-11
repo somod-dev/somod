@@ -1,5 +1,5 @@
 {
-  "name": "push-notification-ui",
+  "name": "push-notification",
   "version": "1.0.0",
   "somod": "1.15.10",
   "description": "Sample somod module for integration testing",
@@ -10,9 +10,15 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "npx somod build --ui -v"
+    "build": "npx somod build -v"
+  },
+  "dependencies": {
+    "push-notification-service": "1.0.0",
+    "push-notification-ui": "1.0.0"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.110",
+    "aws-sdk": "^2.1055.0",
     "@types/react": "^18.0.27",
     "react": "^18.2.0",
     "somod": "*"

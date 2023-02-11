@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feature_functionMiddleware
 jobs:
   test:
     runs-on: ubuntu-latest

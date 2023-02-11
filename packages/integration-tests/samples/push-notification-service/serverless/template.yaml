@@ -124,6 +124,7 @@ Resources:
       default: true
       attributes:
         - StreamArn
+    SOMOD::Access: public
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:

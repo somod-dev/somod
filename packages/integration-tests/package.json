@@ -30,19 +30,10 @@
     "url": "https://github.com/somod-dev/somod/issues"
   },
   "scripts": {
-    "install:pns": "npm i --prefix samples/push-notification-service",
-    "postinstall": "npm run install:pns",
-    "mkdirpackages": "mkdir -p packages",
-    "pack:middleware": "cd ../middleware && npm pack --pack-destination ../integration-tests/packages",
-    "pack:schema": "cd ../schema && npm pack --pack-destination ../integration-tests/packages",
-    "pack:types": "cd ../types && npm pack --pack-destination ../integration-tests/packages",
-    "pack:somod": "cd ../somod && npm pack --pack-destination ../integration-tests/packages",
-    "pack:create": "cd ../create && npm pack --pack-destination ../integration-tests/packages",
-    "pack": "npm run pack:middleware && npm run pack:schema && npm run pack:types && npm run pack:somod && npm run pack:create",
     "proxy:start": "node proxy/start.js",
     "proxy:stop": "node proxy/stop.js",
     "proxy:stop-catch": "npm run proxy:stop && exit 1",
-    "pretest": "npm run mkdirpackages && npm run pack && npm run proxy:start",
+    "pretest": "npm run proxy:start",
     "test": "npx jest || npm run proxy:stop-catch",
     "posttest": "npm run proxy:stop"
   },

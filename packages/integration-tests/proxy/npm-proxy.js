@@ -1,5 +1,6 @@
 /* eslint-disable */
-const { readFile } = require("fs/promises");
+const { exec } = require("child_process");
+const { readFile, mkdir } = require("fs/promises");
 const { createServer, IncomingMessage, ServerResponse } = require("http");
 const { request } = require("https");
 const { join } = require("path");
@@ -7,17 +8,45 @@ const { join } = require("path");
 const PORT = process.env.PORT || 8000;
 
 const packageMap = {
-  "create-somod": "create",
-  somod: "somod",
-  "somod-middleware": "middleware",
-  "somod-schema": "schema",
-  "somod-types": "types"
+  "create-somod": "../../create",
+  somod: "../../somod",
+  "somod-middleware": "../../middleware",
+  "somod-schema": "../../schema",
+  "somod-types": "../../types",
+  "push-notification-service": "../samples/push-notification-service",
+  "push-notification-ui": "../samples/push-notification-ui"
+};
+
+const packagesDir = join(__dirname, "../packages");
+
+const createPackage = sourceLocation => {
+  return new Promise((resolve, reject) => {
+    exec(
+      "npm pack --pack-destination " + packagesDir,
+      { cwd: sourceLocation },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      }
+    );
+  });
+};
+
+const createPackages = async () => {
+  await mkdir(packagesDir, { recursive: true });
+  await Promise.all(
+    Object.values(packageMap).map(packageLocation =>
+      createPackage(join(__dirname, packageLocation))
+    )
+  );
 };
 
 const getManifest = async packageName => {
   const packageJsonPath = join(
     __dirname,
-    "../..",
     packageMap[packageName],
     "package.json"
   );
@@ -73,12 +102,15 @@ const forward = (req, res) => {
       forwardRes.pipe(res);
     }
   );
+  forwardReq.on("error", e => {
+    console.error(e);
+  });
   req.pipe(forwardReq);
 };
 
 const server = createServer((req, res) => {
   try {
-    //console.log(req.method, req.url);
+    console.log(req.method, req.url);
 
     const urlSegments = req.url.split("/");
 
@@ -121,4 +153,12 @@ const server = createServer((req, res) => {
   }
 });
 
-server.listen(PORT);
+createPackages().then(
+  () => {
+    server.listen(PORT);
+  },
+  e => {
+    console.error(e);
+    process.exitCode = 1;
+  }
+);

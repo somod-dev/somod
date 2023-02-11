@@ -818,6 +818,7 @@ describe("Test the somod command build", () => {
           "failed": true,
           "stderr": "Validate ui/config.yaml :- Failed
         Error at env.NEXT_PUBLIC_PNS_PUBLISH_ENDPOINT : parameter pns.publish.endpoint referenced by SOMOD::Parameter does not exist. Define pns.publish.endpoint in /parameters.yaml
+        Error at env.NEXT_PUBLIC_PNS_SUBSCRIBE_ENDPOINT : parameter pns.subscribe.endpoint referenced by SOMOD::Parameter does not exist. Define pns.subscribe.endpoint in /parameters.yaml
         ",
           "stdout": "Initialize Context :- Started
         Initialize Context :- Completed
@@ -833,6 +834,266 @@ describe("Test the somod command build", () => {
         Validate exports in ui/pages-data :- Started
         Validate exports in ui/pages-data :- Completed
         Validate ui/config.yaml with schema :- Completed
+        ",
+        }
+      `);
+
+      expect(existsSync(join(dir, "build"))).not.toBeTruthy();
+      await rename(
+        join(dir, "parameters.yaml.bkup"),
+        join(dir, "parameters.yaml")
+      );
+    });
+  });
+
+  describe("test the somod build command on sample serverless and ui module", () => {
+    const sampleModulePath = join(__dirname, "../../samples/push-notification");
+
+    beforeAll(async () => {
+      await copySource(sampleModulePath, dir, [
+        "build",
+        "node_modules",
+        ".aws-sam",
+        ".somod",
+        ".next"
+      ]);
+      await execPromise("npm i", dir); // install module dependencies
+    }, 60000);
+
+    afterAll(async () => {
+      await cleanUp(dir, [".npmrc", "node_modules"]);
+    });
+
+    test("build without verbose", async () => {
+      const result = await execute(
+        dir,
+        "npx",
+        ["somod", "build"],
+        { return: "on", show: "off" },
+        { return: "on", show: "off" }
+      );
+      expect(result).toMatchInlineSnapshot(`
+        Object {
+          "stderr": "",
+          "stdout": "",
+        }
+      `);
+      expect(readFiles(buildDir)).toEqual(
+        readFiles(join(sampleModulePath, "build"))
+      );
+    });
+
+    test("build with verbose", async () => {
+      const result = await execute(
+        dir,
+        "npx",
+        ["somod", "build", "-v"],
+        { return: "on", show: "off" },
+        { return: "on", show: "off" }
+      );
+      expect(result).toMatchInlineSnapshot(`
+        Object {
+          "stderr": "",
+          "stdout": "Initialize Context :- Started
+        Initialize Context :- Completed
+        Validate package.json :- Started
+        Validate tsconfig.somod.json :- Started
+        Validate parameters.yaml with schema :- Started
+        Validate parameters.yaml with schema :- Completed
+        Validate package.json :- Completed
+        Validate tsconfig.somod.json :- Completed
+        Validate ui/config.yaml with schema :- Started
+        Validate ui/config.yaml :- Started
+        Validate exports in ui/pages :- Started
+        Validate exports in ui/pages-data :- Started
+        Validate ui/config.yaml with schema :- Completed
+        Validate ui/config.yaml :- Completed
+        Validate exports in ui/pages-data :- Completed
+        Validate exports in ui/pages :- Completed
+        Validate serverless/template.yaml with schema :- Started
+        Validate serverless/template.yaml with schema :- Completed
+        Validate serverless/template.yaml :- Started
+        Validate serverless/template.yaml :- Completed
+        Validate exports in serverless/functions :- Started
+        Validate exports in serverless/functions :- Completed
+        Delete build directory :- Started
+        Delete build directory :- Completed
+        Compile Typescript :- Started
+        Compile Typescript :- Completed
+        Bundle Extensions :- Started
+        Bundle Extensions :- Completed
+        Build ui/public :- Started
+        Build ui/public :- Completed
+        Build ui/config.yaml :- Started
+        Build ui/config.yaml :- Completed
+        Build serverless/template.yaml :- Started
+        Build serverless/template.yaml :- Completed
+        Build parameters.yaml :- Started
+        Build parameters.yaml :- Completed
+        Set somod version in package.json :- Started
+        Set somod version in package.json :- Completed
+        Save package.json :- Started
+        Save package.json :- Completed
+        ",
+        }
+      `);
+
+      expect(readFiles(buildDir)).toEqual(
+        readFiles(join(sampleModulePath, "build"))
+      );
+    });
+
+    test("build without tsconfig.somod.json", async () => {
+      await rename(
+        join(dir, "tsconfig.somod.json"),
+        join(dir, "tsconfig.somod.json.bkup")
+      );
+      const result = await execute(
+        dir,
+        "npx",
+        ["somod", "build", "-v"],
+        { return: "on", show: "off" },
+        { return: "on", show: "off" }
+      );
+      expect(result).toMatchInlineSnapshot(`
+        Object {
+          "stderr": "Skipping TypeScript Compilation : tsconfig.somod.json not Found.
+        ",
+          "stdout": "Initialize Context :- Started
+        Initialize Context :- Completed
+        Validate package.json :- Started
+        Validate tsconfig.somod.json :- Started
+        Validate parameters.yaml with schema :- Started
+        Validate tsconfig.somod.json :- Completed
+        Validate parameters.yaml with schema :- Completed
+        Validate package.json :- Completed
+        Validate ui/config.yaml with schema :- Started
+        Validate ui/config.yaml :- Started
+        Validate exports in ui/pages :- Started
+        Validate exports in ui/pages-data :- Started
+        Validate ui/config.yaml with schema :- Completed
+        Validate ui/config.yaml :- Completed
+        Validate exports in ui/pages-data :- Completed
+        Validate exports in ui/pages :- Completed
+        Validate serverless/template.yaml with schema :- Started
+        Validate serverless/template.yaml with schema :- Completed
+        Validate serverless/template.yaml :- Started
+        Validate serverless/template.yaml :- Completed
+        Validate exports in serverless/functions :- Started
+        Validate exports in serverless/functions :- Completed
+        Delete build directory :- Started
+        Delete build directory :- Completed
+        Compile Typescript :- Started
+        Compile Typescript :- Completed
+        Bundle Extensions :- Started
+        Bundle Extensions :- Completed
+        Build ui/public :- Started
+        Build ui/public :- Completed
+        Build ui/config.yaml :- Started
+        Build ui/config.yaml :- Completed
+        Build serverless/template.yaml :- Started
+        Build serverless/template.yaml :- Completed
+        Build parameters.yaml :- Started
+        Build parameters.yaml :- Completed
+        Set somod version in package.json :- Started
+        Set somod version in package.json :- Completed
+        Save package.json :- Started
+        Save package.json :- Completed
+        ",
+        }
+      `);
+
+      const expectedBuildFiles = readFiles(join(sampleModulePath, "build"));
+      Object.keys(expectedBuildFiles).forEach(buildFilePath => {
+        if (
+          buildFilePath.startsWith("serverless/functions") ||
+          buildFilePath.startsWith("lib") ||
+          buildFilePath.startsWith("ui/pages")
+        ) {
+          delete expectedBuildFiles[buildFilePath];
+        }
+      });
+      expect(readFiles(buildDir)).toEqual(expectedBuildFiles);
+      await rename(
+        join(dir, "tsconfig.somod.json.bkup"),
+        join(dir, "tsconfig.somod.json")
+      );
+    });
+
+    test("build without a serverless function code", async () => {
+      await rename(
+        join(dir, "serverless/functions/segregatemessage.ts"),
+        join(dir, "serverless/functions/segregatemessage.ts.bkup")
+      );
+      const result = await execute(
+        dir,
+        "npx",
+        ["somod", "build", "-v"],
+        { return: "on", show: "off" },
+        { return: "on", show: "off" }
+      );
+      expect(result).toMatchInlineSnapshot(`
+        Object {
+          "failed": true,
+          "stderr": "Validate serverless/template.yaml :- Failed
+        Error at Resources.MessageSegrgationFunction.Properties.CodeUri : Function segregatemessage not found. Create the function under serverless/functions directory
+        ",
+          "stdout": "Initialize Context :- Started
+        Initialize Context :- Completed
+        Validate package.json :- Started
+        Validate tsconfig.somod.json :- Started
+        Validate parameters.yaml with schema :- Started
+        Validate parameters.yaml with schema :- Completed
+        Validate package.json :- Completed
+        Validate tsconfig.somod.json :- Completed
+        Validate ui/config.yaml with schema :- Started
+        Validate ui/config.yaml :- Started
+        Validate exports in ui/pages :- Started
+        Validate exports in ui/pages-data :- Started
+        Validate ui/config.yaml with schema :- Completed
+        Validate ui/config.yaml :- Completed
+        Validate exports in ui/pages-data :- Completed
+        Validate exports in ui/pages :- Completed
+        Validate serverless/template.yaml with schema :- Started
+        Validate serverless/template.yaml with schema :- Completed
+        Validate serverless/template.yaml :- Started
+        ",
+        }
+      `);
+
+      expect(existsSync(join(dir, "build"))).not.toBeTruthy();
+      await rename(
+        join(dir, "serverless/functions/segregatemessage.ts.bkup"),
+        join(dir, "serverless/functions/segregatemessage.ts")
+      );
+    });
+
+    test("build without parameters", async () => {
+      await rename(
+        join(dir, "parameters.yaml"),
+        join(dir, "parameters.yaml.bkup")
+      );
+      const result = await execute(
+        dir,
+        "npx",
+        ["somod", "build", "--serverless", "-v"],
+        { return: "on", show: "off" },
+        { return: "on", show: "off" }
+      );
+      expect(result).toMatchInlineSnapshot(`
+        Object {
+          "failed": true,
+          "stderr": "Initialize Context :- Failed
+        Following namespaces are unresolved
+        Parameter
+         - pns.publish.endpoint
+           - push-notification-service
+           - push-notification-ui
+         - pns.subscribe.endpoint
+           - push-notification-service
+           - push-notification-ui
+        ",
+          "stdout": "Initialize Context :- Started
         ",
         }
       `);
