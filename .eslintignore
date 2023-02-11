@@ -18,4 +18,4 @@ packages/create/template/samconfig.toml
 packages/create/template/template.yaml
 packages/create/template/tsconfig.somod.json
 
-packages/integration-tests/samples/**/build
+packages/integration-tests/samples
