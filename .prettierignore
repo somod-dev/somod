@@ -23,3 +23,7 @@ packages/create/template/template.yaml
 packages/create/template/tsconfig.somod.json
 
 packages/integration-tests/samples/**/build
+packages/integration-tests/samples/**/.aws-sam
+packages/integration-tests/samples/**/.next
+packages/integration-tests/samples/**/.somod
+packages/integration-tests/samples/**/samconfig.toml

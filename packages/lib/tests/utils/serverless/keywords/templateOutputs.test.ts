@@ -141,12 +141,14 @@ describe("Test templateOutputs keyword", () => {
       value: {
         [keywordTemplateOutputs.keyword]: {
           p1: {
-            Value: "a"
+            Value: "a",
+            Description: "Value for p1"
           },
           "p1.1": {
             Value: {
               x: "y"
-            }
+            },
+            Description: "Value for p1.1"
           }
         }
       }

@@ -10,6 +10,7 @@ import {
 import { readJsonFileStore, unixStylePath } from "nodejs-file-utils";
 import ErrorSet from "./ErrorSet";
 import { IContext } from "somod-types";
+import { existsSync } from "fs";
 
 const defaultCompilerOptions: Record<string, unknown> = {
   allowUmdGlobalAccess: true,
@@ -24,8 +25,6 @@ const defaultCompilerOptions: Record<string, unknown> = {
   skipLibCheck: true
 };
 
-const defaultInclude = [path_lib];
-
 export const validate = async (context: IContext): Promise<void> => {
   const tsConfigPath = join(context.dir, file_tsConfigSomodJson);
   const unixStyleTsConfigPath = unixStylePath(tsConfigPath);
@@ -35,13 +34,17 @@ export const validate = async (context: IContext): Promise<void> => {
     ...defaultCompilerOptions
   };
 
-  const expectedInclude = [...defaultInclude];
+  const expectedInclude = [];
 
-  if (context.isUI) {
+  if (existsSync(join(context.dir, path_lib))) {
+    expectedInclude.push(path_lib);
+  }
+
+  if (context.isUI && existsSync(join(context.dir, path_ui))) {
     expectedCompilerOptions.jsx = "react-jsx";
     expectedInclude.push(path_ui);
   }
-  if (context.isServerless) {
+  if (context.isServerless && existsSync(join(context.dir, path_serverless))) {
     expectedInclude.push(path_serverless);
   }
 

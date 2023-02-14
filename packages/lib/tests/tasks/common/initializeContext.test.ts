@@ -19,11 +19,18 @@ describe("Test Task initializeContext", () => {
       dir: "Success"
     } as IContext);
 
-    await expect(initializeContext("sample", true, false)).resolves.toEqual({
+    await expect(
+      initializeContext("sample", true, false, true)
+    ).resolves.toEqual({
       dir: "Success"
     });
     expect(Context.getInstance).toHaveBeenCalledTimes(1);
-    expect(Context.getInstance).toHaveBeenCalledWith("sample", true, false);
+    expect(Context.getInstance).toHaveBeenCalledWith(
+      "sample",
+      true,
+      false,
+      true
+    );
   });
 
   test("for failed initialization", async () => {
@@ -31,10 +38,15 @@ describe("Test Task initializeContext", () => {
       new Error("There is an error in context initialization")
     );
 
-    await expect(initializeContext("sample", false, false)).rejects.toEqual(
-      new Error("There is an error in context initialization")
-    );
+    await expect(
+      initializeContext("sample", false, false, false)
+    ).rejects.toEqual(new Error("There is an error in context initialization"));
     expect(Context.getInstance).toHaveBeenCalledTimes(1);
-    expect(Context.getInstance).toHaveBeenCalledWith("sample", false, false);
+    expect(Context.getInstance).toHaveBeenCalledWith(
+      "sample",
+      false,
+      false,
+      false
+    );
   });
 });

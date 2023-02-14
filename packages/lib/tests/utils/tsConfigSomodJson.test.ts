@@ -64,8 +64,7 @@ describe("test util tsConfigSomodJson.validate", () => {
         new Error(
           `compilerOptions.importHelpers must be 'true' in ${filePath}`
         ),
-        new Error(`compilerOptions.skipLibCheck must be 'true' in ${filePath}`),
-        new Error(`include must contain 'lib' in ${filePath}`)
+        new Error(`compilerOptions.skipLibCheck must be 'true' in ${filePath}`)
       ])
     );
   });
@@ -119,6 +118,7 @@ describe("test util tsConfigSomodJson.validate", () => {
 
   test("for invalid tsconfig.somod.json when isUI = false and isServerless = true", async () => {
     createFiles(dir, {
+      "serverless/functions/a.ts": "",
       "tsconfig.somod.json": JSON.stringify({
         compilerOptions: {
           allowUmdGlobalAccess: true,
@@ -146,6 +146,7 @@ describe("test util tsConfigSomodJson.validate", () => {
 
   test("for valid tsconfig.somod.json when isUI = false and isServerless = true", async () => {
     createFiles(dir, {
+      "serverless/functions/a.ts": "",
       "tsconfig.somod.json": JSON.stringify({
         compilerOptions: {
           allowUmdGlobalAccess: true,
@@ -169,6 +170,7 @@ describe("test util tsConfigSomodJson.validate", () => {
 
   test("for invalid tsconfig.somod.json when isUI = true and isServerless = false", async () => {
     createFiles(dir, {
+      "ui/pages/a.tsx": "",
       "tsconfig.somod.json": JSON.stringify({
         compilerOptions: {
           allowUmdGlobalAccess: true,
@@ -195,6 +197,7 @@ describe("test util tsConfigSomodJson.validate", () => {
 
   test("for valid tsconfig.somod.json when isUI = true and isServerless = false", async () => {
     createFiles(dir, {
+      "ui/pages/a.tsx": "",
       "tsconfig.somod.json": JSON.stringify({
         compilerOptions: {
           allowUmdGlobalAccess: true,
@@ -210,6 +213,29 @@ describe("test util tsConfigSomodJson.validate", () => {
           jsx: "react-jsx"
         },
         include: ["lib", "ui"]
+      })
+    });
+    await expect(
+      validate({ dir, isUI: true } as IContext)
+    ).resolves.toBeUndefined();
+  });
+
+  test("for invalid tsconfig.somod.json when isUI = true and isServerless = true but no files to compile", async () => {
+    createFiles(dir, {
+      "tsconfig.somod.json": JSON.stringify({
+        compilerOptions: {
+          allowUmdGlobalAccess: true,
+          outDir: "build",
+          declaration: true,
+          target: "ES5",
+          module: "ESNext",
+          rootDir: "./",
+          moduleResolution: "Node",
+          esModuleInterop: true,
+          importHelpers: true,
+          skipLibCheck: true
+        },
+        include: []
       })
     });
     await expect(

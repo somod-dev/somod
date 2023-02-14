@@ -137,7 +137,7 @@ export const loadOutputNamespaces: NamespaceLoader = async (
 export const getOutputToModuleMap = (context: IContext) => {
   const outputs = context.namespaceHandler.get(namespace_output);
   const outputToModuleMap = Object.fromEntries(
-    outputs.map(o => [o.value, o.name])
+    outputs.map(o => [o.value, o.module])
   );
   return outputToModuleMap;
 };

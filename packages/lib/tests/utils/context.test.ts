@@ -67,7 +67,7 @@ describe("test util ContextHandler", () => {
         return {} as IServerlessTemplateHandler;
       }
     );
-    const context = await Context.getInstance("/root/dir", true, false);
+    const context = await Context.getInstance("/root/dir", true, false, true);
     expect(order).toEqual([
       "moduleHandler",
       "serverlessTemplateHandler",
@@ -79,6 +79,7 @@ describe("test util ContextHandler", () => {
     expect(context.getModuleHash("@my-scoope/my-module")).toEqual("ab1e8d28");
     expect(context.isUI).toEqual(true);
     expect(context.isServerless).toEqual(false);
+    expect(context.isDebugMode).toEqual(true);
     expect(context.moduleHandler).toEqual({});
     expect(context.extensionHandler).toEqual({});
     expect(context.namespaceHandler).toEqual({});

@@ -43,7 +43,7 @@ export const keywordTemplateOutputs: KeywordDefinition<Outputs> = {
             [keyword]: Object.fromEntries(
               Object.keys(value).map(p => [
                 context.serverlessTemplateHandler.getSAMOutputName(p),
-                { Value: value[p] }
+                { Value: value[p], Description: `Value for ${p}` }
               ])
             )
           }
