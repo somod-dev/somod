@@ -671,6 +671,9 @@ describe("Test function keyword", () => {
         Type: "AWS::Serverless::Function",
         Properties: {
           ...resources.m1.Resources.MyResource1.Properties,
+          Environment: {
+            Variables: { ENV1: "", ENV2: { "SOMOD::Parameter": "my.p1" } }
+          },
           Layers: [
             {
               "SOMOD::Ref": {
@@ -716,6 +719,9 @@ describe("Test function keyword", () => {
       type: "object",
       value: {
         CodeUri: "/root/dir/.somod/serverless/functions/m2/func2",
+        Environment: {
+          Variables: { ENV1: "", ENV2: { "SOMOD::Parameter": "my.p1" } }
+        },
         Layers: [
           {
             "SOMOD::Ref": {
@@ -729,6 +735,66 @@ describe("Test function keyword", () => {
             }
           }
         ]
+      },
+      level: 1
+    });
+  });
+
+  test("the processor with debug mode", async () => {
+    const resources = {
+      m1: {
+        template: {
+          Resources: {
+            MyResource1: {
+              Type: "AWS::Serverless::Function",
+              Properties: {
+                CodeUri: {
+                  [keywordFunction.keyword]: { name: "func1" }
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    mockedFunction(
+      MergedFunctionResourceContainer.getFinalFunctionResource
+    ).mockResolvedValue({
+      code: { function: { module: "m1", name: "func1" }, middlewares: [] },
+      resource: resources.m1.template.Resources.MyResource1
+    });
+
+    const processor = await keywordFunction.getProcessor("m1", {
+      dir: "/root/dir",
+      isDebugMode: true
+    } as IContext);
+
+    const objNode = parseJson(resources.m1.template) as JSONObjectNode;
+
+    await expect(
+      processor(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        resources.m1.template.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).resolves.toEqual({
+      type: "object",
+      value: {
+        CodeUri: "/root/dir/.somod/serverless/functions/m1/func1",
+        Environment: {
+          Variables: {
+            NODE_OPTIONS: "--enable-source-maps"
+          }
+        }
       },
       level: 1
     });

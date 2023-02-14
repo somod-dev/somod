@@ -10,6 +10,7 @@ export interface IContext {
   get serverlessTemplateHandler(): IServerlessTemplateHandler;
   get isUI(): boolean;
   get isServerless(): boolean;
+  get isDebugMode(): boolean;
   get extensionHandler(): IExtensionHandler;
 
   getModuleHash(moduleName: string): string;

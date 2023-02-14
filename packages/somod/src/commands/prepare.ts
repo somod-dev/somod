@@ -18,15 +18,20 @@ import {
   prepareSAMTemplate
 } from "somod-lib";
 import {
+  addDebugOptions,
   addSOMODCommandTypeOptions,
+  DebugModeOptions,
   getSOMODCommandTypeOptions,
   SOMODCommandTypeOptions
 } from "../utils/common";
 
-type PrepareOptions = CommonOptions & SOMODCommandTypeOptions;
+type PrepareOptions = CommonOptions &
+  DebugModeOptions &
+  SOMODCommandTypeOptions;
 
 export const PrepareAction = async ({
   verbose,
+  debug,
   ...options
 }: PrepareOptions): Promise<void> => {
   const dir = findRootDir();
@@ -42,7 +47,8 @@ export const PrepareAction = async ({
     },
     dir,
     ui,
-    serverless
+    serverless,
+    debug
   );
 
   for (const preprepareHook of context.extensionHandler.preprepareHooks) {
@@ -129,5 +135,6 @@ const prepareCommand = new Command("prepare");
 
 prepareCommand.action(PrepareAction);
 addSOMODCommandTypeOptions(prepareCommand);
+addDebugOptions(prepareCommand);
 
 export default prepareCommand;

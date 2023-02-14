@@ -36,15 +36,18 @@ import {
   bundleExtension
 } from "somod-lib";
 import {
+  addDebugOptions,
   addSOMODCommandTypeOptions,
+  DebugModeOptions,
   getSOMODCommandTypeOptions,
   SOMODCommandTypeOptions
 } from "../utils/common";
 
-type BuildOptions = CommonOptions & SOMODCommandTypeOptions;
+type BuildOptions = CommonOptions & SOMODCommandTypeOptions & DebugModeOptions;
 
 export const BuildAction = async ({
   verbose,
+  debug,
   ...options
 }: BuildOptions): Promise<void> => {
   const dir = findRootDir();
@@ -60,7 +63,8 @@ export const BuildAction = async ({
     },
     dir,
     ui,
-    serverless
+    serverless,
+    debug
   );
 
   await Promise.all([
@@ -227,5 +231,6 @@ const buildCommand = new Command("build");
 
 buildCommand.action(BuildAction);
 addSOMODCommandTypeOptions(buildCommand);
+addDebugOptions(buildCommand);
 
 export default buildCommand;

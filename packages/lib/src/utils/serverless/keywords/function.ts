@@ -206,6 +206,19 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
       )
     );
 
+    if (context.isDebugMode) {
+      // append the enable source-map during debug mode
+      const properties = mergedFunctionResource.resource.Properties;
+      if (properties.Environment === undefined) {
+        properties.Environment = {};
+      }
+      if (properties.Environment["Variables"] === undefined) {
+        properties.Environment["Variables"] = {};
+      }
+      // NODE_OPTIONS environment variable is always overrided in debug mode
+      properties.Environment["Variables"].NODE_OPTIONS = "--enable-source-maps";
+    }
+
     return {
       type: "object",
       value: {

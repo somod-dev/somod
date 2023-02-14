@@ -18,6 +18,7 @@ export class Context implements IContext {
   private _dir: string;
   private _isUI: boolean;
   private _isServerless: boolean;
+  private _isDebugMode: boolean;
   private _moduleHandler: IModuleHandler;
   private _extensionHandler: IExtensionHandler;
   private _namespaceHandler: INamespaceHandler;
@@ -27,12 +28,18 @@ export class Context implements IContext {
     // do nothing
   }
 
-  static async getInstance(dir: string, isUI: boolean, isServerless: boolean) {
+  static async getInstance(
+    dir: string,
+    isUI: boolean,
+    isServerless: boolean,
+    isDebugMode: boolean
+  ) {
     if (this.instance === undefined) {
       const context = new Context();
       context._dir = normalize(dir);
       context._isUI = isUI;
       context._isServerless = isServerless;
+      context._isDebugMode = isDebugMode;
 
       context._moduleHandler = await ModuleHandler.getInstance(context._dir);
 
@@ -69,6 +76,9 @@ export class Context implements IContext {
   }
   get isServerless() {
     return this._isServerless;
+  }
+  get isDebugMode() {
+    return this._isDebugMode;
   }
   getModuleHash(moduleName: string) {
     return createHash("sha256")

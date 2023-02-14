@@ -87,8 +87,7 @@ export default handler;
 export const bundleFunctionsOfModule = async (
   moduleName: string,
   context: IContext,
-  verbose = false,
-  sourcemap = false
+  verbose = false
 ): Promise<void> => {
   const declaredFunctions = await getDeclaredFunctions(context, moduleName);
 
@@ -118,15 +117,15 @@ export const bundleFunctionsOfModule = async (
             _function.name,
             file_index_js
           ),
-          sourcemap: sourcemap ? "inline" : false,
+          sourcemap: context.isDebugMode ? "inline" : false,
           platform: "node",
           external: _function.exclude,
-          minify: true,
+          minify: context.isDebugMode ? false : true,
           target: [
             "node" +
               context.serverlessTemplateHandler.functionNodeRuntimeVersion
           ],
-          logLevel: verbose ? "verbose" : "silent"
+          logLevel: verbose ? "warning" : "error"
         });
       } catch (e) {
         throw new Error(
@@ -137,11 +136,7 @@ export const bundleFunctionsOfModule = async (
   );
 };
 
-export const bundleFunctions = async (
-  context: IContext,
-  verbose = false,
-  sourcemap = false
-) => {
+export const bundleFunctions = async (context: IContext, verbose = false) => {
   const moduleNodes = context.moduleHandler.list;
   const templates = context.serverlessTemplateHandler.listTemplates();
   const templateMap = Object.fromEntries(
@@ -152,7 +147,7 @@ export const bundleFunctions = async (
     moduleNodes.map(async moduleNode => {
       const moduleName = moduleNode.module.name;
       if (templateMap[moduleName]) {
-        await bundleFunctionsOfModule(moduleName, context, verbose, sourcemap);
+        await bundleFunctionsOfModule(moduleName, context, verbose);
       }
     })
   );
