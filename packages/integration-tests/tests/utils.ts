@@ -54,12 +54,12 @@ export const cleanUp = async (dir: string, exclude: string[]) => {
 export const copySource = async (
   source: string,
   target: string,
-  ignore: string[]
+  include: string[]
 ) => {
   let queue = [...(await readdir(source))];
 
   const copyPath = async (relativePath: string) => {
-    if (!ignore.includes(relativePath)) {
+    if (!include.every(i => !relativePath.startsWith(i))) {
       const absolutePath = join(source, relativePath);
       const stats = await stat(absolutePath);
       if (stats.isDirectory()) {

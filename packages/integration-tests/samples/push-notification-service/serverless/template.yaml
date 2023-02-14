@@ -40,7 +40,12 @@ Resources:
       Description: Connect Integration
       IntegrationType: AWS_PROXY
       IntegrationUri:
-        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnConnectFunction.Arn}/invocations
+        Fn::Sub:
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnConnectFunctionArn}/invocations
+          - OnConnectFunctionArn:
+              SOMOD::Ref:
+                resource: OnConnectFunction
+                attribute: Arn
   DisconnectRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -65,12 +70,17 @@ Resources:
       Description: Disconnect Integration
       IntegrationType: AWS_PROXY
       IntegrationUri:
-        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations
+        Fn::Sub:
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunctionArn}/invocations
+          - OnDisconnectFunctionArn:
+              SOMOD::Ref:
+                resource: OnDisconnectFunction
+                attribute: Arn
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
-    DependsOn:
-      - ConnectRoute
-      - DisconnectRoute
+    SOMOD::DependsOn:
+      - resource: ConnectRoute
+      - resource: DisconnectRoute
     Properties:
       ApiId:
         SOMOD::Ref:
@@ -140,12 +150,14 @@ Resources:
         StreamViewType: NEW_IMAGE
   OnConnectFunction:
     Type: AWS::Serverless::Function
+    SOMOD::Output:
+      attributes:
+        - Arn
     Properties:
       CodeUri:
         SOMOD::Function:
           type: Websocket
           name: onconnect
-      Handler: app.handler
       MemorySize: 256
       Environment:
         Variables:
@@ -169,8 +181,8 @@ Resources:
                 resource: UsersTable
   OnConnectPermission:
     Type: AWS::Lambda::Permission
-    DependsOn:
-      - WebSocketApi
+    SOMOD::DependsOn:
+      - resource: WebSocketApi
     Properties:
       Action: lambda:InvokeFunction
       FunctionName:
@@ -179,6 +191,9 @@ Resources:
       Principal: apigateway.amazonaws.com
   OnDisconnectFunction:
     Type: AWS::Serverless::Function
+    SOMOD::Output:
+      attributes:
+        - Arn
     Properties:
       CodeUri:
         SOMOD::Function:
@@ -197,8 +212,8 @@ Resources:
                 resource: ConnectionsTable
   OnDisconnectPermission:
     Type: AWS::Lambda::Permission
-    DependsOn:
-      - WebSocketApi
+    SOMOD::DependsOn:
+      - resource: WebSocketApi
     Properties:
       Action: lambda:InvokeFunction
       FunctionName:
@@ -303,7 +318,7 @@ Outputs:
 
   pns.subscribe.endpoint:
     Fn::Sub:
-      - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
+      - "wss://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
       - ApiId:
           SOMOD::Ref:
             resource: WebSocketApi

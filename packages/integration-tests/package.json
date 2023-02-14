@@ -41,6 +41,7 @@
     "@types/jest": "^27.5.1",
     "@types/node": "^17.0.21 || ^18.0.0",
     "jest": "28.1.0",
+    "jest-environment-steps": "^1.1.0",
     "jest-summarizing-reporter": "^1.1.4",
     "nodejs-cli-runner": "^1.2.1",
     "nodejs-file-utils": "^1.0.1",

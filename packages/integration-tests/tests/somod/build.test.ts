@@ -1,3 +1,7 @@
+/**
+ * @jest-environment steps
+ */
+
 import { existsSync } from "fs";
 import { realpath, rename, writeFile } from "fs/promises";
 import {
@@ -53,6 +57,7 @@ describe("Test the somod command build", () => {
         Options:
           --ui           only ui
           --serverless   only serverless
+          -d, --debug    Enable Debug mode
           -v, --verbose  enable verbose
           -h, --help     display help for command
         ",
@@ -419,10 +424,11 @@ describe("Test the somod command build", () => {
 
     beforeAll(async () => {
       await copySource(sampleModulePath, dir, [
-        "build",
-        "node_modules",
-        ".aws-sam",
-        ".somod"
+        "serverless",
+        ".npmrc",
+        "package.json",
+        "parameters.yaml",
+        "tsconfig.somod.json"
       ]);
       await execPromise("npm i", dir); // install module dependencies
     }, 40000);
@@ -450,11 +456,11 @@ describe("Test the somod command build", () => {
       );
     });
 
-    test("build with verbose", async () => {
+    test("build with verbose and no --serverless", async () => {
       const result = await execute(
         dir,
         "npx",
-        ["somod", "build", "--serverless", "-v"],
+        ["somod", "build", "-v"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
       );
@@ -469,6 +475,14 @@ describe("Test the somod command build", () => {
         Validate parameters.yaml with schema :- Completed
         Validate package.json :- Completed
         Validate tsconfig.somod.json :- Completed
+        Validate ui/config.yaml with schema :- Started
+        Validate ui/config.yaml :- Started
+        Validate exports in ui/pages :- Started
+        Validate exports in ui/pages-data :- Started
+        Validate ui/config.yaml with schema :- Completed
+        Validate ui/config.yaml :- Completed
+        Validate exports in ui/pages :- Completed
+        Validate exports in ui/pages-data :- Completed
         Validate serverless/template.yaml with schema :- Started
         Validate serverless/template.yaml with schema :- Completed
         Validate serverless/template.yaml :- Started
@@ -481,6 +495,10 @@ describe("Test the somod command build", () => {
         Compile Typescript :- Completed
         Bundle Extensions :- Started
         Bundle Extensions :- Completed
+        Build ui/public :- Started
+        Build ui/public :- Completed
+        Build ui/config.yaml :- Started
+        Build ui/config.yaml :- Completed
         Build serverless/template.yaml :- Started
         Build serverless/template.yaml :- Completed
         Build parameters.yaml :- Started
@@ -650,10 +668,12 @@ describe("Test the somod command build", () => {
 
     beforeAll(async () => {
       await copySource(sampleModulePath, dir, [
-        "build",
-        "node_modules",
-        ".next",
-        ".somod"
+        "lib",
+        "ui",
+        ".npmrc",
+        "package.json",
+        "parameters.yaml",
+        "tsconfig.somod.json"
       ]);
       await execPromise("npm i", dir); // install module dependencies
     }, 40000);
@@ -681,11 +701,11 @@ describe("Test the somod command build", () => {
       );
     });
 
-    test("build with verbose", async () => {
+    test("build with verbose and no --ui", async () => {
       const result = await execute(
         dir,
         "npx",
-        ["somod", "build", "--ui", "-v"],
+        ["somod", "build", "-v"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
       );
@@ -708,6 +728,12 @@ describe("Test the somod command build", () => {
         Validate ui/config.yaml with schema :- Completed
         Validate ui/config.yaml :- Completed
         Validate exports in ui/pages :- Completed
+        Validate serverless/template.yaml with schema :- Started
+        Validate serverless/template.yaml with schema :- Completed
+        Validate serverless/template.yaml :- Started
+        Validate serverless/template.yaml :- Completed
+        Validate exports in serverless/functions :- Started
+        Validate exports in serverless/functions :- Completed
         Delete build directory :- Started
         Delete build directory :- Completed
         Compile Typescript :- Started
@@ -718,6 +744,8 @@ describe("Test the somod command build", () => {
         Build ui/public :- Completed
         Build ui/config.yaml :- Started
         Build ui/config.yaml :- Completed
+        Build serverless/template.yaml :- Started
+        Build serverless/template.yaml :- Completed
         Build parameters.yaml :- Started
         Build parameters.yaml :- Completed
         Set somod version in package.json :- Started
@@ -851,11 +879,12 @@ describe("Test the somod command build", () => {
 
     beforeAll(async () => {
       await copySource(sampleModulePath, dir, [
-        "build",
-        "node_modules",
-        ".aws-sam",
-        ".somod",
-        ".next"
+        "serverless",
+        "ui",
+        ".npmrc",
+        "package.json",
+        "parameters.yaml",
+        "tsconfig.somod.json"
       ]);
       await execPromise("npm i", dir); // install module dependencies
     }, 60000);
@@ -881,6 +910,54 @@ describe("Test the somod command build", () => {
       expect(readFiles(buildDir)).toEqual(
         readFiles(join(sampleModulePath, "build"))
       );
+    });
+
+    test("build only ui", async () => {
+      const result = await execute(
+        dir,
+        "npx",
+        ["somod", "build", "--ui"],
+        { return: "on", show: "off" },
+        { return: "on", show: "off" }
+      );
+      expect(result).toMatchInlineSnapshot(`
+        Object {
+          "stderr": "",
+          "stdout": "",
+        }
+      `);
+
+      const expectedBuildFiles = readFiles(join(sampleModulePath, "build"));
+      Object.keys(expectedBuildFiles).forEach(buildFilePath => {
+        if (buildFilePath.startsWith("serverless")) {
+          delete expectedBuildFiles[buildFilePath];
+        }
+      });
+      expect(readFiles(buildDir)).toEqual(expectedBuildFiles);
+    });
+
+    test("build only serverless", async () => {
+      const result = await execute(
+        dir,
+        "npx",
+        ["somod", "build", "--serverless"],
+        { return: "on", show: "off" },
+        { return: "on", show: "off" }
+      );
+      expect(result).toMatchInlineSnapshot(`
+        Object {
+          "stderr": "",
+          "stdout": "",
+        }
+      `);
+
+      const expectedBuildFiles = readFiles(join(sampleModulePath, "build"));
+      Object.keys(expectedBuildFiles).forEach(buildFilePath => {
+        if (buildFilePath.startsWith("ui")) {
+          delete expectedBuildFiles[buildFilePath];
+        }
+      });
+      expect(readFiles(buildDir)).toEqual(expectedBuildFiles);
     });
 
     test("build with verbose", async () => {

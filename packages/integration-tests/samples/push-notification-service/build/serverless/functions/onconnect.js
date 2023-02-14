@@ -25,7 +25,7 @@ var authenticate = function (event) { return __awaiter(void 0, void 0, void 0, f
                 return [2 /*return*/, content];
             case 3: throw new Error("Unauthorized");
             case 4: return [3 /*break*/, 6];
-            case 5: throw new Error("Unauthorized");
+            case 5: return [2 /*return*/, { id: "mock-u1", groupId: "mock-g1" }];
             case 6: return [2 /*return*/];
         }
     });
@@ -75,6 +75,7 @@ var handler = function (event) { return __awaiter(void 0, void 0, void 0, functi
                 return [3 /*break*/, 6];
             case 5:
                 err_1 = _a.sent();
+                console.error(err_1);
                 return [2 /*return*/, {
                         statusCode: 500,
                         body: "Failed to connect: " + JSON.stringify(err_1)

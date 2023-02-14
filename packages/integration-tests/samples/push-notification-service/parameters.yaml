@@ -5,11 +5,14 @@ parameters:
     type: string
     description: Notification service management API endpoint
     format: url
+    default: ""
   pns.subscribe.endpoint:
     type: string
     description: Notification service websocket API endpoint
     format: url
+    default: ""
   auth.token.endpoint:
     type: string
     description: Notification service websocket API endpoint
     format: url
+    default: ""

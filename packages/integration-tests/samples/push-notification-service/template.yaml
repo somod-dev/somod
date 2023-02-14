@@ -1,0 +1,286 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Runtime: nodejs16.x
+    Handler: index.default
+    Architectures:
+      - arm64
+Resources:
+  rde26c15cManagementApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Description: >
+        Management Api for Push Notifications API List 1. POST /notify - Use
+        this api to send notifications
+  rde26c15cWebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: PushNotificationWebSocketService
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: $request.body.action
+  rde26c15cConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: rde26c15cWebSocketApi
+      RouteKey: $connect
+      AuthorizationType: NONE
+      OperationName: ConnectRoute
+      Target:
+        Fn::Join:
+          - /
+          - - integrations
+            - Ref: rde26c15cConnectInteg
+  rde26c15cConnectInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId:
+        Ref: rde26c15cWebSocketApi
+      Description: Connect Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnConnectFunctionArn}/invocations
+          - OnConnectFunctionArn:
+              Fn::GetAtt:
+                - rde26c15cOnConnectFunction
+                - Arn
+  rde26c15cDisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: rde26c15cWebSocketApi
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      OperationName: DisconnectRoute
+      Target:
+        Fn::Join:
+          - /
+          - - integrations
+            - Ref: rde26c15cDisconnectInteg
+  rde26c15cDisconnectInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId:
+        Ref: rde26c15cWebSocketApi
+      Description: Disconnect Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          - >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunctionArn}/invocations
+          - OnDisconnectFunctionArn:
+              Fn::GetAtt:
+                - rde26c15cOnDisconnectFunction
+                - Arn
+  rde26c15cDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    Properties:
+      ApiId:
+        Ref: rde26c15cWebSocketApi
+    DependsOn:
+      - rde26c15cConnectRoute
+      - rde26c15cDisconnectRoute
+  rde26c15cStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+      DeploymentId:
+        Ref: rde26c15cDeployment
+      ApiId:
+        Ref: rde26c15cWebSocketApi
+  rde26c15cConnectionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: connectionId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: connectionId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: true
+  rde26c15cUsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: groupId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: byGroupId
+          KeySchema:
+            - AttributeName: groupId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: true
+  rde26c15cMessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: messageId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: messageId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: true
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+  rde26c15cOnConnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: >-
+        /Users/raghavendra/projects/p/sodaru/somod-dev/somod/packages/integration-tests/samples/push-notification-service/.somod/serverless/functions/push-notification-service/onconnect
+      MemorySize: 256
+      Environment:
+        Variables:
+          CONNECTIONS_TABLE_NAME:
+            Ref: rde26c15cConnectionsTable
+          USERS_TABLE_NAME:
+            Ref: rde26c15cUsersTable
+          AUTH_END_POINT: ''
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: rde26c15cConnectionsTable
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: rde26c15cUsersTable
+      Layers: []
+  rde26c15cOnConnectPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: rde26c15cOnConnectFunction
+      Principal: apigateway.amazonaws.com
+    DependsOn:
+      - rde26c15cWebSocketApi
+  rde26c15cOnDisconnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: >-
+        /Users/raghavendra/projects/p/sodaru/somod-dev/somod/packages/integration-tests/samples/push-notification-service/.somod/serverless/functions/push-notification-service/ondisconnect
+      MemorySize: 256
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: rde26c15cConnectionsTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: rde26c15cConnectionsTable
+      Layers: []
+  rde26c15cOnDisconnectPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: rde26c15cOnDisconnectFunction
+      Principal: apigateway.amazonaws.com
+    DependsOn:
+      - rde26c15cWebSocketApi
+  rde26c15cSendMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: >-
+        /Users/raghavendra/projects/p/sodaru/somod-dev/somod/packages/integration-tests/samples/push-notification-service/.somod/serverless/functions/push-notification-service/sendmessage
+      MemorySize: 256
+      Environment:
+        Variables:
+          CONNECTIONS_TABLE_NAME:
+            Ref: rde26c15cConnectionsTable
+          USERS_TABLE_NAME:
+            Ref: rde26c15cUsersTable
+          CONNECTIONS_ENDPOINT:
+            Fn::Sub:
+              - >-
+                https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+              - WebSocketApi:
+                  Ref: rde26c15cWebSocketApi
+                Stage:
+                  Ref: rde26c15cStage
+      Events:
+        StreamFromMessagesTable:
+          Type: DynamoDB
+          Properties:
+            Stream:
+              Fn::GetAtt:
+                - rde26c15cMessagesTable
+                - StreamArn
+            BatchSize: 1
+            StartingPosition: LATEST
+            MaximumRetryAttempts: 3
+            ParallelizationFactor: 10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: rde26c15cConnectionsTable
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: rde26c15cUsersTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - execute-api:ManageConnections
+              Resource:
+                - Fn::Sub:
+                    - >-
+                      arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*
+                    - WebSocketApi:
+                        Ref: rde26c15cWebSocketApi
+      Timeout: 300
+      Layers: []
+  rde26c15cReceiveMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: >-
+        /Users/raghavendra/projects/p/sodaru/somod-dev/somod/packages/integration-tests/samples/push-notification-service/.somod/serverless/functions/push-notification-service/receivemessage
+      MemorySize: 256
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: rde26c15cMessagesTable
+      Events:
+        HttpNotifyApi:
+          Type: HttpApi
+          Properties:
+            ApiId:
+              Ref: rde26c15cManagementApi
+            Method: POST
+            Path: /notify
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: rde26c15cMessagesTable
+      Layers: []
+Outputs:
+  o706e732e7075626c6973682e656e64706f696e74:
+    Value:
+      Fn::Sub:
+        - https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/
+        - ApiId:
+            Ref: rde26c15cManagementApi
+    Description: Value for pns.publish.endpoint
+  o706e732e7375627363726962652e656e64706f696e74:
+    Value:
+      Fn::Sub:
+        - wss://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+        - ApiId:
+            Ref: rde26c15cWebSocketApi
+          Stage:
+            Ref: rde26c15cStage
+    Description: Value for pns.subscribe.endpoint
