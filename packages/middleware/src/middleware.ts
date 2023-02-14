@@ -36,7 +36,7 @@ const executeLambda = async <
     callback // callback is added to work with legacy lambda implementations, the result or error from callback are not handlled by middleware
   );
 
-  while (typeof lambdaResult["then"] === "function") {
+  while (typeof lambdaResult?.["then"] === "function") {
     lambdaResult = await lambdaResult;
   }
 

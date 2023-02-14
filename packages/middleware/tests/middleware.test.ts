@@ -61,7 +61,7 @@ describe("getMiddlewareHandler", () => {
   });
 
   test("with middleware calling next", async () => {
-    const lambda = jest.fn().mockResolvedValue("TheResult");
+    const lambda = jest.fn().mockReturnValue("TheResult");
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const middleware: Middleware = jest.fn(async (next, event, context) => {
       return await next();
