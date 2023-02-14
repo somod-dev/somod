@@ -95,4 +95,84 @@ describe("Test Task compileTypeScript", () => {
     );
     expect(logWarning).toHaveBeenCalledTimes(0);
   });
+
+  test("for only ui and serverless entries in tsconfig include", async () => {
+    createFiles(dir, {
+      "tsconfig.somod.json": '{"include": ["lib", "serverless", "ui"]}'
+    });
+
+    await expect(
+      compileTypeScript({ dir, isUI: true } as IContext)
+    ).resolves.toBeUndefined();
+
+    expect(childProcess).toHaveBeenCalledTimes(1);
+    expect(childProcess).toHaveBeenCalledWith(
+      dir,
+      npxCommand,
+      ["tsc", "--project", "tsconfig.somod.json.ui"],
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
+    );
+    expect(logWarning).toHaveBeenCalledTimes(0);
+  });
+
+  test("for only ui and no serverless entries in tsconfig include", async () => {
+    createFiles(dir, {
+      "tsconfig.somod.json": '{"include": ["lib", "ui"]}'
+    });
+
+    await expect(
+      compileTypeScript({ dir, isUI: true } as IContext)
+    ).resolves.toBeUndefined();
+
+    expect(childProcess).toHaveBeenCalledTimes(1);
+    expect(childProcess).toHaveBeenCalledWith(
+      dir,
+      npxCommand,
+      ["tsc", "--project", "tsconfig.somod.json"],
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
+    );
+    expect(logWarning).toHaveBeenCalledTimes(0);
+  });
+
+  test("for only serverless and ui entries in tsconfig include", async () => {
+    createFiles(dir, {
+      "tsconfig.somod.json": '{"include": ["lib", "serverless", "ui"]}'
+    });
+
+    await expect(
+      compileTypeScript({ dir, isServerless: true } as IContext)
+    ).resolves.toBeUndefined();
+
+    expect(childProcess).toHaveBeenCalledTimes(1);
+    expect(childProcess).toHaveBeenCalledWith(
+      dir,
+      npxCommand,
+      ["tsc", "--project", "tsconfig.somod.json.serverless"],
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
+    );
+    expect(logWarning).toHaveBeenCalledTimes(0);
+  });
+
+  test("for only serverless and no ui entries in tsconfig include", async () => {
+    createFiles(dir, {
+      "tsconfig.somod.json": '{"include": ["lib", "serverless"]}'
+    });
+
+    await expect(
+      compileTypeScript({ dir, isServerless: true } as IContext)
+    ).resolves.toBeUndefined();
+
+    expect(childProcess).toHaveBeenCalledTimes(1);
+    expect(childProcess).toHaveBeenCalledWith(
+      dir,
+      npxCommand,
+      ["tsc", "--project", "tsconfig.somod.json"],
+      { show: "off", return: "on" },
+      { show: "off", return: "on" }
+    );
+    expect(logWarning).toHaveBeenCalledTimes(0);
+  });
 });
