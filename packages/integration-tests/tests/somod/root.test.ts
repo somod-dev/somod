@@ -31,15 +31,15 @@ describe("Test the somod command", () => {
         "stdout": "Usage: somod [options] [command]
 
       Options:
-        --version                Print version of somod
-        -h, --help               display help for command
+        --version             Print version of somod
+        -h, --help            display help for command
 
       Commands:
         build [options]
         prepare [options]
         deploy [options]
         start [options]
-        update-params [options]
+        parameters [options]
       ",
       }
     `);

@@ -1157,10 +1157,21 @@ describe("Test the somod command build", () => {
         { return: "on", show: "off" },
         { return: "on", show: "off" }
       );
-      expect(result).toMatchInlineSnapshot(`
-        Object {
-          "failed": true,
-          "stderr": "Initialize Context :- Failed
+      expect(result["failed"]).toEqual(true);
+      const errorLines = result.stderr.split("\n");
+      if (errorLines[4] == "   - push-notification-ui") {
+        const t = errorLines[4];
+        errorLines[4] = errorLines[5];
+        errorLines[5] = t;
+      }
+      if (errorLines[7] == "   - push-notification-ui") {
+        const t = errorLines[7];
+        errorLines[7] = errorLines[8];
+        errorLines[8] = t;
+      }
+
+      expect(errorLines.join("\n")).toMatchInlineSnapshot(`
+        "Initialize Context :- Failed
         Following namespaces are unresolved
         Parameter
          - pns.publish.endpoint
@@ -1169,10 +1180,11 @@ describe("Test the somod command build", () => {
          - pns.subscribe.endpoint
            - push-notification-service
            - push-notification-ui
-        ",
-          "stdout": "Initialize Context :- Started
-        ",
-        }
+        "
+      `);
+      expect(result.stdout).toMatchInlineSnapshot(`
+        "Initialize Context :- Started
+        "
       `);
 
       expect(existsSync(join(dir, "build"))).not.toBeTruthy();
