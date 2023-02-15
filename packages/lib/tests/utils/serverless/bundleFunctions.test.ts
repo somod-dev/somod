@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { readFile, symlink } from "fs/promises";
+import { readFile, realpath, symlink } from "fs/promises";
 import { join } from "path";
 import { IContext } from "somod-types";
 import { bundleFunctions } from "../../../src/utils/serverless/bundleFunctions";
@@ -243,7 +243,16 @@ describe("Test util bundleFunctions", () => {
     );
     const bundledFunctionLines = bundledFunction.split("//# sourceMappingURL");
     expect(bundledFunctionLines.length).toEqual(2);
-    expect(bundledFunctionLines[0].replace(new RegExp(dir, "g"), "DIR"))
+
+    const dirRealPath = await realpath(dir);
+    const totalPath =
+      dirRealPath
+        .split("/")
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .map(s => "..")
+        .join("/") + dirRealPath;
+
+    expect(bundledFunctionLines[0].replace(new RegExp(totalPath, "g"), "DIR"))
       .toMatchInlineSnapshot(`
       "var __create = Object.create;
       var __defProp = Object.defineProperty;
@@ -502,18 +511,18 @@ describe("Test util bundleFunctions", () => {
         }
       });
 
-      // ../../../../../../../../../privateDIR/.somod/serverless/.functions/m1/f1.js
+      // ../DIR/.somod/serverless/.functions/m1/f1.js
       var f1_exports = {};
       __export(f1_exports, {
         default: () => f1_default2
       });
       var import_somod_middleware = __toESM(require_cjs());
 
-      // ../../../../../../../../../privateDIR/build/serverless/functions/f1.js
+      // ../DIR/build/serverless/functions/f1.js
       var a = 10;
       var f1_default = a;
 
-      // ../../../../../../../../../privateDIR/.somod/serverless/.functions/m1/f1.js
+      // ../DIR/.somod/serverless/.functions/m1/f1.js
       var handler = (0, import_somod_middleware.getMiddlewareHandler)(f1_default, []);
       var f1_default2 = handler;
       module.exports = __toCommonJS(f1_exports);
