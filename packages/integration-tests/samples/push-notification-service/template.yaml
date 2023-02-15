@@ -142,8 +142,7 @@ Resources:
   rde26c15cOnConnectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: >-
-        /Users/raghavendra/projects/p/sodaru/somod-dev/somod/packages/integration-tests/samples/push-notification-service/.somod/serverless/functions/push-notification-service/onconnect
+      CodeUri: .somod/serverless/functions/push-notification-service/onconnect
       MemorySize: 256
       Environment:
         Variables:
@@ -172,8 +171,7 @@ Resources:
   rde26c15cOnDisconnectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: >-
-        /Users/raghavendra/projects/p/sodaru/somod-dev/somod/packages/integration-tests/samples/push-notification-service/.somod/serverless/functions/push-notification-service/ondisconnect
+      CodeUri: .somod/serverless/functions/push-notification-service/ondisconnect
       MemorySize: 256
       Environment:
         Variables:
@@ -196,8 +194,7 @@ Resources:
   rde26c15cSendMessageFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: >-
-        /Users/raghavendra/projects/p/sodaru/somod-dev/somod/packages/integration-tests/samples/push-notification-service/.somod/serverless/functions/push-notification-service/sendmessage
+      CodeUri: .somod/serverless/functions/push-notification-service/sendmessage
       MemorySize: 256
       Environment:
         Variables:
@@ -247,8 +244,7 @@ Resources:
   rde26c15cReceiveMessageFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: >-
-        /Users/raghavendra/projects/p/sodaru/somod-dev/somod/packages/integration-tests/samples/push-notification-service/.somod/serverless/functions/push-notification-service/receivemessage
+      CodeUri: .somod/serverless/functions/push-notification-service/receivemessage
       MemorySize: 256
       Environment:
         Variables:

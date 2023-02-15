@@ -1,6 +1,6 @@
 /* eslint-disable */
 const { exec } = require("child_process");
-const { readFile, mkdir } = require("fs/promises");
+const { readFile, mkdir, writeFile } = require("fs/promises");
 const { createServer, IncomingMessage, ServerResponse } = require("http");
 const { request } = require("https");
 const { join } = require("path");
@@ -19,16 +19,26 @@ const packageMap = {
 
 const packagesDir = join(__dirname, "../packages");
 
+const savePackageMetadata = async packResultStr => {
+  const packResult = JSON.parse(packResultStr);
+  const metaDataFilePath =
+    packResult[0].name + "-" + packResult[0].version + ".json";
+  await writeFile(
+    join(packagesDir, metaDataFilePath),
+    JSON.stringify(packResult[0], null, 2)
+  );
+};
+
 const createPackage = sourceLocation => {
   return new Promise((resolve, reject) => {
     exec(
-      "npm pack --pack-destination " + packagesDir,
+      "npm pack --silent --json --pack-destination " + packagesDir,
       { cwd: sourceLocation },
       (error, stdout, stderr) => {
         if (error) {
           reject(error);
         } else {
-          resolve();
+          savePackageMetadata(stdout).then(resolve, resolve);
         }
       }
     );
@@ -54,9 +64,15 @@ const getManifest = async packageName => {
   const packageJsonContent = await readFile(packageJsonPath, "utf8");
   const packageJson = JSON.parse(packageJsonContent);
 
+  const packageMetaContent = await readFile(
+    join(packagesDir, packageName + "-" + packageJson.version + ".json"),
+    "utf8"
+  );
+  const packageMeta = JSON.parse(packageMetaContent);
+
   const result = {
     _id: packageName,
-    _rev: "1-a89780bcd",
+    _rev: "1-" + packageMeta.shasum,
     "dist-tags": { latest: packageJson.version },
     versions: {
       [packageJson.version]: {
@@ -64,7 +80,10 @@ const getManifest = async packageName => {
         _nodeVersion: "16.17.1",
         _npmVersion: "8.15.0",
         dist: {
-          tarball: `http://localhost:${PORT}/${packageName}/-/${packageName}-${packageJson.version}.tgz`
+          tarball: `http://localhost:${PORT}/${packageName}/-/${packageName}-${packageJson.version}.tgz`,
+          fileCount: packageMeta.entryCount,
+          integrity: packageMeta.integrity,
+          unpackedSize: packageMeta.unpackedSize
         }
       }
     }
