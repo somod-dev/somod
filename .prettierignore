@@ -22,11 +22,14 @@ packages/create/template/samconfig.toml
 packages/create/template/template.yaml
 packages/create/template/tsconfig.somod.json
 
+packages/integration-tests/packages
+
 packages/integration-tests/samples/**/build
 packages/integration-tests/samples/**/.aws-sam
 packages/integration-tests/samples/**/.next
 packages/integration-tests/samples/**/.somod
 packages/integration-tests/samples/**/samconfig.toml
+packages/integration-tests/samples/**/tsconfig.json
 
 packages/integration-tests/samples/push-notification-service/template.yaml
 packages/integration-tests/samples/push-notification-ui/pages/notify.ts
