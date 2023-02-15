@@ -638,7 +638,7 @@ describe("Test function keyword", () => {
     ).resolves.toEqual({
       type: "object",
       value: {
-        CodeUri: "/root/dir/.somod/serverless/functions/m1/func1"
+        CodeUri: ".somod/serverless/functions/m1/func1"
       },
       level: 1
     });
@@ -718,7 +718,7 @@ describe("Test function keyword", () => {
     ).resolves.toEqual({
       type: "object",
       value: {
-        CodeUri: "/root/dir/.somod/serverless/functions/m2/func2",
+        CodeUri: ".somod/serverless/functions/m2/func2",
         Environment: {
           Variables: { ENV1: "", ENV2: { "SOMOD::Parameter": "my.p1" } }
         },
@@ -789,7 +789,7 @@ describe("Test function keyword", () => {
     ).resolves.toEqual({
       type: "object",
       value: {
-        CodeUri: "/root/dir/.somod/serverless/functions/m1/func1",
+        CodeUri: ".somod/serverless/functions/m1/func1",
         Environment: {
           Variables: {
             NODE_OPTIONS: "--enable-source-maps"

@@ -197,7 +197,6 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
     // refer code in ../bundleFunctions.ts
     const functionPath = unixStylePath(
       join(
-        context.dir,
         path_somodWorkingDir,
         path_serverless,
         path_functions,

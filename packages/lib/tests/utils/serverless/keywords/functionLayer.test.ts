@@ -249,7 +249,7 @@ describe("Test functionLayer keyword", () => {
       )
     ).resolves.toEqual({
       type: "object",
-      value: "/root/dir/.somod/serverless/functionLayers/m1/layer1"
+      value: ".somod/serverless/functionLayers/m1/layer1"
     });
   });
 
@@ -310,9 +310,7 @@ describe("Test functionLayer keyword", () => {
       )
     ).resolves.toEqual({
       type: "object",
-      value: join(dir, "/.somod/serverless/functionLayers/m2/layer1")
-        .split("\\")
-        .join("/")
+      value: ".somod/serverless/functionLayers/m2/layer1".split("\\").join("/")
     });
 
     await expect(

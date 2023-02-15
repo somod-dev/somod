@@ -112,7 +112,6 @@ export const keywordFunctionLayer: KeywordDefinition<FunctionLayerType> = {
       context.serverlessTemplateHandler.getResource(moduleName, resourceId);
 
     const functionLayerPath = join(
-      context.dir,
       path_somodWorkingDir,
       path_serverless,
       path_functionLayers,
