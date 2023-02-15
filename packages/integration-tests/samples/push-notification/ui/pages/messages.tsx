@@ -4,8 +4,7 @@ import { subscribe } from "push-notification-ui";
 const Messages: FunctionComponent = () => {
   const [messages, addMessage] = useReducer(
     (state: unknown[], data: unknown) => {
-      state.push(data);
-      return state;
+      return [...state, data];
     },
     []
   );
@@ -17,14 +16,16 @@ const Messages: FunctionComponent = () => {
   }, []);
 
   return (
-    <>
+    <div style={{ fontFamily: "Roboto, Arial, sans-serif" }}>
       <h1>Messages</h1>
       <ul>
         {messages.map((message, i) => (
-          <li key={i}>{JSON.stringify(message, null, 2)}</li>
+          <li key={i}>
+            <pre>{JSON.stringify(message, null, 2)}</pre>
+          </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 };
 

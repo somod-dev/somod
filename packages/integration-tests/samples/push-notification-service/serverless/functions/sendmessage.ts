@@ -36,7 +36,7 @@ const getUsersOfGroup = async (groupId: string): Promise<string[]> => {
     })
     .promise();
 
-  return (usersOfGroup.Items || [])?.map(userOfGroup => userOfGroup.userId);
+  return (usersOfGroup.Items || [])?.map(userOfGroup => userOfGroup.id);
 };
 
 const listConnections = async (): Promise<Connection[]> => {

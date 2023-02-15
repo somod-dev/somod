@@ -9,3 +9,4 @@ packages/schema/schemas
 packages/integration-tests/samples/**/.aws-sam
 packages/integration-tests/samples/**/.next
 packages/integration-tests/samples/**/samconfig.toml
+packages/integration-tests/samples/**/next-env.d.ts

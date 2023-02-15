@@ -31,7 +31,7 @@ var getUsersOfGroup = function (groupId) { return __awaiter(void 0, void 0, void
                     .promise()];
             case 1:
                 usersOfGroup = _b.sent();
-                return [2 /*return*/, (_a = (usersOfGroup.Items || [])) === null || _a === void 0 ? void 0 : _a.map(function (userOfGroup) { return userOfGroup.userId; })];
+                return [2 /*return*/, (_a = (usersOfGroup.Items || [])) === null || _a === void 0 ? void 0 : _a.map(function (userOfGroup) { return userOfGroup.id; })];
         }
     });
 }); };
