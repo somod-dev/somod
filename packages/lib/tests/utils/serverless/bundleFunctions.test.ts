@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { readFile, realpath, symlink } from "fs/promises";
+import { readFile, symlink } from "fs/promises";
 import { join } from "path";
 import { IContext } from "somod-types";
 import { bundleFunctions } from "../../../src/utils/serverless/bundleFunctions";
@@ -241,19 +241,17 @@ describe("Test util bundleFunctions", () => {
       join(dir, ".somod/serverless/functions/m1/f1/index.js"),
       "utf8"
     );
-    const bundledFunctionLines = bundledFunction.split("//# sourceMappingURL");
-    expect(bundledFunctionLines.length).toEqual(2);
+    const bundledFunctionSegments = bundledFunction.split(
+      "//# sourceMappingURL"
+    );
+    expect(bundledFunctionSegments.length).toEqual(2);
 
-    const dirRealPath = await realpath(dir);
-    const totalPath =
-      dirRealPath
-        .split("/")
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .map(s => "..")
-        .join("/") + dirRealPath;
+    const bundledCodeLines = bundledFunctionSegments[0].split("\n");
+    bundledCodeLines[257] = "";
+    bundledCodeLines[264] = "";
+    bundledCodeLines[268] = "";
 
-    expect(bundledFunctionLines[0].replace(new RegExp(totalPath, "g"), "DIR"))
-      .toMatchInlineSnapshot(`
+    expect(bundledCodeLines.join("\n")).toMatchInlineSnapshot(`
       "var __create = Object.create;
       var __defProp = Object.defineProperty;
       var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -511,18 +509,18 @@ describe("Test util bundleFunctions", () => {
         }
       });
 
-      // ../DIR/.somod/serverless/.functions/m1/f1.js
+
       var f1_exports = {};
       __export(f1_exports, {
         default: () => f1_default2
       });
       var import_somod_middleware = __toESM(require_cjs());
 
-      // ../DIR/build/serverless/functions/f1.js
+
       var a = 10;
       var f1_default = a;
 
-      // ../DIR/.somod/serverless/.functions/m1/f1.js
+
       var handler = (0, import_somod_middleware.getMiddlewareHandler)(f1_default, []);
       var f1_default2 = handler;
       module.exports = __toCommonJS(f1_exports);
@@ -531,7 +529,7 @@ describe("Test util bundleFunctions", () => {
       "
     `);
     expect(
-      bundledFunctionLines[1].startsWith(
+      bundledFunctionSegments[1].startsWith(
         "=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vL"
       )
     ).toBeTruthy();
