@@ -1,4 +1,10 @@
-import { CommonOptions, taskRunner, Command, Option } from "nodejs-cli-runner";
+import {
+  CommonOptions,
+  taskRunner,
+  Command,
+  Option,
+  addCommonOptions
+} from "nodejs-cli-runner";
 import {
   file_parametersJson,
   findRootDir,
@@ -55,6 +61,7 @@ updateParamsCommand.addOption(
   )
 );
 addDebugOptions(updateParamsCommand);
+addCommonOptions(updateParamsCommand);
 
 export const ValidateParamsAction = async ({
   verbose,
@@ -87,6 +94,7 @@ const validateParamsCommand = new Command("validate");
 
 validateParamsCommand.action(ValidateParamsAction);
 addDebugOptions(validateParamsCommand);
+addCommonOptions(validateParamsCommand);
 
 const parametersCommand = new Command("parameters");
 parametersCommand.addCommand(updateParamsCommand);

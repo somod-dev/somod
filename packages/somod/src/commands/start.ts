@@ -79,8 +79,6 @@ const startCommand = new Command("start");
 
 startCommand.action(StartAction);
 
-startCommand.addOption(
-  new Option("-d, --dev", "Start a dev server in watch mode")
-);
+startCommand.addOption(new Option("--dev", "Start a dev server in watch mode"));
 addDebugOptions(startCommand);
 export default startCommand;
