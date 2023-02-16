@@ -1,6 +1,6 @@
 import { existsSync } from "fs";
 import { bfs, Node } from "graph-dsa";
-import { intersection, uniq } from "lodash";
+import { uniq } from "lodash";
 import { dirname, join } from "path";
 import { IModuleHandler, Module, ModuleNode } from "somod-types";
 import { path_nodeModules } from "./constants";
@@ -72,10 +72,9 @@ export class ModuleHandler implements IModuleHandler {
 
         const allDependencies = uniq([
           ...Object.keys(packageJson.dependencies || {}),
-          ...intersection(
-            Object.keys(packageJson.devDependencies || {}),
-            Object.keys(packageJson.peerDependencies || {})
-          )
+          ...(root
+            ? Object.keys(packageJson.devDependencies || {})
+            : Object.keys(packageJson.peerDependencies || {}))
         ]);
 
         moduleDependencies.push({

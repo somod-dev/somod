@@ -332,12 +332,34 @@ template(
 template(
   "Test util getRootModuleNode with dev and peer dependencies",
   {
+    "package.json": stringify({
+      name: "m1",
+      version: "0.0.1",
+      somod: "1.3.2",
+      dependencies: {
+        m5: "0.0.5"
+      },
+      devDependencies: {
+        m2: "0.0.2",
+        m3: "0.0.3"
+      },
+      peerDependencies: {
+        m2: "0.0.2",
+        m4: "0.0.4"
+      }
+    }),
     "node_modules/m2/package.json": stringify({
       name: "m2",
       version: "0.0.2",
       somod: "1.3.0",
+      dependencies: {
+        m8: "1.0.8"
+      },
+      devDependencies: {
+        m7: "1.0.7"
+      },
       peerDependencies: {
-        m4: "1.0.4"
+        m6: "1.0.6"
       }
     }),
     "node_modules/m3/package.json": stringify({
@@ -347,20 +369,28 @@ template(
     }),
     "node_modules/m4/package.json": stringify({
       name: "m4",
-      version: "1.0.4",
+      version: "0.0.4",
       somod: "1.3.1"
     }),
-    "package.json": stringify({
-      name: "m1",
-      version: "0.0.1",
-      somod: "1.3.2",
-      devDependencies: {
-        m2: "0.0.2",
-        m3: "0.0.3"
-      },
-      peerDependencies: {
-        m2: "0.0.2"
-      }
+    "node_modules/m5/package.json": stringify({
+      name: "m5",
+      version: "0.0.5",
+      somod: "1.3.1"
+    }),
+    "node_modules/m6/package.json": stringify({
+      name: "m6",
+      version: "1.0.6",
+      somod: "1.3.1"
+    }),
+    "node_modules/m7/package.json": stringify({
+      name: "m7",
+      version: "1.0.7",
+      somod: "1.3.1"
+    }),
+    "node_modules/m2/node_modules/m8/package.json": stringify({
+      name: "m8",
+      version: "1.0.8",
+      somod: "1.3.1"
     })
   },
   {
@@ -376,15 +406,47 @@ template(
         version: "0.0.2",
         packageLocation: "node_modules/m2",
         root: false
+      },
+      m3: {
+        name: "m3",
+        version: "0.0.3",
+        packageLocation: "node_modules/m3",
+        root: false
+      },
+      m5: {
+        name: "m5",
+        version: "0.0.5",
+        packageLocation: "node_modules/m5",
+        root: false
+      },
+      m6: {
+        name: "m6",
+        version: "1.0.6",
+        packageLocation: "node_modules/m6",
+        root: false
+      },
+      m8: {
+        name: "m8",
+        version: "1.0.8",
+        packageLocation: "node_modules/m2/node_modules/m8",
+        root: false
       }
     },
     parents: {
       m1: [],
-      m2: ["m1"]
+      m2: ["m1"],
+      m3: ["m1"],
+      m5: ["m1"],
+      m6: ["m2"],
+      m8: ["m2"]
     },
     children: {
-      m1: ["m2"],
-      m2: []
+      m1: ["m5", "m2", "m3"],
+      m2: ["m8", "m6"],
+      m3: [],
+      m5: [],
+      m6: [],
+      m8: []
     }
   }
 );
