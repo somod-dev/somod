@@ -1,48 +1,42 @@
 import { mkdir } from "fs/promises";
 import {
-  CommonOptions,
-  VersionOptions,
-  Command,
   addCommonOptions,
-  addVersionOptions,
-  logInfo,
-  getCommandVersion,
-  taskRunner,
+  Command,
+  CommonOptions,
   logWarning,
-  Argument
+  taskRunner
 } from "nodejs-cli-runner";
 import { join } from "path";
-import { Config, GetConfig } from "./config";
-import { dependenciesInit } from "./tasks/dependenciesInit";
-import { eslintInit } from "./tasks/eslintInit";
-import { filesInit } from "./tasks/filesInit";
+import { cleanPackageJson } from "./tasks/cleanPackageJson";
+import { createTemplateFiles } from "./tasks/createTemplateFiles";
 import { gitInit } from "./tasks/gitInit";
 import { npmInit } from "./tasks/npmInit";
-import { prettierInit } from "./tasks/prettierInit";
-import { somodInit } from "./tasks/somodInit";
-import { tsconfigInit } from "./tasks/tsconfigInit";
-type CreateSomodOptions = CommonOptions &
-  VersionOptions & {
-    git: boolean;
-    prettier: boolean;
-    eslint: boolean;
-    files: boolean;
-    npmPrompt: boolean;
-  };
+import { npmInstall } from "./tasks/npmInstall";
+import { writeIgnoreFiles } from "./tasks/writeIgnoreFiles";
+type CreateSomodOptions = CommonOptions & {
+  ui: boolean;
+  serverless: boolean;
+  version: string;
+  templateVersion: string;
+  git: boolean;
+  prettier: boolean;
+  eslint: boolean;
+  files: boolean;
+  npmPrompt: boolean;
+};
 
 export const decorateCommand = (command: Command) => {
   addCommonOptions(command);
-  addVersionOptions(command);
   command.argument(
     "[modName]",
     "module Directory name to create project",
     "my-module"
   );
-  command.addArgument(
-    new Argument("[mode]", "UI Mode or Serverless Mode")
-      .default("ALL")
-      .choices(["ALL", "UI", "SERVERLESS"])
-  );
+
+  command.option("--ui", "Initialize only UI");
+  command.option("--serverless", "Initialize only Serverless");
+  command.option("--version", "somod SDK Version", "latest");
+  command.option("--template-version", "somod-template Version", "latest");
   command.option("--no-git", "Skip git initialization");
   command.option("--no-prettier", "Skip prettier initialization");
   command.option("--no-eslint", "Skip eslint initialization");
@@ -52,10 +46,12 @@ export const decorateCommand = (command: Command) => {
 
 export const CreateSomodAction = async (
   modName: string,
-  mode: "ALL" | "UI" | "SERVERLESS",
   {
     verbose,
+    ui,
+    serverless,
     version,
+    templateVersion,
     git,
     prettier,
     eslint,
@@ -65,25 +61,11 @@ export const CreateSomodAction = async (
 ) => {
   const dir = process.cwd();
 
-  if (version) {
-    logInfo("Version: " + (await getCommandVersion()));
-    return;
-  }
-
-  const configProviderPath = join(
-    process.env.CREATE_SOMOD_CLI_PATH,
-    ".create-somod.js"
-  );
-
-  const getConfig = (await import("file://" + configProviderPath))
-    .default as GetConfig;
-  let _config = getConfig(mode);
-  if (typeof (_config as Promise<Config>).then == "function") {
-    _config = await _config;
-  }
-  const config = _config as Config;
-
   const targetDir = join(dir, modName);
+  if (!ui && !serverless) {
+    ui = true;
+    serverless = true;
+  }
 
   await mkdir(targetDir, { recursive: true });
 
@@ -102,85 +84,56 @@ export const CreateSomodAction = async (
       gitInit,
       { verbose, progressIndicator: true },
       targetDir,
-      verbose,
-      config.ignorePaths?.git || []
+      verbose
     );
   } else if (verbose) {
     logWarning("Skipped Git initialization");
   }
 
-  if (prettier) {
-    await taskRunner(
-      `Initialize Prettier`,
-      prettierInit,
-      { verbose, progressIndicator: true },
-      targetDir,
-      verbose,
-      config.ignorePaths?.prettier || []
-    );
-  } else if (verbose) {
-    logWarning("Skipped Prettier initialization");
-  }
-
-  if (eslint) {
-    await taskRunner(
-      `Initialize Eslint`,
-      eslintInit,
-      { verbose, progressIndicator: true },
-      targetDir,
-      verbose,
-      config.ignorePaths?.eslint || []
-    );
-  } else if (verbose) {
-    logWarning("Skipped Eslint initialization");
-  }
-
   await taskRunner(
-    `Initialize Somod`,
-    somodInit,
+    `Install NPM Dependencies`,
+    npmInstall,
     { verbose, progressIndicator: true },
     targetDir,
-    verbose,
-    config.somodName,
-    config.somodVersion || null
-  );
-
-  await taskRunner(
-    `Initialize tsconfig.somod.json`,
-    tsconfigInit,
-    { verbose, progressIndicator: true },
-    targetDir,
-    config.tsConfig || {}
+    version,
+    templateVersion,
+    eslint,
+    prettier,
+    ui
   );
 
   if (files) {
     await taskRunner(
-      `Initialize sample files`,
-      filesInit,
+      `Create Sample Files`,
+      createTemplateFiles,
       { verbose, progressIndicator: true },
       targetDir,
-      config.files || {}
+      serverless,
+      ui
     );
-  } else if (verbose) {
-    logWarning("Skipped Sample files");
+  } else {
+    logWarning("Skipped creating Sample files");
   }
 
   await taskRunner(
-    `Initialize dependencies`,
-    dependenciesInit,
+    `Create Ignore Files`,
+    writeIgnoreFiles,
     { verbose, progressIndicator: true },
     targetDir,
-    verbose,
-    config.dependencies || {}
+    serverless,
+    ui,
+    eslint,
+    prettier
   );
 
-  if (typeof config.postInit == "function") {
-    await taskRunner(
-      `Post Initialization`,
-      config.postInit,
-      { verbose, progressIndicator: true },
-      targetDir,
-      verbose
-    );
-  }
+  await taskRunner(
+    `Cleanup`,
+    cleanPackageJson,
+    { verbose, progressIndicator: true },
+    targetDir,
+    serverless,
+    ui,
+    eslint,
+    prettier
+  );
 };

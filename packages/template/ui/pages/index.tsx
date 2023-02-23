@@ -4,8 +4,8 @@ export default function Home() {
   return (
     <div className="container">
       <Head>
-        <title>Create Somod Module</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title key="title">Create Somod Module</title>
+        <link key="favicon" rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
@@ -14,7 +14,7 @@ export default function Home() {
         </h1>
 
         <p className="description">
-          Get started by editing <code>pages/index.tsx</code>
+          Get started by editing <code>ui/pages/index.tsx</code>
         </p>
 
         <div className="grid">
@@ -23,15 +23,15 @@ export default function Home() {
             <p>Find in-depth information about SOMOD features and API.</p>
           </a>
 
-          <a href="https://somod.dev/tutorial" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn SOMOD framework in an Interactive Tutorial!</p>
-          </a>
-
           <a
-            href="https://github.com/somod-dev/somod-examples"
+            href="https://www.youtube.com/channel/UCl6JNhHf9T7O1mxgnwwXvLw"
             className="card"
           >
+            <h3>Learn &rarr;</h3>
+            <p>Learn SOMOD framework from these Explainer videos</p>
+          </a>
+
+          <a href="https://github.com/somod-dev" className="card">
             <h3>Examples &rarr;</h3>
             <p>Discover and deploy boilerplate example SOMOD projects.</p>
           </a>

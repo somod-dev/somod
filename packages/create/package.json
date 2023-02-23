@@ -35,7 +35,6 @@
     "url": "https://github.com/somod-dev/somod.git"
   },
   "scripts": {
-    "postinstall": "cd template && npm i",
     "clean": "npx rimraf dist",
     "bundle": "npx esbuild src/index.ts --bundle --outdir=dist --platform=node --minify",
     "emit-types": "npx tsc",

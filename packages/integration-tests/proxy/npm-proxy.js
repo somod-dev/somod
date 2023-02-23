@@ -13,6 +13,7 @@ const packageMap = {
   "somod-middleware": "../../middleware",
   "somod-schema": "../../schema",
   "somod-types": "../../types",
+  "somod-template": "../../template",
   "push-notification-service": "../samples/push-notification-service",
   "push-notification-ui": "../samples/push-notification-ui"
 };
