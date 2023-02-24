@@ -8,14 +8,19 @@ export const writeIgnoreFiles = async (
   eslint: boolean,
   prettier: boolean
 ) => {
-  const ignoreFiles = ["node_modules", ".somod", "/build", "/parameters.json"];
+  const ignoreFiles = [
+    "node_modules",
+    ".somod",
+    "/build",
+    "/parameters.json",
+    "tsconfig.json"
+  ];
   if (serverless) {
     ignoreFiles.push(".aws-sam", "samconfig.toml", "/template.yaml");
   }
   if (ui) {
     ignoreFiles.push(
       ".next",
-      "tsconfig.json",
       "/pages",
       "/public",
       "next-env.d.ts",

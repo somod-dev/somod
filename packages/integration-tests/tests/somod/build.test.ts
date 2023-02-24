@@ -431,7 +431,7 @@ describe("Test the somod command build", () => {
         "tsconfig.somod.json"
       ]);
       await execPromise("npm i", dir); // install module dependencies
-    }, 40000);
+    }, 60000);
 
     afterAll(async () => {
       await cleanUp(dir, [".npmrc", "node_modules"]);

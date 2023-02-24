@@ -97,9 +97,10 @@ export const CreateSomodAction = async (
     targetDir,
     version,
     templateVersion,
+    serverless,
+    ui,
     eslint,
-    prettier,
-    ui
+    prettier
   );
 
   if (files) {

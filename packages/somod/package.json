@@ -64,6 +64,29 @@
     "somod-types": "^1.15.0",
     "somod-middleware": "^1.15.0"
   },
+  "peerDependenciesMeta": {
+    "@types/node": {
+      "optional": true
+    },
+    "@types/react": {
+      "optional": true
+    },
+    "aws-sdk": {
+      "optional": true
+    },
+    "next": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "somod-middleware": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.20.11",
     "@types/jest": "^27.5.1",

@@ -346,7 +346,7 @@ describe("Test the somod command prepare", () => {
       somodWorkingDir = join(dir, ".somod");
       parametersJson = join(dir, "parameters.json");
       templateYaml = join(dir, "template.yaml");
-    }, 40000);
+    }, 60000);
 
     afterAll(async () => {
       await cleanUp(dir, [".npmrc", "node_modules"]);
