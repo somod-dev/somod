@@ -28,19 +28,31 @@ describe("Test the create-somod", () => {
   });
 
   const assertCreatedProject = (projectDir: string) => {
-    deleteDir(join(projectDir, "node_modules"));
-    deleteDir(join(projectDir, ".git"));
+    // package-lock.json
+    const somodVersion = JSON.parse(
+      readFileSync(join(projectDir, "package-lock.json"), "utf8")
+    ).packages["node_modules/somod"].version;
     unlinkSync(join(projectDir, "package-lock.json"));
+
+    // package.json
     const packageJson = JSON.parse(
       readFileSync(join(projectDir, "package.json"), "utf8")
     );
     Object.keys(packageJson.devDependencies).forEach(dep => {
       packageJson.devDependencies[dep] = "REPLACED_TEXT_FOR_ASSERT";
     });
+    expect(packageJson.somod).toEqual(somodVersion);
+    packageJson.somod = "REPLACED_TEXT_FOR_ASSERT";
     writeFileSync(
       join(projectDir, "package.json"),
       JSON.stringify(packageJson, null, 2)
     );
+
+    // node_modules and .git
+    deleteDir(join(projectDir, "node_modules"));
+    deleteDir(join(projectDir, ".git"));
+
+    // favicon.ico
     const files = readFiles(projectDir);
     if (files["ui/public/favicon.ico"]) {
       files["ui/public/favicon.ico"] = "REPLACED_TEXT_FOR_ASSERT";

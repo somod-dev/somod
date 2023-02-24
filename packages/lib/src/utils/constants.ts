@@ -59,7 +59,8 @@ export const file_samConfig = "samconfig.toml";
 
 export const path_vercel = ".vercel";
 
-export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+export const cli_version_regex =
+  /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;
 
 export const namespace_page = "UI Page";
 

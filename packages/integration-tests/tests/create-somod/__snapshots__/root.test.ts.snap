@@ -108,7 +108,7 @@ next.config.js",
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"1.15.10\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 
@@ -449,7 +449,7 @@ samconfig.toml
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"1.15.10\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 
@@ -561,7 +561,7 @@ next.config.js",
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"1.15.10\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 
@@ -881,7 +881,7 @@ next.config.js",
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"1.15.10\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 
@@ -1246,7 +1246,7 @@ next.config.js",
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"1.15.10\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 
