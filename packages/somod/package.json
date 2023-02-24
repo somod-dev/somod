@@ -1,6 +1,6 @@
 {
   "name": "somod",
-  "version": "1.15.10",
+  "version": "1.16.0-0",
   "description": "SOMDO (Serverless Optimized MODule) - The Serverless Framework",
   "keywords": [
     "sodaru",
@@ -60,9 +60,9 @@
     "react-dom": "^17.0.2 || ^18.0.0",
     "tslib": "^2.4.0",
     "typescript": "^4.5.5",
-    "somod-schema": "^1.15.0",
-    "somod-types": "^1.15.0",
-    "somod-middleware": "^1.15.0"
+    "somod-schema": "^1.16.0-0",
+    "somod-types": "^1.16.0-0",
+    "somod-middleware": "^1.16.0-0"
   },
   "peerDependenciesMeta": {
     "@types/node": {
@@ -97,9 +97,9 @@
     "nodejs-cli-runner": "^1.2.1",
     "ts-jest": "28.0.2",
     "typescript": "^4.5.5",
-    "somod-lib": "^1.15.10",
-    "somod-types": "^1.15.0",
-    "somod-middleware": "^1.15.0"
+    "somod-lib": "^1.16.0-0",
+    "somod-types": "^1.16.0-0",
+    "somod-middleware": "^1.16.0-0"
   },
   "dependencies": {
     "cli-opentelemetry": "^1.2.3"
