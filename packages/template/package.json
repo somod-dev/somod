@@ -1,6 +1,6 @@
 {
   "name": "somod-template",
-  "version": "1.17.0-2",
+  "version": "1.17.0",
   "description": "Template SOMOD Module",
   "module": "build/lib/index.js",
   "typings": "build/lib/index.d.ts",
@@ -34,6 +34,6 @@
   "homepage": "https://github.com/somod-dev/somod/tree/main/packages/somod-template#readme",
   "devDependencies": {
     "next": "^12.0.7",
-    "somod": "^1.17.0-2"
+    "somod": "^1.17.0"
   }
 }
