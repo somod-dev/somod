@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "allowUmdGlobalAccess": true,
+    "outDir": "build",
+    "declaration": true,
+    "target": "ES5",
+    "module": "ESNext",
+    "rootDir": "./",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["lib", "ui", "serverless"],
+  "exclude": []
+}

@@ -1,13 +1,11 @@
-import { NamespaceLoader } from "somod-types";
 import { countBy } from "lodash";
+import { IContext, NamespaceLoader } from "somod-types";
 import {
   namespace_api_gateway,
   namespace_output,
   resourceType_Function
 } from "../constants";
-import { ModuleHandler } from "../moduleHandler";
 import { keywordRef } from "./keywords/ref";
-import { loadServerlessTemplate } from "./serverlessTemplate/serverlessTemplate";
 
 const detectDuplicateNamespaces = (
   namespaces: string[],
@@ -63,9 +61,13 @@ type FunctionResourceProperties = Record<string, unknown> & {
   >;
 };
 
-export const loadApiRouteNamespaces: NamespaceLoader = async module => {
+export const loadApiRouteNamespaces: NamespaceLoader = async (
+  module,
+  context
+) => {
   const namespaces: Record<string, string[]> = {};
-  const moduleServerlessTemplate = await loadServerlessTemplate(module);
+  const moduleServerlessTemplate =
+    context.serverlessTemplateHandler.getTemplate(module.name);
 
   if (moduleServerlessTemplate) {
     const serverlessTemplate = moduleServerlessTemplate.template;
@@ -109,12 +111,19 @@ export const loadApiRouteNamespaces: NamespaceLoader = async module => {
     });
   }
 
-  return namespaces;
+  return Object.keys(namespaces).map(name => ({
+    name,
+    values: namespaces[name]
+  }));
 };
 
-export const loadOutputNamespaces: NamespaceLoader = async module => {
+export const loadOutputNamespaces: NamespaceLoader = async (
+  module,
+  context
+) => {
   const namespaces = [];
-  const moduleServerlessTemplate = await loadServerlessTemplate(module);
+  const moduleServerlessTemplate =
+    context.serverlessTemplateHandler.getTemplate(module.name);
 
   if (moduleServerlessTemplate) {
     const serverlessTemplate = moduleServerlessTemplate.template;
@@ -122,11 +131,13 @@ export const loadOutputNamespaces: NamespaceLoader = async module => {
     namespaces.push(...Object.keys(serverlessTemplate.Outputs || {}));
   }
 
-  return { [namespace_output]: namespaces };
+  return [{ name: namespace_output, values: namespaces }];
 };
 
-export const listAllOutputs = async () => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-  const namespaces = await moduleHandler.getNamespaces();
-  return namespaces[namespace_output] || {};
+export const getOutputToModuleMap = (context: IContext) => {
+  const outputs = context.namespaceHandler.get(namespace_output);
+  const outputToModuleMap = Object.fromEntries(
+    outputs.map(o => [o.value, o.module])
+  );
+  return outputToModuleMap;
 };

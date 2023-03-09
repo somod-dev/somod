@@ -6,6 +6,7 @@ import {
 } from "../../utils";
 import { validate } from "../../../src/utils/nextJs/config";
 import { validateUiConfigYaml } from "../../../src";
+import { IContext } from "somod-types";
 
 jest.mock("../../../src/utils/nextJs/config", () => {
   return {
@@ -27,14 +28,18 @@ describe("test Task validateUiConfigYaml", () => {
   });
 
   test("for no config.yaml", async () => {
-    await expect(validateUiConfigYaml(dir)).resolves.toBeUndefined();
+    await expect(
+      validateUiConfigYaml({ dir } as IContext)
+    ).resolves.toBeUndefined();
     expect(validate).toHaveBeenCalledTimes(0);
   });
 
   test("for valid config.yaml", async () => {
     createFiles(dir, { "ui/config.yaml": "" });
-    await expect(validateUiConfigYaml(dir)).resolves.toBeUndefined();
+    await expect(
+      validateUiConfigYaml({ dir } as IContext)
+    ).resolves.toBeUndefined();
     expect(validate).toHaveBeenCalledTimes(1);
-    expect(validate).toHaveBeenCalledWith(dir, []);
+    expect(validate).toHaveBeenCalledWith({ dir });
   });
 });

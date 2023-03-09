@@ -1,8 +1,9 @@
+import { IContext } from "somod-types";
 import { generate } from "../../utils/parameters/generate";
 
 export const generateRootParameters = async (
-  dir: string,
+  context: IContext,
   override = false
 ): Promise<void> => {
-  await generate(dir, override);
+  await generate(context, override);
 };

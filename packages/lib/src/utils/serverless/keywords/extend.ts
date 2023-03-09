@@ -1,90 +1,101 @@
 import { getPath } from "../../jsonTemplate";
-import { getSAMResourceLogicalId } from "../utils";
-import { SAMTemplate, ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
-import { JSONPrimitiveNode, KeywordDefinition } from "somod-types";
+import {
+  IServerlessTemplateHandler,
+  JSONObjectNode,
+  JSONPrimitiveNode,
+  KeywordDefinition
+} from "somod-types";
+import { Operation } from "json-object-merge";
+import { getReferencedResource } from "./ref";
 
-type Extend = { module: string; resource: string };
+export type Extend = {
+  module: string;
+  resource: string;
+  rules?: Record<string, Operation>;
+};
 
-export const keywordExtend: KeywordDefinition<Extend, ServerlessTemplate> = {
+const validateKeywordPosition = (node: JSONObjectNode) => {
+  const path = getPath(node);
+  if (!(path.length == 2 && path[0] == "Resources")) {
+    throw new Error(
+      `${keywordExtend.keyword} is allowed only as Resource Property`
+    );
+  }
+  return path;
+};
+
+const makeSureTheResourceIsNotExtendedInSameModule = (
+  moduleName: string,
+  value: Extend
+) => {
+  if (value.module === moduleName) {
+    throw new Error(
+      `Can not extend the resource ${value.resource} in the same module ${moduleName}. Edit the resource directly`
+    );
+  }
+};
+
+const makeSureTheResourceExtendsSameType = (
+  node: JSONObjectNode,
+  value: Extend,
+  serverlessTemplateHandler: IServerlessTemplateHandler
+) => {
+  const fromType = (node.properties["Type"] as JSONPrimitiveNode).value;
+  const toType = serverlessTemplateHandler.getResource(
+    value.module,
+    value.resource
+  ).resource.Type;
+
+  if (fromType !== toType) {
+    throw new Error(
+      `Can extend only same type of resource. ${fromType} can not extend ${toType}`
+    );
+  }
+};
+
+export const keywordExtend: KeywordDefinition<Extend> = {
   keyword: "SOMOD::Extend",
 
-  getValidator: async (rootDir, moduleName, moduleContentMap) => {
+  getValidator: async (moduleName, context) => {
     return (keyword, node, value) => {
       const errors: Error[] = [];
 
-      const path = getPath(node);
-      if (!(path.length == 2 && path[0] == "Resources")) {
-        errors.push(
-          new Error(`${keyword} is allowed only as Resource Property`)
+      try {
+        validateKeywordPosition(node);
+        makeSureTheResourceIsNotExtendedInSameModule(moduleName, value);
+        makeSureTheResourceExtendsSameType(
+          node,
+          value,
+          context.serverlessTemplateHandler
         );
-      } else {
-        //NOTE: structure of the value is validated by serverless-schema
 
-        if (value.module == moduleName) {
-          errors.push(
-            new Error(
-              `Can not extend the resource ${value.resource} in the same module ${moduleName}. Edit the resource directly`
-            )
-          );
-        } else if (
-          !moduleContentMap[value.module]?.json.Resources[value.resource]
-        ) {
-          errors.push(
-            new Error(
-              `Extended module resource {${value.module}, ${value.resource}} not found.`
-            )
-          );
-        } else {
-          const fromType = (node.properties["Type"] as JSONPrimitiveNode).value;
-          const toType =
-            moduleContentMap[value.module].json.Resources[value.resource].Type;
+        const resource = getReferencedResource(
+          context.serverlessTemplateHandler,
+          value.module,
+          value.resource,
+          "Extended"
+        );
 
-          if (fromType != toType) {
-            errors.push(
-              new Error(
-                `Can extend only same type of resource. ${fromType} can not extend ${toType}`
-              )
-            );
-          }
-
-          errors.push(
-            ...checkAccess(
-              moduleName,
-              moduleContentMap[value.module],
-              value.resource
-            )
-          );
-        }
+        checkAccess(
+          resource.resource,
+          value.module,
+          value.resource,
+          moduleName,
+          "Extended"
+        );
+      } catch (e) {
+        errors.push(e);
       }
 
       return errors;
     };
   },
 
-  getProcessor: async () => (keyword, node, value) => {
+  getProcessor: async () => () => {
     return {
-      type: "keyword",
-      value: {
-        [keyword]: getSAMResourceLogicalId(value.module, value.resource)
-      }
+      type: "object",
+      value: undefined // removes the resource
     };
   }
-};
-
-export const getExtendedResourceMap = (
-  samTemplate: SAMTemplate
-): Record<string, string> => {
-  const extendedMap: Record<string, string> = {};
-  Object.keys(samTemplate.Resources).forEach(resourceId => {
-    if (
-      samTemplate.Resources[resourceId][keywordExtend.keyword] !== undefined
-    ) {
-      extendedMap[resourceId] = samTemplate.Resources[resourceId][
-        keywordExtend.keyword
-      ] as string;
-    }
-  });
-
-  return extendedMap;
 };

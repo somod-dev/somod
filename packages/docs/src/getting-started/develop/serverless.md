@@ -11,9 +11,9 @@ meta:
 
 The serverless backend is created using the `template.yaml` file within the `serverless` directory. The lambda function code is created under the `serverless/functions` directory.
 
-The `serverless/template.yaml` is similar to AWS SAM's template, but with added keywords. The keywords are pre-processed while generating the final template intended for AWS deployment. The [`Serverless/Template.yaml`](/reference/main-concepts/serverless/template.yaml) guide describes the anatomy of the SOMOD's `serverless/template.yaml` file.
+The `serverless/template.yaml` is similar to AWS SAM's template, but with added keywords. The keywords are pre-processed while generating the final template intended for AWS deployment. The [`serverless/template.yaml`](/reference/main-concepts/serverless/template.yaml) guide describes the anatomy of the SOMOD's `serverless/template.yaml` file.
 
-Each serverless function must have a typescript file with a default export under the `serverless/functions` directory. SOMOD takes care of bundling typescript code into [AWS Lambda's NodeJS Runtime](https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html) compatible.
+Each serverless function must have a typescript file with a default export under the `serverless/functions` directory. SOMOD takes care of bundling typescript code into [AWS Lambda's NodeJS Runtime](https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html) compatible javascript code.
 
 ## Example:-
 
@@ -40,7 +40,7 @@ The following steps guide you to create your first SOMOD module for User Managem
          # The properties are defined in AWS CloudFormation Reference at
          # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
          TableName:
-           SOMOD::ResourceName: User # SOMOD keyword which generates a unique table name during deployment
+           SOMOD::ResourceName: User # SOMOD::ResourceName is a SOMOD keyword which generates a unique table name during deployment
          BillingMode: PAY_PER_REQUEST
          KeySchema:
            - AttributeName: "userId"
@@ -57,7 +57,8 @@ The following steps guide you to create your first SOMOD module for User Managem
          CodeUri:
            # With SOMOD::Function keyword, the lambda function code is automatically bundled from the mentioned function name.
            SOMOD::Function:
-             name: userApi
+             type: HttpApi
+             name: userApi # there must be a file named userApi.ts under serverless/functions directory
          Environment:
            Variables:
              TABLE_NAME:
@@ -129,7 +130,7 @@ The following steps guide you to create your first SOMOD module for User Managem
 
    ```
    npm i --save uuid
-   npm i --save-dev @types/uuid @types/aws-lambda
+   npm i --save-dev @types/uuid @types/aws-lambda aws-sdk somod-middleware
    ```
 
 3. Create the type definitions

@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test command deploy with all options 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": true,
+      "serverless": true,
+      "ui": false,
+      "verbose": true,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": true,
+      "serverless": true,
+      "ui": false,
+      "verbose": true,
+    },
+  ],
+  Array [
+    "samDeploy",
+    "/root/dir",
+    true,
+    true,
+  ],
+]
+`;
+
+exports[`Test command deploy with debug mode 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": true,
+      "serverless": true,
+      "ui": false,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": true,
+      "serverless": true,
+      "ui": false,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "samDeploy",
+    "/root/dir",
+    undefined,
+    undefined,
+  ],
+]
+`;
+
+exports[`Test command deploy with guided 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": undefined,
+      "serverless": true,
+      "ui": false,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": undefined,
+      "serverless": true,
+      "ui": false,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "samDeploy",
+    "/root/dir",
+    undefined,
+    true,
+  ],
+]
+`;
+
+exports[`Test command deploy with verbose 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": undefined,
+      "serverless": true,
+      "ui": false,
+      "verbose": true,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": undefined,
+      "serverless": true,
+      "ui": false,
+      "verbose": true,
+    },
+  ],
+  Array [
+    "samDeploy",
+    "/root/dir",
+    true,
+    undefined,
+  ],
+]
+`;
+
+exports[`Test command deploy without args 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": undefined,
+      "serverless": true,
+      "ui": false,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": undefined,
+      "serverless": true,
+      "ui": false,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "samDeploy",
+    "/root/dir",
+    undefined,
+    undefined,
+  ],
+]
+`;

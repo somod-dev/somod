@@ -5,7 +5,7 @@ meta:
     Create reusable NextJs pages using SOMOD.
 ```
 
-# SOMOD `ui` Directory
+# SOMOD's `ui` Directory
 
 ---
 
@@ -45,7 +45,7 @@ project-root
 
 ```
 
-`ui` directory has four optional children
+The `ui` directory has four optional children
 
 - **`pages`**  
   The pages in SOMOD are similar to NextJs's pages. SOMOD pages always have a **`.tsx`** extension.
@@ -63,7 +63,7 @@ The build command copies the files in `ui/public` to `build/ui/public`.
 SOMOD prepare command generates `pages`, `public`, `.env`, and `next.config.js` by combining all dependency modules.
 The [namespace](/reference/main-concepts/namespaces) helps to resolve the conflicts when there is a page with the same name that exists in more than one dependency module.
 
-> The **`next.config.override.js`** file in the project root overrides the prepared next.config.js. The developer needs to create `next.config.override.js` following the same structure as [NextJs's configuration file](https://nextjs.org/docs/api-reference/next.config.js/introduction). The prepared `next.config.js` includes configuration from `next.config.override.js` if present.  
+> The **`next.config.somod.js`** file in the project root extends the prepared `next.config.js`. The developer needs to create `next.config.somod.js` following the same structure as [NextJs's configuration file](https://nextjs.org/docs/api-reference/next.config.js/introduction). The prepared `next.config.js` includes configuration from `next.config.somod.js` if present.  
 > **This file can not be shared and only works in the project root of the current module.**
 
 In the [next section](/reference/main-concepts/ui/config.yaml), let's explore the structure of config.yaml.

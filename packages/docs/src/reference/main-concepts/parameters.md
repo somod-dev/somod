@@ -46,51 +46,32 @@ project-root
 ## Anatomy of parameters.yaml
 
 ```yaml
-Parameters:
+parameters:
   mycomponent.param1: # parameter name
-    type: text # parameter schema follows the structure of form-input-schema
+    type: string # parameter schema follows JSON-Schema7 specification
     default: waw
+    maxLength: 20
   mycomponent.param2:
     type: email
     default: me@example.com
-Schemas:
-  mycomponent.param2.domain.check:
-    # valid json schema to be applied on the parameters object
-Groups:
-  mycomponent:
-    label: My Group
-    helpText: >
-      group helps to combine multiple parameters when 
-      a client library tries to display UI 
-      to collect data for the parameters
 ```
 
-The `parameters.yaml` contains three optional sections, **Parameters**, **Schemas**, and **Groups**
+The `parameters.yaml` contains one section, **parameters**
 
-- **`Parameters`**  
-  Parameters is a map of the parameter name to the input schema.
+- **`parameters`**  
+  parameters is a map of the parameter name to JSON schema.
 
   - `Parameter name`  
     The parameter name has the following constraints
 
-    - must contain only the alphabets, numbers, and dots
+    - must contain only the alphabet, numbers, and dots
     - can have a maximum of 128 characters.
     - must start with the alphabet
     - and must have at least one dot
 
-  - `Parameter Input Schema`  
-    SOMOD uses [Form Input Schema](https://github.com/sodaru/form-input-schema) to define the validation constraints for the parameters.
+  - `Parameter Schema`  
+    Must use the [JSON-Schema](https://json-schema.org/) version 7 specification.
 
-- **`Schemas`**  
-  Provide additional schema to be applied before using the parameter values during preparation.
-
-  Map of schema name to JSONSchema7. Every Schema from all dependency modules is validated during preparation.
-
-- **`Groups`**  
-  Provide Group metadata for the Parameters Grouping.
-
-  All parameters and groups whose name starts with the name of the current group are children of the current group.
-
-> Parameter Name, Schema Name and Group Name are [namespace](/reference/main-concepts/namespaces)d.
+> Parameter Name is [namespace](/reference/main-concepts/namespaces)d. Meaning there should be only one occurance of a parameter name in all installed modules.
 
 In the [Next Chapter](/reference/main-concepts/namespaces), let us understand the namespaces in SOMOD.

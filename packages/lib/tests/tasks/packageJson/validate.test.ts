@@ -1,6 +1,7 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { validatePackageJson } from "../../../src";
 import { join } from "path";
+import { IContext } from "somod-types";
 
 describe("Test Task validatePackageJson", () => {
   let dir: string = null;
@@ -123,7 +124,7 @@ describe("Test Task validatePackageJson", () => {
 
     let error: string;
     try {
-      await validatePackageJson(dir);
+      await validatePackageJson({ dir } as IContext);
     } catch (e) {
       error = e.message;
     }

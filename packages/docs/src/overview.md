@@ -2,7 +2,7 @@
 title: Overview | SOMOD - Serverless Optimized Modules
 meta:
   description:
-    Develop, Build, Deploy and Share your serverless applications with SOMOD. SOMOD provides a CLI toolset for complete serverless module lifecycle management.
+    Develop, Build, and Share your serverless applications with SOMOD. SOMOD provides a CLI toolset for modularizing the serverless code.
 ```
 
 # SOMOD - **S**erverless **O**ptimized **Mod**ules
@@ -11,8 +11,8 @@ meta:
 
 ## Overview
 
-Develop, Build, Deploy and Share your serverless applications with SOMOD.
-SOMOD provides a CLI toolset for complete serverless module lifecycle management. The SOMOD is an open-source CLI available as an [NPM package](https://www.npmjs.com/package/somod).
+Develop, Build, and Share your serverless applications with SOMOD.
+SOMOD provides a CLI toolset for modularizing the code for serverless infrastructure. The SOMOD is an open-source CLI available as an [NPM package](https://www.npmjs.com/package/somod).
 
 > ## Does serverless means no server at all? The answer is Yes and No.
 >
@@ -26,11 +26,12 @@ SOMOD provides a CLI toolset for complete serverless module lifecycle management
 
 SOMOD provides a CLI toolset to develop and test serverless applications in smaller modules and then deploy these smaller modules together to the serverless platform.
 
-A typical serverless application consists of Infrastructure as a Code (IaaC) and the actual code that runs in the backend. SOMOD helps to develop both the actual and Infrastructure code for each component. SOMOD modules also contain code for UI along with backend code. During deployment, SOMOD combines code from all modules and creates deployment packages for serverless backend and UI.
+A typical serverless application consists of Infrastructure as a Code (IaaC) and the actual code that runs in the backend. SOMOD helps to develop both the actual and infrastructure code in modules. SOMOD modules also contain code for UI along with backend code. During deployment, SOMOD combines code from all modules and creates deployment packages for serverless backend and UI.
 
 ## Features of SOMOD
 
 - Create sharable and reusable modules
+- Easily extendable modules
 - Sharable UI code along with serverless code.
 - Serverless Optimized
 - Compatible with any module developed using SOMOD

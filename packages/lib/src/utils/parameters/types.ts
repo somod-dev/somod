@@ -1,14 +1,9 @@
 // must match the Parameter in @somod/parameters-schema
 
-export type Parameter = {
-  type: string;
-  default?: string;
-} & Record<string, unknown>;
+import { JSONSchema7 } from "decorated-ajv";
 
 export type Parameters = {
-  Parameters?: Record<string, Parameter>;
-  Schemas?: Record<string, unknown>;
-  Groups?: Record<string, unknown>;
+  parameters?: Record<string, JSONSchema7>;
 };
 
 export type ParameterValues = Record<string, unknown>;

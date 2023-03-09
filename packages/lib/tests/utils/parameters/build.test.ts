@@ -1,11 +1,9 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
-import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { dump } from "js-yaml";
 import { join } from "path";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { build } from "../../../src/utils/parameters/build";
-import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
+import { IContext } from "somod-types";
 
 describe("Test Util parameters.build", () => {
   let dir: string = null;
@@ -19,7 +17,6 @@ describe("Test Util parameters.build", () => {
         somod: "1.0.0"
       })
     });
-    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {
@@ -27,7 +24,7 @@ describe("Test Util parameters.build", () => {
   });
 
   test("for no parameters.yaml", async () => {
-    await expect(build(dir)).rejects.toMatchObject({
+    await expect(build({ dir } as IContext)).rejects.toMatchObject({
       message: `ENOENT: no such file or directory, open '${join(
         dir,
         "parameters.yaml"
@@ -37,57 +34,38 @@ describe("Test Util parameters.build", () => {
 
   test("for empty parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": "" });
-    await expect(build(dir)).rejects.toMatchObject({
-      message: `Cannot read properties of undefined (reading 'Parameters')`
-    });
+    await build({ dir } as IContext);
+    await expect(
+      readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
+    ).resolves.toEqual("{}");
   });
 
   test("for empty object in parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": dump({}) });
-    await expect(build(dir)).resolves.toBeUndefined();
+    await expect(build({ dir } as IContext)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual("{}");
   });
 
   test("for no parameters in parameters.yaml", async () => {
-    createFiles(dir, { "parameters.yaml": dump({ Parameters: {} }) });
-    await expect(build(dir)).resolves.toBeUndefined();
+    createFiles(dir, { "parameters.yaml": dump({ parameters: {} }) });
+    await expect(build({ dir } as IContext)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
-    ).resolves.toEqual('{"Parameters":{}}');
+    ).resolves.toEqual('{"parameters":{}}');
   });
 
   test("for one parameter in parameters.yaml", async () => {
     const parameters = {
-      Parameters: { "my.param": { type: "text", default: "one" } }
+      parameters: { "my.param": { type: "string", default: "one" } }
     };
     createFiles(dir, {
       "parameters.yaml": dump(parameters)
     });
-    await expect(build(dir)).resolves.toBeUndefined();
+    await expect(build({ dir } as IContext)).resolves.toBeUndefined();
     await expect(
       readFile(join(dir, "build/parameters.json"), { encoding: "utf8" })
     ).resolves.toEqual(JSON.stringify(parameters));
-  });
-
-  test("for long parameter in parameters.yaml", async () => {
-    const parameters = {
-      Parameters: {
-        "my.param": { type: "text", default: "one" },
-        ["my." + "x".repeat(128)]: { type: "text", default: "too-long-one" }
-      }
-    };
-    createFiles(dir, {
-      "parameters.yaml": dump(parameters)
-    });
-    await expect(build(dir)).rejects.toEqual(
-      new Error(
-        `Following parameters have too long name (maximum 128 characters are allowed)\n - my.${"x".repeat(
-          128
-        )}`
-      )
-    );
-    expect(existsSync(join(dir, "build/parameters.json"))).not.toBeTruthy();
   });
 });

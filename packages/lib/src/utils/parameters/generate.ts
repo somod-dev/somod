@@ -6,10 +6,11 @@ import {
 import { existsSync } from "fs";
 import { uniq } from "lodash";
 import { join } from "path";
-import { file_parametersJson, namespace_parameter } from "../constants";
-import { ModuleHandler } from "../moduleHandler";
+import { file_parametersJson } from "../constants";
 import { loadParameters } from "./load";
 import { Parameters } from "./types";
+import { IContext } from "somod-types";
+import { getParameterToModuleMap } from "./namespace";
 
 /**
  * Creates/Updates `parameters.json` at the root of the project directory.
@@ -18,14 +19,10 @@ import { Parameters } from "./types";
  * if **`oveerride`** is **true** all the existing values in parameters.json are overrided by default value, otherwise only new parameters are added to `parameters.json` if any
  */
 export const generate = async (
-  dir: string,
+  context: IContext,
   override = false
 ): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-
-  const namespaces = await moduleHandler.getNamespaces();
-
-  const parameterToModuleNameMap = namespaces[namespace_parameter];
+  const parameterToModuleNameMap = getParameterToModuleMap(context);
 
   const allModuleNames = uniq(Object.values(parameterToModuleNameMap));
 
@@ -33,7 +30,7 @@ export const generate = async (
 
   await Promise.all(
     allModuleNames.map(async moduleName => {
-      const moduleNode = await moduleHandler.getModule(moduleName);
+      const moduleNode = context.moduleHandler.getModule(moduleName);
       moduleToParametersMap[moduleName] = await loadParameters(
         moduleNode.module
       );
@@ -43,7 +40,7 @@ export const generate = async (
   const parameterDefaultValues: Record<string, unknown> = {};
   Object.keys(parameterToModuleNameMap).map(parameterName => {
     let defaultValue =
-      moduleToParametersMap[parameterToModuleNameMap[parameterName]].Parameters[
+      moduleToParametersMap[parameterToModuleNameMap[parameterName]].parameters[
         parameterName
       ].default;
 
@@ -53,7 +50,7 @@ export const generate = async (
     parameterDefaultValues[parameterName] = defaultValue;
   });
 
-  const rootParametersJsonPath = join(dir, file_parametersJson);
+  const rootParametersJsonPath = join(context.dir, file_parametersJson);
   const existingParameters = existsSync(rootParametersJsonPath)
     ? await readJsonFileStore(rootParametersJsonPath)
     : {};

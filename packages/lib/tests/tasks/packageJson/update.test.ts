@@ -1,6 +1,7 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { updatePackageJson } from "../../../src";
 import { read as readPackageJson } from "../../../src/utils/packageJson";
+import { IContext } from "somod-types";
 
 describe("Test Task updatePackageJson", () => {
   let dir: string = null;
@@ -97,7 +98,7 @@ describe("Test Task updatePackageJson", () => {
   test.each(testData)("with %s", async (title, content) => {
     createFiles(dir, { "package.json": JSON.stringify(content) });
 
-    await updatePackageJson(dir);
+    await updatePackageJson({ dir } as IContext);
     const result = await readPackageJson(dir);
     expect(result).toMatchSnapshot({
       somod: expect.any(String)

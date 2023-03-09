@@ -13,7 +13,22 @@ export const functionLayerResource: JSONSchema7 = {
       properties: {
         Properties: {
           type: "object",
-          required: ["RetentionPolicy", "ContentUri"]
+          required: ["RetentionPolicy", "ContentUri"],
+          properties: {
+            ContentUri: {
+              type: "object",
+              properties: {
+                "SOMOD::FunctionLayer": {
+                  type: "object",
+                  required: ["name"],
+                  anyOf: [
+                    { type: "object", required: ["libraries"] },
+                    { type: "object", required: ["content"] }
+                  ]
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -36,11 +51,6 @@ export const functionLayerResource: JSONSchema7 = {
             "SOMOD::FunctionLayer": {
               type: "object",
               additionalProperties: false,
-              required: ["name"],
-              anyOf: [
-                { type: "object", required: ["libraries"] },
-                { type: "object", required: ["content"] }
-              ],
               properties: {
                 name: {
                   type: "string",
@@ -70,6 +80,14 @@ export const functionLayerResource: JSONSchema7 = {
                   },
                   minProperties: 1,
                   maxProperties: 32
+                },
+                allowedTypes: {
+                  type: "array",
+                  description:
+                    "Type of the funtion to which this layer can be applied to. If not specified or left empty, the layer is allowed for all type of functions",
+                  items: {
+                    $ref: "#/definitions/functionTypes"
+                  }
                 }
               }
             }

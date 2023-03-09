@@ -10,22 +10,25 @@ import {
   watchRootModulePagesData,
   watchRootModulePublicAssets
 } from "somod-lib";
+import { addDebugOptions, DebugModeOptions } from "../utils/common";
 import { BuildAction } from "./build";
 import { PrepareAction } from "./prepare";
 
-type StartOptions = CommonOptions & {
-  dev: boolean;
-};
+type StartOptions = CommonOptions &
+  DebugModeOptions & {
+    dev: boolean;
+  };
 
 export const StartAction = async ({
   verbose,
+  debug,
   dev
 }: StartOptions): Promise<void> => {
   const dir = findRootDir();
 
-  await BuildAction({ verbose, ui: true, serverless: false });
+  await BuildAction({ verbose, ui: true, serverless: false, debug });
 
-  await PrepareAction({ verbose, ui: true, serverless: false });
+  await PrepareAction({ verbose, ui: true, serverless: false, debug });
 
   if (dev) {
     await taskRunner(
@@ -76,7 +79,6 @@ const startCommand = new Command("start");
 
 startCommand.action(StartAction);
 
-startCommand.addOption(
-  new Option("-d, --dev", "Start a dev server in watch mode")
-);
+startCommand.addOption(new Option("--dev", "Start a dev server in watch mode"));
+addDebugOptions(startCommand);
 export default startCommand;

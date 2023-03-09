@@ -1,5 +1,6 @@
 import { join } from "path";
 import rimraf from "rimraf";
+import { IContext } from "somod-types";
 import { path_pages, path_public } from "../../utils/constants";
 
 const rimrafAsync = (dirToBeDeleted: string) => {
@@ -15,7 +16,7 @@ const rimrafAsync = (dirToBeDeleted: string) => {
   });
 };
 
-export const deletePagesAndPublicDir = async (dir: string) => {
-  await rimrafAsync(join(dir, path_pages));
-  await rimrafAsync(join(dir, path_public));
+export const deletePagesAndPublicDir = async (context: IContext) => {
+  await rimrafAsync(join(context.dir, path_pages));
+  await rimrafAsync(join(context.dir, path_public));
 };

@@ -1,32 +1,29 @@
-import { KeywordDefinition, KeywordValidator } from "somod-types";
+import { IContext, KeywordValidator } from "somod-types";
 import ErrorSet from "../../ErrorSet";
 import { parseJson, validateKeywords } from "../../jsonTemplate";
-import { ModuleServerlessTemplateMap } from "../types";
-import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
+import { getBaseKeywords } from "./serverlessTemplate";
 
 /**
  * Validate the `serverless/template.yaml` at the root module.
  *
  * Assumption is that `serverless/template.yaml` is present in root module
  */
-export const validateServerlessTemplate = async (
-  dir: string,
-  rootModuleName: string,
-  moduleTemplateMap: ModuleServerlessTemplateMap,
-  pluginKeywords: KeywordDefinition[] = []
-) => {
-  const moduleContentMap = getModuleContentMap(moduleTemplateMap);
+export const validateServerlessTemplate = async (context: IContext) => {
+  const keywords = [...getBaseKeywords()];
 
-  const keywords = [...getBaseKeywords(), ...pluginKeywords];
+  context.extensionHandler.serverlessTemplateKeywords.forEach(
+    serverlessTemplateKeywords => {
+      keywords.push(...serverlessTemplateKeywords.value);
+    }
+  );
 
   const keywordValidators: Record<string, KeywordValidator> = {};
 
   await Promise.all(
     keywords.map(async keyword => {
       const validator = await keyword.getValidator(
-        dir,
-        rootModuleName,
-        moduleContentMap
+        context.moduleHandler.roodModuleName,
+        context
       );
 
       keywordValidators[keyword.keyword] = validator;
@@ -34,7 +31,11 @@ export const validateServerlessTemplate = async (
   );
 
   const errors = await validateKeywords(
-    parseJson(moduleTemplateMap[rootModuleName].template),
+    parseJson(
+      context.serverlessTemplateHandler.getTemplate(
+        context.moduleHandler.roodModuleName
+      ).template
+    ),
     keywordValidators
   );
 

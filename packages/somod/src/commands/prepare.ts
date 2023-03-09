@@ -1,5 +1,7 @@
-import { CommonOptions, taskRunner, Command } from "nodejs-cli-runner";
+import { Command, CommonOptions, taskRunner } from "nodejs-cli-runner";
 import {
+  bundleFunctionLayers,
+  bundleFunctions,
   createPages,
   createPublicAssets,
   deletePagesAndPublicDir,
@@ -10,56 +12,61 @@ import {
   findRootDir,
   generateNextConfig,
   generateRootParameters,
-  prepareSAMTemplate,
-  loadPlugins,
+  initializeContext,
   path_pages,
   path_public,
-  runPluginPrepare,
-  runPluginPreprepare,
-  initializeModuleHandler,
-  bundleFunctions,
-  bundleFunctionLayers
+  prepareSAMTemplate
 } from "somod-lib";
 import {
+  addDebugOptions,
   addSOMODCommandTypeOptions,
+  DebugModeOptions,
   getSOMODCommandTypeOptions,
   SOMODCommandTypeOptions
 } from "../utils/common";
 
-type PrepareOptions = CommonOptions & SOMODCommandTypeOptions;
+type PrepareOptions = CommonOptions &
+  DebugModeOptions &
+  SOMODCommandTypeOptions;
 
 export const PrepareAction = async ({
   verbose,
+  debug,
   ...options
 }: PrepareOptions): Promise<void> => {
   const dir = findRootDir();
 
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
-  const plugins = await loadPlugins(dir);
-
-  await taskRunner(
-    `Initialize ModuleHandler`,
-    initializeModuleHandler,
-    { verbose, progressIndicator: true },
+  const context = await taskRunner(
+    `Initialize Context`,
+    initializeContext,
+    {
+      verbose,
+      progressIndicator: true
+    },
     dir,
-    plugins.namespaceLoaders
+    ui,
+    serverless,
+    debug
   );
 
-  await Promise.all(
-    plugins.preprepare.map(plugin =>
-      taskRunner(
-        `PrePrepare plugin ${plugin.name}`,
-        runPluginPreprepare,
-        { verbose, progressIndicator: true },
-        dir,
-        plugin.plugin,
-        {
-          ui,
-          serverless
-        }
-      )
-    )
+  const preprepareHooks = [...context.extensionHandler.preprepareHooks];
+  preprepareHooks.reverse();
+  for (const preprepareHook of preprepareHooks) {
+    await taskRunner(
+      `Run PrePrepare Hook of ${preprepareHook.extension}`,
+      preprepareHook.value,
+      { verbose, progressIndicator: true },
+      context
+    );
+  }
+
+  await taskRunner(
+    `Create/Update /${file_parametersJson}`,
+    generateRootParameters,
+    { verbose, progressIndicator: true },
+    context
   );
 
   if (ui) {
@@ -67,35 +74,26 @@ export const PrepareAction = async ({
       `Deleting /${path_pages} and /${path_public}`,
       deletePagesAndPublicDir,
       { verbose, progressIndicator: true },
-      dir
+      context
     );
     await taskRunner(
       `Create /${path_pages}`,
       createPages,
       { verbose, progressIndicator: true },
-      dir
+      context
     );
     await taskRunner(
       `Create /${path_public}`,
       createPublicAssets,
       { verbose, progressIndicator: true },
-      dir
+      context
     );
-  }
-  await taskRunner(
-    `Create/Update /${file_parametersJson}`,
-    generateRootParameters,
-    { verbose, progressIndicator: true },
-    dir
-  );
 
-  if (ui) {
     await taskRunner(
       `Gernerate /${file_nextConfigJs} and /${file_dotenv}`,
       generateNextConfig,
       { verbose, progressIndicator: true },
-      dir,
-      plugins.uiKeywords
+      context
     );
   }
   if (serverless) {
@@ -103,14 +101,15 @@ export const PrepareAction = async ({
       `Bundle Serverless Functions`,
       bundleFunctions,
       { verbose, progressIndicator: true },
-      dir
+      context,
+      verbose
     );
 
     await taskRunner(
       `Bundle Serverless FunctionLayers`,
       bundleFunctionLayers,
       { verbose, progressIndicator: true },
-      dir,
+      context,
       verbose
     );
 
@@ -118,31 +117,24 @@ export const PrepareAction = async ({
       `Generate /${file_templateYaml}`,
       prepareSAMTemplate,
       { verbose, progressIndicator: true },
-      dir,
-      plugins.serverlessKeywords
+      context
     );
   }
 
-  await Promise.all(
-    plugins.prepare.map(plugin =>
-      taskRunner(
-        `Prepare plugin ${plugin.name}`,
-        runPluginPrepare,
-        { verbose, progressIndicator: true },
-        dir,
-        plugin.plugin,
-        {
-          ui,
-          serverless
-        }
-      )
-    )
-  );
+  for (const prepareHook of context.extensionHandler.prepareHooks) {
+    await taskRunner(
+      `Run Prepare Hook of ${prepareHook.extension}`,
+      prepareHook.value,
+      { verbose, progressIndicator: true },
+      context
+    );
+  }
 };
 
 const prepareCommand = new Command("prepare");
 
 prepareCommand.action(PrepareAction);
 addSOMODCommandTypeOptions(prepareCommand);
+addDebugOptions(prepareCommand);
 
 export default prepareCommand;

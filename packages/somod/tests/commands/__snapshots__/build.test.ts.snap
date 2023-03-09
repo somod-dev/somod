@@ -1,0 +1,1992 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test command build with all options 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    true,
+  ],
+  Array [
+    "validatePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "isValidTsConfigSomodJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateParametersWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYamlWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageData",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplateWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateFunctionExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deleteBuildDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "compileTypeScript",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    true,
+  ],
+  Array [
+    "bundleExtension",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    true,
+  ],
+  Array [
+    "buildUiPublic",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "updateSodaruModuleKeyInPackageJson",
+    "/root/dir",
+  ],
+  Array [
+    "savePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command build with debug mode 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    true,
+  ],
+  Array [
+    "validatePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "isValidTsConfigSomodJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateParametersWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYamlWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageData",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplateWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateFunctionExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deleteBuildDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "compileTypeScript",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "bundleExtension",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "buildUiPublic",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "updateSodaruModuleKeyInPackageJson",
+    "/root/dir",
+  ],
+  Array [
+    "savePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command build with hooks from extensions 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    true,
+  ],
+  Array [
+    "validatePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "isValidTsConfigSomodJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "validateParametersWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYamlWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "validatePageExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "validatePageData",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplateWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "validateFunctionExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "pre-e3",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "pre-e2",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "pre-e1",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "deleteBuildDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "compileTypeScript",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+    true,
+  ],
+  Array [
+    "bundleExtension",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+    true,
+  ],
+  Array [
+    "buildUiPublic",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "buildUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "buildServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "buildParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "updateSodaruModuleKeyInPackageJson",
+    "/root/dir",
+  ],
+  Array [
+    "savePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "e1",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "e2",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "e3",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "prebuildHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command build with serverless 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    undefined,
+    true,
+    undefined,
+  ],
+  Array [
+    "validatePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "isValidTsConfigSomodJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateParametersWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplateWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateFunctionExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deleteBuildDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "compileTypeScript",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "bundleExtension",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "buildServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "updateSodaruModuleKeyInPackageJson",
+    "/root/dir",
+  ],
+  Array [
+    "savePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command build with ui 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    undefined,
+    undefined,
+  ],
+  Array [
+    "validatePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "isValidTsConfigSomodJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateParametersWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYamlWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageData",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deleteBuildDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "compileTypeScript",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "bundleExtension",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "buildUiPublic",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "updateSodaruModuleKeyInPackageJson",
+    "/root/dir",
+  ],
+  Array [
+    "savePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command build with verbose 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    undefined,
+  ],
+  Array [
+    "validatePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "isValidTsConfigSomodJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateParametersWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYamlWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageData",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplateWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateFunctionExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deleteBuildDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "compileTypeScript",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    true,
+  ],
+  Array [
+    "bundleExtension",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    true,
+  ],
+  Array [
+    "buildUiPublic",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "updateSodaruModuleKeyInPackageJson",
+    "/root/dir",
+  ],
+  Array [
+    "savePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command build without args 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    undefined,
+  ],
+  Array [
+    "validatePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "isValidTsConfigSomodJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateParametersWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYamlWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validatePageData",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplateWithSchema",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "validateFunctionExports",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deleteBuildDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "compileTypeScript",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "bundleExtension",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "buildUiPublic",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildUiConfigYaml",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildServerlessTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "buildParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "updateSodaruModuleKeyInPackageJson",
+    "/root/dir",
+  ],
+  Array [
+    "savePackageJson",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "buildHooks": Array [],
+        "prebuildHooks": Array [],
+      },
+    },
+  ],
+]
+`;

@@ -21,7 +21,7 @@ npm publish
 
 ## Example
 
-We at SOMOD shipped the example user management to NPM Public Registry at https://www.npmjs.com/package/somod-example-user-management
+The `example user management` module that we created in [Develop](/getting-started/develop) guide is shipped to NPM Public Registry at https://www.npmjs.com/package/somod-example-user-management
 
 > ## NPM Registries
 >
@@ -31,3 +31,5 @@ We at SOMOD shipped the example user management to NPM Public Registry at https:
 > SOMOD recommends only the public SOMOD modules be pushed to this registry. Any other modules, private, > getting-started, or examples to be pushed to private NPM registries
 >
 > [GitHub](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) > and [GitLab](https://docs.gitlab.com/ee/user/packages/npm_registry/) provide a way to have your own private NPM > registry.
+
+In the [Next](/getting-started/reuse) chapter, let us understand how to reuse a shipped SOMOD module.

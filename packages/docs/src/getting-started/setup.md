@@ -39,6 +39,11 @@ There are two ways to set up a SOMOD Module project.
      Create a project directory and run `npm init` inside it.
    - **Install somod as a dev dependency**  
      To install the latest version of somod, run `npm install somod --save-dev` command
+   - **Install the required dependencies based on the type of the module**
+     - for `serverless` module  
+       `npm install @types/aws-lambda aws-sdk somod-middleware --save-dev`
+     - for `ui` module  
+       `npm install @types/react react next react-dom --save-dev`
    - **Update package.json**  
      Configure `package.json` as described in SOMOD's [package.json](/reference/main-concepts/package.json) reference
    - **Create tsconfig.somod.json**  

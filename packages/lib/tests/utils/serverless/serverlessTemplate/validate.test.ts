@@ -7,6 +7,7 @@ import {
 import { getBaseKeywords } from "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { validateServerlessTemplate } from "../../../../src/utils/serverless/serverlessTemplate/validate";
 import ErrorSet from "../../../../src/utils/ErrorSet";
+import { IContext } from "somod-types";
 
 jest.mock(
   "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate",
@@ -14,7 +15,11 @@ jest.mock(
     const original = jest.requireActual(
       "../../../../src/utils/serverless/serverlessTemplate/serverlessTemplate"
     );
-    return { __esModule: true, ...original, getBaseKeywords: jest.fn() };
+    return {
+      __esModule: true,
+      ...original,
+      getBaseKeywords: jest.fn()
+    };
   }
 );
 
@@ -24,50 +29,6 @@ jest.mock("../../../../src/utils/jsonTemplate", () => {
 });
 
 describe("test util serverlessTemplate.validate", () => {
-  const moduleServerlessTemplateMap = {
-    m0: {
-      module: "m0",
-      packageLocation: "/a",
-      root: true,
-      template: {
-        Resources: {
-          R0: {
-            Type: "",
-            Properties: {}
-          }
-        }
-      }
-    },
-
-    m2: {
-      module: "m2",
-      packageLocation: "/a/node_modules/m2",
-      root: undefined,
-      template: {
-        Resources: {
-          R2: {
-            Type: "",
-            Properties: {}
-          }
-        }
-      }
-    },
-
-    m3: {
-      module: "m3",
-      packageLocation: "a/node_modules/m3",
-      root: undefined,
-      template: {
-        Resources: {
-          R3: {
-            Type: "",
-            Properties: {}
-          }
-        }
-      }
-    }
-  };
-
   const validator = jest.fn();
   const processor = jest.fn();
 
@@ -87,20 +48,52 @@ describe("test util serverlessTemplate.validate", () => {
     mockedFunction(validateKeywords).mockResolvedValue([]);
 
     await expect(
-      validateServerlessTemplate("/a", "m0", moduleServerlessTemplateMap)
+      validateServerlessTemplate({
+        extensionHandler: { serverlessTemplateKeywords: [] },
+        moduleHandler: { roodModuleName: "m0" },
+        serverlessTemplateHandler: {
+          getTemplate: (() => {
+            return {
+              module: "m0",
+              template: {
+                Resources: {
+                  R0: {
+                    Type: "",
+                    Properties: {}
+                  }
+                }
+              }
+            };
+          }) as IContext["serverlessTemplateHandler"]["getTemplate"]
+        }
+      } as IContext)
     ).resolves.toBeUndefined();
 
     expect(getBaseKeywords).toHaveBeenCalledTimes(1);
     expect(validateKeywords).toHaveBeenCalledTimes(1);
     expect(validateKeywords).toHaveBeenNthCalledWith(
       1,
-      parseJson(moduleServerlessTemplateMap.m0.template),
+      parseJson({
+        Resources: {
+          R0: {
+            Type: "",
+            Properties: {}
+          }
+        }
+      }),
       { k1: validator }
     );
   });
 
   test("with errors", async () => {
-    const jsonNode = parseJson(moduleServerlessTemplateMap.m0.template);
+    const jsonNode = parseJson({
+      Resources: {
+        R0: {
+          Type: "",
+          Properties: {}
+        }
+      }
+    });
     mockedFunction(validateKeywords).mockResolvedValue([
       new JSONTemplateError(
         jsonNode,
@@ -109,7 +102,25 @@ describe("test util serverlessTemplate.validate", () => {
     ]);
 
     await expect(
-      validateServerlessTemplate("/a", "m0", moduleServerlessTemplateMap)
+      validateServerlessTemplate({
+        extensionHandler: { serverlessTemplateKeywords: [] },
+        moduleHandler: { roodModuleName: "m0" },
+        serverlessTemplateHandler: {
+          getTemplate: (() => {
+            return {
+              module: "m0",
+              template: {
+                Resources: {
+                  R0: {
+                    Type: "",
+                    Properties: {}
+                  }
+                }
+              }
+            };
+          }) as IContext["serverlessTemplateHandler"]["getTemplate"]
+        }
+      } as IContext)
     ).rejects.toEqual(
       new ErrorSet([new Error("Error at  : There is an error in template")])
     );

@@ -1,0 +1,5 @@
+{
+  "pns.publish.endpoint": "",
+  "pns.subscribe.endpoint": "",
+  "auth.token.endpoint": ""
+}

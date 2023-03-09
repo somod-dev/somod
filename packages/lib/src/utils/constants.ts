@@ -45,9 +45,13 @@ export const path_git = ".git";
 export const file_configYaml = "config.yaml";
 export const file_configJson = "config.json";
 
+export const file_extensionTs = "extension.ts";
+export const file_extensionJs = "extension.js";
+
 export const path_serverless = "serverless";
 export const path_functions = "functions";
 export const path_functionLayers = "functionLayers";
+export const path_middlewares = "middlewares";
 export const file_templateYaml = "template.yaml";
 export const file_templateJson = "template.json";
 
@@ -55,7 +59,8 @@ export const file_samConfig = "samconfig.toml";
 
 export const path_vercel = ".vercel";
 
-export const cli_version_regex = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+export const cli_version_regex =
+  /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/;
 
 export const namespace_page = "UI Page";
 
@@ -70,13 +75,13 @@ export const namespace_server_runtime_config = "UI Server Runtime Config";
 export const namespace_api_gateway = "Serverless Api Gateway";
 
 export const namespace_parameter = "Parameter";
-export const namespace_parameterSchema = "Parameter Schema";
-export const namespace_parameterGroup = "Parameter Group";
 
 export const namespace_output = "Serverless Output";
 
 export const resourceType_Function = "AWS::Serverless::Function";
 export const resourceType_FunctionLayer = "AWS::Serverless::LayerVersion";
+export const resourceType_FunctionMiddleware =
+  "SOMOD::Serverless::FunctionMiddleware";
 
 export const custom_resource_prefix = "Custom::";
 

@@ -1,0 +1,195 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test command parameters update subcommand with all options 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    true,
+    true,
+  ],
+  Array [
+    "updateParametersFromSAM",
+    Object {
+      "dir": "/root/dir",
+    },
+    "my-stack",
+  ],
+]
+`;
+
+exports[`Test command parameters update subcommand with debug mode 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    true,
+    true,
+  ],
+  Array [
+    "updateParametersFromSAM",
+    Object {
+      "dir": "/root/dir",
+    },
+    undefined,
+  ],
+]
+`;
+
+exports[`Test command parameters update subcommand with stackname 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    true,
+    undefined,
+  ],
+  Array [
+    "updateParametersFromSAM",
+    Object {
+      "dir": "/root/dir",
+    },
+    "my-stack",
+  ],
+]
+`;
+
+exports[`Test command parameters update subcommand with verbose 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    true,
+    undefined,
+  ],
+  Array [
+    "updateParametersFromSAM",
+    Object {
+      "dir": "/root/dir",
+    },
+    undefined,
+  ],
+]
+`;
+
+exports[`Test command parameters update subcommand without args 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    true,
+    undefined,
+  ],
+  Array [
+    "updateParametersFromSAM",
+    Object {
+      "dir": "/root/dir",
+    },
+    undefined,
+  ],
+]
+`;
+
+exports[`Test command parameters validate subcommand with all options 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    false,
+    true,
+  ],
+  Array [
+    "validateParameterValues",
+    Object {
+      "dir": "/root/dir",
+    },
+  ],
+]
+`;
+
+exports[`Test command parameters validate subcommand with debug mode 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    false,
+    true,
+  ],
+  Array [
+    "validateParameterValues",
+    Object {
+      "dir": "/root/dir",
+    },
+  ],
+]
+`;
+
+exports[`Test command parameters validate subcommand with verbose 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    false,
+    undefined,
+  ],
+  Array [
+    "validateParameterValues",
+    Object {
+      "dir": "/root/dir",
+    },
+  ],
+]
+`;
+
+exports[`Test command parameters validate subcommand without args 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    false,
+    false,
+    undefined,
+  ],
+  Array [
+    "validateParameterValues",
+    Object {
+      "dir": "/root/dir",
+    },
+  ],
+]
+`;

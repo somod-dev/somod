@@ -1,0 +1,1032 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test command prepare with all options 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    true,
+  ],
+  Array [
+    "generateRootParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deletePagesAndPublicDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPages",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPublicAssets",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "generateNextConfig",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "bundleFunctions",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    true,
+  ],
+  Array [
+    "bundleFunctionLayers",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    true,
+  ],
+  Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command prepare with debug mode 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    true,
+  ],
+  Array [
+    "generateRootParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deletePagesAndPublicDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPages",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPublicAssets",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "generateNextConfig",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "bundleFunctions",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "bundleFunctionLayers",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command prepare with hooks from extensions 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    true,
+  ],
+  Array [
+    "pre-e3",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "pre-e2",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "pre-e1",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "generateRootParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "deletePagesAndPublicDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "createPages",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "createPublicAssets",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "generateNextConfig",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "bundleFunctions",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+    true,
+  ],
+  Array [
+    "bundleFunctionLayers",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+    true,
+  ],
+  Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "e1",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "e2",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
+    "e3",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command prepare with serverless 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    undefined,
+    true,
+    undefined,
+  ],
+  Array [
+    "generateRootParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "bundleFunctions",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "bundleFunctionLayers",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command prepare with ui 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    undefined,
+    undefined,
+  ],
+  Array [
+    "generateRootParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deletePagesAndPublicDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPages",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPublicAssets",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "generateNextConfig",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command prepare with verbose 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    undefined,
+  ],
+  Array [
+    "generateRootParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deletePagesAndPublicDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPages",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPublicAssets",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "generateNextConfig",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "bundleFunctions",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    true,
+  ],
+  Array [
+    "bundleFunctionLayers",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    true,
+  ],
+  Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+]
+`;
+
+exports[`Test command prepare without args 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "initializeContext",
+    "/root/dir",
+    true,
+    true,
+    undefined,
+  ],
+  Array [
+    "generateRootParameters",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "deletePagesAndPublicDir",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPages",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "createPublicAssets",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "generateNextConfig",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
+    "bundleFunctions",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "bundleFunctionLayers",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+    undefined,
+  ],
+  Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+]
+`;

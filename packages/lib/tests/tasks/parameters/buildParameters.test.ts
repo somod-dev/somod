@@ -6,6 +6,7 @@ import {
 } from "../../utils";
 import { build } from "../../../src/utils/parameters/build";
 import { buildParameters } from "../../../src";
+import { IContext } from "somod-types";
 
 jest.mock("../../../src/utils/parameters/build", () => {
   return {
@@ -27,14 +28,14 @@ describe("test Task buildParameters", () => {
   });
 
   test("for no parameters.yaml", async () => {
-    await expect(buildParameters(dir)).resolves.toBeUndefined();
+    await expect(buildParameters({ dir } as IContext)).resolves.toBeUndefined();
     expect(build).toHaveBeenCalledTimes(0);
   });
 
   test("for valid parameters.yaml", async () => {
     createFiles(dir, { "parameters.yaml": "" });
-    await expect(buildParameters(dir)).resolves.toBeUndefined();
+    await expect(buildParameters({ dir } as IContext)).resolves.toBeUndefined();
     expect(build).toHaveBeenCalledTimes(1);
-    expect(build).toHaveBeenCalledWith(dir);
+    expect(build).toHaveBeenCalledWith({ dir });
   });
 });

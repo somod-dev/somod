@@ -11,13 +11,13 @@ meta:
 
 SOMOD framework is designed by keeping reusability at its core.
 
-Add the available modules as npm dependencies to the current module. The SOMOD CLI will take care of discovering and wiring all the installed modules to prepare the AWS SAM project and the NextJs project.
+Add the required modules as npm dependencies to the current module. The SOMOD CLI will take care of discovering and wiring all the installed modules to prepare the AWS SAM project and the NextJs project.
 
 ## Example:-
 
-The User Management module that we have created in our [Getting Started / Develop](/getting-started/develop) chapter is available as the [`somod-example-user-management`](https://npmjs.com/package/somod-example-user-management). Let us reuse somod-example-user-management in a new module.
+The User Management module that we have created in our [Getting Started / Develop](/getting-started/develop) chapter is available as the [`somod-example-user-management`](https://npmjs.com/package/somod-example-user-management). Let us reuse `somod-example-user-management` in a new module.
 
-- Initialize an empty somod module
+- Initialize an empty SOMOD module
 
   ```
   npx create-somod --no-files somod-reuse-example
@@ -30,7 +30,7 @@ The User Management module that we have created in our [Getting Started / Develo
   npm i somod-example-user-management
   ```
 
-- Configure the dependency
+- Configure the module
 
   create `parameters.json` file with the below contents
 

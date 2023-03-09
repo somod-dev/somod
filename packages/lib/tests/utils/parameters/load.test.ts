@@ -1,13 +1,10 @@
-import { createFiles, createTempDir, deleteDir } from "../../utils";
 import { dump } from "js-yaml";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
+import { IContext } from "somod-types";
 import {
   loadAllParameterValues,
   loadParameters
 } from "../../../src/utils/parameters/load";
-import { loadParameterNamespaces } from "../../../src/utils/parameters/namespace";
-import { Parameters } from "../../../src/utils/parameters/types";
-import ErrorSet from "../../../src/utils/ErrorSet";
+import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 describe("Test Util parameters.loadParameters", () => {
   let dir: string = null;
@@ -25,7 +22,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir
       })
     ).resolves.toEqual({});
@@ -36,7 +32,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir,
         root: true
       })
@@ -45,23 +40,22 @@ describe("Test Util parameters.loadParameters", () => {
 
   test("for empty parameters in build", async () => {
     createFiles(dir, {
-      "build/parameters.json": JSON.stringify({ Parameters: {} })
+      "build/parameters.json": JSON.stringify({ parameters: {} })
     });
     await expect(
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir
       })
-    ).resolves.toEqual({ Parameters: {} });
+    ).resolves.toEqual({ parameters: {} });
   });
 
   test("for parameters in build", async () => {
     const parameters = {
-      Parameters: {
-        "my.param": { type: "text", default: "one" },
-        "my.param2": { type: "text", default: "two" }
+      parameters: {
+        "my.param": { type: "string", default: "one" },
+        "my.param2": { type: "string", default: "two" }
       }
     };
     createFiles(dir, {
@@ -71,7 +65,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir
       })
     ).resolves.toEqual(parameters);
@@ -79,9 +72,9 @@ describe("Test Util parameters.loadParameters", () => {
 
   test("for parameters in root", async () => {
     const parameters = {
-      Parameters: {
-        "my.param": { type: "text", default: "one" },
-        "my.param2": { type: "text", default: "two" }
+      parameters: {
+        "my.param": { type: "string", default: "one" },
+        "my.param2": { type: "string", default: "two" }
       }
     };
     createFiles(dir, {
@@ -91,7 +84,6 @@ describe("Test Util parameters.loadParameters", () => {
       loadParameters({
         name: "my-module",
         version: "1.0.0",
-        namespaces: {},
         packageLocation: dir,
         root: true
       })
@@ -104,43 +96,32 @@ describe("Test Util parameters.loadAllParameterValues", () => {
 
   beforeEach(async () => {
     dir = createTempDir("test-somod-lib");
-    ModuleHandler.initialize(dir, [loadParameterNamespaces]);
   });
 
   afterEach(() => {
     deleteDir(dir);
   });
 
-  test("with failing schema validation", async () => {
+  test("without parameters.json", async () => {
+    await expect(loadAllParameterValues({ dir } as IContext)).resolves.toEqual(
+      {}
+    );
+  });
+
+  test("with parameters.json", async () => {
     createFiles(dir, {
-      "parameters.yaml": dump({
-        Parameters: {
-          "my.param": { type: "text", default: "one" },
-          "my.param2": { type: "text", default: "two" }
-        },
-        Schemas: {
-          "require-param": {
-            type: "object",
-            required: ["my.param"]
-          }
-        }
-      } as Parameters),
       "parameters.json": JSON.stringify({
         "my.param1": "one",
         "my.param2": "two"
-      }),
-      "package.json": JSON.stringify({
-        name: "my-module",
-        version: "1.0.0",
-        somod: "1.0.0"
       })
     });
-    await expect(loadAllParameterValues(dir)).rejects.toEqual(
-      new ErrorSet([
-        new Error(
-          "parameters.json has following errors\n must have required property 'my.param'"
-        )
-      ])
-    );
+    await expect(
+      loadAllParameterValues({
+        dir
+      } as IContext)
+    ).resolves.toEqual({
+      "my.param1": "one",
+      "my.param2": "two"
+    });
   });
 });

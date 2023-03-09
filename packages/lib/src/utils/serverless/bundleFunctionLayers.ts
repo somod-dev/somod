@@ -1,6 +1,7 @@
+import { copyFile, mkdir, writeFile } from "fs/promises";
 import { childProcess, ChildProcessStreamConfig } from "nodejs-cli-runner";
-import { mkdir, writeFile } from "fs/promises";
-import { join } from "path";
+import { dirname, join } from "path";
+import { IContext } from "somod-types";
 import {
   file_packageJson,
   path_functionLayers,
@@ -8,27 +9,42 @@ import {
   path_somodWorkingDir
 } from "../constants";
 import { read } from "../packageJson";
-import { getFunctionLayerLibraries } from "./keywords/functionLayer";
-import { ModuleServerlessTemplate, ModuleServerlessTemplateMap } from "./types";
+import { getDeclaredFunctionLayers } from "./keywords/functionLayer";
 
 const path_layerNodeJs = "nodejs";
 
 export const bundleFunctionLayersForModule = async (
-  rootDir: string,
-  serverlessTemplate: ModuleServerlessTemplate,
+  moduleName: string,
+  context: IContext,
   verbose = false
 ): Promise<void> => {
-  const layerLibraries = getFunctionLayerLibraries(serverlessTemplate.template);
+  const declaredLayers = getDeclaredFunctionLayers(
+    context.serverlessTemplateHandler,
+    moduleName
+  );
 
-  const devDependencies =
-    (await read(serverlessTemplate.packageLocation)).devDependencies || {};
+  const moduleDevDependenciesMap: Record<string, Record<string, string>> = {};
+  declaredLayers.forEach(declaredLayer => {
+    declaredLayer.libraries.forEach(library => {
+      moduleDevDependenciesMap[library.module] = {};
+    });
+  });
+  await Promise.all(
+    Object.keys(moduleDevDependenciesMap).map(async module => {
+      const modulePackageLocation =
+        context.moduleHandler.getModule(module).module.packageLocation;
+
+      const devDependencies = ((await read(modulePackageLocation))
+        .devDependencies || {}) as Record<string, string>;
+      moduleDevDependenciesMap[module] = devDependencies;
+    })
+  );
 
   const buildFunctionLayersPath = join(
-    rootDir,
+    context.dir,
     path_somodWorkingDir,
     path_serverless,
-    path_functionLayers,
-    serverlessTemplate.module
+    path_functionLayers
   );
 
   const npmCommand = process.platform == "win32" ? "npm.cmd" : "npm";
@@ -38,23 +54,24 @@ export const bundleFunctionLayersForModule = async (
   };
 
   await Promise.all(
-    Object.keys(layerLibraries).map(async layerName => {
+    Object.values(declaredLayers).map(async declaredLayer => {
       try {
         const layerPackageJson = {
-          name: serverlessTemplate.module + "-" + layerName.toLowerCase(),
+          name: declaredLayer.module + "-" + declaredLayer.name.toLowerCase(),
           version: "1.0.0",
-          description: `Lambda function layer - ${layerName}`,
+          description: `Lambda function layer - ${declaredLayer.name}`,
           dependencies: Object.fromEntries(
-            layerLibraries[layerName].map(library => [
-              library,
-              devDependencies[library]
+            declaredLayer.libraries.map(library => [
+              library.name,
+              moduleDevDependenciesMap[library.module][library.name]
             ])
           )
         };
 
         const layerLocation = join(
           buildFunctionLayersPath,
-          layerName,
+          declaredLayer.module,
+          declaredLayer.name,
           path_layerNodeJs
         );
 
@@ -71,9 +88,33 @@ export const bundleFunctionLayersForModule = async (
           streamConfig,
           streamConfig
         );
+
+        await Promise.all(
+          declaredLayer.content.map(async ({ path, module, resource }) => {
+            const contentSourcePath = join(
+              context.dir,
+              path_somodWorkingDir,
+              path_serverless,
+              "." + path_functionLayers,
+              module,
+              resource,
+              path
+            );
+
+            const contentTargetPath = join(
+              buildFunctionLayersPath,
+              declaredLayer.module,
+              declaredLayer.name,
+              path
+            );
+
+            await mkdir(dirname(contentTargetPath), { recursive: true });
+            await copyFile(contentSourcePath, contentTargetPath);
+          })
+        );
       } catch (e) {
         throw new Error(
-          `bundle function layer failed for ${layerName} from ${serverlessTemplate.module} module: ${e.message}`
+          `bundle function layer failed for ${declaredLayer.name} from ${moduleName} module: ${e.message}`
         );
       }
     })
@@ -81,17 +122,20 @@ export const bundleFunctionLayersForModule = async (
 };
 
 export const bundleFunctionLayers = async (
-  dir: string,
-  moduleTemplateMap: ModuleServerlessTemplateMap,
+  context: IContext,
   verbose = false
 ): Promise<void> => {
+  const moduleNodes = context.moduleHandler.list;
+  const templates = context.serverlessTemplateHandler.listTemplates();
+  const templateMap = Object.fromEntries(
+    templates.map(t => [t.module, t.template])
+  );
   await Promise.all(
-    Object.keys(moduleTemplateMap).map(async moduleName => {
-      await bundleFunctionLayersForModule(
-        dir,
-        moduleTemplateMap[moduleName],
-        verbose
-      );
+    moduleNodes.map(async moduleNode => {
+      const moduleName = moduleNode.module.name;
+      if (templateMap[moduleName]) {
+        await bundleFunctionLayersForModule(moduleName, context, verbose);
+      }
     })
   );
 };

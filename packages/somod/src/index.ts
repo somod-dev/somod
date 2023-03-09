@@ -3,14 +3,14 @@ import buildCommand from "./commands/build";
 import deployCommand from "./commands/deploy";
 import prepareCommand from "./commands/prepare";
 import startCommand from "./commands/start";
-import updateParamsCommand from "./commands/updateParams";
+import parametersCommand from "./commands/parameters";
 
 const program = rootCommand("somod", [
   buildCommand,
   prepareCommand,
   deployCommand,
   startCommand,
-  updateParamsCommand
+  parametersCommand
 ]);
 
 export default program;

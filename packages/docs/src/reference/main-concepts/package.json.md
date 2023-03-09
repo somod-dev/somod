@@ -22,20 +22,27 @@ The following properties in the package.json object have a particular purpose in
 - `description`  
   Describe the SOMOD module in this property. The SOMOD module must contain a description.
 - `module`  
-  The build step in SOMOD creates javascript in ES6 module format at `build` directory. Webpack and other bundlers use module to resolve the entry point for an ES6 module. SOMOD always generates the entry point at `build/lib/index.js`, hence this property must have a hardcoded value of `build/lib/index.js`
+  The build step in SOMOD creates javascript in ES6 module format at the `build` directory. Webpack and other bundlers use the `module` property to resolve the entry point for an ES6 module. SOMOD always generates the entry point at `build/lib/index.js`, hence this property must have a hardcoded value of `build/lib/index.js`.
 - `sideEffects`  
   The sideEffects property is an instruction to the bundler that it can prune all of the code from this package. The SOMOD module must have this property set to `false`.
 - `main`, `jsnext:main`, `type`  
   These properties make the bundlers fail when resolving the ES6 modules. Hence the use of these properties is not allowed in the SOMOD module.
 - `typings`  
-  The typings property points to the entry point of the type declaration file. More on type declarations is [here](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html).
+  The typings property points to the entry point of the type declaration file. SOMOD module generates the sharable types at `build/lib/index.d.ts`, hence this property must have a hardcoded value of `build/lib/index.js`. More on type declarations is [here](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html).
 - `files`  
   The files property is an array of file patterns that describes the entries to be included in the package.
   SOMOD builds source code into the `build` directory. So files property must include the `"build"` in the array.
 - `somod`  
-  The somod property differentiates other npm packages from SOMOD modules. NPM packages containing `somod` property in `package.json` are considered SOMOD modules. The `somod build` command sets this to the version of somod CLI used during the build.
-- `somodPlugins`
-  The somodPlugins contains list of somod plugin names. Read more about SOMOD Plugins [here](/reference/plugins)
+  The somod property differentiates other npm packages from SOMOD modules. NPM packages containing `somod` property in `package.json` are considered SOMOD modules. The `somod build` command sets this to the version of SOMOD CLI used during the build.
+- `dependencies`  
+  SOMOD modules can have any npm library as a dependency when needed.
+- `devDependencies`  
+  SOMOD module must install `somod` npm package as a dev dependency along with other required packages based on the type of the module.
+
+  - module containing the `serverless` code must install `@types/aws-lambda`, `aws-sdk`, and `somod-middleware` as dev dependencies
+  - module containing the `ui` code must install `@types/react`, `react`, `next`, and `react-dom` as dev dependencies.
+
+  Also, any other npm library can be installed as a dev dependency when needed.
 
 > Otherwise documented, all other properties in package.json behave as defined in the [original specification](https://docs.npmjs.com/cli/v8/configuring-npm/package-json).
 
@@ -50,7 +57,6 @@ The following properties in the package.json object have a particular purpose in
   "files": ["build"],
   "sideEffects": false,
   "somod": "1.13.3",
-  "somodPlugins": [],
   "devDependencies": {
     "somod": "^1.13.3"
   }

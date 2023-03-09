@@ -1,11 +1,12 @@
 import { JSONSchema7, validate } from "decorated-ajv";
-import { getSAMResourceLogicalId } from "../utils";
-import { ServerlessTemplate } from "../types";
+import {
+  IServerlessTemplateHandler,
+  JSONObjectNode,
+  KeywordDefinition
+} from "somod-types";
 import { checkAccess } from "./access";
 import { checkCustomResourceSchema } from "./function";
 import { checkOutput } from "./output";
-import { keywordExtend } from "./extend";
-import { KeywordDefinition } from "somod-types";
 
 type Ref = {
   module?: string;
@@ -17,108 +18,112 @@ export type KeywordSomodRef = {
   "SOMOD::Ref": Ref;
 };
 
-export const keywordRef: KeywordDefinition<Ref, ServerlessTemplate> = {
+const validateKeywordPositionAndSchema = async (
+  node: JSONObjectNode,
+  value: Ref
+) => {
+  if (Object.keys(node.properties).length > 1) {
+    throw new Error(
+      `Object with ${keywordRef.keyword} must not have additional properties`
+    );
+  }
+
+  const valueSchema: JSONSchema7 = {
+    type: "object",
+    additionalProperties: false,
+    required: ["resource"],
+    properties: {
+      module: { type: "string" },
+      resource: { type: "string" },
+      attribute: { type: "string" }
+    }
+  };
+
+  const violations = await validate(valueSchema, value);
+  if (violations.length > 0) {
+    throw new Error(
+      `Has following errors\n${violations
+        .map(v => `${v.path} ${v.message}`.trim())
+        .join("\n")}`
+    );
+  }
+};
+
+export const keywordRef: KeywordDefinition<Ref> = {
   keyword: "SOMOD::Ref",
 
-  getValidator: async (rootDir, moduleName, moduleContentMap) => {
+  getValidator: async (moduleName, context) => {
     return async (keyword, node, value) => {
       const errors: Error[] = [];
 
-      if (Object.keys(node.properties).length > 1) {
-        errors.push(
-          new Error(
-            `Object with ${keyword} must not have additional properties`
-          )
-        );
-      }
-
-      const valueSchema: JSONSchema7 = {
-        type: "object",
-        additionalProperties: false,
-        required: ["resource"],
-        properties: {
-          module: { type: "string" },
-          resource: { type: "string" },
-          attribute: { type: "string" }
-        }
-      };
-
       try {
-        const violations = await validate(valueSchema, value);
-        if (violations.length > 0) {
-          errors.push(
-            new Error(
-              `Has following errors\n${violations
-                .map(v => `${v.path} ${v.message}`.trim())
-                .join("\n")}`
-            )
-          );
-        }
+        await validateKeywordPositionAndSchema(node, value);
+
+        const resource = getReferencedResource(
+          context.serverlessTemplateHandler,
+          value.module || moduleName,
+          value.resource
+        );
+
+        checkAccess(
+          resource.resource,
+          value.module || moduleName,
+          value.resource,
+          moduleName
+        );
+
+        checkOutput(
+          resource.resource,
+          value.module || moduleName,
+          value.resource,
+          value.attribute
+        );
+
+        await checkCustomResourceSchema(resource.resource, node);
       } catch (e) {
         errors.push(e);
-      }
-
-      if (errors.length == 0) {
-        const targetModule = value.module || moduleName;
-
-        if (!moduleContentMap[targetModule]?.json.Resources[value.resource]) {
-          errors.push(
-            new Error(
-              `Referenced module resource {${targetModule}, ${value.resource}} not found.`
-            )
-          );
-        } else {
-          if (
-            moduleContentMap[targetModule].json.Resources[value.resource][
-              keywordExtend.keyword
-            ] !== undefined
-          ) {
-            errors.push(
-              new Error(
-                `Can not reference an extended resource {${targetModule}, ${value.resource}}.`
-              )
-            );
-          }
-          errors.push(
-            ...checkAccess(
-              moduleName,
-              moduleContentMap[targetModule],
-              value.resource
-            )
-          );
-
-          errors.push(
-            ...checkOutput(
-              moduleContentMap[targetModule],
-              value.resource,
-              value.attribute
-            )
-          );
-
-          errors.push(
-            ...(await checkCustomResourceSchema(
-              node,
-              moduleContentMap[targetModule],
-              value.resource
-            ))
-          );
-        }
       }
 
       return errors;
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
-    const targetModule = value.module || moduleName;
+  getProcessor: async (moduleName, context) => {
+    return (keyword, node, value) => {
+      const targetModule = value.module || moduleName;
 
-    const resourceId = getSAMResourceLogicalId(targetModule, value.resource);
-    const refValue = value.attribute
-      ? { "Fn::GetAtt": [resourceId, value.attribute] }
-      : { Ref: resourceId };
-    return {
-      type: "object",
-      value: refValue
+      const resourceId =
+        context.serverlessTemplateHandler.getSAMResourceLogicalId(
+          targetModule,
+          value.resource
+        );
+      const refValue = value.attribute
+        ? { "Fn::GetAtt": [resourceId, value.attribute] }
+        : { Ref: resourceId };
+      return {
+        type: "object",
+        value: refValue
+      };
     };
   }
+};
+
+export const getReferencedResource = (
+  serverlessTemplateHandler: IServerlessTemplateHandler,
+  module: string,
+  resource: string,
+  referenceType: "Referenced" | "Extended" | "Depended" = "Referenced"
+) => {
+  const serverlessResource = serverlessTemplateHandler.getResource(
+    module,
+    resource
+  );
+
+  if (serverlessResource === null) {
+    throw new Error(
+      `${referenceType} module resource {${module}, ${resource}} not found.`
+    );
+  }
+
+  return serverlessResource;
 };

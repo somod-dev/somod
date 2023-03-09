@@ -1,0 +1,49 @@
+{
+  "name": "somod-middleware",
+  "version": "1.17.0-2",
+  "description": "Middleware library for SOMOD serverless functions",
+  "keywords": [
+    "middleware",
+    "lambda",
+    "serverless-function",
+    "somod",
+    "serverless-optimized-modules",
+    "reuse serverless",
+    "sodaru",
+    "developer"
+  ],
+  "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "contributors": [
+    "Raghavendra K R <raghavendra@sodaru.com>",
+    "Lokesh G C <lokesh@sodaru.com>",
+    "Sukhesh M G <sukhesh@sodaru.com>"
+  ],
+  "homepage": "https://github.com/somod-dev/somod/tree/main/packages/middleware#readme",
+  "license": "MIT",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/somod-dev/somod.git"
+  },
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "tsc": "npx tsc",
+    "tsc:cjs": "npx tsc --project tsconfig.cjs.json",
+    "build": "npm run clean && npm run tsc && npm run tsc:cjs",
+    "pretest": "$CI || npm run build",
+    "test": "npx jest"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.109",
+    "@types/jest": "^27.5.1",
+    "jest": "28.1.0",
+    "ts-jest": "28.0.2",
+    "typescript": "^4.5.5",
+    "somod-types": "^1.17.0-2"
+  }
+}

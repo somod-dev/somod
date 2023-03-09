@@ -11,6 +11,8 @@ meta:
 
 SOMOD modules define the module infrastructure and other configurations in yaml files. SOMOD validates these files during the build and combines them during the preparation phase.
 
+> YAML processing is applied for `ui/config.yaml` and `serverless/template.yaml`
+
 ## The YAML Processor
 
 To start with,  
