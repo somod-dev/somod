@@ -34,3 +34,5 @@ Browse our [module catalog](/catalog) to find out readily available modules.
 Create new modules for your business use cases, and add the common modules as dependencies.
 
 You can also submit your modules to the catalog. Read more about contributing to the module catalog [here](/catalog/contribute).
+
+Find the advanced features of SOMOD and other reference material on the [Reference](/reference) page.

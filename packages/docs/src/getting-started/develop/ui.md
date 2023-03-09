@@ -20,7 +20,7 @@ SOMOD helps to create and reuse NextJS pages in modules.
 In the example from the previous chapter, we have created REST APIs for user management. Now let us create the UI pages for these APIs by following the below steps.
 
 1. Choose a Styling library  
-   A styling library is a backbone in Web UI development. It defines the look and feel of the whole application. SOMOD works with any styling libraries used with NextJS and React.
+   A styling library is an essential part of Web UI development. It defines the look and feel of the whole application. SOMOD works with any styling libraries used with NextJS and React.
 
    For this example, let us install and configure [Material UI](https://mui.com/)
 

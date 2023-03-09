@@ -24,17 +24,16 @@ The content of the `tsconfig.somod.json` file is as follows
     "target": "ES5",
     "module": "ESNext",
     "rootDir": "./",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "importHelpers": true,
     "skipLibCheck": true,
     "jsx": "react-jsx"
   },
-  "include": ["lib", "ui", "serverless"]
+  "include": ["lib", "serverless", "ui"]
 }
 ```
 
 Any extra configurations are allowed, but these configurations must be present and not altered.
 
-As we have understood the main concepts in SOMOD, let us check out the SOMOD CLI in the [next chapter](/reference/cli).
+Till now this guide explained the main concepts and project structure in the SOMOD module. In the [next chapter](/reference/main-concepts/extensions), let us understand how to extend the capabilities of SOMOD using extensions.

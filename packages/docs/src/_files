@@ -18,11 +18,12 @@ reference/main-concepts/lib
 reference/main-concepts/serverless
 reference/main-concepts/serverless/template.yaml
 reference/main-concepts/serverless/functions
+reference/main-concepts/serverless/middlewares
 reference/main-concepts/ui
 reference/main-concepts/ui/config.yaml
 reference/main-concepts/yaml-processing
 reference/main-concepts/parameters
 reference/main-concepts/namespaces
 reference/main-concepts/tsconfig.somod.json
+reference/main-concepts/extensions
 reference/cli
-reference/lifecycle-hooks

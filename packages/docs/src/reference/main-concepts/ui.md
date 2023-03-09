@@ -5,7 +5,7 @@ meta:
     Create reusable NextJs pages using SOMOD.
 ```
 
-# SOMOD `ui` Directory
+# SOMOD's `ui` Directory
 
 ---
 
@@ -45,7 +45,7 @@ project-root
 
 ```
 
-`ui` directory has four optional children
+The `ui` directory has four optional children
 
 - **`pages`**  
   The pages in SOMOD are similar to NextJs's pages. SOMOD pages always have a **`.tsx`** extension.

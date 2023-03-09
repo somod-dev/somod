@@ -39,7 +39,7 @@ This page is an overview of the SOMOD Documentation and its resources.
   If you prefer to learn by doing, start with our [practical](/getting-started/setup) guide with an example.  
   If you prefer to learn concepts step by step, start with our [reference](/reference) guide.
 
-  Like any unfamiliar technology, React does have a learning curve. With practice and some patience, you will get the hang of it.
+  Like any unfamiliar technology, SOMOD does have a learning curve. With practice and some patience, you will get the hang of it.
 
 - **Contributing to SOMOD**
 

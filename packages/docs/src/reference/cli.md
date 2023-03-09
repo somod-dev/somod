@@ -9,7 +9,7 @@ meta:
 
 ---
 
-SOMOD CLI is a toolset to Develop, Build and Reuse Serverless Applications. With the command-line interface (CLI) you can work with a SOMOD module using a terminal, or through an automated system, enabling you to build, and prepare deployable applications.
+SOMOD CLI is a toolset to Develop, Build and Reuse Serverless Applications. With the command-line interface (CLI) you can work with a SOMOD module using a terminal, or through an automated scripts, enabling you to build, and prepare deployable applications.
 
 This page contains a complete list of all SOMOD CLI commands available, along with their arguments and options for additional behaviour
 
@@ -26,6 +26,8 @@ npm install somod --save-dev
 > ```
 > npx create-somod
 > ```
+>
+> Refer [Getting started / Setup](/getting-started/setup) for more details on using `create-somod`
 
 ## Usage
 
@@ -115,5 +117,3 @@ Read the [SOMOD Serverless template.yaml](/reference/main-concepts/serverless/te
 
 - `-s` or `--stack-name`  
   Stack name to update the params from. Reads from samconfig.toml if omitted
-
-In the [Next Chapter](/reference/lifecycle-hooks) let us explore the way of extending the SOMOD through LifeCycle Hooks.
