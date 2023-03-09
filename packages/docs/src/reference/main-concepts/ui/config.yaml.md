@@ -13,7 +13,7 @@ A SOMOD module can define a set of configurations in the `config.yaml` file.
 
 The SOMOD build command validates `ui/config.yaml` and generates `/build/ui/config.json`. The SOMOD prepare command combines config.json from all dependency modules to create `.env` and `next.config.js`.
 
-Most of the configuration in `config.yaml` refers to the [SOMOD parameter](/reference/main-concepts/parameters) for their values. The parameter values from parameters.json are applied to generate `.env` and `next.config.js` while preparing.
+Most of the configuration in `config.yaml` refers to the [SOMOD parameter](/reference/main-concepts/parameters) for their values. The parameter values from `parameters.json` are applied to generate `.env` and `next.config.js` while preparing.
 
 ## Anatomy of config.yaml
 
@@ -45,7 +45,7 @@ The `config.yaml` contains four sections. All four sections are optional.
     - SOMOD::Parameter: mycomponent.image.cdn
   ```
 
-  The imageDomains is an array of hardcoded domain name strings or the [Common Keywords](/reference/main-concepts/yaml-processing).
+  The imageDomains is an array of hardcoded domain name strings or [Common Keywords](/reference/main-concepts/yaml-processing).
 
 - **`publicRuntimeConfig`**  
   This section is similar to the [publicRuntimeConfig](https://nextjs.org/docs/api-reference/next.config.js/runtime-configuration) of NextJs configuration. The SOMOD's publicRuntimeConfig refers to the SOMOD parameter for the value.
@@ -59,7 +59,7 @@ The `config.yaml` contains four sections. All four sections are optional.
       # any SOMOD common keywords
   ```
 
-  The publicRuntimeConfig is a map of config name to the [Common Keywords](/reference/main-concepts/yaml-processing).
+  The publicRuntimeConfig is a map of the config name to the [Common Keywords](/reference/main-concepts/yaml-processing).
 
 - **`serverRuntimeConfig`**  
   The serverRuntimeConfig is similar to publicRuntimeConfig, but these configs are available only on the server.

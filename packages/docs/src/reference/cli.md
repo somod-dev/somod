@@ -9,9 +9,9 @@ meta:
 
 ---
 
-SOMOD CLI is a toolset to Develop, Build and Reuse Serverless Applications. With the command-line interface (CLI) you can work with a SOMOD module using a terminal, or through an automated scripts, enabling you to build, and prepare deployable applications.
+SOMOD CLI is a toolset to Develop, Build and Reuse Serverless Applications. With the command-line interface (CLI) you can work with a SOMOD module using a terminal, or through automated scripts, enabling you to build, and prepare deployable applications.
 
-This page contains a complete list of all SOMOD CLI commands available, along with their arguments and options for additional behaviour
+This page contains a complete list of all SOMOD CLI commands available, along with their arguments and options for additional behavior
 
 ## Installing the CLI
 
@@ -31,18 +31,18 @@ npm install somod --save-dev
 
 ## Usage
 
-All SOMOD commands needs to be run under a npm package directory.
+All SOMOD commands need to be run under an npm package directory.
 
 ## Global Options
 
 - `-h` or `--help`  
-  Displays a help about the command
+  Displays the command usage instructions
 
 - `--version`  
   Displays the version of the SOMOD CLI
 
 - `-v` or `--verbose`  
-  Runs the command in verbose mode. In verbose mode command outputs more info to stdout
+  Runs the command in verbose mode. In verbose mode, the command outputs more info to stdout
 
 ## Commands
 
@@ -52,7 +52,7 @@ All SOMOD commands needs to be run under a npm package directory.
 npx somod build
 ```
 
-Validates the source and generates `build` directory. The directory strcuture is explained in detail [here](/reference/main-concepts/directory-structure).
+Validates the source and generates `build` directory. The directory structure is explained in detail [here](/reference/main-concepts/directory-structure).
 
 #### Command Options
 
@@ -75,6 +75,8 @@ Prepares NextJs and AWS SAM Projects by combining all dependency modules.
   prepare only ui
 - `--serverless`  
   prepare only serverless
+- `--debug`  
+  Enable source-map for deployed lambda functions
 
 ### **`deploy`**
 
@@ -83,12 +85,12 @@ npx somod deploy
 ```
 
 Deploys the AWS SAM project to AWS Cloudformation. Internally calls `build` and `prepare` with --serverless option.  
-This command requires that AWS SAM is installed and configured to right AWS Account. Refer the [Getting started with AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started.html) guide for setting up SAM.
+This command requires that AWS SAM is installed and configured to the right AWS Account. Refer to the [Getting started with AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started.html) guide for setting up SAM.
 
 #### Command Options
 
 - `-g` or `--guided`  
-  enables guided flag on aws sam cli
+  enables guided flag on AWS SAM CLI
 
 ### **`start`**
 
@@ -96,18 +98,18 @@ This command requires that AWS SAM is installed and configured to right AWS Acco
 npx somod start
 ```
 
-This command starts the NextJs Server. Internally calls `build` and `prepare` with --ui option.  
-Refer the [Next.js CLI](https://nextjs.org/docs/api-reference/cli) guide for NextJs Commands.
+This command starts the NextJs Server. Internally calls `build` and `prepare` with the `--ui` option.  
+Refer to the [Next.js CLI](https://nextjs.org/docs/api-reference/cli) guide for NextJs Commands.
 
 #### Command Options
 
-- `-d` or `--dev`  
+- `--dev`  
   starts the [NextJs dev server](https://nextjs.org/docs/api-reference/cli#development), with watch mode
 
-### **`update-params`**
+### **`parameters update`**
 
 ```
-npx somod update-params
+npx somod parameters update
 ```
 
 After deploying AWS SAM Project, this command updates the `parameters.json` with the exported parameters.
@@ -116,4 +118,18 @@ Read the [SOMOD Serverless template.yaml](/reference/main-concepts/serverless/te
 #### Command Options
 
 - `-s` or `--stack-name`  
-  Stack name to update the params from. Reads from samconfig.toml if omitted
+  Stack name to update the params from. Reads from `samconfig.toml` if omitted
+
+### **`parameters validate`**
+
+```
+npx somod parameters validate
+```
+
+After deploying AWS SAM Project, this command updates the `parameters.json` with the exported parameters.
+Read the [SOMOD Serverless template.yaml](/reference/main-concepts/serverless/template.yaml) guide to define the exported parameter.
+
+#### Command Options
+
+- `-s` or `--stack-name`  
+  Stack name to update the params from. Reads from `samconfig.toml` if omitted

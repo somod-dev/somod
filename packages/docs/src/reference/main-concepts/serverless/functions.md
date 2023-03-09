@@ -17,7 +17,9 @@ The `serverless/functions` directory contains the code for Lambda functions. The
 Every SOMOD function must have a lambda handler as the default export.
 The SOMOD prepare command will generate a javascript bundle capable of running inside nodeJs runtime at the `.somod/serverless/functions/{moduleName}/{functionName}` directory.
 
-The SOMOD excludes the npm packages in the attached layers from the function bundle.
+SOMOD excludes the npm packages in the attached layers from the function bundle.
+
+By default, the lambda functions are bundled for NodeJs version 16. bundle for a different version of NodeJs by setting `SOMOD_SERVERLESS_NODEJS_VERSION` environmental variable before calling `somod prepare` command.
 
 ## Layers
 
@@ -31,6 +33,10 @@ The lambda function can handle any of the events described in the _event sources
 
 For [HttpApi](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-httpapi.html) and [Api](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-api.html) event sources SOMOD automatically tries to resolve the conflicting API Routes.
 For conflict resolution strategy, refer to [Namespaces](/reference/main-concepts/namespaces).
+
+## Debug
+
+By default, functions are bundled and minified when prepared. Enable `--debug` flag with `somod prepare` command to keep the functions un-minified along with source-map enabled in the deployed lambda function.
 
 ## Extending the functions
 

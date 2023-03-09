@@ -59,7 +59,7 @@ parameters:
 The `parameters.yaml` contains one section, **parameters**
 
 - **`parameters`**  
-  parameters is a map of the parameter name to json schema.
+  parameters is a map of the parameter name to JSON schema.
 
   - `Parameter name`  
     The parameter name has the following constraints

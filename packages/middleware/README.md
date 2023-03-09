@@ -6,4 +6,4 @@
 
 Direct usage of this package is not encouraged.
 
-Refer to https://docs.somod.dev/reference/middleware for usage
+Refer to https://docs.somod.dev/reference/main-concepts/serverless/middlewares for usage

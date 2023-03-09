@@ -36,4 +36,8 @@ The content of the `tsconfig.somod.json` file is as follows
 
 Any extra configurations are allowed, but these configurations must be present and not altered.
 
+> - Typescript compilation is skipped if `tsconfig.somod.json` is not present
+> - When build is run with `--ui` option, the typescript compilation includes `lib` and `ui` only
+> - When build is run with `--serverless` option, the typescript compilation includes `lib` and `serverless` only
+
 Till now this guide explained the main concepts and project structure in the SOMOD module. In the [next chapter](/reference/main-concepts/extensions), let us understand how to extend the capabilities of SOMOD using extensions.

@@ -9,7 +9,7 @@ import {
 } from "../../constants";
 
 /**
- * Creates `build/serverless/template.json` from `serverless/template.yaml` if present.
+ * Creates `build/serverless/template.json` from `serverless/template.yaml`.
  *
  */
 export const build = async (dir: string) => {

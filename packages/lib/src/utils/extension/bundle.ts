@@ -15,7 +15,9 @@ export const bundle = async (context: IContext, verbose = false) => {
     platform: "node",
     external: ["tslib"],
     minify: true,
-    target: ["node14"],
+    target: [
+      "node" + context.serverlessTemplateHandler.functionNodeRuntimeVersion
+    ],
     logLevel: verbose ? "verbose" : "silent",
     ...((packageJson.ExtensionBuildOptions as Record<string, unknown>) || {}),
     bundle: true,

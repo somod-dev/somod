@@ -165,7 +165,7 @@ export const BuildAction = async ({
   );
 
   await taskRunner(
-    `Bundle Extensions`,
+    `Bundle Extension`,
     bundleExtension,
     { verbose, progressIndicator: true },
     context,

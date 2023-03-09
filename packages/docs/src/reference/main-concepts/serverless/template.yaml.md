@@ -92,6 +92,8 @@ Along with [Common Keywords](/reference/main-concepts/yaml-processing), SOMOD de
         # ...
   ```
 
+  > The resource having `SOMOD::Extend` keyword can not have any of `SOMOD::Access`, `SOMOD::DependsOn`, `SOMOD::Output`, or `SOMOD::CreateIf` keyword.
+
 - **SOMOD::Output**  
   Each Resource in the AWS SAM template specification has some return values. Other resources can refer to these return values. `SOMOD::Output` restricts which of the return values are to be referred to.
 
@@ -199,7 +201,7 @@ Along with [Common Keywords](/reference/main-concepts/yaml-processing), SOMOD de
         CodeUri:
           # SOMOD::Function must be used only as a value of CodeUri property of AWS::Serverless::Function
           SOMOD::Function:
-            type: CfnCustomResource # mandatory type defines the type of the event received by the function handler
+            type: CfnCustomResource # type defines the type of the event received by the function handler, type is mandatory
             name: getUser # must have a typescript file with this name under serverless/functions directory
             customResources: # If this function provides Custom resources, define the JSONSchema for each Custom Resource Type provided by this function
               MyCustomResource:
@@ -272,4 +274,24 @@ Along with [Common Keywords](/reference/main-concepts/yaml-processing), SOMOD de
   > **Middlewares** allow to insert code to the lambda functions during prepare phase.  
   > Know more about middlewares in its dedicated [chapter](/reference/main-concepts/serverless/middlewares)
 
-Let us understand how to work with Lambda [Functions](/reference/main-concepts/serverless/functions) in our next chapter.
+### Outputs
+
+Outputs section in the `serverless/template.yaml` file helps to export the values from deployed stack into parameters. The Outputs section is a map of parameter names to the expression which generates a value from the deployed stack.
+
+Example:
+
+```yaml
+Outputs:
+  my.table.name: # output is exported to this parameter
+    SOMOD::Ref: # a SOMOD keyword
+      resource: MyTable1
+```
+
+here the default return value from the `MyTable1` resource is exported to `my.table.name` parameter.
+
+After deployment, use the command `npx somod parameters update` to update the values from stack to `parameters.json`
+
+> Read more about parameters [here](/reference/main-concepts/parameters)  
+> Find more details about the SOMOD CLI [here](/reference/cli)
+
+Now we have understood how to author resources in the template. In the next chapter, Let us understand how to work with Lambda [Functions](/reference/main-concepts/serverless/functions).

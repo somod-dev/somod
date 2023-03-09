@@ -18,7 +18,12 @@ describe("Test util extension.bundle", () => {
     createFiles(dir, {
       "package.json": "{}"
     });
-    await expect(bundle({ dir } as IContext)).rejects.toEqual(
+    await expect(
+      bundle({
+        dir,
+        serverlessTemplateHandler: { functionNodeRuntimeVersion: "16" }
+      } as IContext)
+    ).rejects.toEqual(
       new Error(
         `Build failed with 1 error:\nerror: Could not resolve "${dir}/extension.ts"`
       )
@@ -31,7 +36,12 @@ describe("Test util extension.bundle", () => {
       "extension.ts": "export const preBuild = 10;",
       "package.json": "{}"
     });
-    await expect(bundle({ dir } as IContext)).resolves.toBeUndefined();
+    await expect(
+      bundle({
+        dir,
+        serverlessTemplateHandler: { functionNodeRuntimeVersion: "16" }
+      } as IContext)
+    ).resolves.toBeUndefined();
 
     const bundledExtension = await readFile(
       join(dir, "build/extension.js"),
@@ -56,7 +66,12 @@ describe("Test util extension.bundle", () => {
       "extension.ts": "export const preBuild = 10;",
       "package.json": '{"ExtensionBuildOptions": {"sourcemap": false}}'
     });
-    await expect(bundle({ dir } as IContext)).resolves.toBeUndefined();
+    await expect(
+      bundle({
+        dir,
+        serverlessTemplateHandler: { functionNodeRuntimeVersion: "16" }
+      } as IContext)
+    ).resolves.toBeUndefined();
 
     await expect(
       readFile(join(dir, "build/extension.js"), "utf8")

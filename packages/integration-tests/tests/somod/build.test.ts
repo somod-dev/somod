@@ -276,8 +276,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build ui/public :- Started
         Build ui/public :- Completed
         Build ui/config.yaml :- Started
@@ -340,8 +340,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build ui/public :- Started
         Build ui/public :- Completed
         Build ui/config.yaml :- Started
@@ -400,8 +400,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build serverless/template.yaml :- Started
         Build serverless/template.yaml :- Completed
         Build parameters.yaml :- Started
@@ -493,8 +493,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build ui/public :- Started
         Build ui/public :- Completed
         Build ui/config.yaml :- Started
@@ -550,8 +550,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build serverless/template.yaml :- Started
         Build serverless/template.yaml :- Completed
         Build parameters.yaml :- Started
@@ -738,8 +738,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build ui/public :- Started
         Build ui/public :- Completed
         Build ui/config.yaml :- Started
@@ -797,8 +797,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build ui/public :- Started
         Build ui/public :- Completed
         Build ui/config.yaml :- Started
@@ -997,8 +997,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build ui/public :- Started
         Build ui/public :- Completed
         Build ui/config.yaml :- Started
@@ -1062,8 +1062,8 @@ describe("Test the somod command build", () => {
         Delete build directory :- Completed
         Compile Typescript :- Started
         Compile Typescript :- Completed
-        Bundle Extensions :- Started
-        Bundle Extensions :- Completed
+        Bundle Extension :- Started
+        Bundle Extension :- Completed
         Build ui/public :- Started
         Build ui/public :- Completed
         Build ui/config.yaml :- Started
