@@ -17,7 +17,6 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.13.0",
     "@types/aws-lambda": "^8.10.110",
     "aws-sdk": "^2.1055.0",
     "somod": "*",

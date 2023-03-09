@@ -1,7 +1,7 @@
 {
   "name": "push-notification",
   "version": "1.0.0",
-  "somod": "1.15.10",
+  "somod": "1.17.0-0",
   "description": "Sample somod module for integration testing",
   "module": "build/lib/index.js",
   "typings": "build/lib/index.d.ts",
@@ -18,7 +18,6 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.110",
-    "@types/node": "^18.13.0",
     "next": "^12.0.7",
     "react-dom": "^18.2.0",
     "aws-sdk": "^2.1055.0",

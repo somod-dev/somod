@@ -23,6 +23,9 @@ export type ExtensionValue<T> = {
   value: T;
 };
 
+/**
+ * Interface for handling the extensions, all getters return the values ordered from child to parent module
+ */
 export interface IExtensionHandler {
   get prebuildHooks(): ExtensionValue<Hook>[];
   get buildHooks(): ExtensionValue<Hook>[];

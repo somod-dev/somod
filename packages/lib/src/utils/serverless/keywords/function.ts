@@ -7,6 +7,7 @@ import {
   IContext,
   IServerlessTemplateHandler,
   JSONObjectNode,
+  JSONArrayType,
   JSONPrimitiveNode,
   KeywordDefinition,
   ServerlessResource
@@ -17,16 +18,25 @@ import {
   path_serverless,
   path_somodWorkingDir,
   resourceType_Function,
+  resourceType_FunctionLayer,
   resourceType_FunctionMiddleware
 } from "../../constants";
-import { constructJson, getPath } from "../../jsonTemplate";
+import {
+  constructJson,
+  getPath,
+  parseJson,
+  processKeywords
+} from "../../jsonTemplate";
 import { checkAccess } from "./access";
 import { keywordExtend } from "./extend";
 import {
   FunctionType,
   MergedFunctionResourceContainer
 } from "./function-helper";
-import { getLibrariesFromFunctionLayerResource } from "./functionLayer";
+import {
+  getLibrariesFromFunctionLayerResource,
+  keywordFunctionLayer
+} from "./functionLayer";
 import { keywordFunctionMiddleware } from "./functionMiddleware";
 import { keywordRef, KeywordSomodRef } from "./ref";
 
@@ -66,7 +76,7 @@ const validateFunctionIsDefined = (
   definedFunctions: string[],
   functionName: string
 ) => {
-  if (!definedFunctions.includes(functionName)) {
+  if (functionName && !definedFunctions.includes(functionName)) {
     throw new Error(
       `Function ${functionName} not found. Create the function under ${path_serverless}/${path_functions} directory`
     );
@@ -97,7 +107,6 @@ const validateAllEventsMatchTheFunctionType = (
 const validateMiddlewares = (
   serverlessTemplateHandler: IServerlessTemplateHandler,
   moduleName: string,
-  node: JSONObjectNode,
   functionName: string,
   functionType: string,
   middlewares?: FunctionType["middlewares"]
@@ -144,6 +153,71 @@ const validateMiddlewares = (
   }
 };
 
+const validateLayers = async (
+  serverlessTemplateHandler: IServerlessTemplateHandler,
+  moduleName: string,
+  functionName: string,
+  functionType: string,
+  functionKeywordNode: JSONObjectNode
+) => {
+  const functionResourceProperties = constructJson(
+    functionKeywordNode.parent.node
+  ) as {
+    Layers?: JSONArrayType;
+  };
+
+  if (
+    !functionResourceProperties.Layers ||
+    functionResourceProperties.Layers.length == 0
+  ) {
+    return;
+  }
+
+  const refKeywords: {
+    path: string;
+    ref: KeywordSomodRef["SOMOD::Ref"];
+    referencedResource?: ServerlessResource;
+  }[] = [];
+
+  await processKeywords(parseJson(functionResourceProperties), {
+    [keywordRef.keyword]: (
+      keyword,
+      node,
+      value: KeywordSomodRef["SOMOD::Ref"]
+    ) => {
+      refKeywords.push({
+        path: getPath(node).join("."),
+        ref: { module: value.module || moduleName, resource: value.resource },
+        referencedResource: serverlessTemplateHandler.getResource(
+          value.module || moduleName,
+          value.resource
+        )?.resource
+      });
+      return { type: "keyword", value };
+    }
+  });
+
+  const layerReferences = refKeywords.filter(
+    ref => ref.referencedResource?.Type === resourceType_FunctionLayer
+  );
+
+  const unmatchedLayers = layerReferences.filter(layerRef => {
+    const allowedTypes = layerRef.referencedResource.Properties.ContentUri?.[
+      keywordFunctionLayer.keyword
+    ]?.allowedTypes || [functionType];
+
+    return !(allowedTypes.length == 0 || allowedTypes.includes(functionType));
+  });
+
+  if (unmatchedLayers.length > 0) {
+    throw new Error(
+      `All layers in the function '${functionName}' must be allowed for type '${functionType}'. Unmatched layers are ${unmatchedLayers
+        .map(({ ref: { module, resource } }) => module + "." + resource)
+        .join(", ")}.`
+    );
+  }
+};
+
 const isExtendedFunction = (node: JSONObjectNode) => {
   return (
     (node.parent.node.parent.node as JSONObjectNode).properties?.[
@@ -157,7 +231,7 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
 
   getValidator: async (moduleName, context) => {
     const definedFunctions = await getDefinedFunctions(context.dir);
-    return (keyword, node, value) => {
+    return async (keyword, node, value) => {
       const errors: Error[] = [];
 
       try {
@@ -167,10 +241,16 @@ export const keywordFunction: KeywordDefinition<FunctionType> = {
         validateMiddlewares(
           context.serverlessTemplateHandler,
           moduleName,
-          node,
           value.name,
           value.type,
           value.middlewares
+        );
+        await validateLayers(
+          context.serverlessTemplateHandler,
+          moduleName,
+          value.name,
+          value.type,
+          node
         );
       } catch (e) {
         errors.push(e);

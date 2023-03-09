@@ -51,7 +51,9 @@ export const PrepareAction = async ({
     debug
   );
 
-  for (const preprepareHook of context.extensionHandler.preprepareHooks) {
+  const preprepareHooks = [...context.extensionHandler.preprepareHooks];
+  preprepareHooks.reverse();
+  for (const preprepareHook of preprepareHooks) {
     await taskRunner(
       `Run PrePrepare Hook of ${preprepareHook.extension}`,
       preprepareHook.value,
@@ -119,9 +121,7 @@ export const PrepareAction = async ({
     );
   }
 
-  const prepareHooks = [...context.extensionHandler.prepareHooks];
-  prepareHooks.reverse();
-  for (const prepareHook of prepareHooks) {
+  for (const prepareHook of context.extensionHandler.prepareHooks) {
     await taskRunner(
       `Run Prepare Hook of ${prepareHook.extension}`,
       prepareHook.value,

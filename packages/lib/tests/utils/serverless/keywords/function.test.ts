@@ -73,13 +73,13 @@ describe("Test function keyword", () => {
       [keywordFunction.keyword]: {}
     };
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         parseJson(obj) as JSONObjectNode,
         obj[keywordFunction.keyword] as FunctionType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "SOMOD::Function is allowed only as value of CodeUri property of AWS::Serverless::Function resource"
       )
@@ -104,7 +104,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         (
@@ -116,7 +116,7 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "SOMOD::Function is allowed only as value of CodeUri property of AWS::Serverless::Function resource"
       )
@@ -143,7 +143,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         (
@@ -157,7 +157,7 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
   });
 
   test("the validator with non existing function", async () => {
@@ -180,7 +180,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         (
@@ -194,11 +194,49 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "Function function1 not found. Create the function under serverless/functions directory"
       )
     ]);
+  });
+
+  test("the validator with no function name", async () => {
+    const validator = await keywordFunction.getValidator("m1", {
+      dir: ""
+    } as IContext);
+
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "AWS::Serverless::Function",
+          "SOMOD::Extend": { module: "m0", resource: "r0" },
+          Properties: {
+            CodeUri: {
+              [keywordFunction.keyword]: { middlewares: [] }
+            }
+          }
+        }
+      }
+    };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    await expect(
+      validator(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).resolves.toEqual([]);
   });
 
   test("the validator with non matching events", async () => {
@@ -231,7 +269,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         (
@@ -245,7 +283,7 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "All Events in the function 'func1' must match its type 'Api'. Unmatched events are e2."
       )
@@ -282,7 +320,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         (
@@ -296,7 +334,7 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
   });
 
   test("the validator with invalid middlewares", async () => {
@@ -354,7 +392,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         (
@@ -368,7 +406,7 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "Middleware {module1, M1} used in the function func1 must be of type SOMOD::Serverless::FunctionMiddleware"
       )
@@ -431,7 +469,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         (
@@ -445,7 +483,7 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual([
+    ).resolves.toEqual([
       new Error(
         "All middlewares in the function 'func1' must be allowed for type 'Api'. Unmatched middlewares are module2.M2."
       )
@@ -508,7 +546,7 @@ describe("Test function keyword", () => {
 
     const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       validator(
         keywordFunction.keyword,
         (
@@ -522,7 +560,157 @@ describe("Test function keyword", () => {
           keywordFunction.keyword
         ] as FunctionType
       )
-    ).toEqual([]);
+    ).resolves.toEqual([]);
+  });
+
+  test("the validator with non matching layers", async () => {
+    const resources: Record<string, Record<string, ServerlessResource>> = {
+      module1: {
+        L1: {
+          Type: "AWS::Serverless::LayerVersion",
+          Properties: {
+            ContentUri: {
+              "SOMOD::FunctionLayer": {
+                allowedTypes: ["Api"]
+              }
+            }
+          }
+        },
+        MyResource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              [keywordFunction.keyword]: {
+                type: "Api",
+                name: "func1"
+              }
+            },
+            Layers: [
+              { "SOMOD::Ref": { resource: "M1" } },
+              { "SOMOD::Ref": { module: "module2", resource: "M2" } }
+            ]
+          }
+        }
+      },
+      module2: {
+        M2: {
+          Type: "AWS::Serverless::LayerVersion",
+          "SOMOD::Access": "public",
+          Properties: {
+            ContentUri: {
+              "SOMOD::FunctionLayer": {
+                allowedTypes: ["RestApi", "S3"]
+              }
+            }
+          }
+        }
+      }
+    };
+    const validator = await keywordFunction.getValidator("module1", {
+      dir: "",
+      serverlessTemplateHandler: {
+        getResource: (m, r) => {
+          return { resource: resources[m][r] };
+        }
+      } as IServerlessTemplateHandler
+    } as IContext);
+
+    const obj = { Resources: resources.module1 };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    await expect(
+      validator(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).resolves.toEqual([
+      new Error(
+        "All layers in the function 'func1' must be allowed for type 'Api'. Unmatched layers are module2.M2."
+      )
+    ]);
+  });
+
+  test("the validator with matching layers", async () => {
+    const resources: Record<string, Record<string, ServerlessResource>> = {
+      module1: {
+        L1: {
+          Type: "AWS::Serverless::LayerVersion",
+          Properties: {
+            ContentUri: {
+              "SOMOD::FunctionLayer": {
+                allowedTypes: ["Api"]
+              }
+            }
+          }
+        },
+        MyResource1: {
+          Type: "AWS::Serverless::Function",
+          Properties: {
+            CodeUri: {
+              [keywordFunction.keyword]: {
+                type: "Api",
+                name: "func1"
+              }
+            },
+            Layers: [
+              { "SOMOD::Ref": { resource: "M1" } },
+              { "SOMOD::Ref": { module: "module2", resource: "M2" } }
+            ]
+          }
+        }
+      },
+      module2: {
+        M2: {
+          Type: "AWS::Serverless::LayerVersion",
+          "SOMOD::Access": "public",
+          Properties: {
+            ContentUri: {
+              "SOMOD::FunctionLayer": {
+                allowedTypes: ["RestApi", "S3", "Api"]
+              }
+            }
+          }
+        }
+      }
+    };
+    const validator = await keywordFunction.getValidator("module1", {
+      dir: "",
+      serverlessTemplateHandler: {
+        getResource: (m, r) => {
+          return { resource: resources[m][r] };
+        }
+      } as IServerlessTemplateHandler
+    } as IContext);
+
+    const obj = { Resources: resources.module1 };
+
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    await expect(
+      validator(
+        keywordFunction.keyword,
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["CodeUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.CodeUri[
+          keywordFunction.keyword
+        ] as FunctionType
+      )
+    ).resolves.toEqual([]);
   });
 
   test("the getValidator is calling existsSync and skipping listFiles when existsSync returns false", async () => {

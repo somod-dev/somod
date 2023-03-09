@@ -138,7 +138,9 @@ export const BuildAction = async ({
     );
   }
 
-  for (const prebuildHook of context.extensionHandler.prebuildHooks) {
+  const prebuildHooks = [...context.extensionHandler.prebuildHooks];
+  prebuildHooks.reverse();
+  for (const prebuildHook of prebuildHooks) {
     await taskRunner(
       `Run PreBuild Hook of ${prebuildHook.extension}`,
       prebuildHook.value,
@@ -215,9 +217,7 @@ export const BuildAction = async ({
     context
   );
 
-  const buildHooks = [...context.extensionHandler.buildHooks];
-  buildHooks.reverse();
-  for (const buildHook of buildHooks) {
+  for (const buildHook of context.extensionHandler.buildHooks) {
     await taskRunner(
       `Run Build Hook of ${buildHook.extension}`,
       buildHook.value,

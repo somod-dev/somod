@@ -12,7 +12,7 @@ export class ModuleHandler implements IModuleHandler {
 
   private _rootModuleName: string;
   private _moduleNodesMap: Record<string, ModuleNode>;
-  private _moduleNamesInBSFOrder: string[];
+  private _moduleNamesInBFSOrder: string[];
 
   private constructor() {
     // do nothing
@@ -36,11 +36,11 @@ export class ModuleHandler implements IModuleHandler {
         modules,
         moduleDependencies
       );
-      moduleHandler._moduleNamesInBSFOrder = this._sortModules(
+      moduleHandler._moduleNamesInBFSOrder = this._sortModules(
         moduleHandler._moduleNodesMap
       );
       freeze(moduleHandler._moduleNodesMap);
-      freeze(moduleHandler._moduleNamesInBSFOrder);
+      freeze(moduleHandler._moduleNamesInBFSOrder);
 
       this.instance = moduleHandler;
     }
@@ -198,6 +198,6 @@ export class ModuleHandler implements IModuleHandler {
   }
 
   get list(): ModuleNode[] {
-    return this._moduleNamesInBSFOrder.map(n => this._moduleNodesMap[n]);
+    return this._moduleNamesInBFSOrder.map(n => this._moduleNodesMap[n]);
   }
 }

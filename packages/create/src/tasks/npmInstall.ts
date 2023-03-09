@@ -15,15 +15,10 @@ export const npmInstall = async (
     "somod-template@" + templateVersion
   ];
   if (serverless) {
-    args.push(
-      "@types/node",
-      "@types/aws-lambda",
-      "aws-sdk",
-      "somod-middleware"
-    );
+    args.push("@types/aws-lambda", "aws-sdk", "somod-middleware");
   }
   if (ui) {
-    args.push("@types/node", "@types/react", "react", "next", "react-dom");
+    args.push("@types/react", "react", "next", "react-dom");
   }
   if (eslint) {
     args.push("eslint-config-sodaru");

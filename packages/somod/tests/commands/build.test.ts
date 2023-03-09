@@ -177,4 +177,58 @@ describe("Test command build", () => {
     });
     expect(output).toMatchSnapshot();
   });
+
+  test("with hooks from extensions", async () => {
+    mock({
+      initializeContext: {
+        dir: "/root/dir",
+        extensionHandler: {
+          prebuildHooks: [
+            {
+              extension: "e1",
+              value: context => {
+                output.push(["pre-e1", context]);
+              }
+            },
+            {
+              extension: "e2",
+              value: context => {
+                output.push(["pre-e2", context]);
+              }
+            },
+            {
+              extension: "e3",
+              value: context => {
+                output.push(["pre-e3", context]);
+              }
+            }
+          ],
+          buildHooks: [
+            {
+              extension: "e1",
+              value: context => {
+                output.push(["e1", context]);
+              }
+            },
+            {
+              extension: "e2",
+              value: context => {
+                output.push(["e2", context]);
+              }
+            },
+            {
+              extension: "e3",
+              value: context => {
+                output.push(["e3", context]);
+              }
+            }
+          ]
+        }
+      } as IContext
+    });
+    await buildCommand.parseAsync(["-v", "-d", "--ui", "--serverless"], {
+      from: "user"
+    });
+    expect(output).toMatchSnapshot();
+  });
 });

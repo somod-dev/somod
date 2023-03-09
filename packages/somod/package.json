@@ -65,9 +65,6 @@
     "somod-middleware": "^1.17.0-1"
   },
   "peerDependenciesMeta": {
-    "@types/node": {
-      "optional": true
-    },
     "@types/react": {
       "optional": true
     },
