@@ -1,6 +1,6 @@
 {
   "name": "somod-types",
-  "version": "1.14.0",
+  "version": "1.17.0-2",
   "description": "Type Definitions for somod",
   "typings": "dist/index.d.ts",
   "files": [
@@ -8,6 +8,11 @@
   ],
   "homepage": "https://github.com/somod-dev/somod/tree/main/packages/types#readme",
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "contributors": [
+    "Raghavendra K R <raghavendra@sodaru.com>",
+    "Lokesh G C <lokesh@sodaru.com>",
+    "Sukhesh M G <sukhesh@sodaru.com>"
+  ],
   "bugs": {
     "url": "https://github.com/somod-dev/somod"
   },
@@ -30,6 +35,7 @@
     "sodaru"
   ],
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.109",
     "rimraf": "^3.0.2",
     "typescript": "^4.5.5"
   }

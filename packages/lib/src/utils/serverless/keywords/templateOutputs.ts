@@ -1,20 +1,15 @@
 import { file_parametersYaml } from "../../constants";
 import { getPath } from "../../jsonTemplate";
-import { listAllParameters } from "../../parameters/namespace";
-import { getSAMOutputName } from "../utils";
-import { ServerlessTemplate } from "../types";
+import { getParameterToModuleMap } from "../../parameters/namespace";
 import { JSONType, KeywordDefinition } from "somod-types";
 
 type Outputs = Record<string, JSONType>;
 
-export const keywordTemplateOutputs: KeywordDefinition<
-  Outputs,
-  ServerlessTemplate
-> = {
+export const keywordTemplateOutputs: KeywordDefinition<Outputs> = {
   keyword: "Outputs",
 
-  getValidator: async () => {
-    const parameters = Object.keys(await listAllParameters());
+  getValidator: async (moduleName, context) => {
+    const parameters = Object.keys(getParameterToModuleMap(context));
     return (keyword, node, value) => {
       const errors: Error[] = [];
 
@@ -39,25 +34,27 @@ export const keywordTemplateOutputs: KeywordDefinition<
     };
   },
 
-  getProcessor: async () => (keyword, node, value) => {
-    if (getPath(node).length == 0) {
+  getProcessor: async (moduleName, context) => {
+    return (keyword, node, value) => {
+      if (getPath(node).length == 0) {
+        return {
+          type: "keyword",
+          value: {
+            [keyword]: Object.fromEntries(
+              Object.keys(value).map(p => [
+                context.serverlessTemplateHandler.getSAMOutputName(p),
+                { Value: value[p], Description: `Value for ${p}` }
+              ])
+            )
+          }
+        };
+      }
       return {
         type: "keyword",
         value: {
-          [keyword]: Object.fromEntries(
-            Object.keys(value).map(p => [
-              getSAMOutputName(p),
-              { Value: value[p] }
-            ])
-          )
+          [keyword]: value
         }
       };
-    }
-    return {
-      type: "keyword",
-      value: {
-        [keyword]: value
-      }
     };
   }
 };

@@ -2,15 +2,15 @@ import { rootCommand } from "nodejs-cli-runner";
 import buildCommand from "./commands/build";
 import deployCommand from "./commands/deploy";
 import prepareCommand from "./commands/prepare";
-import serveCommand from "./commands/serve";
-import updateParamsCommand from "./commands/updateParams";
+import startCommand from "./commands/start";
+import parametersCommand from "./commands/parameters";
 
 const program = rootCommand("somod", [
   buildCommand,
   prepareCommand,
   deployCommand,
-  serveCommand,
-  updateParamsCommand
+  startCommand,
+  parametersCommand
 ]);
 
 export default program;

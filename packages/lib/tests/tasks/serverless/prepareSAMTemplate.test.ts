@@ -1,16 +1,10 @@
-import {
-  createFiles,
-  createTempDir,
-  deleteDir,
-  mockedFunction
-} from "../../utils";
-import { prepareSamTemplate } from "../../../src/utils/serverless/serverlessTemplate/prepare";
-import { prepareSAMTemplate } from "../../../src";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
-import { join } from "path";
 import { existsSync } from "fs";
-import { dump } from "js-yaml";
 import { readFile } from "fs/promises";
+import { join } from "path";
+import { IContext } from "somod-types";
+import { prepareSAMTemplate } from "../../../src";
+import { prepareSamTemplate as prepareSamTemplateUtil } from "../../../src/utils/serverless/serverlessTemplate/prepare";
+import { createTempDir, deleteDir, mockedFunction } from "../../utils";
 
 jest.mock("../../../src/utils/serverless/serverlessTemplate/prepare", () => {
   return {
@@ -24,8 +18,7 @@ describe("test Task prepareSAMTemplate", () => {
 
   beforeEach(async () => {
     dir = createTempDir("test-somod-lib");
-    ModuleHandler.initialize(dir, []);
-    mockedFunction(prepareSamTemplate).mockReset();
+    mockedFunction(prepareSamTemplateUtil).mockReset();
   });
 
   afterEach(() => {
@@ -33,79 +26,40 @@ describe("test Task prepareSAMTemplate", () => {
   });
 
   test("for no resources", async () => {
-    mockedFunction(prepareSamTemplate).mockResolvedValue({ Resources: {} });
-    createFiles(dir, {
-      "package.json": JSON.stringify({
-        name: "my-module",
-        version: "1.0.0",
-        somod: "1.0.0"
-      }),
-      "serverless/template.yaml": "Resources: {}"
-    });
-    await expect(prepareSAMTemplate(dir)).resolves.toBeUndefined();
-    expect(prepareSamTemplate).toHaveBeenCalledTimes(1);
-    expect(prepareSamTemplate).toHaveBeenCalledWith(
-      dir,
-      ["my-module"],
-      {
-        "my-module": {
-          module: "my-module",
-          packageLocation: join(dir),
-          root: true,
-          template: { Resources: {} }
-        }
-      },
-      []
-    );
+    mockedFunction(prepareSamTemplateUtil).mockResolvedValue({ Resources: {} });
+    await expect(
+      prepareSAMTemplate({ dir } as IContext)
+    ).resolves.toBeUndefined();
+    expect(prepareSamTemplateUtil).toHaveBeenCalledTimes(1);
+    expect(prepareSamTemplateUtil).toHaveBeenCalledWith({ dir });
     expect(existsSync(join(dir, "template.yaml"))).not.toBeTruthy();
   });
 
   test("for valid template.yaml", async () => {
-    mockedFunction(prepareSamTemplate).mockResolvedValue({
+    mockedFunction(prepareSamTemplateUtil).mockResolvedValue({
       Resources: {
         R1: { Type: "T1", Properties: {} },
         R2: { Type: "T2", Properties: {} }
       }
     });
-    createFiles(dir, {
-      "package.json": JSON.stringify({
-        name: "my-module",
-        version: "1.0.0",
-        somod: "1.0.0"
-      }),
-      "serverless/template.yaml": dump({
-        Resources: {
-          R1: { Type: "T1", Properties: {} },
-          R2: { Type: "T2", Properties: {} }
-        }
-      })
-    });
-    await expect(prepareSAMTemplate(dir)).resolves.toBeUndefined();
-    expect(prepareSamTemplate).toHaveBeenCalledTimes(1);
-    expect(prepareSamTemplate).toHaveBeenCalledWith(
+
+    await expect(
+      prepareSAMTemplate({
+        dir,
+        serverlessTemplateHandler: { functionNodeRuntimeVersion: "14" }
+      } as IContext)
+    ).resolves.toBeUndefined();
+    expect(prepareSamTemplateUtil).toHaveBeenCalledTimes(1);
+    expect(prepareSamTemplateUtil).toHaveBeenCalledWith({
       dir,
-      ["my-module"],
-      {
-        "my-module": {
-          module: "my-module",
-          packageLocation: join(dir),
-          root: true,
-          template: {
-            Resources: {
-              R1: { Type: "T1", Properties: {} },
-              R2: { Type: "T2", Properties: {} }
-            }
-          }
-        }
-      },
-      []
-    );
+      serverlessTemplateHandler: { functionNodeRuntimeVersion: "14" }
+    });
     await expect(readFile(join(dir, "template.yaml"), "utf8")).resolves.toEqual(
       `AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Globals:
   Function:
-    Runtime: nodejs16.x
+    Runtime: nodejs14.x
     Handler: index.default
     Architectures:
       - arm64

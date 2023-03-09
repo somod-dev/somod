@@ -1,58 +1,69 @@
 import { getPath } from "../../jsonTemplate";
-import { getSAMResourceLogicalId } from "../utils";
-import { ServerlessTemplate } from "../types";
 import { checkAccess } from "./access";
-import { KeywordDefinition } from "somod-types";
+import { JSONObjectNode, KeywordDefinition } from "somod-types";
+import { getReferencedResource } from "./ref";
 
-type DependsOn = { module?: string; resource: string }[];
+export type DependsOn = { module?: string; resource: string }[];
 
-export const keywordDependsOn: KeywordDefinition<
-  DependsOn,
-  ServerlessTemplate
-> = {
+const validateKeywordPosition = (node: JSONObjectNode) => {
+  const path = getPath(node);
+  if (!(path.length == 2 && path[0] == "Resources")) {
+    throw new Error(
+      `${keywordDependsOn.keyword} is allowed only as Resource Property`
+    );
+  }
+  return path;
+};
+
+export const keywordDependsOn: KeywordDefinition<DependsOn> = {
   keyword: "SOMOD::DependsOn",
 
-  getValidator: async (rootDir, moduleName, moduleContentMap) => {
+  getValidator: async (moduleName, context) => {
     return (keyword, node, value) => {
       const errors: Error[] = [];
 
-      const path = getPath(node);
-      if (!(path.length == 2 && path[0] == "Resources")) {
-        errors.push(
-          new Error(`${keyword} is allowed only as Resource Property`)
-        );
-      } else {
-        //NOTE: structure of the value is validated by serverless-schema
+      try {
+        validateKeywordPosition(node);
 
-        value.forEach(v => {
-          const targetModuleName = v.module || moduleName;
-          if (!moduleContentMap[targetModuleName]?.json.Resources[v.resource]) {
-            errors.push(
-              new Error(
-                `Dependent module resource {${targetModuleName}, ${v.resource}} not found.`
-              )
+        value.map(v => {
+          try {
+            const resource = getReferencedResource(
+              context.serverlessTemplateHandler,
+              v.module || moduleName,
+              v.resource,
+              "Depended"
             );
-          }
-          errors.push(
-            ...checkAccess(
+
+            checkAccess(
+              resource.resource,
+              v.module || moduleName,
+              v.resource,
               moduleName,
-              moduleContentMap[targetModuleName],
-              v.resource
-            )
-          );
+              "Depended"
+            );
+          } catch (e) {
+            errors.push(e);
+          }
         });
+      } catch (e) {
+        errors.push(e);
       }
 
       return errors;
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => ({
-    type: "keyword",
-    value: {
-      DependsOn: value.map(v =>
-        getSAMResourceLogicalId(v.module || moduleName, v.resource)
-      )
-    }
-  })
+  getProcessor: async (moduleName, context) => {
+    return (keyword, node, value) => ({
+      type: "keyword",
+      value: {
+        DependsOn: value.map(v =>
+          context.serverlessTemplateHandler.getSAMResourceLogicalId(
+            v.module || moduleName,
+            v.resource
+          )
+        )
+      }
+    });
+  }
 };

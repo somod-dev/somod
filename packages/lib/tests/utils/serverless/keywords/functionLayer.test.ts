@@ -1,19 +1,15 @@
-import {
-  createFiles,
-  createTempDir,
-  deleteDir,
-  mockedFunction
-} from "../../../utils";
+import { readFile } from "fs/promises";
+import { createTempDir, deleteDir, readJsonFileStore } from "nodejs-file-utils";
+import { join } from "path";
+import { IContext, JSONObjectNode } from "somod-types";
+import { resourceType_FunctionLayer } from "../../../../src";
 import { parseJson } from "../../../../src/utils/jsonTemplate";
-import { readJsonFileStore, unixStylePath } from "nodejs-file-utils";
 import {
-  getFunctionLayerLibraries,
+  getDeclaredFunctionLayers,
   keywordFunctionLayer
 } from "../../../../src/utils/serverless/keywords/functionLayer";
-import { join } from "path";
-import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
-import { readdir, readFile } from "fs/promises";
-import { JSONObjectNode, JSONType, ModuleTemplateMap } from "somod-types";
+import { mockedFunction } from "../../../utils";
+import { getContext } from "./function-helper.test";
 
 jest.mock("nodejs-file-utils", () => {
   const original = jest.requireActual("nodejs-file-utils");
@@ -47,7 +43,9 @@ describe("Test functionLayer keyword", () => {
   });
 
   test("the validator with keyword at top object", async () => {
-    const validator = await keywordFunctionLayer.getValidator("", "m1", {});
+    const validator = await keywordFunctionLayer.getValidator("m1", {
+      dir: ""
+    } as IContext);
 
     const obj = {
       [keywordFunctionLayer.keyword]: {}
@@ -67,7 +65,9 @@ describe("Test functionLayer keyword", () => {
   });
 
   test("the validator with keyword at deep inside a Resource object", async () => {
-    const validator = await keywordFunctionLayer.getValidator("", "m1", {});
+    const validator = await keywordFunctionLayer.getValidator("m1", {
+      dir: ""
+    } as IContext);
 
     const obj = {
       Resources: {
@@ -102,7 +102,9 @@ describe("Test functionLayer keyword", () => {
   });
 
   test("the validator with at ContentUri Property", async () => {
-    const validator = await keywordFunctionLayer.getValidator("", "m1", {});
+    const validator = await keywordFunctionLayer.getValidator("m1", {
+      dir: ""
+    } as IContext);
 
     const obj = {
       Resources: {
@@ -137,7 +139,9 @@ describe("Test functionLayer keyword", () => {
   });
 
   test("the validator with non existing libraries", async () => {
-    const validator = await keywordFunctionLayer.getValidator("", "m1", {});
+    const validator = await keywordFunctionLayer.getValidator("m1", {
+      dir: ""
+    } as IContext);
 
     const obj = {
       Resources: {
@@ -185,7 +189,9 @@ describe("Test functionLayer keyword", () => {
   });
 
   test("the getValidator is calling readJsonFileStore", async () => {
-    await keywordFunctionLayer.getValidator("/root/dir", "m1", {});
+    await keywordFunctionLayer.getValidator("m1", {
+      dir: "/root/dir"
+    } as IContext);
     expect(readJsonFileStore).toHaveBeenCalledTimes(1);
     expect(readJsonFileStore).toHaveBeenNthCalledWith(
       1,
@@ -194,22 +200,15 @@ describe("Test functionLayer keyword", () => {
   });
 
   test("the processor", async () => {
-    const allModules = {
-      m1: {
-        moduleName: "m1",
-        location: "/a/b/c",
-        path: "serverless/template.yaml",
-        json: {
-          Resources: {
-            MyResource1: {
-              Type: "AWS::Serverless::LayerVersion",
-              Properties: {
-                ContentUri: {
-                  [keywordFunctionLayer.keyword]: {
-                    name: "layer1",
-                    libraries: ["l1", "l2"]
-                  }
-                }
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "AWS::Serverless::LayerVersion",
+          Properties: {
+            ContentUri: {
+              [keywordFunctionLayer.keyword]: {
+                name: "layer1",
+                libraries: ["l1", "l2"]
               }
             }
           }
@@ -217,15 +216,24 @@ describe("Test functionLayer keyword", () => {
       }
     };
 
-    const processor = await keywordFunctionLayer.getProcessor(
-      "/root/dir",
-      "m1",
-      allModules
-    );
+    const processor = await keywordFunctionLayer.getProcessor("m1", {
+      dir: "/root/dir",
+      serverlessTemplateHandler: {
+        getResource: (() => ({
+          resource: obj.Resources.MyResource1,
+          propertySourceMap: {}
+        })) as unknown as IContext["serverlessTemplateHandler"]["getResource"],
+        getResourcePropertySource: (() => ({
+          module: "m1",
+          resource: "MyResource1",
+          depth: 2
+        })) as IContext["serverlessTemplateHandler"]["getResourcePropertySource"]
+      }
+    } as IContext);
 
-    const objNode = parseJson(allModules.m1.json) as JSONObjectNode;
+    const objNode = parseJson(obj) as JSONObjectNode;
 
-    expect(
+    await expect(
       processor(
         keywordFunctionLayer.keyword,
         (
@@ -235,44 +243,31 @@ describe("Test functionLayer keyword", () => {
             ] as JSONObjectNode
           ).properties["Properties"] as JSONObjectNode
         ).properties["ContentUri"] as JSONObjectNode,
-        allModules.m1.json.Resources.MyResource1.Properties.ContentUri[
+        obj.Resources.MyResource1.Properties.ContentUri[
           keywordFunctionLayer.keyword
         ] as FunctionLayerType
       )
-    ).toEqual({
+    ).resolves.toEqual({
       type: "object",
-      value: "/root/dir/.somod/serverless/functionLayers/m1/layer1"
+      value: ".somod/serverless/functionLayers/m1/layer1"
     });
   });
-});
 
-describe("Test util processor of functionLayer keyword with overriding content", () => {
-  let dir: string = null;
+  test("the processor with extended layer name and contents in the value", async () => {
+    const dir = createTempDir("test-somod-lib");
 
-  beforeEach(() => {
-    dir = createTempDir("test-somod-lib");
-  });
-
-  afterEach(() => {
-    deleteDir(dir);
-  });
-
-  const getInputs = (dir: string, content?: Record<string, string>) => {
-    const allModules = {
-      m1: {
-        moduleName: "m1",
-        location: join(dir, "node_modules/m1"),
-        path: "serverless/template.yaml",
-        json: {
-          Resources: {
-            MyResource1: {
-              Type: "AWS::Serverless::LayerVersion",
-              Properties: {
-                ContentUri: {
-                  [keywordFunctionLayer.keyword]: {
-                    name: "layer1",
-                    libraries: ["l1", "l2"]
-                  }
+    const obj = {
+      Resources: {
+        MyResource1: {
+          Type: "AWS::Serverless::LayerVersion",
+          Properties: {
+            ContentUri: {
+              [keywordFunctionLayer.keyword]: {
+                name: "layer1",
+                libraries: ["l1", "l2"],
+                content: {
+                  "my/path": "hello",
+                  "/my/another/path": "world"
                 }
               }
             }
@@ -281,188 +276,223 @@ describe("Test util processor of functionLayer keyword with overriding content",
       }
     };
 
-    if (content) {
-      allModules.m1.json.Resources.MyResource1.Properties.ContentUri[
-        keywordFunctionLayer.keyword
-      ]["content"] = content;
-    }
-
-    const objNode = parseJson(allModules.m1.json as JSONType) as JSONObjectNode;
-
-    const layerNode = (
-      (
-        (objNode.properties["Resources"] as JSONObjectNode).properties[
-          "MyResource1"
-        ] as JSONObjectNode
-      ).properties["Properties"] as JSONObjectNode
-    ).properties["ContentUri"] as JSONObjectNode;
-
-    return [allModules, layerNode];
-  };
-
-  test("without content", async () => {
-    const [allModules, layerNode] = getInputs(dir);
-
-    const processor = await keywordFunctionLayer.getProcessor(
+    const processor = await keywordFunctionLayer.getProcessor("m1", {
       dir,
-      "m1",
-      allModules as ModuleTemplateMap<ServerlessTemplate>
-    );
+      serverlessTemplateHandler: {
+        getResource: (() => ({
+          resource: obj.Resources.MyResource1,
+          propertySourceMap: {}
+        })) as unknown as IContext["serverlessTemplateHandler"]["getResource"],
+        getResourcePropertySource: (() => ({
+          // getResourcePropertySource is called for getting the source of name, this refelcts in the generated path
+          module: "m2",
+          resource: "R1",
+          depth: 2
+        })) as IContext["serverlessTemplateHandler"]["getResourcePropertySource"]
+      }
+    } as IContext);
 
-    expect(
+    const objNode = parseJson(obj) as JSONObjectNode;
+
+    await expect(
       processor(
         keywordFunctionLayer.keyword,
-        layerNode as JSONObjectNode,
-        allModules["m1"].json.Resources.MyResource1.Properties.ContentUri[
+        (
+          (
+            (objNode.properties["Resources"] as JSONObjectNode).properties[
+              "MyResource1"
+            ] as JSONObjectNode
+          ).properties["Properties"] as JSONObjectNode
+        ).properties["ContentUri"] as JSONObjectNode,
+        obj.Resources.MyResource1.Properties.ContentUri[
           keywordFunctionLayer.keyword
         ] as FunctionLayerType
       )
-    ).toEqual({
+    ).resolves.toEqual({
       type: "object",
-      value: unixStylePath(
-        join(dir, "/.somod/serverless/functionLayers/m1/layer1")
-      )
-    });
-
-    await expect(readdir(dir)).resolves.toEqual([]);
-  });
-
-  test("with one new file in content", async () => {
-    const [allModules, layerNode] = getInputs(dir, {
-      "a/b.json": "[1, 2, 3]"
-    });
-
-    const processor = await keywordFunctionLayer.getProcessor(
-      dir,
-      "m1",
-      allModules as ModuleTemplateMap<ServerlessTemplate>
-    );
-
-    expect(
-      processor(
-        keywordFunctionLayer.keyword,
-        layerNode as JSONObjectNode,
-        allModules["m1"].json.Resources.MyResource1.Properties.ContentUri[
-          keywordFunctionLayer.keyword
-        ] as FunctionLayerType
-      )
-    ).toEqual({
-      type: "object",
-      value: unixStylePath(
-        join(dir, ".somod/serverless/functionLayers/m1/layer1")
-      )
+      value: ".somod/serverless/functionLayers/m2/layer1".split("\\").join("/")
     });
 
     await expect(
       readFile(
-        join(dir, ".somod/serverless/functionLayers/m1/layer1/a/b.json"),
+        join(dir, ".somod/serverless/.functionLayers/m1/MyResource1/my/path"),
         "utf8"
       )
-    ).resolves.toEqual("[1, 2, 3]");
-  });
-
-  test("with overriding file in content", async () => {
-    createFiles(dir, {
-      ".somod/serverless/functionLayers/m1/layer1/a.json":
-        '"waw this gets replaced"'
-    });
-
-    const [allModules, layerNode] = getInputs(dir, {
-      "a.json": "123",
-      "a/b.json": "[1, 2, 3]"
-    });
-
-    const processor = await keywordFunctionLayer.getProcessor(
-      dir,
-      "m1",
-      allModules as ModuleTemplateMap<ServerlessTemplate>
-    );
-
-    expect(
-      processor(
-        keywordFunctionLayer.keyword,
-        layerNode as JSONObjectNode,
-        allModules["m1"].json.Resources.MyResource1.Properties.ContentUri[
-          keywordFunctionLayer.keyword
-        ] as FunctionLayerType
-      )
-    ).toEqual({
-      type: "object",
-      value: unixStylePath(
-        join(dir, ".somod/serverless/functionLayers/m1/layer1")
-      )
-    });
-
+    ).resolves.toEqual("hello");
     await expect(
       readFile(
-        join(dir, ".somod/serverless/functionLayers/m1/layer1/a.json"),
+        join(
+          dir,
+          ".somod/serverless/.functionLayers/m1/MyResource1/my/another/path"
+        ),
         "utf8"
       )
-    ).resolves.toEqual("123");
-    await expect(
-      readFile(
-        join(dir, ".somod/serverless/functionLayers/m1/layer1/a/b.json"),
-        "utf8"
-      )
-    ).resolves.toEqual("[1, 2, 3]");
+    ).resolves.toEqual("world");
+    deleteDir(dir);
   });
 });
 
-describe("Test util getFunctionLayerLibraries in keyword functionLayer", () => {
+describe("Test util getDeclaredFunctionLayers in keyword functionLayer", () => {
   test("for a complete template", () => {
-    expect(
-      getFunctionLayerLibraries({
-        Resources: {
-          R1: {
-            Type: "AWS::Serverless::LayerVersion",
-            Properties: {
-              ContentUri: {
-                [keywordFunctionLayer.keyword]: {
-                  name: "layer1"
-                } as FunctionLayerType
-              }
-            }
-          },
-          R2: {
-            Type: "AWS::Serverless::LayerVersion",
-            Properties: {
-              ContentUri: {
-                [keywordFunctionLayer.keyword]: {
-                  name: "layer2",
-                  libraries: []
-                } as FunctionLayerType
-              }
-            }
-          },
-          R3: {
-            Type: "AWS::Serverless::LayerVersion",
-            Properties: {
-              ContentUri: {
-                [keywordFunctionLayer.keyword]: {
-                  name: "layer3",
-                  libraries: ["l1", "l2", "l3"]
-                } as FunctionLayerType
-              }
-            }
-          },
-          R4: {
-            Type: "AWS::Serverless::LayerVersion",
-            Properties: {
-              ContentUri: {
-                [keywordFunctionLayer.keyword]: {
-                  name: "layer4",
-                  libraries: ["l3", "l4"]
-                } as FunctionLayerType
+    const context = getContext([
+      {
+        name: "m0",
+        template: {
+          Resources: {
+            r1: {
+              Type: "AWS::Serverless::LayerVersion",
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    name: "layer5"
+                  } as FunctionLayerType
+                }
               }
             }
           }
         }
-      })
-    ).toEqual({
-      layer1: [],
-      layer2: [],
-      layer3: ["l1", "l2", "l3"],
-      layer4: ["l3", "l4"]
-    });
+      },
+      {
+        name: "m1",
+        dependencies: ["m0"],
+        template: {
+          Resources: {
+            R1: {
+              Type: "AWS::Serverless::LayerVersion",
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    name: "layer1"
+                  } as FunctionLayerType
+                }
+              }
+            },
+            R2: {
+              Type: "AWS::Serverless::LayerVersion",
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    name: "layer2",
+                    libraries: []
+                  } as FunctionLayerType
+                }
+              }
+            },
+            R3: {
+              Type: "AWS::Serverless::LayerVersion",
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    name: "layer3",
+                    libraries: ["l1", "l2", "l3"]
+                  } as FunctionLayerType
+                }
+              }
+            },
+            R4: {
+              Type: "AWS::Serverless::LayerVersion",
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    name: "layer4",
+                    libraries: ["l3", "l4"]
+                  } as FunctionLayerType
+                }
+              }
+            },
+            R5: {
+              Type: "AWS::Serverless::LayerVersion",
+              "SOMOD::Extend": { module: "m0", resource: "r1" },
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    name: "layer5",
+                    libraries: ["l3", "l4"]
+                  } as FunctionLayerType
+                }
+              }
+            },
+            R6: {
+              Type: "SomeOtherType",
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    name: "layer5",
+                    libraries: ["l3", "l4"]
+                  } as FunctionLayerType
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        name: "m2",
+        dependencies: ["m1"],
+        template: {
+          Resources: {
+            L1: {
+              Type: resourceType_FunctionLayer,
+              "SOMOD::Extend": { module: "m1", resource: "R3" },
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    name: "m2layer3",
+                    content: {
+                      "/my/config/file": "config"
+                    }
+                  } as FunctionLayerType
+                }
+              }
+            },
+            L2: {
+              Type: resourceType_FunctionLayer,
+              "SOMOD::Extend": {
+                module: "m1",
+                resource: "R4",
+                rules: {
+                  [`$.ContentUri["${keywordFunctionLayer.keyword}"].libraries`]:
+                    "APPEND"
+                }
+              },
+              Properties: {
+                ContentUri: {
+                  [keywordFunctionLayer.keyword]: {
+                    libraries: ["l4", "l5"]
+                  } as FunctionLayerType
+                }
+              }
+            }
+          }
+        }
+      }
+    ]);
+    expect(
+      getDeclaredFunctionLayers(context.serverlessTemplateHandler, "m1")
+    ).toEqual([
+      { content: [], libraries: [], module: "m1", name: "layer1" },
+      { content: [], libraries: [], module: "m1", name: "layer2" },
+      {
+        content: [{ module: "m2", resource: "L1", path: "/my/config/file" }],
+        libraries: [
+          { module: "m1", name: "l1" },
+          { module: "m1", name: "l2" },
+          { module: "m1", name: "l3" }
+        ],
+        module: "m2",
+        name: "m2layer3"
+      },
+      {
+        content: [],
+        libraries: [
+          { module: "m1", name: "l3" },
+          { module: "m1", name: "l4" },
+          { module: "m2", name: "l4" },
+          { module: "m2", name: "l5" }
+        ],
+        module: "m1",
+        name: "layer4"
+      }
+    ]);
   });
 });

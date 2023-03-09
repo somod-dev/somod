@@ -1,26 +1,24 @@
 import { join } from "path";
+import { IContext } from "somod-types";
 import {
   path_build,
   path_pages,
   path_pagesData,
   path_ui
 } from "../../utils/constants";
-import { ModuleHandler } from "../../utils/moduleHandler";
 import {
   addPageExtention,
   linkPage,
-  listAllPages
+  getPageToModuleMap
 } from "../../utils/nextJs/pages";
 
-export const createPages = async (dir: string): Promise<void> => {
-  const moduleHandler = ModuleHandler.getModuleHandler();
-
-  const allPages = await listAllPages();
+export const createPages = async (context: IContext): Promise<void> => {
+  const allPages = getPageToModuleMap(context);
 
   await Promise.all(
     Object.keys(allPages).map(async page => {
       const moduleName = allPages[page];
-      const moduleNode = await moduleHandler.getModule(moduleName);
+      const moduleNode = context.moduleHandler.getModule(moduleName);
       const packageLocation = moduleNode.module.packageLocation;
 
       const sourcePagePath = addPageExtention(
@@ -41,7 +39,7 @@ export const createPages = async (dir: string): Promise<void> => {
         page + (moduleNode.module.root ? ".ts" : ".js")
       );
 
-      const pagePath = join(dir, path_pages, page + ".ts");
+      const pagePath = join(context.dir, path_pages, page + ".ts");
       await linkPage(sourcePagePath, sourcePageDataPath, pagePath);
     })
   );

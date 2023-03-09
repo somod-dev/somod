@@ -1,0 +1,13 @@
+node_modules
+/build
+/parameters.json
+.next
+/pages
+/public
+next-env.d.ts
+.env
+next.config.js
+.aws-sam
+samconfig.toml
+/template.yaml
+package-lock.json

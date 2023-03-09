@@ -1,18 +1,36 @@
 import { JSONSchema7 } from "decorated-ajv";
 
 export const somodFunctions: JSONSchema7 = {
-  anyOf: [
-    { $ref: "#/definitions/somodAjvCompile" },
-    { $ref: "#/definitions/somodAnd" },
-    { $ref: "#/definitions/somodOr" },
-    { $ref: "#/definitions/somodEquals" },
-    { $ref: "#/definitions/somodIf" },
-    { $ref: "#/definitions/somodJsonParse" },
-    { $ref: "#/definitions/somodJsonStringify" },
-    { $ref: "#/definitions/somodKey" },
-    { $ref: "#/definitions/somodParameter" },
-    true
-  ]
+  if: {
+    type: "object",
+    propertyNames: {
+      enum: [
+        "SOMOD::AjvCompile",
+        "SOMOD::And",
+        "SOMOD::Or",
+        "SOMOD::Equals",
+        "SOMOD::If",
+        "SOMOD::JsonParse",
+        "SOMOD::JsonStringify",
+        "SOMOD::Key",
+        "SOMOD::Parameter"
+      ]
+    }
+  },
+  then: {
+    oneOf: [
+      { $ref: "#/definitions/somodAjvCompile" },
+      { $ref: "#/definitions/somodAnd" },
+      { $ref: "#/definitions/somodOr" },
+      { $ref: "#/definitions/somodEquals" },
+      { $ref: "#/definitions/somodIf" },
+      { $ref: "#/definitions/somodJsonParse" },
+      { $ref: "#/definitions/somodJsonStringify" },
+      { $ref: "#/definitions/somodKey" },
+      { $ref: "#/definitions/somodParameter" }
+    ]
+  },
+  else: true
 };
 
 export const somodAjvCompile: JSONSchema7 = {

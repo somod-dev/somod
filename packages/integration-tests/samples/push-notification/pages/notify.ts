@@ -1,0 +1,1 @@
+export { default } from "../node_modules/push-notification-ui/build/ui/pages/notify";

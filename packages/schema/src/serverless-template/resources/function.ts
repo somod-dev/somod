@@ -1,77 +1,125 @@
 import { JSONSchema7 } from "decorated-ajv";
 
-export const functionEventSource: JSONSchema7 = {
+export const functionTypes: JSONSchema7 = {
+  // function types is same as the Event Types in AWS::Serverless::Function
+  // https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
+  anyOf: [
+    {
+      enum: [
+        "S3",
+        "SNS",
+        "Kinesis",
+        "DynamoDB",
+        "SQS",
+        "Api",
+        "Schedule",
+        // "CloudWatchEvent", EventBridgeRule is preferred over CloudWatchEvent
+        "EventBridgeRule",
+        "CloudWatchLogs",
+        "IoTRule",
+        "AlexaSkill",
+        "Cognito",
+        "HttpApi",
+        "MSK",
+        "MQ",
+        "SelfManagedKafka",
+        "CFNCustomResource"
+      ]
+    },
+    { type: "string", minLength: 1, maxLength: 32, pattern: "^[a-zA-Z0-9]*$" }
+  ]
+};
+
+export const functionHttpApiEvent: JSONSchema7 = {
   type: "object",
   additionalProperties: false,
   required: ["Type", "Properties"],
   properties: {
-    Type: {
-      type: "string"
-    },
+    Type: { const: "HttpApi" },
     Properties: {
-      type: "object"
-    }
-  },
-  if: {
-    type: "object",
-    properties: {
-      Type: { enum: ["HttpApi", "Api"] }
-    }
-  },
-  then: {
-    type: "object",
-    properties: {
-      Properties: {
-        type: "object",
-        required: ["Method", "Path"],
-        properties: {
-          Method: {
-            anyOf: [
-              { enum: ["GET", "POST", "PUT", "DELETE", "ANY"] },
-              { type: "string", pattern: "^[A-Z]+$" }
-            ]
-          },
-          Path: {
-            type: "string"
-          }
-        }
-      }
-    },
-    if: {
       type: "object",
+      required: ["Method", "Path", "ApiId"],
       properties: {
-        Type: { const: "HttpApi" }
-      }
-    },
-    then: {
-      type: "object",
-      properties: {
-        Properties: {
-          type: "object",
-          required: ["ApiId"],
-          properties: {
-            ApiId: {
-              $ref: "#/definitions/somodRef"
-            }
-          }
-        }
-      }
-    },
-    else: {
-      type: "object",
-      properties: {
-        Properties: {
-          type: "object",
-          required: ["RestApiId"],
-          properties: {
-            RestApiId: {
-              $ref: "#/definitions/somodRef"
-            }
-          }
+        Method: {
+          anyOf: [
+            { enum: ["GET", "POST", "PUT", "DELETE", "ANY"] },
+            { type: "string", pattern: "^[A-Z]+$" }
+          ]
+        },
+        Path: {
+          type: "string"
+        },
+        ApiId: {
+          $ref: "#/definitions/somodRef"
         }
       }
     }
   }
+};
+
+export const functionApiEvent: JSONSchema7 = {
+  type: "object",
+  additionalProperties: false,
+  required: ["Type", "Properties"],
+  properties: {
+    Type: { const: "Api" },
+    Properties: {
+      type: "object",
+      required: ["Method", "Path", "RestApiId"],
+      properties: {
+        Method: {
+          anyOf: [
+            { enum: ["GET", "POST", "PUT", "DELETE", "ANY"] },
+            { type: "string", pattern: "^[A-Z]+$" }
+          ]
+        },
+        Path: {
+          type: "string"
+        },
+        RestApiId: {
+          $ref: "#/definitions/somodRef"
+        }
+      }
+    }
+  }
+};
+
+export const functionEvent: JSONSchema7 = {
+  type: "object",
+  additionalProperties: false,
+  required: ["Type", "Properties"],
+  properties: {
+    Type: { $ref: "#/definitions/functionTypes" },
+    Properties: {
+      type: "object"
+    }
+  }
+};
+
+export const functionEventSource: JSONSchema7 = {
+  allOf: [
+    {
+      $ref: "#/definitions/functionEvent"
+    },
+    {
+      if: {
+        type: "object",
+        properties: { Type: { const: "HttpApi" } }
+      },
+      then: {
+        $ref: "#/definitions/functionHttpApiEvent"
+      }
+    },
+    {
+      if: {
+        type: "object",
+        properties: { Type: { const: "Api" } }
+      },
+      then: {
+        $ref: "#/definitions/functionApiEvent"
+      }
+    }
+  ]
 };
 
 export const functionResource: JSONSchema7 = {
@@ -88,7 +136,18 @@ export const functionResource: JSONSchema7 = {
       properties: {
         Properties: {
           type: "object",
-          oneOf: [{ required: ["CodeUri"] }, { required: ["InlineCode"] }]
+          oneOf: [{ required: ["CodeUri"] }, { required: ["InlineCode"] }],
+          properties: {
+            CodeUri: {
+              type: "object",
+              properties: {
+                "SOMOD::Function": {
+                  type: "object",
+                  required: ["type", "name"]
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -107,12 +166,13 @@ export const functionResource: JSONSchema7 = {
         CodeUri: {
           type: "object",
           additionalProperties: false,
+          required: ["SOMOD::Function"],
           properties: {
             "SOMOD::Function": {
               type: "object",
               additionalProperties: false,
-              required: ["name"],
               properties: {
+                type: { $ref: "#/definitions/functionTypes" },
                 name: {
                   type: "string",
                   description:
@@ -128,6 +188,24 @@ export const functionResource: JSONSchema7 = {
                   patternProperties: {
                     "^[A-Z][a-zA-Z0-9]{0,63}$": {
                       $ref: "http://json-schema.org/draft-07/schema"
+                    }
+                  }
+                },
+                middlewares: {
+                  type: "array",
+                  description:
+                    "Middlewares to be added to this function. Middlewares are applied in the order specified in this Property",
+                  minItems: 1,
+                  maxItems: 16,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    required: ["resource"],
+                    properties: {
+                      resource: {
+                        $ref: "#/definitions/somodResourceLogicalIdPattern"
+                      },
+                      module: { $ref: "#/definitions/somodModuleNamePattern" }
                     }
                   }
                 }

@@ -5,7 +5,7 @@ meta:
     Resolve conflicting resources from multiple dependency modules using namespaces.
 ```
 
-# Namesapces
+# Namespaces
 
 ---
 
@@ -32,29 +32,33 @@ A dependent module can redefine the namespace to resolve the conflict between th
 
 In the following module dependency tree
 
-```bash
+    ```bash
 
-                  ----------
-                 | Module A |
-                 | page1    |
-                  ----------
-                    /    \
-                   /      \
-          ----------      ----------
-         | Module B |    | Module C |
-         | page1    |    | page1    |
-         | page2    |    |          |
-          ----------      ----------
-           /   \
-          /     \
- ----------      ----------
-| Module D |    | Module E |
-| page2    |    | page2    |
- ----------      ----------
+                      ----------
+                    | Module A |
+                    | page1    |
+                      ----------
+                        /    \
+                      /      \
+              ----------      ----------
+            | Module B |    | Module C |
+            | page1    |    | page1    |
+            | page2    |    |          |
+              ----------      ----------
+              /   \
+              /     \
+    ----------      ----------
+    | Module D |    | Module E |
+    | page2    |    | page2    |
+    ----------      ----------
 
-```
+    ```
 
 module A resolves page1  
 module B resolves page2
 
-As we have understood the main concepts in SOMOD, let us check out the SOMOD CLI in the [next chapter](/reference/cli).
+The namespace resolving mechanism helps to work with multiple modules individually, and then integrate them later.
+
+Until now we have understood the project structure and main concepts in the SOMOD.
+
+In the [Next Chapter](/reference/main-concepts/tsconfig.somod.json), let us understand the SOMOD's typescript configurations which help to generate the build from the source.

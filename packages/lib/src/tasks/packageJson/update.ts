@@ -1,4 +1,5 @@
 import { getCommandVersion } from "nodejs-cli-runner";
+import { IContext } from "somod-types";
 import {
   file_index_dts,
   file_index_js,
@@ -15,8 +16,8 @@ import {
 } from "../../utils/constants";
 import { read, update as _updatePackageJson } from "../../utils/packageJson";
 
-export const update = async (dir: string): Promise<void> => {
-  const packageJson = await read(dir);
+export const update = async (context: IContext): Promise<void> => {
+  const packageJson = await read(context.dir);
 
   const keysToBeUpdated = [
     "name",
@@ -66,7 +67,7 @@ export const update = async (dir: string): Promise<void> => {
 
   toBeUpdatedPackageJsonData[key_somod] = commandVersion;
 
-  _updatePackageJson(dir, {
+  _updatePackageJson(context.dir, {
     ...toBeUpdatedPackageJsonData,
     ...packageJson
   });

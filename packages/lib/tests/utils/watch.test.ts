@@ -21,22 +21,22 @@ export const sleep = (ms: number): Promise<void> => {
 export const helper = {
   createDir: async (dir: string): Promise<void> => {
     mkdirSync(dir);
-    await sleep(100);
+    await sleep(200);
   },
 
   createFile: async (path: string, data: string): Promise<void> => {
     writeFileSync(path, data);
-    await sleep(100);
+    await sleep(200);
   },
 
   deleteDir: async (dir: string): Promise<void> => {
     rimrafSync(dir);
-    await sleep(100);
+    await sleep(200);
   },
 
   deleteFile: async (path: string): Promise<void> => {
     rimrafSync(path);
-    await sleep(100);
+    await sleep(200);
   }
 };
 
@@ -86,7 +86,7 @@ describe("Test watch", () => {
 
     createFiles(watchDir, { f1: "f1content", "d1/f1": "d1f1content" });
 
-    await sleep(100);
+    await sleep(200);
 
     closeHandle = watch(watchDir, destDir, backupDir, file => {
       const destination = join(destDir, file);
@@ -94,6 +94,8 @@ describe("Test watch", () => {
       mkdirSync(destinationDir, { recursive: true });
       copyFileSync(join(watchDir, file), destination);
     });
+
+    await sleep(200);
 
     expect(existsSync(destDir)).toBeFalsy();
 

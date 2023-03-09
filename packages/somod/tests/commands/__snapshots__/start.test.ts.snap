@@ -1,0 +1,211 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test command start with all options 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": true,
+      "serverless": false,
+      "ui": true,
+      "verbose": true,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": true,
+      "serverless": false,
+      "ui": true,
+      "verbose": true,
+    },
+  ],
+  Array [
+    "watchRootModulePages",
+    "/root/dir",
+  ],
+  Array [
+    "watchRootModulePagesData",
+    "/root/dir",
+  ],
+  Array [
+    "watchRootModulePublicAssets",
+    "/root/dir",
+  ],
+  Array [
+    "nextCommand",
+    "/root/dir",
+    Array [
+      "dev",
+    ],
+  ],
+]
+`;
+
+exports[`Test command start with debug mode 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": true,
+      "serverless": false,
+      "ui": true,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": true,
+      "serverless": false,
+      "ui": true,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "nextCommand",
+    "/root/dir",
+    Array [
+      "build",
+    ],
+  ],
+  Array [
+    "nextCommand",
+    "/root/dir",
+    Array [
+      "start",
+    ],
+  ],
+]
+`;
+
+exports[`Test command start with dev mode 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": undefined,
+      "serverless": false,
+      "ui": true,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": undefined,
+      "serverless": false,
+      "ui": true,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "watchRootModulePages",
+    "/root/dir",
+  ],
+  Array [
+    "watchRootModulePagesData",
+    "/root/dir",
+  ],
+  Array [
+    "watchRootModulePublicAssets",
+    "/root/dir",
+  ],
+  Array [
+    "nextCommand",
+    "/root/dir",
+    Array [
+      "dev",
+    ],
+  ],
+]
+`;
+
+exports[`Test command start with verbose 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": undefined,
+      "serverless": false,
+      "ui": true,
+      "verbose": true,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": undefined,
+      "serverless": false,
+      "ui": true,
+      "verbose": true,
+    },
+  ],
+  Array [
+    "nextCommand",
+    "/root/dir",
+    Array [
+      "build",
+    ],
+  ],
+  Array [
+    "nextCommand",
+    "/root/dir",
+    Array [
+      "start",
+    ],
+  ],
+]
+`;
+
+exports[`Test command start without args 1`] = `
+Array [
+  Array [
+    "findRootDir",
+  ],
+  Array [
+    "BuildAction",
+    Object {
+      "debug": undefined,
+      "serverless": false,
+      "ui": true,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "PrepareAction",
+    Object {
+      "debug": undefined,
+      "serverless": false,
+      "ui": true,
+      "verbose": undefined,
+    },
+  ],
+  Array [
+    "nextCommand",
+    "/root/dir",
+    Array [
+      "build",
+    ],
+  ],
+  Array [
+    "nextCommand",
+    "/root/dir",
+    Array [
+      "start",
+    ],
+  ],
+]
+`;

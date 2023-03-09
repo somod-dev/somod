@@ -7,7 +7,7 @@
 
 const { existsSync } = require("fs");
 const { join } = require("path");
-const overrideConfigFileName = "next.config.override.js";
+const overrideConfigFileName = "next.config.somod.js";
 
 /**
  * @typedef {import("next").NextConfig} NextConfig

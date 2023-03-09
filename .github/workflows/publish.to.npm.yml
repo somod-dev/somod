@@ -3,13 +3,13 @@ name: Publish
 on:
   push:
     tags:
-      - "*"
+      - "v*"
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
@@ -19,3 +19,6 @@ jobs:
       - run: npx mono-repo publish -v
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_PUBLIC_TOKEN}}
+          OTLP_KEY_NAME: ${{secrets.OTLP_KEY_NAME}}
+          OTLP_KEY_VALUE: ${{secrets.OTLP_KEY_VALUE}}
+          OTLP_URL: ${{secrets.OTLP_URL}}

@@ -1,6 +1,6 @@
 {
   "name": "somod-sdk",
-  "version": "1.14.0",
+  "version": "1.17.0-2",
   "description": "SOMOD (Serverless Optimized MODule). Serverless Framework to create reusable micro applications",
   "scripts": {
     "postinstall": "npx mono-repo install -v && npx mono-repo run build -v",
@@ -9,7 +9,7 @@
     "check-sanity": "npm run prettier && npm run eslint && npx mono-repo validate --version-match",
     "pretest": "npm run check-sanity",
     "test": "npx mono-repo run test -v",
-    "version": "npx mono-repo version -v -p %npm_config_packages%",
+    "version": "npx mono-repo version -v %npm_config_packages%",
     "postversion": "git push --follow-tags"
   },
   "eslintConfig": {
@@ -24,14 +24,17 @@
   },
   "keywords": [
     "sodaru",
-    "njp",
-    "slp",
     "somod",
     "nextjs-package",
     "serverless-package",
     "sodaru-module-package"
   ],
   "author": "Raghavendra K R <raghavendra@sodaru.com>",
+  "contributors": [
+    "Raghavendra K R <raghavendra@sodaru.com>",
+    "Lokesh G C <lokesh@sodaru.com>",
+    "Sukhesh M G <sukhesh@sodaru.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/somod-dev/somod/issues"

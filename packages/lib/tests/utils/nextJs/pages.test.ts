@@ -1,7 +1,6 @@
 import { createFiles, createTempDir, deleteDir } from "../../utils";
 
 import { loadPageNamespaces } from "../../../src/utils/nextJs/pages";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
 import { cloneDeep } from "lodash";
 import { namespace_page } from "../../../src";
 import { Module } from "somod-types";
@@ -11,7 +10,6 @@ describe("Test util page.loadPageNamespaces", () => {
 
   beforeEach(() => {
     dir = createTempDir("test-somod-lib");
-    ModuleHandler.initialize(dir, [loadPageNamespaces]);
   });
 
   afterEach(() => {
@@ -21,35 +19,43 @@ describe("Test util page.loadPageNamespaces", () => {
   const getModuleTemplate = (directory: string): Module => ({
     name: "my-module",
     version: "1.0.0",
-    packageLocation: directory,
-    namespaces: {}
+    packageLocation: directory
   });
 
   test("with no ui directory", async () => {
     createFiles(dir, { "build/": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadPageNamespaces(module)).resolves.toEqual({
-      [namespace_page]: []
-    });
+    await expect(loadPageNamespaces(module, null)).resolves.toEqual([
+      {
+        name: namespace_page,
+        values: []
+      }
+    ]);
   });
 
   test("with empty pages directory", async () => {
     createFiles(dir, { "build/ui/pages/": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadPageNamespaces(module)).resolves.toEqual({
-      [namespace_page]: []
-    });
+    await expect(loadPageNamespaces(module, null)).resolves.toEqual([
+      {
+        name: namespace_page,
+        values: []
+      }
+    ]);
   });
 
   test("with one page", async () => {
     createFiles(dir, { "build/ui/pages/page1.js": "" });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadPageNamespaces(module)).resolves.toEqual({
-      [namespace_page]: ["page1"]
-    });
+    await expect(loadPageNamespaces(module, null)).resolves.toEqual([
+      {
+        name: namespace_page,
+        values: ["page1"]
+      }
+    ]);
   });
 
   test("with multiple pages", async () => {
@@ -59,9 +65,12 @@ describe("Test util page.loadPageNamespaces", () => {
     });
     const moduleTemplate = getModuleTemplate(dir);
     const module = cloneDeep(moduleTemplate);
-    await expect(loadPageNamespaces(module)).resolves.toEqual({
-      [namespace_page]: ["page1", "sub/page2"]
-    });
+    await expect(loadPageNamespaces(module, null)).resolves.toEqual([
+      {
+        name: namespace_page,
+        values: ["page1", "sub/page2"]
+      }
+    ]);
   });
 
   test("with pages in root dir", async () => {
@@ -75,8 +84,11 @@ describe("Test util page.loadPageNamespaces", () => {
     //@ts-expect-error this is fine during testing
     moduleTemplate.root = true;
     const module = cloneDeep(moduleTemplate);
-    await expect(loadPageNamespaces(module)).resolves.toEqual({
-      [namespace_page]: ["root-page1", "sub/root-page2"]
-    });
+    await expect(loadPageNamespaces(module, null)).resolves.toEqual([
+      {
+        name: namespace_page,
+        values: ["root-page1", "sub/root-page2"]
+      }
+    ]);
   });
 });

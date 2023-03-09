@@ -1,9 +1,9 @@
 import { createFiles, createTempDir, deleteDir } from "../../../utils";
 import { dump } from "js-yaml";
-import { ServerlessTemplate } from "../../../../src/utils/serverless/types";
-import { buildServerlessTemplate } from "../../../../src/utils/serverless/serverlessTemplate/build";
+import { build } from "../../../../src/utils/serverless/serverlessTemplate/build";
 import { readFile } from "fs/promises";
 import { join } from "path";
+import { ServerlessTemplate } from "somod-types";
 
 describe("test util serverlessTemplate.build", () => {
   let dir: string;
@@ -37,9 +37,7 @@ describe("test util serverlessTemplate.build", () => {
       "serverless/template.yaml": dump(serverlessTemplate)
     });
 
-    await expect(
-      buildServerlessTemplate(dir, serverlessTemplate)
-    ).resolves.toBeUndefined();
+    await expect(build(dir)).resolves.toBeUndefined();
 
     await expect(
       readFile(join(dir, "build/serverless/template.json"), "utf8")

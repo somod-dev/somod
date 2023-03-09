@@ -1,0 +1,22 @@
+{
+  "name": "push-notification-ui",
+  "version": "1.0.0",
+  "somod": "1.15.10",
+  "description": "Sample somod module for integration testing",
+  "module": "build/lib/index.js",
+  "typings": "build/lib/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "npx somod build --ui -v"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.27",
+    "react": "^18.2.0",
+    "next": "^12.0.7",
+    "react-dom": "^18.2.0",
+    "somod": "*"
+  }
+}

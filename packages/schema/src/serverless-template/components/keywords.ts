@@ -109,7 +109,6 @@ export const somodOutput: JSONSchema7 = {
     "SOMOD::Output": {
       type: "object",
       additionalProperties: false,
-      required: ["default", "attributes"],
       properties: {
         default: { type: "boolean" },
         attributes: {

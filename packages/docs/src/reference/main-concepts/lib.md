@@ -5,7 +5,7 @@ meta:
     The <strong>lib</strong> directory contains pure javascript code exported from a SOMOD module.
 ```
 
-# SOMOD `lib` Directory
+# SOMOD's `lib` Directory
 
 ---
 
@@ -23,7 +23,7 @@ project-root
     |           +-- index.js  <-------+
     |                     ^           |
     |                     |           |
-    |                  'BUILD'     'MODULE'
+    |                  'BUILD'     'module in package.json refers to this'
     +-- lib/              |           |
     |    +-- other.ts     |           |
     |    +-- index.ts  ---+           |
@@ -32,4 +32,4 @@ project-root
 
 ```
 
-In the [next section](/reference/main-concepts/serverless), let's explore what our serverless directory contains.
+In the [next section](/reference/main-concepts/serverless), let's explore what our `serverless` directory contains.

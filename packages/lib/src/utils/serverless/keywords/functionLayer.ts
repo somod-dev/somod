@@ -1,10 +1,11 @@
 import { readJsonFileStore, unixStylePath } from "nodejs-file-utils";
 import {
+  IServerlessTemplateHandler,
   JSONObjectNode,
   JSONPrimitiveNode,
-  KeywordDefinition
+  KeywordDefinition,
+  ServerlessTemplate
 } from "somod-types";
-import { mkdirSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import {
   file_packageJson,
@@ -14,49 +15,60 @@ import {
   resourceType_FunctionLayer
 } from "../../constants";
 import { getPath } from "../../jsonTemplate";
-import { ServerlessTemplate } from "../types";
+import { keywordExtend } from "./extend";
+import { mkdir, writeFile } from "fs/promises";
 
 type FunctionLayerType = {
   name: string;
   libraries?: string[];
   content?: Record<string, string>;
+  allowedTypes?: string[];
 };
 
-export const keywordFunctionLayer: KeywordDefinition<
-  FunctionLayerType,
-  ServerlessTemplate
-> = {
+const validateKeywordPosition = (node: JSONObjectNode) => {
+  const path = getPath(node);
+  if (
+    !(
+      path.length == 4 &&
+      path[0] == "Resources" &&
+      path[2] == "Properties" &&
+      path[3] == "ContentUri" &&
+      (
+        (node.parent.node.parent.node as JSONObjectNode).properties
+          ?.Type as JSONPrimitiveNode
+      ).value == resourceType_FunctionLayer
+    )
+  ) {
+    throw new Error(
+      `${keywordFunctionLayer.keyword} is allowed only as value of ContentUri property of ${resourceType_FunctionLayer} resource`
+    );
+  }
+};
+
+const isExtendedFunctionLayer = (node: JSONObjectNode) => {
+  return (
+    (node.parent.node.parent.node as JSONObjectNode).properties?.[
+      keywordExtend.keyword
+    ] !== undefined
+  );
+};
+
+export const keywordFunctionLayer: KeywordDefinition<FunctionLayerType> = {
   keyword: "SOMOD::FunctionLayer",
 
-  getValidator: async rootDir => {
-    const modulePackageJsonPath = join(rootDir, file_packageJson);
+  getValidator: async (moduleName, context) => {
+    const modulePackageJsonPath = join(context.dir, file_packageJson);
     const modulePackageJson = await readJsonFileStore(modulePackageJsonPath);
     const moduleDevDependencies = modulePackageJson.devDependencies || {};
 
     return (keyword, node, value) => {
       const errors: Error[] = [];
 
-      const path = getPath(node);
-      if (
-        !(
-          path.length == 4 &&
-          path[0] == "Resources" &&
-          path[2] == "Properties" &&
-          path[3] == "ContentUri" &&
-          (
-            (node.parent.node.parent.node as JSONObjectNode).properties
-              ?.Type as JSONPrimitiveNode
-          ).value == resourceType_FunctionLayer
-        )
-      ) {
-        errors.push(
-          new Error(
-            `${keyword} is allowed only as value of ContentUri property of ${resourceType_FunctionLayer} resource`
-          )
-        );
+      try {
+        validateKeywordPosition(node);
+      } catch (e) {
+        errors.push(e);
       }
-
-      //NOTE: structure of the value is validated by serverless-schema
 
       value.libraries?.forEach(library => {
         if (moduleDevDependencies[library] === undefined) {
@@ -72,17 +84,45 @@ export const keywordFunctionLayer: KeywordDefinition<
     };
   },
 
-  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
+  getProcessor: async (moduleName, context) => async (keyword, node, value) => {
+    const resourceId = node.parent.node.parent.node.parent.key as string;
+
+    // save the layer content in working directory
+    await Promise.all(
+      Object.keys(value.content || {}).map(async contentPath => {
+        const fullContentPath = join(
+          context.dir,
+          path_somodWorkingDir,
+          path_serverless,
+          "." + path_functionLayers,
+          moduleName,
+          resourceId,
+          contentPath
+        );
+        await mkdir(dirname(fullContentPath), { recursive: true });
+        await writeFile(fullContentPath, value.content[contentPath]);
+      })
+    );
+
+    if (isExtendedFunctionLayer(node)) {
+      return { type: "keyword", value: { [keyword]: value } };
+    }
+
+    const functionLayerWithExtendedProperties =
+      context.serverlessTemplateHandler.getResource(moduleName, resourceId);
+
     const functionLayerPath = join(
-      rootDir,
       path_somodWorkingDir,
       path_serverless,
       path_functionLayers,
-      moduleName,
-      value.name
+      context.serverlessTemplateHandler.getResourcePropertySource(
+        ["ContentUri", keywordFunctionLayer.keyword, "name"],
+        functionLayerWithExtendedProperties.propertySourceMap
+      ).module,
+      functionLayerWithExtendedProperties.resource.Properties.ContentUri?.[
+        keywordFunctionLayer.keyword
+      ].name
     );
-
-    overrideLayerContent(rootDir, moduleName, value.name, value.content || {});
 
     return {
       type: "object",
@@ -100,43 +140,74 @@ export const getLibrariesFromFunctionLayerResource = (
   return layer?.libraries || [];
 };
 
-export const getFunctionLayerLibraries = (
-  serverlessTemplate: ServerlessTemplate
+export const getDeclaredFunctionLayers = (
+  serverlessTemplateHandler: IServerlessTemplateHandler,
+  moduleName: string
 ) => {
-  const libraries: Record<string, string[]> = {};
-  Object.values(serverlessTemplate.Resources).forEach(resource => {
-    if (resource.Type == resourceType_FunctionLayer) {
-      const layer = resource.Properties.ContentUri?.[
+  type DeclaredLayer = {
+    module: string;
+    name: string;
+    libraries: { name: string; module: string }[];
+    content: { path: string; module: string; resource: string }[];
+  };
+
+  const serverlessTemplate =
+    serverlessTemplateHandler.getTemplate(moduleName).template;
+
+  const declaredLayers: DeclaredLayer[] = [];
+
+  Object.keys(serverlessTemplate.Resources).forEach(resourceId => {
+    const resource = serverlessTemplate.Resources[resourceId];
+    if (
+      resource.Type == resourceType_FunctionLayer &&
+      resource[keywordExtend.keyword] === undefined
+    ) {
+      const extendedLayerResource = serverlessTemplateHandler.getResource(
+        moduleName,
+        resourceId
+      );
+
+      const layer = extendedLayerResource.resource.Properties.ContentUri?.[
         keywordFunctionLayer.keyword
       ] as FunctionLayerType;
 
-      if (layer?.name) {
-        libraries[layer.name] = layer.libraries || [];
+      const layerName = layer?.name;
+
+      if (layerName) {
+        declaredLayers.push({
+          module: serverlessTemplateHandler.getResourcePropertySource(
+            ["ContentUri", keywordFunctionLayer.keyword, "name"],
+            extendedLayerResource.propertySourceMap
+          ).module,
+          name: layerName,
+          libraries: (layer.libraries || []).map((library, i) => {
+            const libraryModule =
+              serverlessTemplateHandler.getResourcePropertySource(
+                ["ContentUri", keywordFunctionLayer.keyword, "libraries", i],
+                extendedLayerResource.propertySourceMap
+              ).module;
+            return { name: library, module: libraryModule };
+          }),
+          content: Object.keys(layer.content || {}).map(contentPath => {
+            const contentSource =
+              serverlessTemplateHandler.getResourcePropertySource(
+                [
+                  "ContentUri",
+                  keywordFunctionLayer.keyword,
+                  "content",
+                  contentPath
+                ],
+                extendedLayerResource.propertySourceMap
+              );
+            return {
+              path: contentPath,
+              module: contentSource.module,
+              resource: contentSource.resource
+            };
+          })
+        });
       }
     }
   });
-  return libraries;
-};
-
-export const overrideLayerContent = (
-  rootDir: string,
-  moduleName: string,
-  layerName: string,
-  content: Record<string, string>
-) => {
-  const functionLayerPath = join(
-    rootDir,
-    path_somodWorkingDir,
-    path_serverless,
-    path_functionLayers,
-    moduleName,
-    layerName
-  );
-
-  Object.keys(content).forEach(contentPath => {
-    const contentFullPath = join(functionLayerPath, contentPath);
-
-    mkdirSync(dirname(contentFullPath), { recursive: true });
-    writeFileSync(contentFullPath, content[contentPath]);
-  });
+  return declaredLayers;
 };

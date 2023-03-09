@@ -1,32 +1,30 @@
-import { KeywordDefinition, KeywordProcessor } from "somod-types";
+import { IContext, KeywordProcessor, ServerlessTemplate } from "somod-types";
 import { parseJson, processKeywords } from "../../jsonTemplate";
-import { listAllOutputs } from "../namespace";
+import { getOutputToModuleMap } from "../namespace";
 
-import {
-  ModuleServerlessTemplateMap,
-  SAMTemplate,
-  ServerlessTemplate
-} from "../types";
-import { getSAMOutputName } from "../utils";
-import { extendResources } from "./extendResources";
-import { getBaseKeywords, getModuleContentMap } from "./serverlessTemplate";
+import { SAMTemplate } from "../types";
+import { getBaseKeywords } from "./serverlessTemplate";
 
-export const prepareSamTemplate = async (
-  dir: string,
-  moduleNames: string[],
-  moduleTemplateMap: ModuleServerlessTemplateMap,
-  pluginKeywords: KeywordDefinition[] = []
-) => {
-  const moduleContentMap = getModuleContentMap(moduleTemplateMap);
+export const prepareSamTemplate = async (context: IContext) => {
   const processedTemplateMap: Record<string, ServerlessTemplate> = {};
 
-  const keywords = [...getBaseKeywords(), ...pluginKeywords];
+  const keywords = [...getBaseKeywords()];
+  context.extensionHandler.serverlessTemplateKeywords.forEach(k => {
+    keywords.push(...k.value);
+  });
 
   const samTemplate: SAMTemplate = {
     Resources: {}
   };
 
-  const _moduleNames = [...moduleNames].reverse();
+  const _moduleNames = context.moduleHandler.list.map(m => m.module.name);
+
+  _moduleNames.reverse();
+
+  const templates = context.serverlessTemplateHandler.listTemplates();
+  const moduleTemplateMap = Object.fromEntries(
+    templates.map(t => [t.module, t.template])
+  );
 
   await Promise.all(
     _moduleNames.map(async moduleName => {
@@ -35,18 +33,13 @@ export const prepareSamTemplate = async (
 
         await Promise.all(
           keywords.map(async keyword => {
-            const processor = await keyword.getProcessor(
-              dir,
-              moduleName,
-              moduleContentMap
-            );
-
+            const processor = await keyword.getProcessor(moduleName, context);
             keywordProcessors[keyword.keyword] = processor;
           })
         );
 
         const processedTemplate = (await processKeywords(
-          parseJson(moduleContentMap[moduleName].json),
+          parseJson(moduleTemplateMap[moduleName]),
           keywordProcessors
         )) as SAMTemplate;
 
@@ -60,21 +53,20 @@ export const prepareSamTemplate = async (
     })
   );
 
-  const outputToModuleMap = await listAllOutputs();
+  const outputToModuleMap = getOutputToModuleMap(context);
   const outputNames = Object.keys(outputToModuleMap);
   if (outputNames.length > 0) {
     samTemplate.Outputs = {};
     outputNames.forEach(outputName => {
       const moduleName = outputToModuleMap[outputName];
-      const samOutputName = getSAMOutputName(outputName);
+      const samOutputName =
+        context.serverlessTemplateHandler.getSAMOutputName(outputName);
       const output = processedTemplateMap[moduleName].Outputs[
         samOutputName
       ] as SAMTemplate["Outputs"][string];
       samTemplate.Outputs[samOutputName] = output;
     });
   }
-
-  extendResources(samTemplate);
 
   return samTemplate;
 };

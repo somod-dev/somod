@@ -1,13 +1,8 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { childProcess } from "nodejs-cli-runner";
-import { writeFile } from "fs/promises";
 
-export const gitInit = async (
-  dir: string,
-  verbose: boolean,
-  gitIgnoreList: string[]
-) => {
+export const gitInit = async (dir: string, verbose: boolean) => {
   if (!existsSync(join(dir, ".git"))) {
     await childProcess(
       dir,
@@ -17,6 +12,4 @@ export const gitInit = async (
       { show: verbose ? "on" : "error", return: "off" }
     );
   }
-
-  await writeFile(join(dir, ".gitignore"), gitIgnoreList.join("\n"));
 };

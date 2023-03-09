@@ -1,5 +1,4 @@
 import { JSONType, KeywordDefinition } from "somod-types";
-import { getSAMResourceName } from "../utils";
 
 export const keyword = "SOMOD::ResourceName";
 
@@ -20,10 +19,15 @@ export const keywordResourceName: KeywordDefinition<string> = {
     return errors;
   },
 
-  getProcessor: async (rootDir, moduleName) => (keyword, node, value) => {
-    return {
-      type: "object",
-      value: getSAMResourceName(moduleName, value) as JSONType
+  getProcessor: async (moduleName, context) => {
+    return (keyword, node, value) => {
+      return {
+        type: "object",
+        value: context.serverlessTemplateHandler.getSAMResourceName(
+          moduleName,
+          value
+        ) as JSONType
+      };
     };
   }
 };

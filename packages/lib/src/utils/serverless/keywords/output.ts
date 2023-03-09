@@ -1,13 +1,12 @@
-import { KeywordDefinition, ModuleTemplate } from "somod-types";
+import { KeywordDefinition, ServerlessResource } from "somod-types";
 import { getPath } from "../../jsonTemplate";
-import { ServerlessTemplate } from "../types";
 
 type Output = {
-  default: boolean;
-  attributes: string[];
+  default?: boolean;
+  attributes?: string[];
 };
 
-export const keywordOutput: KeywordDefinition<Output, ServerlessTemplate> = {
+export const keywordOutput: KeywordDefinition<Output> = {
   keyword: "SOMOD::Output",
 
   getValidator: async () => {
@@ -36,33 +35,26 @@ export const keywordOutput: KeywordDefinition<Output, ServerlessTemplate> = {
 };
 
 export const checkOutput = (
-  targetTemplate: ModuleTemplate<ServerlessTemplate>,
-  targetResource: string,
-  attribute?: string
-): Error[] => {
-  const errors: Error[] = [];
+  resource: ServerlessResource,
+  referencedModule: string,
+  referencedResource: string,
+  referencedAttribute?: string
+) => {
+  const outputDefinitionInTargetResource = resource[
+    keywordOutput.keyword
+  ] as Output;
 
-  const outputDefinitionInTargetResource = targetTemplate.json.Resources[
-    targetResource
-  ]?.[keywordOutput.keyword] as Output;
-
-  if (attribute === undefined) {
-    if (!outputDefinitionInTargetResource?.default) {
-      errors.push(
-        new Error(
-          `default must be true in ${keywordOutput.keyword} of ${targetResource} resource in ${targetTemplate.moduleName}.`
-        )
+  if (referencedAttribute === undefined) {
+    if (outputDefinitionInTargetResource?.default === false) {
+      throw new Error(
+        `default must be true in ${keywordOutput.keyword} of ${referencedResource} resource in ${referencedModule}.`
       );
     }
   } else if (
-    !outputDefinitionInTargetResource?.attributes.includes(attribute)
+    !outputDefinitionInTargetResource?.attributes?.includes(referencedAttribute)
   ) {
-    errors.push(
-      new Error(
-        `attributes must have ${attribute} in ${keywordOutput.keyword} of ${targetResource} resource in ${targetTemplate.moduleName}.`
-      )
+    throw new Error(
+      `attributes must have ${referencedAttribute} in ${keywordOutput.keyword} of ${referencedResource} resource in ${referencedModule}.`
     );
   }
-
-  return errors;
 };

@@ -1,6 +1,7 @@
 {
   "include": ["src", "tests"],
   "compilerOptions": {
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    "esModuleInterop": true
   }
 }

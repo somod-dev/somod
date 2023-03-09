@@ -1,5 +1,7 @@
 import { JSONSchema7 } from "decorated-ajv";
 
+export const customResourceTypePattern = "^Custom::[A-Z][a-zA-Z0-9]{0,63}$";
+
 export const customResource: JSONSchema7 = {
   type: "object",
   required: ["Type", "Properties"],
@@ -22,7 +24,7 @@ export const customResource: JSONSchema7 = {
     anyOf: "When not extended, Properties must have ServiceToken"
   },
   properties: {
-    Type: { type: "string", pattern: "^Custom::[A-Z][a-zA-Z0-9]{0,63}$" },
+    Type: { type: "string", pattern: customResourceTypePattern },
     Properties: {
       type: "object",
       properties: {

@@ -20,7 +20,7 @@ SOMOD helps to create and reuse NextJS pages in modules.
 In the example from the previous chapter, we have created REST APIs for user management. Now let us create the UI pages for these APIs by following the below steps.
 
 1. Choose a Styling library  
-   A styling library is a backbone in Web UI development. It defines the look and feel of the whole application. SOMOD works with any styling libraries used with NextJS and React.
+   A styling library is an essential part of Web UI development. It defines the look and feel of the whole application. SOMOD works with any styling libraries used with NextJS and React.
 
    For this example, let us install and configure [Material UI](https://mui.com/)
 
@@ -144,7 +144,6 @@ In the example from the previous chapter, we have created REST APIs for user man
        Paper,
        Typography
      } from "@mui/material";
-     import fetch from "cross-fetch";
      import { NextComponentType } from "next";
      import NextLink from "next/link";
      import { useEffect, useState } from "react";
@@ -253,7 +252,6 @@ In the example from the previous chapter, we have created REST APIs for user man
        TextField,
        Typography
      } from "@mui/material";
-     import fetch from "cross-fetch";
      import { NextComponentType } from "next";
      import NextLink from "next/link";
      import { useRouter } from "next/router";
@@ -396,7 +394,6 @@ In the example from the previous chapter, we have created REST APIs for user man
        Switch,
        Typography
      } from "@mui/material";
-     import fetch from "cross-fetch";
      import { NextComponentType } from "next";
      import NextLink from "next/link";
      import { useRouter } from "next/router";
@@ -515,7 +512,6 @@ In the example from the previous chapter, we have created REST APIs for user man
        TextField,
        Typography
      } from "@mui/material";
-     import fetch from "cross-fetch";
      import { NextComponentType } from "next";
      import NextLink from "next/link";
      import { useRouter } from "next/router";
@@ -670,10 +666,22 @@ In the example from the previous chapter, we have created REST APIs for user man
      export default UserEdit;
      ```
 
+   - `/ui/config.yaml`  
+     Let us use the UI Configuration to bind the API Endpoint URL to the FrontEnd
+
+     ```yaml
+     # yaml-language-server: $schema=../node_modules/somod-schema/schemas/ui-config/index.json
+
+     env:
+       NEXT_PUBLIC_USER_API_URL: # adds NEXT_PUBLIC_USER_API_URL environmental variable to nextjs project
+         SOMOD::Parameter: apigateway.http.endpoint
+         # The value of the environmental variable is read from the SOMOD Parameter apigateway.http.endpoint in parameters.json
+     ```
+
 3. Start a dev server for the UI
 
    ```
-   npx somod serve --dev -v
+   npx somod start --dev -v
    ```
 
    Open the URL `http://localhost:3000` in the browser to see the User Management App

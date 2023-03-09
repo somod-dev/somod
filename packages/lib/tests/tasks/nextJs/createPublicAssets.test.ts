@@ -1,16 +1,13 @@
 import { createFiles, createTempDir, deleteDir, readFiles } from "../../utils";
 import { createPublicAssets } from "../../../src";
 import { join } from "path";
-import { ModuleHandler } from "../../../src/utils/moduleHandler";
-import { loadPublicAssetNamespaces } from "../../../src/utils/nextJs/publicAssets";
-import ErrorSet from "../../../src/utils/ErrorSet";
+import { IContext } from "somod-types";
 
 describe("Test Task createPublicAssets", () => {
   let dir: string = null;
 
   beforeEach(() => {
     dir = createTempDir("test-somod-lib");
-    ModuleHandler.initialize(dir, [loadPublicAssetNamespaces]);
   });
 
   afterEach(() => {
@@ -68,7 +65,41 @@ describe("Test Task createPublicAssets", () => {
       "node_modules/m3/build/ui/public/about/me.html": "nlkhkwjher"
     });
 
-    await expect(createPublicAssets(dir)).resolves.toBeUndefined();
+    await expect(
+      createPublicAssets({
+        dir,
+        moduleHandler: {
+          getModule(module) {
+            const moduleLocationMap = {
+              m1: "",
+              m2: "node_modules/m2",
+              m3: "node_modules/m3",
+              m5: "node_modules/m2/node_modules/m5"
+            };
+            return {
+              module: {
+                name: module,
+                root: module == "m1",
+                packageLocation: join(dir, moduleLocationMap[module])
+              }
+            };
+          }
+        } as IContext["moduleHandler"],
+        namespaceHandler: {
+          get() {
+            return [
+              { name: "UI Page", module: "m1", value: "home.html" },
+              { name: "UI Page", module: "m1", value: "about/us.html" },
+              { name: "UI Page", module: "m2", value: "about.html" },
+              { name: "UI Page", module: "m5", value: "contact.js" },
+              { name: "UI Page", module: "m5", value: "survey.js" },
+              { name: "UI Page", module: "m3", value: "about/me.html" }
+            ];
+          },
+          names: []
+        } as IContext["namespaceHandler"]
+      } as IContext)
+    ).resolves.toBeUndefined();
 
     expect(readFiles(join(dir, "public"))).toEqual({
       "home.html": "ghkdfjhgkjdsfkl",
@@ -78,47 +109,5 @@ describe("Test Task createPublicAssets", () => {
       "survey.js": "iuuhiuh",
       "about/me.html": "nlkhkwjher"
     });
-  });
-
-  test("for unresolved public assets", async () => {
-    createFiles(dir, {
-      "package.json": JSON.stringify({
-        name: "m1",
-        version: "1.0.0",
-        somod: "1.3.2",
-        dependencies: {
-          m2: "^1.0.1",
-          m3: "^2.1.0"
-        }
-      }),
-      "node_modules/m2/package.json": JSON.stringify({
-        name: "m2",
-        version: "1.0.10",
-        somod: "1.3.2"
-      }),
-      "node_modules/m3/package.json": JSON.stringify({
-        name: "m3",
-        version: "2.2.0",
-        somod: "1.3.2"
-      }),
-      "ui/public/about.html": "ghkdfjhgkjdsfkl",
-      "node_modules/m2/build/ui/public/about.html": "fewkqhkhfklhqekl",
-      "node_modules/m2/build/ui/public/contact.js": "kuowh",
-      "node_modules/m2/build/ui/public/survey.js": "iuuhiuh",
-      "node_modules/m3/build/ui/public/about.html": "huoijoit",
-      "node_modules/m3/build/ui/public/contact.js": "iphodjhor",
-      "node_modules/m3/build/ui/public/about/me.html": "nlkhkwjher"
-    });
-    await expect(createPublicAssets(dir)).rejects.toEqual(
-      new ErrorSet([
-        new Error(
-          `Following namespaces are unresolved
-UI Public Asset
- - contact.js
-   - m2
-   - m3`
-        )
-      ])
-    );
   });
 });

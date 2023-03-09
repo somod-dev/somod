@@ -28,62 +28,63 @@ import {
   validateServerlessTemplateWithSchema,
   validateUiConfigYaml,
   path_pagesData,
-  loadPlugins,
-  runPluginPrebuild,
-  runPluginBuild,
   validateServerlessTemplate,
-  initializeModuleHandler,
   validateUiConfigYamlWithSchema,
-  loadNamespaces,
   path_functions,
-  validateFunctionExports
+  validateFunctionExports,
+  initializeContext,
+  bundleExtension
 } from "somod-lib";
 import {
+  addDebugOptions,
   addSOMODCommandTypeOptions,
+  DebugModeOptions,
   getSOMODCommandTypeOptions,
   SOMODCommandTypeOptions
 } from "../utils/common";
 
-type BuildOptions = CommonOptions & SOMODCommandTypeOptions;
+type BuildOptions = CommonOptions & SOMODCommandTypeOptions & DebugModeOptions;
 
 export const BuildAction = async ({
   verbose,
+  debug,
   ...options
 }: BuildOptions): Promise<void> => {
   const dir = findRootDir();
 
   const { ui, serverless } = getSOMODCommandTypeOptions(options);
 
-  const plugins = await loadPlugins(dir);
-
-  await taskRunner(
-    `Initialize ModuleHandler`,
-    initializeModuleHandler,
-    verbose,
+  const context = await taskRunner(
+    `Initialize Context`,
+    initializeContext,
+    {
+      verbose,
+      progressIndicator: true
+    },
     dir,
-    plugins.namespaceLoaders
+    ui,
+    serverless,
+    debug
   );
 
   await Promise.all([
     taskRunner(
       `Validate ${file_packageJson}`,
       validatePackageJson,
-      verbose,
-      dir
+      { verbose, progressIndicator: true },
+      context
     ),
     taskRunner(
       `Validate ${file_tsConfigSomodJson}`,
       isValidTsConfigSomodJson,
-      verbose,
-      dir,
-      ui ? { jsx: "react" } : {},
-      [...(ui ? [path_ui] : []), ...(serverless ? [path_serverless] : [])]
+      { verbose, progressIndicator: true },
+      context
     ),
     taskRunner(
       `Validate ${file_parametersYaml} with schema`,
       validateParametersWithSchema,
-      verbose,
-      dir
+      { verbose, progressIndicator: true },
+      context
     )
   ]);
 
@@ -92,27 +93,26 @@ export const BuildAction = async ({
       taskRunner(
         `Validate ${path_ui}/${file_configYaml} with schema`,
         validateUiConfigYamlWithSchema,
-        verbose,
-        dir
+        { verbose, progressIndicator: true },
+        context
       ),
       taskRunner(
         `Validate ${path_ui}/${file_configYaml}`,
         validateUiConfigYaml,
-        verbose,
-        dir,
-        plugins.uiKeywords
+        { verbose, progressIndicator: true },
+        context
       ),
       taskRunner(
         `Validate exports in ${path_ui}/${path_pages}`,
         validatePageExports,
-        verbose,
-        dir
+        { verbose, progressIndicator: true },
+        context
       ),
       taskRunner(
         `Validate exports in ${path_ui}/${path_pagesData}`,
         validatePageData,
-        verbose,
-        dir
+        { verbose, progressIndicator: true },
+        context
       )
     ]);
   }
@@ -121,63 +121,70 @@ export const BuildAction = async ({
     await taskRunner(
       `Validate ${path_serverless}/${file_templateYaml} with schema`,
       validateServerlessTemplateWithSchema,
-      verbose,
-      dir
+      { verbose, progressIndicator: true },
+      context
     );
     await taskRunner(
       `Validate ${path_serverless}/${file_templateYaml}`,
       validateServerlessTemplate,
-      verbose,
-      dir,
-      plugins.serverlessKeywords
+      { verbose, progressIndicator: true },
+      context
     );
     await taskRunner(
       `Validate exports in ${path_serverless}/${path_functions}`,
       validateFunctionExports,
-      verbose,
-      dir
+      { verbose, progressIndicator: true },
+      context
     );
   }
 
-  await taskRunner(`Resolve Namespaces`, loadNamespaces, verbose);
-
-  await Promise.all(
-    plugins.prebuild.map(plugin =>
-      taskRunner(
-        `PreBuild plugin ${plugin.name}`,
-        runPluginPrebuild,
-        verbose,
-        dir,
-        plugin.plugin,
-        {
-          ui,
-          serverless
-        }
-      )
-    )
-  );
+  const prebuildHooks = [...context.extensionHandler.prebuildHooks];
+  prebuildHooks.reverse();
+  for (const prebuildHook of prebuildHooks) {
+    await taskRunner(
+      `Run PreBuild Hook of ${prebuildHook.extension}`,
+      prebuildHook.value,
+      { verbose, progressIndicator: true },
+      context
+    );
+  }
 
   await taskRunner(
     `Delete ${path_build} directory`,
     deleteBuildDir,
-    verbose,
-    dir
+    { verbose, progressIndicator: true },
+    context
   );
-  await taskRunner(`Compile Typescript`, compileTypeScript, verbose, dir);
+
+  await taskRunner(
+    `Compile Typescript`,
+    compileTypeScript,
+    { verbose, progressIndicator: true },
+    context,
+    verbose
+  );
+
+  await taskRunner(
+    `Bundle Extension`,
+    bundleExtension,
+    { verbose, progressIndicator: true },
+    context,
+    verbose
+  );
 
   if (ui) {
     await taskRunner(
       `Build ${path_ui}/${path_public}`,
       buildUiPublic,
-      verbose,
-      dir
+      { verbose, progressIndicator: true },
+      context
     );
 
     await taskRunner(
       `Build ${path_ui}/${file_configYaml}`,
       buildUiConfigYaml,
-      verbose,
-      dir
+      { verbose, progressIndicator: true },
+      context
     );
   }
 
@@ -185,46 +192,45 @@ export const BuildAction = async ({
     await taskRunner(
       `Build ${path_serverless}/${file_templateYaml}`,
       buildServerlessTemplate,
-      verbose,
-      dir
+      { verbose, progressIndicator: true },
+      context
     );
   }
 
   await taskRunner(
     `Build ${file_parametersYaml}`,
     buildParameters,
-    verbose,
-    dir
+    { verbose, progressIndicator: true },
+    context
   );
 
   await taskRunner(
     `Set ${key_somod} version in ${file_packageJson}`,
     updateSodaruModuleKeyInPackageJson,
-    verbose,
-    dir
+    { verbose, progressIndicator: true },
+    context.dir
   );
-  await taskRunner(`Save ${file_packageJson}`, savePackageJson, verbose, dir);
+  await taskRunner(
+    `Save ${file_packageJson}`,
+    savePackageJson,
+    { verbose, progressIndicator: true },
+    context
+  );
 
-  await Promise.all(
-    plugins.build.map(plugin =>
-      taskRunner(
-        `Build plugin ${plugin.name}`,
-        runPluginBuild,
-        verbose,
-        dir,
-        plugin.plugin,
-        {
-          ui,
-          serverless
-        }
-      )
-    )
-  );
+  for (const buildHook of context.extensionHandler.buildHooks) {
+    await taskRunner(
+      `Run Build Hook of ${buildHook.extension}`,
+      buildHook.value,
+      { verbose, progressIndicator: true },
+      context
+    );
+  }
 };
 
 const buildCommand = new Command("build");
 
 buildCommand.action(BuildAction);
 addSOMODCommandTypeOptions(buildCommand);
+addDebugOptions(buildCommand);
 
 export default buildCommand;

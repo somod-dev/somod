@@ -1,6 +1,5 @@
-import { KeywordDefinition, ModuleTemplate } from "somod-types";
+import { KeywordDefinition, ServerlessResource } from "somod-types";
 import { getPath } from "../../jsonTemplate";
-import { ServerlessTemplate } from "../types";
 
 type Access = "module" | "scope" | "public";
 
@@ -27,34 +26,26 @@ export const keywordAccess: KeywordDefinition<Access> = {
 };
 
 export const checkAccess = (
-  sourceModule: string,
-  targetTemplate: ModuleTemplate<ServerlessTemplate>,
-  targetResource: string
-): Error[] => {
-  const errors: Error[] = [];
+  resource: ServerlessResource,
+  accessedModule: string,
+  accessedResource: string,
+  fromModule: string,
+  referenceType: "Referenced" | "Extended" | "Depended" = "Referenced"
+) => {
+  const access = (resource[keywordAccess.keyword] || "scope") as Access;
 
-  const access = (targetTemplate.json.Resources[targetResource][
-    keywordAccess.keyword
-  ] || "scope") as Access;
-
-  if (access == "module" && sourceModule != targetTemplate.moduleName) {
-    errors.push(
-      new Error(
-        `Referenced module resource {${targetTemplate.moduleName}, ${targetResource}} can not be accessed (has "module" access).`
-      )
+  if (access == "module" && fromModule != accessedModule) {
+    throw new Error(
+      `${referenceType} module resource {${accessedModule}, ${accessedResource}} can not be accessed (has "module" access).`
     );
   }
 
   if (
     access == "scope" &&
-    sourceModule.split("/")[0] != targetTemplate.moduleName.split("/")[0]
+    fromModule.split("/")[0] != accessedModule.split("/")[0]
   ) {
-    errors.push(
-      new Error(
-        `Referenced module resource {${targetTemplate.moduleName}, ${targetResource}} can not be accessed (has "scope" access).`
-      )
+    throw new Error(
+      `Referenced module resource {${accessedModule}, ${accessedResource}} can not be accessed (has "scope" access).`
     );
   }
-
-  return errors;
 };

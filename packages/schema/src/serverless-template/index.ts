@@ -51,8 +51,16 @@ import {
 
 import { allResource } from "./resources/all";
 import { customResource } from "./resources/custom";
-import { functionEventSource, functionResource } from "./resources/function";
+import {
+  functionEventSource,
+  functionResource,
+  functionTypes,
+  functionApiEvent,
+  functionHttpApiEvent,
+  functionEvent
+} from "./resources/function";
 import { functionLayerResource } from "./resources/functionLayer";
+import { functionMiddlewareResource } from "./resources/functionMiddleware";
 
 const serverlessTemplate: JSONSchema7 = {
   $schema: "http://json-schema.org/draft-07/schema",
@@ -102,9 +110,14 @@ const serverlessTemplate: JSONSchema7 = {
     somodResourceName,
     allResource,
     customResource,
+    functionTypes,
+    functionApiEvent,
+    functionHttpApiEvent,
+    functionEvent,
     functionEventSource,
     functionResource,
-    functionLayerResource
+    functionLayerResource,
+    functionMiddlewareResource
   },
   type: "object",
   required: ["Resources"],
@@ -118,32 +131,34 @@ const serverlessTemplate: JSONSchema7 = {
             if: {
               type: "object",
               properties: {
-                Type: { const: "AWS::Serverless::Function" }
+                Type: {
+                  enum: [
+                    "AWS::Serverless::Function",
+                    "AWS::Serverless::LayerVersion",
+                    "SOMOD::Serverless::FuntionMiddleware"
+                  ]
+                }
               }
             },
-            then: { $ref: "#/definitions/functionResource" },
-            else: {
-              if: {
-                type: "object",
-                properties: {
-                  Type: { const: "AWS::Serverless::LayerVersion" }
-                }
-              },
-              then: { $ref: "#/definitions/functionLayerResource" },
-              else: {
-                if: {
-                  type: "object",
-                  properties: {
-                    Type: {
-                      type: "string",
-                      pattern: "^Custom::[A-Z][a-zA-Z0-9]{0,63}$"
-                    }
-                  }
-                },
-                then: { $ref: "#/definitions/customResource" },
-                else: { type: "object" }
-              }
+            then: {
+              oneOf: [
+                { $ref: "#/definitions/functionResource" },
+                { $ref: "#/definitions/functionLayerResource" },
+                { $ref: "#/definitions/functionMiddlewareResource" }
+              ]
             }
+          },
+          {
+            if: {
+              type: "object",
+              properties: {
+                Type: {
+                  type: "string",
+                  pattern: "^Custom::[A-Z][a-zA-Z0-9]{0,63}$"
+                }
+              }
+            },
+            then: { $ref: "#/definitions/customResource" }
           }
         ]
       },

@@ -1,19 +1,23 @@
 import { unixStylePath } from "nodejs-file-utils";
-import { KeywordDefinition } from "somod-types";
+import { IContext } from "somod-types";
 import { writeFile } from "fs/promises";
 import { join, relative } from "path";
 import { file_dotenv, file_nextConfigJs } from "../../utils/constants";
 import { Config, generateCombinedConfig } from "../../utils/nextJs/config";
+import { existsSync } from "fs";
 
 const generateDotEnvFile = async (
   dir: string,
   config: Config
 ): Promise<void> => {
   const envLines: string[] = [];
-  Object.keys(config.env || {}).forEach(envName => {
-    envLines.push(`${envName}=${JSON.stringify(config.env[envName])}`);
-  });
-  await writeFile(join(dir, file_dotenv), envLines.join("\n"));
+  const envNames = Object.keys(config.env || {});
+  if (envNames.length > 0) {
+    envNames.forEach(envName => {
+      envLines.push(`${envName}=${JSON.stringify(config.env[envName])}`);
+    });
+    await writeFile(join(dir, file_dotenv), envLines.join("\n"));
+  }
 };
 
 const generateNextConfigJs = async (
@@ -63,15 +67,19 @@ const withNextConfigOverride = require("${withBaseConfigRelativePath}");
 module.exports = withNextConfigOverride(__dirname, config);
 `;
 
-  await writeFile(join(dir, file_nextConfigJs), nextConfigJsContent);
+  if (
+    Object.keys(config.imageDomains).length > 0 ||
+    Object.keys(config.publicRuntimeConfig).length > 0 ||
+    Object.keys(config.serverRuntimeConfig).length > 0 ||
+    existsSync(join(dir, "next.config.somod.js"))
+  ) {
+    await writeFile(join(dir, file_nextConfigJs), nextConfigJsContent);
+  }
 };
 
-export const generateNextConfig = async (
-  dir: string,
-  pluginKeywords: KeywordDefinition[] = []
-): Promise<void> => {
-  const config = await generateCombinedConfig(dir, pluginKeywords);
+export const generateNextConfig = async (context: IContext): Promise<void> => {
+  const config = await generateCombinedConfig(context);
 
-  await generateDotEnvFile(dir, config);
-  await generateNextConfigJs(dir, config);
+  await generateDotEnvFile(context.dir, config);
+  await generateNextConfigJs(context.dir, config);
 };

@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=../node_modules/somod-schema/schemas/ui-config/index.json
+
+env: {}
+imageDomains: []
+publicRuntimeConfig: {}
+serverRuntimeConfig: {}

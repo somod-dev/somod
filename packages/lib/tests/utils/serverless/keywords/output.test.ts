@@ -6,13 +6,13 @@ import {
 } from "../../../../src/utils/serverless/keywords/output";
 
 type OutputType = {
-  default: boolean;
-  attributes: string[];
+  default?: boolean;
+  attributes?: string[];
 };
 
 describe("Test output keyword", () => {
-  const getValidator = () => keywordOutput.getValidator("", "", {});
-  const getProcessor = () => keywordOutput.getProcessor("", "", {});
+  const getValidator = () => keywordOutput.getValidator("", null);
+  const getProcessor = () => keywordOutput.getProcessor("", null);
 
   test("the keyword name", () => {
     expect(keywordOutput.keyword).toEqual("SOMOD::Output");
@@ -127,48 +127,35 @@ describe("Test output keyword", () => {
 describe("Test util checkOutput from output keyword for", () => {
   const usecases: [
     string,
-    string | undefined,
-    OutputType | undefined,
-    Error[]
+    string | undefined, // attribute
+    OutputType | undefined, // output
+    Error | undefined // expected error
   ][] = [
     // no keyword
-    [
-      "expecting default with out keyword",
-      undefined,
-      null,
-      [
-        new Error(
-          "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
-        )
-      ]
-    ],
+    ["expecting default with out keyword", undefined, undefined, undefined],
     [
       "expecting attribute with out keyword",
       "x",
-      null,
-      [
-        new Error(
-          "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
-        )
-      ]
+      undefined,
+      new Error(
+        "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
+      )
     ],
 
     // default = false
     [
       "expecting default with default = false",
       undefined,
-      { default: false, attributes: [] },
-      [
-        new Error(
-          "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
-        )
-      ]
+      { default: false },
+      new Error(
+        "default must be true in SOMOD::Output of MyResource1 resource in @s1/m1."
+      )
     ],
     [
       "expecting default with default = true",
       undefined,
       { default: true, attributes: [] },
-      []
+      undefined
     ],
 
     // attributes
@@ -176,36 +163,32 @@ describe("Test util checkOutput from output keyword for", () => {
       "expecting non existing attribute",
       "x",
       { default: false, attributes: ["y"] },
-      [
-        new Error(
-          "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
-        )
-      ]
+      new Error(
+        "attributes must have x in SOMOD::Output of MyResource1 resource in @s1/m1."
+      )
     ],
     [
       "expecting existing attribute",
       "x",
       { default: false, attributes: ["x", "y"] },
-      []
+      undefined
     ]
   ];
 
-  test.each(usecases)("%s", (title, attribute, outputValue, expectedErrors) => {
-    const resource = { Type: "", Properties: {} };
-    if (outputValue) {
-      resource[keywordOutput.keyword] = outputValue;
+  test.each(usecases)(
+    "%s",
+    async (title, attribute, outputValue, expectedError) => {
+      const resource = { Type: "", Properties: {} };
+      if (outputValue) {
+        resource[keywordOutput.keyword] = outputValue;
+      }
+      let error = undefined;
+      try {
+        checkOutput(resource, "@s1/m1", "MyResource1", attribute);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toEqual(expectedError);
     }
-    expect(
-      checkOutput(
-        {
-          moduleName: "@s1/m1",
-          location: "/a/b/c/z",
-          path: "",
-          json: { Resources: { MyResource1: resource } }
-        },
-        "MyResource1",
-        attribute
-      )
-    ).toEqual(expectedErrors);
-  });
+  );
 });
