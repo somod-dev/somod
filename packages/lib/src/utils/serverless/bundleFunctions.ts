@@ -48,7 +48,7 @@ const createFunctionWithMiddlewares = async (
     module: string;
     name: string;
   }) => {
-    return context.getModuleHash(middleware.module) + middleware.name;
+    return "m" + context.getModuleHash(middleware.module) + middleware.name;
   };
 
   const importStatements: string[] = [

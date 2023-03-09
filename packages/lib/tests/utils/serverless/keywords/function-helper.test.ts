@@ -792,7 +792,10 @@ describe("test the helper for keyword function", () => {
                     CodeUri: {
                       "SOMOD::Function": {
                         name: "my-function",
-                        middlewares: [{ resource: "middleware0" }]
+                        middlewares: [
+                          { resource: "middleware0" },
+                          { module: "e1", resource: "middleware1" }
+                        ]
                       }
                     },
                     Environment: {
@@ -836,7 +839,18 @@ describe("test the helper for keyword function", () => {
                       "SOMOD::FunctionMiddleware": { name: "middleware1-code" }
                     },
                     Environment: { Variables: { MY_VAR4: "hardcoded" } },
-                    Layers: [{ "SOMOD::Ref": { resource: "l1" } }]
+                    Layers: [
+                      { "SOMOD::Ref": { resource: "l1" } },
+                      { "SOMOD::Ref": { module: "e2", resource: "l2" } }
+                    ]
+                  }
+                },
+                middleware2: {
+                  Type: resourceType_FunctionMiddleware,
+                  Properties: {
+                    CodeUri: {
+                      "SOMOD::FunctionMiddleware": { name: "middleware2-code" }
+                    }
                   }
                 },
                 l1: {
@@ -846,7 +860,7 @@ describe("test the helper for keyword function", () => {
               }
             },
             extension: {
-              middlewares: ["middleware1"]
+              middlewares: ["middleware1", "middleware2"]
             }
           },
           {
@@ -896,6 +910,10 @@ describe("test the helper for keyword function", () => {
               "module": "e1",
               "name": "middleware1-code",
             },
+            Object {
+              "module": "e1",
+              "name": "middleware2-code",
+            },
           ],
         },
         "resource": Object {
@@ -910,6 +928,10 @@ describe("test the helper for keyword function", () => {
                   Object {
                     "module": "e1",
                     "resource": "middleware1",
+                  },
+                  Object {
+                    "module": "e1",
+                    "resource": "middleware2",
                   },
                 ],
                 "name": "my-function",

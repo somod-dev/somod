@@ -146,8 +146,8 @@ describe("Test util bundleFunctions", () => {
     ).resolves.toMatchInlineSnapshot(`
       "import { getMiddlewareHandler } from \\"somod-middleware\\";
       import lambdaFn from \\"../../../../build/serverless/functions/f1\\";
-      import MMMm2MMMmiddleware1 from \\"../../../../node_modules/m2/build/serverless/functions/middlewares/middleware1\\";
-      const handler = getMiddlewareHandler(lambdaFn, [MMMm2MMMmiddleware1]);
+      import mMMMm2MMMmiddleware1 from \\"../../../../node_modules/m2/build/serverless/functions/middlewares/middleware1\\";
+      const handler = getMiddlewareHandler(lambdaFn, [mMMMm2MMMmiddleware1]);
       export default handler;
       "
     `);

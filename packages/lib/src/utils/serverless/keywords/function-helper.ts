@@ -151,11 +151,24 @@ export class MergedFunctionResourceContainer {
         extendedFuncResourceWithExtensions.propertyModuleMap
       );
 
-    const middlewares = ((
-      extendedFuncResourcePropertiesWithModuleRefCorrected as JSONObjectType & {
-        CodeUri?: KeywordSomodFunction;
-      }
-    ).CodeUri?.["SOMOD::Function"]?.middlewares || []) as {
+    if (
+      extendedFuncResourcePropertiesWithModuleRefCorrected["CodeUri"]?.[
+        functionKeyword
+      ]?.middlewares
+    ) {
+      extendedFuncResourcePropertiesWithModuleRefCorrected["CodeUri"][
+        functionKeyword
+      ].middlewares = uniqWith(
+        extendedFuncResourcePropertiesWithModuleRefCorrected["CodeUri"][
+          functionKeyword
+        ].middlewares,
+        isEqual
+      );
+    }
+
+    const middlewares = (extendedFuncResourcePropertiesWithModuleRefCorrected[
+      "CodeUri"
+    ]?.[functionKeyword]?.middlewares || []) as {
       module: string;
       resource: string;
     }[];
@@ -207,13 +220,16 @@ export class MergedFunctionResourceContainer {
       mergedProperties.Layers = uniqWith(mergedProperties.Layers, isEqual);
     }
 
-    return {
-      code,
-      resource: {
-        ...extendedFuncResourceWithExtensions.resource,
-        Properties: propertiesMergedWithMiddlewares
-      }
-    };
+    return freeze(
+      {
+        code,
+        resource: {
+          ...extendedFuncResourceWithExtensions.resource,
+          Properties: propertiesMergedWithMiddlewares
+        }
+      },
+      true
+    );
   }
 
   private static _applyExtensionProperties(
@@ -288,16 +304,13 @@ export class MergedFunctionResourceContainer {
       }
     ) as ServerlessResource["Properties"];
 
-    return freeze(
-      {
-        resource: {
-          ...extendedFuncResource.resource,
-          Properties: propertiesWithExtensions
-        },
-        propertyModuleMap: extendedFuncResource.propertySourceMap
+    return {
+      resource: {
+        ...extendedFuncResource.resource,
+        Properties: propertiesWithExtensions
       },
-      true
-    );
+      propertyModuleMap: extendedFuncResource.propertySourceMap
+    };
   }
 
   private static async _correctModuleReference(
