@@ -1,6 +1,6 @@
 {
   "name": "somod-middleware",
-  "version": "1.17.0-1",
+  "version": "1.17.0-2",
   "description": "Middleware library for SOMOD serverless functions",
   "keywords": [
     "middleware",
@@ -44,6 +44,6 @@
     "jest": "28.1.0",
     "ts-jest": "28.0.2",
     "typescript": "^4.5.5",
-    "somod-types": "^1.17.0-1"
+    "somod-types": "^1.17.0-2"
   }
 }
