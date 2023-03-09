@@ -9,7 +9,7 @@ require("cli-opentelemetry").tele(
   require("path").join(__dirname, "../dist/index.js"),
   "${process.env.GITHUB_REF_NAME || ""}",
   "${process.env.OTLP_URL || ""}",
-  { ${process.env.OTLP_KEY_NAME || '""'}: "${
+  { "${process.env.OTLP_KEY_NAME || ""}": "${
   process.env.OTLP_KEY_VALUE || ""
 }" },
   2 * 60 * 1000 // 2 minutes
