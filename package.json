@@ -1,6 +1,6 @@
 {
   "name": "somod-sdk",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "description": "SOMOD (Serverless Optimized MODule). Serverless Framework to create reusable micro applications",
   "scripts": {
     "postinstall": "npx mono-repo install -v && npx mono-repo run build -v",
