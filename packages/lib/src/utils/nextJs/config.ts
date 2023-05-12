@@ -85,7 +85,7 @@ export const loadConfigNamespaces: NamespaceLoader = async module => {
 
 export const validate = async (context: IContext) => {
   const rootModule = context.moduleHandler.getModule(
-    context.moduleHandler.roodModuleName
+    context.moduleHandler.rootModuleName
   ).module;
 
   const keywords = [...getBaseKeywords()];
@@ -127,7 +127,7 @@ export const build = async (dir: string): Promise<void> => {
 export const generateCombinedConfig = async (
   context: IContext
 ): Promise<Config> => {
-  const rootModuleName = context.moduleHandler.roodModuleName;
+  const rootModuleName = context.moduleHandler.rootModuleName;
 
   const keywords = [...getBaseKeywords()];
   context.extensionHandler.uiConfigKeywords.forEach(uiConfigKeywords => {

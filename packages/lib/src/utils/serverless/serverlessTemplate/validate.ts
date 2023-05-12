@@ -22,7 +22,7 @@ export const validateServerlessTemplate = async (context: IContext) => {
   await Promise.all(
     keywords.map(async keyword => {
       const validator = await keyword.getValidator(
-        context.moduleHandler.roodModuleName,
+        context.moduleHandler.rootModuleName,
         context
       );
 
@@ -33,7 +33,7 @@ export const validateServerlessTemplate = async (context: IContext) => {
   const errors = await validateKeywords(
     parseJson(
       context.serverlessTemplateHandler.getTemplate(
-        context.moduleHandler.roodModuleName
+        context.moduleHandler.rootModuleName
       ).template
     ),
     keywordValidators

@@ -185,7 +185,7 @@ export class ModuleHandler implements IModuleHandler {
     return sortedModuleNames;
   }
 
-  get roodModuleName(): string {
+  get rootModuleName(): string {
     return this._rootModuleName;
   }
 

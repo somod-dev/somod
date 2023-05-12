@@ -107,7 +107,14 @@ next.config.js",
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\",
+  \\"eslintConfig\\": {
+    \\"extends\\": [
+      \\"sodaru\\",
+      \\"next\\"
+    ]
+  },
+  \\"prettier\\": \\"prettier-config-sodaru\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 
@@ -447,7 +454,13 @@ samconfig.toml
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\",
+  \\"eslintConfig\\": {
+    \\"extends\\": [
+      \\"sodaru\\"
+    ]
+  },
+  \\"prettier\\": \\"prettier-config-sodaru\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 
@@ -558,7 +571,14 @@ next.config.js",
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\",
+  \\"eslintConfig\\": {
+    \\"extends\\": [
+      \\"sodaru\\",
+      \\"next\\"
+    ]
+  },
+  \\"prettier\\": \\"prettier-config-sodaru\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 
@@ -1241,7 +1261,14 @@ next.config.js",
     \\"build\\"
   ],
   \\"sideEffects\\": false,
-  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\"
+  \\"somod\\": \\"REPLACED_TEXT_FOR_ASSERT\\",
+  \\"eslintConfig\\": {
+    \\"extends\\": [
+      \\"sodaru\\",
+      \\"next\\"
+    ]
+  },
+  \\"prettier\\": \\"prettier-config-sodaru\\"
 }",
   "parameters.yaml": "# yaml-language-server: $schema=./node_modules/somod-schema/schemas/parameters/index.json
 

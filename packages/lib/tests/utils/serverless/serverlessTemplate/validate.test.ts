@@ -50,7 +50,7 @@ describe("test util serverlessTemplate.validate", () => {
     await expect(
       validateServerlessTemplate({
         extensionHandler: { serverlessTemplateKeywords: [] },
-        moduleHandler: { roodModuleName: "m0" },
+        moduleHandler: { rootModuleName: "m0" },
         serverlessTemplateHandler: {
           getTemplate: (() => {
             return {
@@ -104,7 +104,7 @@ describe("test util serverlessTemplate.validate", () => {
     await expect(
       validateServerlessTemplate({
         extensionHandler: { serverlessTemplateKeywords: [] },
-        moduleHandler: { roodModuleName: "m0" },
+        moduleHandler: { rootModuleName: "m0" },
         serverlessTemplateHandler: {
           getTemplate: (() => {
             return {

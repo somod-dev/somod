@@ -2,13 +2,13 @@ import { IContext } from "./Context";
 import { KeywordDefinition } from "./KeywordDefinition";
 import { NamespaceLoader } from "./Namespace";
 
-type Hook = (context: IContext) => Promise<void>;
+export type LifecycleHook = (context: IContext) => Promise<void>;
 
 export type Extension = {
-  prebuild?: Hook;
-  build?: Hook;
-  preprepare?: Hook;
-  prepare?: Hook;
+  prebuild?: LifecycleHook;
+  build?: LifecycleHook;
+  preprepare?: LifecycleHook;
+  prepare?: LifecycleHook;
 
   namespaceLoader?: NamespaceLoader;
   uiConfigKeywords?: KeywordDefinition[];
@@ -27,10 +27,10 @@ export type ExtensionValue<T> = {
  * Interface for handling the extensions, all getters return the values ordered from child to parent module
  */
 export interface IExtensionHandler {
-  get prebuildHooks(): ExtensionValue<Hook>[];
-  get buildHooks(): ExtensionValue<Hook>[];
-  get preprepareHooks(): ExtensionValue<Hook>[];
-  get prepareHooks(): ExtensionValue<Hook>[];
+  get prebuildHooks(): ExtensionValue<LifecycleHook>[];
+  get buildHooks(): ExtensionValue<LifecycleHook>[];
+  get preprepareHooks(): ExtensionValue<LifecycleHook>[];
+  get prepareHooks(): ExtensionValue<LifecycleHook>[];
 
   get namespaceLoaders(): ExtensionValue<NamespaceLoader>[];
   get uiConfigKeywords(): ExtensionValue<KeywordDefinition[]>[];

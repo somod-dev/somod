@@ -12,7 +12,7 @@ export type ModuleNode = Readonly<{
 }>;
 
 export interface IModuleHandler {
-  get roodModuleName(): string;
+  get rootModuleName(): string;
 
   getModule(moduleName: string): ModuleNode;
 

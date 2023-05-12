@@ -122,7 +122,7 @@ Extend the parsing of `ui/config.yaml` and `serverless/template.yaml` using exte
   ];
   ```
 
-- `uiConfigKeywords`
+- `serverlessTemplateKeywords`
 
   ```typescript
   import { KeywordDefinition } from "somod";
@@ -153,7 +153,7 @@ Extend the Serverless functions with the following properties from the extension
 
   ```typescript
   export const functionMiddlewares: string[] = [
-    // Resource Ids of the layers declared in serverless/template.yaml of this project
+    // Resource Ids of the middlewares declared in serverless/template.yaml of this project
   ];
   ```
 

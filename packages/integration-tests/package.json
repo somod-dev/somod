@@ -43,7 +43,7 @@
     "jest": "28.1.0",
     "jest-environment-steps": "^1.1.0",
     "jest-summarizing-reporter": "^1.1.4",
-    "nodejs-cli-runner": "^1.2.1",
+    "nodejs-cli-runner": "^1.2.2",
     "nodejs-file-utils": "^1.0.1",
     "ts-jest": "28.0.2",
     "typescript": "^4.5.5",

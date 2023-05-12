@@ -5,7 +5,7 @@ import { ModuleHandler } from "../../src/utils/module";
 
 const getRootModuleNode = async (dir: string) => {
   const moduleHandler = await ModuleHandler.getInstance(dir);
-  return moduleHandler.getModule(moduleHandler.roodModuleName);
+  return moduleHandler.getModule(moduleHandler.rootModuleName);
 };
 
 const listModules = async (dir: string) => {

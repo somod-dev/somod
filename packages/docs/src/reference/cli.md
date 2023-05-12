@@ -112,8 +112,8 @@ Refer to the [Next.js CLI](https://nextjs.org/docs/api-reference/cli) guide for 
 npx somod parameters update
 ```
 
-After deploying AWS SAM Project, this command updates the `parameters.json` with the exported parameters.
-Read the [SOMOD Serverless template.yaml](/reference/main-concepts/serverless/template.yaml) guide to define the exported parameter.
+After deploying AWS SAM Project, this command updates the `parameters.json` with the exported parameters.  
+Refer to the `Outputs` section of [`serverless/template.yaml`](/reference/main-concepts/serverless/template.yaml) to know how to export an output from the Cloudformation stack to a parameter.
 
 #### Command Options
 
@@ -126,10 +126,8 @@ Read the [SOMOD Serverless template.yaml](/reference/main-concepts/serverless/te
 npx somod parameters validate
 ```
 
-After deploying AWS SAM Project, this command updates the `parameters.json` with the exported parameters.
-Read the [SOMOD Serverless template.yaml](/reference/main-concepts/serverless/template.yaml) guide to define the exported parameter.
+Validates the `parameters.json` file against the parameters schema
 
 #### Command Options
 
-- `-s` or `--stack-name`  
-  Stack name to update the params from. Reads from `samconfig.toml` if omitted
+_No command-specific options_

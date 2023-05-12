@@ -19,7 +19,7 @@ Middlewares allows adding a reusable capability to lambda functions at Develop/P
 The middlewares are called in the order of their attachment to the function.
 
 ```
-     (event, content)       (response)
+     (event, context)       (response)
            ||                   /\
  __________||___________________||__________
 |          ||     Middleware 1  ||          |
@@ -52,7 +52,7 @@ import { Middleware } from "somod";
 
 const myMiddleware: Middleware = async (next, event, context) => {
   // use event.somodMiddlewareContext.set(key, value) to set the metadata
-  // use event.somodMiddlewareContext.get(key) to set the metadata
+  // use event.somodMiddlewareContext.get(key) to get the metadata
 
   // pre processing
 
@@ -108,8 +108,8 @@ Resources:
         SOMOD::Function:
           # ...
           middlewares:
-            - resource: MyMiddleware2 # attaches MyMiddleware1 in current module
-            - module: AnotherModule # attaches MyMiddleware2 from AnotherModule
+            - resource: MyMiddleware1 # attaches MyMiddleware1 in current module to this function
+            - module: AnotherModule # attaches MyMiddleware2 from AnotherModule to this function
               resource: MyMiddleware2
       # ...
 ```
@@ -134,7 +134,7 @@ Resources:
         SOMOD::Function:
           # ...
           middlewares:
-            - resource: MyMiddleware2 # attaches MyMiddleware1 in current module to OriginalModule.OriginalFunction
+            - resource: MyMiddleware1 # attaches MyMiddleware1 in current module to OriginalModule.OriginalFunction
             - module: AnotherModule # attaches MyMiddleware2 from AnotherModule to OriginalModule.OriginalFunction
               resource: MyMiddleware2
       # ...
@@ -160,8 +160,33 @@ export const functionMiddlewares = [
 - Middlewares listed in functionMiddlewares must exist in the `serverless/template.yaml` of the current module.
 - Middleware resources can be directly declared in the current module or may be extended.
 - During the preparation phase, middlewares from all installed extensions are attached to all available functions.
-- A middleware can restrict the type of function to attach to by using `allowedTypes` property.
+- A middleware can restrict the type of function to attach to by using the `allowedTypes` property.
 
 > The extension is very useful to attach the authentication/data-sanity/logging middlewares to all installed functions just by installing the extension.
+
+## Passing data between Middlewares
+
+A middleware can pass the data to the next middleware or function in the chain using the `somodMiddlewareContext` utility in the `event` object
+
+```typescript
+// event is the parameter to middleware
+event.somodMiddlewareContext.set("middleware1-data", data);
+
+// set function takes 2 arguments
+// key - string : identifies the data
+// value - any : any valid javascript object
+```
+
+Middlewares in the chain or the serverless function can retrieve the data from previous middlewares using the same utility
+
+```typescript
+// event is the parameter to middleware/function
+event.somodMiddlewareContext.get("middleware1-data");
+
+// get function takes 1 argument
+// key - string : id of the data to retrieve
+```
+
+> When a middleware sets a data in `somodMiddlewareContext`, it is recommended that the module containing the middleware documents the key and type of the value
 
 Now we have fully understood the capabilities of SOMOD to create serverless applications. In the [next chapter](/reference/main-concepts/ui), let us understand how SOMOD helps to create UI in modules.

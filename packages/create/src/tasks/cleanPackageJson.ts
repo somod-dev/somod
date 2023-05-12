@@ -59,6 +59,26 @@ const updateScripts = (
   packageJson.scripts = scripts;
 };
 
+const updateLintConfig = (
+  packageJson: Record<string, unknown>,
+  serverless: boolean,
+  ui: boolean,
+  eslint: boolean,
+  prettier: boolean
+) => {
+  if (eslint) {
+    packageJson["eslintConfig"] = {
+      extends: ["sodaru"]
+    };
+    if (ui) {
+      packageJson["eslintConfig"]["extends"].push("next");
+    }
+  }
+  if (prettier) {
+    packageJson["prettier"] = "prettier-config-sodaru";
+  }
+};
+
 export const cleanPackageJson = async (
   dir: string,
   serverless: boolean,
@@ -74,6 +94,7 @@ export const cleanPackageJson = async (
 
   updateSomodProperties(packageJson, version);
   updateScripts(packageJson, serverless, ui, eslint, prettier);
+  updateLintConfig(packageJson, serverless, ui, eslint, prettier);
 
   updateJsonFileStore(packageJsonPath, packageJson);
   await saveJsonFileStore(packageJsonPath);

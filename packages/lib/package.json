@@ -40,7 +40,7 @@
     "js-yaml": "^4.1.0",
     "json-object-merge": "^1.2.0",
     "lodash": "^4.17.21",
-    "nodejs-cli-runner": "^1.2.1",
+    "nodejs-cli-runner": "^1.2.2",
     "nodejs-file-utils": "^1.0.1",
     "rimraf": "^3.0.2",
     "tslib": "^2.4.0",

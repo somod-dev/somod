@@ -279,7 +279,7 @@ describe("Test Util nextJs.config.validate", () => {
             children: [],
             parents: []
           })) as IContext["moduleHandler"]["getModule"],
-          roodModuleName: "m1"
+          rootModuleName: "m1"
         },
         extensionHandler: { uiConfigKeywords: [] },
         namespaceHandler: {
@@ -305,7 +305,7 @@ describe("Test Util nextJs.config.validate", () => {
             children: [],
             parents: []
           })) as IContext["moduleHandler"]["getModule"],
-          roodModuleName: "m1"
+          rootModuleName: "m1"
         },
         extensionHandler: { uiConfigKeywords: [] },
         namespaceHandler: {
@@ -336,7 +336,7 @@ describe("Test Util nextJs.config.validate", () => {
             children: [],
             parents: []
           })) as IContext["moduleHandler"]["getModule"],
-          roodModuleName: "m1"
+          rootModuleName: "m1"
         },
         extensionHandler: { uiConfigKeywords: [] },
         namespaceHandler: {
@@ -378,7 +378,7 @@ describe("Test Util nextJs.config.validate", () => {
             children: [],
             parents: []
           })) as IContext["moduleHandler"]["getModule"],
-          roodModuleName: "m1"
+          rootModuleName: "m1"
         },
         extensionHandler: { uiConfigKeywords: [] },
         namespaceHandler: {
@@ -412,7 +412,7 @@ describe("Test Util nextJs.config.validate", () => {
             children: [],
             parents: []
           })) as IContext["moduleHandler"]["getModule"],
-          roodModuleName: "m1"
+          rootModuleName: "m1"
         },
         extensionHandler: { uiConfigKeywords: [] },
         namespaceHandler: {
@@ -651,7 +651,7 @@ describe("test util nextJs.config.generateCombinedConfig", () => {
             parents: []
           }
         ],
-        roodModuleName: "m1"
+        rootModuleName: "m1"
       },
       extensionHandler: { uiConfigKeywords: [] },
       namespaceHandler: {
