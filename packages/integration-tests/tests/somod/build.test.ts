@@ -30,7 +30,7 @@ describe("Test the somod command build", () => {
       await readJsonFileStore(join(dir, "node_modules/somod/package.json"))
     ).version as string;
     buildDir = join(dir, "build");
-  }, 60000);
+  }, 180000);
 
   afterAll(() => {
     deleteDir(dir);
@@ -431,7 +431,7 @@ describe("Test the somod command build", () => {
         "tsconfig.somod.json"
       ]);
       await execPromise("npm i", dir); // install module dependencies
-    }, 60000);
+    }, 180000);
 
     afterAll(async () => {
       await cleanUp(dir, [".npmrc", "node_modules"]);
@@ -676,7 +676,7 @@ describe("Test the somod command build", () => {
         "tsconfig.somod.json"
       ]);
       await execPromise("npm i", dir); // install module dependencies
-    }, 40000);
+    }, 180000);
 
     afterAll(async () => {
       await cleanUp(dir, [".npmrc", "node_modules"]);
@@ -887,7 +887,7 @@ describe("Test the somod command build", () => {
         "tsconfig.somod.json"
       ]);
       await execPromise("npm i", dir); // install module dependencies
-    }, 60000);
+    }, 180000);
 
     afterAll(async () => {
       await cleanUp(dir, [".npmrc", "node_modules"]);

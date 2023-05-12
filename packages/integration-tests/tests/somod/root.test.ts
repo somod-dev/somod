@@ -11,7 +11,7 @@ describe("Test the somod command", () => {
       "package.json": JSON.stringify({ name: "sample", version: "1.0.0" })
     });
     await execPromise("npm i somod", dir);
-  }, 60000);
+  }, 180000);
 
   afterAll(() => {
     deleteDir(dir);

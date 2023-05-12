@@ -28,7 +28,7 @@ describe("Test the somod command prepare", () => {
     somodVersion = (
       await readJsonFileStore(join(dir, "node_modules/somod/package.json"))
     ).version as string;
-  }, 60000);
+  }, 180000);
 
   afterAll(() => {
     deleteDir(dir);
@@ -346,7 +346,7 @@ describe("Test the somod command prepare", () => {
       somodWorkingDir = join(dir, ".somod");
       parametersJson = join(dir, "parameters.json");
       templateYaml = join(dir, "template.yaml");
-    }, 60000);
+    }, 180000);
 
     afterAll(async () => {
       await cleanUp(dir, [".npmrc", "node_modules"]);
@@ -541,7 +541,7 @@ describe("Test the somod command prepare", () => {
       pagesDir = join(dir, "pages");
       parametersJson = join(dir, "parameters.json");
       envFile = join(dir, ".env");
-    }, 40000);
+    }, 180000);
 
     afterAll(async () => {
       await cleanUp(dir, [".npmrc", "node_modules"]);
@@ -695,7 +695,7 @@ describe("Test the somod command prepare", () => {
       templateYaml = join(dir, "template.yaml");
       pagesDir = join(dir, "pages");
       envFile = join(dir, ".env");
-    }, 40000);
+    }, 180000);
 
     afterAll(async () => {
       await cleanUp(dir, [".npmrc", "node_modules"]);
