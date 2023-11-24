@@ -1,7 +1,7 @@
 {
   "name": "push-notification",
   "version": "1.0.0",
-  "somod": "1.17.0-0",
+  "somod": "1.17.2",
   "description": "Sample somod module for integration testing",
   "module": "build/lib/index.js",
   "typings": "build/lib/index.d.ts",

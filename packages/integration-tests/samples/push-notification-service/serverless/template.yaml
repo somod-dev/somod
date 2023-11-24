@@ -3,6 +3,7 @@
 Resources:
   ManagementApi:
     Type: AWS::Serverless::HttpApi
+    SOMOD::Access: public
     Properties:
       Description: >
         Management Api for Push Notifications

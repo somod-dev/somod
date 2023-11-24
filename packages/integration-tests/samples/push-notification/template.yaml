@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Globals:
   Function:
-    Runtime: nodejs16.x
+    Runtime: nodejs18.x
     Handler: index.default
     Architectures:
       - arm64
@@ -55,12 +55,34 @@ Resources:
               Ref: r52fd2c81MessageTypeTable
       Timeout: 300
       Layers: []
+  r52fd2c81AuthorizerLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .somod/serverless/functions/push-notification/authorizer
+      Environment:
+        Variables:
+          secret: null
+      Layers: []
   rde26c15cManagementApi:
     Type: AWS::Serverless::HttpApi
     Properties:
       Description: >
         Management Api for Push Notifications API List 1. POST /notify - Use
         this api to send notifications
+      Auth:
+        Authorizers:
+          LambdaAuthorizer:
+            AuthorizerPayloadFormatVersion: '2.0'
+            EnableFunctionDefaultPermissions: true
+            EnableSimpleResponses: true
+            FunctionArn:
+              Fn::GetAtt:
+                - r52fd2c81AuthorizerLambda
+                - Arn
+            Identity:
+              Headers:
+                - Authorization
+        DefaultAuthorizer: LambdaAuthorizer
   rde26c15cWebSocketApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:

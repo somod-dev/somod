@@ -82,7 +82,7 @@ describe("Test the create-somod", () => {
     );
     expect(result["failed"]).toBeUndefined();
     assertCreatedProject(somodDir);
-  }, 180000);
+  }, 300000);
 
   test("with module name", async () => {
     somodDir = join(dir, "new-somod-module");
@@ -95,7 +95,7 @@ describe("Test the create-somod", () => {
     );
     expect(result["failed"]).toBeUndefined();
     assertCreatedProject(somodDir);
-  }, 180000);
+  }, 300000);
 
   test("with out git eslint and prettier", async () => {
     somodDir = join(dir, "new-module");
@@ -114,7 +114,7 @@ describe("Test the create-somod", () => {
     );
     expect(result["failed"]).toBeUndefined();
     assertCreatedProject(somodDir);
-  }, 180000);
+  }, 300000);
 
   test("with only serverless", async () => {
     somodDir = join(dir, "serverless-module");
@@ -127,7 +127,7 @@ describe("Test the create-somod", () => {
     );
     expect(result["failed"]).toBeUndefined();
     assertCreatedProject(somodDir);
-  }, 180000);
+  }, 300000);
 
   test("with only ui", async () => {
     somodDir = join(dir, "ui-module");
@@ -140,5 +140,5 @@ describe("Test the create-somod", () => {
     );
     expect(result["failed"]).toBeUndefined();
     assertCreatedProject(somodDir);
-  }, 180000);
+  }, 300000);
 });

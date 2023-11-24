@@ -7,3 +7,5 @@ const authorizer = event => {
     }
   };
 };
+
+export default authorizer;
