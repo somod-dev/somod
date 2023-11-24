@@ -908,6 +908,10 @@ describe("Test the somod command prepare", () => {
         "AUTH_END_POINT: ''",
         "AUTH_END_POINT: https://example.com/auth/token"
       );
+      expectedTemplate = expectedTemplate.replace(
+        "secret: null",
+        "secret: secret"
+      );
       await expect(readFile(templateYaml, "utf8")).resolves.toEqual(
         expectedTemplate
       );
