@@ -867,7 +867,7 @@ describe("Test the somod command prepare", () => {
         "parameters.json": JSON.stringify({
           "pns.publish.endpoint": "https://example.com/publish",
           "pns.subscribe.endpoint": "wss://example.com/subscribe",
-          "authorizer.jwt.secret\\": "secret",
+          "authorizer.jwt.secret": "secret",
           "auth.token.endpoint": "https://example.com/auth/token",
           "auth.authorization.endpoint": "https://example.com/authorization"
         })
