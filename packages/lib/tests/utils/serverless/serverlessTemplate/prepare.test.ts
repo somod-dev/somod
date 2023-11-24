@@ -155,7 +155,11 @@ describe("test util serverlessTemplate.prepare", () => {
         },
         serverlessTemplateHandler: {
           getSAMOutputName: p => "sam-" + p,
-          listTemplates: () => moduleTemplates
+          listTemplates: () => moduleTemplates,
+          getResource: (module, resource) => ({
+            resource: moduleTemplates.filter(mt => mt.module == module)[0]
+              .template.Resources[resource]
+          })
         }
       } as IContext)
     ).resolves.toEqual(expectedSamTemplate);

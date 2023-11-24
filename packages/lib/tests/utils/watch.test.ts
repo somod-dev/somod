@@ -1,7 +1,7 @@
 import { sync as rimrafSync } from "rimraf";
 import { createFiles, createTempDir, deleteDir } from "../utils";
 import watch from "../../src/utils/watch";
-import { join, dirname } from "path";
+import { join, dirname, normalize } from "path";
 import {
   copyFileSync,
   existsSync,
@@ -129,7 +129,7 @@ describe("Test watch", () => {
     await helper.createFile(join(watchDir, "d2", "f2"), "d2f2content");
 
     expect(
-      readFileSync(join(destDir, "d2", "f2"), { encoding: "utf8" })
+      readFileSync(normalize(join(destDir, "d2", "f2")), { encoding: "utf8" })
     ).toEqual("d2f2content");
   });
 

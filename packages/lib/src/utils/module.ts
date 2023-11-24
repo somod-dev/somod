@@ -6,6 +6,7 @@ import { IModuleHandler, Module, ModuleNode } from "somod-types";
 import { path_nodeModules } from "./constants";
 import { freeze } from "./freeze";
 import { read } from "./packageJson";
+import { unixStylePath } from "nodejs-file-utils";
 
 export class ModuleHandler implements IModuleHandler {
   private static instance: IModuleHandler;
@@ -121,7 +122,9 @@ export class ModuleHandler implements IModuleHandler {
       }
       moduleContainingDir = parentDir;
     }
-    return join(moduleContainingDir, path_nodeModules, moduleName);
+    return unixStylePath(
+      join(moduleContainingDir, path_nodeModules, moduleName)
+    );
   }
 
   private static _checkForRepeatedModules(modules: Module[]) {

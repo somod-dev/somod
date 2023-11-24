@@ -20,7 +20,7 @@ describe("Test the somod command", () => {
   test("help", async () => {
     const result = await execute(
       dir,
-      "npx",
+      process.platform == "win32" ? "npx.cmd" : "npx",
       ["somod", "-h"],
       { return: "on", show: "off" },
       { return: "on", show: "off" }

@@ -10,6 +10,7 @@ import { ModuleHandler } from "../../src/utils/module";
 import { NamespaceHandler } from "../../src/utils/namespace";
 import { ServerlessTemplateHandler } from "../../src/utils/serverless/serverlessTemplate/serverlessTemplate";
 import { mockedFunction } from "../utils";
+import { normalize } from "path";
 
 jest.mock("../../src/utils/module", () => ({
   __esModule: true,
@@ -75,7 +76,7 @@ describe("test util ContextHandler", () => {
       "namespaceHandler"
     ]);
 
-    expect(context.dir).toEqual("/root/dir");
+    expect(context.dir).toEqual(normalize("/root/dir"));
     expect(context.getModuleHash("@my-scoope/my-module")).toEqual("ab1e8d28");
     expect(context.isUI).toEqual(true);
     expect(context.isServerless).toEqual(false);

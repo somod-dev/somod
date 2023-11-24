@@ -1,5 +1,6 @@
 {
   "pns.publish.endpoint": "",
   "pns.subscribe.endpoint": "",
+  "authorizer.jwt.secret": null,
   "auth.token.endpoint": ""
 }
