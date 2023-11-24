@@ -55,3 +55,41 @@ Resources:
               SOMOD::Ref:
                 resource: MessageTypeTable
       Timeout: 300 # 5 minutes
+
+  AuthorizerLambda:
+    Type: AWS::Serverless::Function
+    SOMOD::Output:
+      default: true
+      attributes:
+        - Arn
+    Properties:
+      CodeUri:
+        SOMOD::Function:
+          type: HttpApiAuthorizer
+          name: authorizer
+      Environment:
+        Variables:
+          secret:
+            SOMOD::Parameter: authorizer.jwt.secret
+
+  AuthorizerHttpApi:
+    Type: AWS::Serverless::HttpApi
+    SOMOD::Extend:
+      module: push-notification-service
+      resource: ManagementApi
+    Properties:
+      Auth:
+        Authorizers:
+          LambdaAuthorizer:
+            AuthorizerPayloadFormatVersion: "2.0"
+            EnableFunctionDefaultPermissions: true
+            EnableSimpleResponses: true
+            FunctionArn:
+              SOMOD::Ref:
+                module: push-notification
+                resource: AuthorizerLambda
+                attribute: Arn
+            Identity:
+              Headers:
+                - Authorization
+        DefaultAuthorizer: LambdaAuthorizer

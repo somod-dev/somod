@@ -4,7 +4,7 @@ import {
   deleteDir,
   unixStylePath
 } from "nodejs-file-utils";
-import { join } from "path";
+import { join, normalize } from "path";
 import { IContext } from "somod-types";
 import ErrorSet from "../../src/utils/ErrorSet";
 import { validate } from "../../src/utils/tsConfigSomodJson";
@@ -24,7 +24,9 @@ describe("test util tsConfigSomodJson.validate", () => {
 
   test("for no tsconfig.somod.json", async () => {
     await expect(validate({ dir } as IContext)).rejects.toMatchObject({
-      message: `ENOENT: no such file or directory, open '${filePath}'`
+      message: `ENOENT: no such file or directory, open '${normalize(
+        filePath
+      )}'`
     });
   });
 

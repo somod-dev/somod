@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.110",
-    "next": "^12.0.7",
+    "next": "^14.0.3",
     "react-dom": "^18.2.0",
     "aws-sdk": "^2.1055.0",
     "@types/react": "^18.0.27",

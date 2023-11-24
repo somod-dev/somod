@@ -33,7 +33,7 @@ export const functionMiddlewareResource: JSONSchema7 = {
     anyOf: "When not extended, Properties must have CodeUri"
   },
   properties: {
-    Type: { const: "SOMOD::Serverless::FuntionMiddleware" },
+    Type: { const: "SOMOD::Serverless::FunctionMiddleware" },
     Properties: {
       type: "object",
       properties: {

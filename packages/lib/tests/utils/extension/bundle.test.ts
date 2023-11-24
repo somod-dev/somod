@@ -18,6 +18,10 @@ describe("Test util extension.bundle", () => {
     createFiles(dir, {
       "package.json": "{}"
     });
+    let expectedFilePath = join(dir, "extension.ts");
+    if (process.platform == "win32") {
+      expectedFilePath = expectedFilePath.replace(/\\/g, "\\\\");
+    }
     await expect(
       bundle({
         dir,
@@ -25,7 +29,7 @@ describe("Test util extension.bundle", () => {
       } as IContext)
     ).rejects.toEqual(
       new Error(
-        `Build failed with 1 error:\nerror: Could not resolve "${dir}/extension.ts"`
+        `Build failed with 1 error:\nerror: Could not resolve "${expectedFilePath}"`
       )
     );
     await expect(readdir(dir)).resolves.toEqual(["package.json"]);

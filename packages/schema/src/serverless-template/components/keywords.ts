@@ -73,6 +73,12 @@ export const somodExtend: JSONSchema7 = {
         module: { $ref: "#/definitions/somodModuleNamePattern" },
         resource: {
           $ref: "#/definitions/somodResourceLogicalIdPattern"
+        },
+        rules: {
+          type: "object",
+          additionalProperties: {
+            enum: ["REPLACE", "COMBINE", "APPEND", "PREPEND"]
+          }
         }
       }
     }

@@ -367,7 +367,7 @@ The following steps guide you to create your first SOMOD module for User Managem
    Run the following command after deployment to get the endpoint URL.
 
    ```
-   npx somod update-params
+   npx somod parameters update
    ```
 
    The endpoint is updated in the `parameters.json` file.

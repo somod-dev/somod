@@ -63,7 +63,7 @@ describe("Test the create-somod", () => {
   test("help", async () => {
     const result = await execute(
       dir,
-      "npx",
+      process.platform == "win32" ? "npx.cmd" : "npx",
       ["create-somod", "-h"],
       { return: "on", show: "off" },
       { return: "on", show: "off" }
@@ -75,7 +75,7 @@ describe("Test the create-somod", () => {
     somodDir = join(dir, "my-module");
     const result = await execute(
       dir,
-      "npx",
+      process.platform == "win32" ? "npx.cmd" : "npx",
       ["create-somod"],
       { return: "on", show: "off" },
       { return: "on", show: "off" }
@@ -88,7 +88,7 @@ describe("Test the create-somod", () => {
     somodDir = join(dir, "new-somod-module");
     const result = await execute(
       dir,
-      "npx",
+      process.platform == "win32" ? "npx.cmd" : "npx",
       ["create-somod", "new-somod-module"],
       { return: "on", show: "off" },
       { return: "on", show: "off" }
@@ -101,7 +101,7 @@ describe("Test the create-somod", () => {
     somodDir = join(dir, "new-module");
     const result = await execute(
       dir,
-      "npx",
+      process.platform == "win32" ? "npx.cmd" : "npx",
       [
         "create-somod",
         "--no-git",
@@ -120,7 +120,7 @@ describe("Test the create-somod", () => {
     somodDir = join(dir, "serverless-module");
     const result = await execute(
       dir,
-      "npx",
+      process.platform == "win32" ? "npx.cmd" : "npx",
       ["create-somod", "--serverless", "serverless-module"],
       { return: "on", show: "off" },
       { return: "on", show: "off" }
@@ -133,7 +133,7 @@ describe("Test the create-somod", () => {
     somodDir = join(dir, "ui-module");
     const result = await execute(
       dir,
-      "npx",
+      process.platform == "win32" ? "npx.cmd" : "npx",
       ["create-somod", "--ui", "ui-module"],
       { return: "on", show: "off" },
       { return: "on", show: "off" }

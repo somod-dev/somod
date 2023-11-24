@@ -135,7 +135,7 @@ const serverlessTemplate: JSONSchema7 = {
                   enum: [
                     "AWS::Serverless::Function",
                     "AWS::Serverless::LayerVersion",
-                    "SOMOD::Serverless::FuntionMiddleware"
+                    "SOMOD::Serverless::FunctionMiddleware"
                   ]
                 }
               }

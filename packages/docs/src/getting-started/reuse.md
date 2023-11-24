@@ -57,7 +57,7 @@ The User Management module that we have created in our [Getting Started / Develo
   Run the following command to retrieve the endpoint URL for the newly deployed module
 
   ```
-  npx somod update-params
+  npx somod parameters update
   ```
 
 - Start a NextJS server

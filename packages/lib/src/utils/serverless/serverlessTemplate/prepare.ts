@@ -4,6 +4,7 @@ import { getOutputToModuleMap } from "../namespace";
 
 import { SAMTemplate } from "../types";
 import { getBaseKeywords } from "./serverlessTemplate";
+import { keywordExtend } from "../keywords/extend";
 
 export const prepareSamTemplate = async (context: IContext) => {
   const processedTemplateMap: Record<string, ServerlessTemplate> = {};
@@ -38,8 +39,31 @@ export const prepareSamTemplate = async (context: IContext) => {
           })
         );
 
+        const originalTemplate = moduleTemplateMap[moduleName];
+        const template = {
+          Resources: Object.fromEntries(
+            Object.keys(originalTemplate.Resources)
+              .filter(
+                resource =>
+                  originalTemplate.Resources[resource][
+                    keywordExtend.keyword
+                  ] === undefined
+              )
+              .map(resource => [
+                resource,
+                context.serverlessTemplateHandler.getResource(
+                  moduleName,
+                  resource
+                ).resource
+              ])
+          )
+        };
+        if (originalTemplate.Outputs !== undefined) {
+          template["Outputs"] = originalTemplate.Outputs;
+        }
+
         const processedTemplate = (await processKeywords(
-          parseJson(moduleTemplateMap[moduleName]),
+          parseJson(template),
           keywordProcessors
         )) as SAMTemplate;
 

@@ -38,7 +38,7 @@ describe("Test the somod command prepare", () => {
     test("help", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "-h"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -69,7 +69,7 @@ describe("Test the somod command prepare", () => {
       );
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -94,7 +94,7 @@ describe("Test the somod command prepare", () => {
       );
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -123,7 +123,7 @@ describe("Test the somod command prepare", () => {
       );
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -154,7 +154,7 @@ describe("Test the somod command prepare", () => {
       );
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -183,7 +183,7 @@ describe("Test the somod command prepare", () => {
       );
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -212,7 +212,7 @@ describe("Test the somod command prepare", () => {
       );
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "-v"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -259,7 +259,7 @@ describe("Test the somod command prepare", () => {
       );
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "-v", "--ui"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -300,7 +300,7 @@ describe("Test the somod command prepare", () => {
       );
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "-v", "--serverless"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -367,7 +367,7 @@ describe("Test the somod command prepare", () => {
     test("prepare without running build", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "--serverless"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -385,7 +385,7 @@ describe("Test the somod command prepare", () => {
     test("run build", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "build", "--serverless"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -401,7 +401,7 @@ describe("Test the somod command prepare", () => {
     test("prepare without verbose", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "--serverless"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -426,7 +426,7 @@ describe("Test the somod command prepare", () => {
     test("prepare with verbose and no --serverless", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "-v"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -478,7 +478,7 @@ describe("Test the somod command prepare", () => {
       });
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "--serverless"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -562,7 +562,7 @@ describe("Test the somod command prepare", () => {
     test("prepare without verbose", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "--ui"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -587,7 +587,7 @@ describe("Test the somod command prepare", () => {
     test("prepare with verbose and no --ui", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "-v"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -639,7 +639,7 @@ describe("Test the somod command prepare", () => {
       });
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "--ui"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -722,7 +722,7 @@ describe("Test the somod command prepare", () => {
     test("prepare without running build", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -740,7 +740,7 @@ describe("Test the somod command prepare", () => {
     test("run build", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "build"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -756,7 +756,7 @@ describe("Test the somod command prepare", () => {
     test("prepare without verbose", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -787,7 +787,7 @@ describe("Test the somod command prepare", () => {
     test("prepare only --serverless", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "-v", "--serverless"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -825,7 +825,7 @@ describe("Test the somod command prepare", () => {
     test("prepare only --ui", async () => {
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare", "-v", "--ui"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }
@@ -873,7 +873,7 @@ describe("Test the somod command prepare", () => {
       });
       const result = await execute(
         dir,
-        "npx",
+        process.platform == "win32" ? "npx.cmd" : "npx",
         ["somod", "prepare"],
         { return: "on", show: "off" },
         { return: "on", show: "off" }

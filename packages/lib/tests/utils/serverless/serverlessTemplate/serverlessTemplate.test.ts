@@ -467,7 +467,7 @@ describe("Test util serverlessTemplate.ServerlessTemplateHandler.<instanceMethod
           createHash("sha256").update(moduleName).digest("hex").substring(0, 8)
       } as IContext);
 
-    expect(serverlessTemplateHandler.functionNodeRuntimeVersion).toEqual("16");
+    expect(serverlessTemplateHandler.functionNodeRuntimeVersion).toEqual("18");
     expect(
       serverlessTemplateHandler.getSAMResourceLogicalId("m1", "r1")
     ).toEqual("rca0df2c9r1");

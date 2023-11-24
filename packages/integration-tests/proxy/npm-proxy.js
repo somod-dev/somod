@@ -175,7 +175,13 @@ const server = createServer((req, res) => {
 
 createPackages().then(
   () => {
-    server.listen(PORT);
+    server.listen(PORT, e => {
+      if (e) {
+        console.error(e);
+      } else {
+        console.log("Proxy Server started at " + PORT);
+      }
+    });
   },
   e => {
     console.error(e);

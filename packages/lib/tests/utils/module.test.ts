@@ -1,6 +1,6 @@
-import { createFiles, createTempDir, deleteDir } from "../utils";
+import { createFiles, createTempDir, deleteDir, unixStylePath } from "../utils";
 import { Module, ModuleNode } from "somod-types";
-import { join, normalize } from "path";
+import { join } from "path";
 import { ModuleHandler } from "../../src/utils/module";
 
 const getRootModuleNode = async (dir: string) => {
@@ -66,7 +66,7 @@ describe("Test util getRootModuleNode with invalid input", () => {
       })
     });
     await expect(getRootModuleNode(dir)).rejects.toEqual(
-      new Error(`Module m1 not found from ${normalize(dir)}`)
+      new Error(`Module m1 not found from ${unixStylePath(dir)}`)
     );
   });
 
@@ -112,8 +112,8 @@ describe("Test util getRootModuleNode with invalid input", () => {
     await expect(getRootModuleNode(dir)).rejects.toEqual(
       new Error(`Following modules are repeated
 m4
- - ${join(dir, "node_modules/m4")}
- - ${join(dir, "/node_modules/m2/node_modules/m4")}`)
+ - ${unixStylePath(join(dir, "node_modules/m4"))}
+ - ${unixStylePath(join(dir, "/node_modules/m2/node_modules/m4"))}`)
     );
   });
 });
@@ -171,7 +171,7 @@ const template = (
 
       Object.values(expected.nodes).forEach(mn => {
         //@ts-expect-error this is fine
-        mn.packageLocation = join(dir, mn.packageLocation);
+        mn.packageLocation = unixStylePath(join(dir, mn.packageLocation));
       });
 
       expect(actualSerialized).toEqual(expected);

@@ -19,7 +19,7 @@ The SOMOD prepare command will generate a javascript bundle capable of running i
 
 SOMOD excludes the npm packages in the attached layers from the function bundle.
 
-By default, the lambda functions are bundled for NodeJs version 16. bundle for a different version of NodeJs by setting `SOMOD_SERVERLESS_NODEJS_VERSION` environmental variable before calling `somod prepare` command.
+By default, the lambda functions are bundled for NodeJs version 18. bundle for a different version of NodeJs by setting `SOMOD_SERVERLESS_NODEJS_VERSION` environmental variable before calling `somod prepare` command.
 
 ## Layers
 
