@@ -63,6 +63,11 @@ Globals:
     Handler: index.default
     Architectures:
       - arm64
+Conditions:
+  SkipCreation:
+    Fn::Equals:
+      - '1'
+      - '0'
 Resources:
   R1:
     Type: T1

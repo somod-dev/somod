@@ -18,6 +18,9 @@ export const prepareSAMTemplate = async (context: IContext): Promise<void> => {
           Architectures: ["arm64"]
         }
       },
+      Conditions: {
+        SkipCreation: { "Fn::Equals": ["1", "0"] }
+      },
       ...samTemplate
     };
 
