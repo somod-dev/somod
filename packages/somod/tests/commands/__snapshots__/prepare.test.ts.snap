@@ -63,6 +63,16 @@ Array [
     },
   ],
   Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
     "bundleFunctions",
     Object {
       "dir": "/root/dir",
@@ -83,16 +93,6 @@ Array [
       },
     },
     true,
-  ],
-  Array [
-    "prepareSAMTemplate",
-    Object {
-      "dir": "/root/dir",
-      "extensionHandler": Object {
-        "prepareHooks": Array [],
-        "preprepareHooks": Array [],
-      },
-    },
   ],
 ]
 `;
@@ -160,6 +160,16 @@ Array [
     },
   ],
   Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
     "bundleFunctions",
     Object {
       "dir": "/root/dir",
@@ -180,16 +190,6 @@ Array [
       },
     },
     undefined,
-  ],
-  Array [
-    "prepareSAMTemplate",
-    Object {
-      "dir": "/root/dir",
-      "extensionHandler": Object {
-        "prepareHooks": Array [],
-        "preprepareHooks": Array [],
-      },
-    },
   ],
 ]
 `;
@@ -495,6 +495,42 @@ Array [
     },
   ],
   Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+        "preprepareHooks": Array [
+          Object {
+            "extension": "e1",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e2",
+            "value": [Function],
+          },
+          Object {
+            "extension": "e3",
+            "value": [Function],
+          },
+        ],
+      },
+    },
+  ],
+  Array [
     "bundleFunctions",
     Object {
       "dir": "/root/dir",
@@ -567,42 +603,6 @@ Array [
       },
     },
     true,
-  ],
-  Array [
-    "prepareSAMTemplate",
-    Object {
-      "dir": "/root/dir",
-      "extensionHandler": Object {
-        "prepareHooks": Array [
-          Object {
-            "extension": "e1",
-            "value": [Function],
-          },
-          Object {
-            "extension": "e2",
-            "value": [Function],
-          },
-          Object {
-            "extension": "e3",
-            "value": [Function],
-          },
-        ],
-        "preprepareHooks": Array [
-          Object {
-            "extension": "e1",
-            "value": [Function],
-          },
-          Object {
-            "extension": "e2",
-            "value": [Function],
-          },
-          Object {
-            "extension": "e3",
-            "value": [Function],
-          },
-        ],
-      },
-    },
   ],
   Array [
     "e1",
@@ -738,6 +738,16 @@ Array [
     },
   ],
   Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
     "bundleFunctions",
     Object {
       "dir": "/root/dir",
@@ -758,16 +768,6 @@ Array [
       },
     },
     undefined,
-  ],
-  Array [
-    "prepareSAMTemplate",
-    Object {
-      "dir": "/root/dir",
-      "extensionHandler": Object {
-        "prepareHooks": Array [],
-        "preprepareHooks": Array [],
-      },
-    },
   ],
 ]
 `;
@@ -900,6 +900,16 @@ Array [
     },
   ],
   Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
     "bundleFunctions",
     Object {
       "dir": "/root/dir",
@@ -920,16 +930,6 @@ Array [
       },
     },
     true,
-  ],
-  Array [
-    "prepareSAMTemplate",
-    Object {
-      "dir": "/root/dir",
-      "extensionHandler": Object {
-        "prepareHooks": Array [],
-        "preprepareHooks": Array [],
-      },
-    },
   ],
 ]
 `;
@@ -997,6 +997,16 @@ Array [
     },
   ],
   Array [
+    "prepareSAMTemplate",
+    Object {
+      "dir": "/root/dir",
+      "extensionHandler": Object {
+        "prepareHooks": Array [],
+        "preprepareHooks": Array [],
+      },
+    },
+  ],
+  Array [
     "bundleFunctions",
     Object {
       "dir": "/root/dir",
@@ -1017,16 +1027,6 @@ Array [
       },
     },
     undefined,
-  ],
-  Array [
-    "prepareSAMTemplate",
-    Object {
-      "dir": "/root/dir",
-      "extensionHandler": Object {
-        "prepareHooks": Array [],
-        "preprepareHooks": Array [],
-      },
-    },
   ],
 ]
 `;
