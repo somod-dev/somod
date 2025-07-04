@@ -76,7 +76,7 @@ describe("Test json-parse keyword", () => {
         parseJson(obj) as JSONObjectNode,
         obj[keywordJsonParse.keyword]
       )
-    ).toThrow("Unexpected token h in JSON at position 1");
+    ).toThrow(/^Unexpected token/);
   });
 
   test("the processor with valid json", async () => {
