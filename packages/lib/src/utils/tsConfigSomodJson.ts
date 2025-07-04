@@ -16,7 +16,6 @@ const defaultCompilerOptions: Record<string, unknown> = {
   allowUmdGlobalAccess: true,
   outDir: path_build,
   declaration: true,
-  target: "ES5",
   module: "ESNext",
   rootDir: "./",
   moduleResolution: "Node",

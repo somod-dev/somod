@@ -54,7 +54,6 @@ describe("test util tsConfigSomodJson.validate", () => {
         ),
         new Error(`compilerOptions.outDir must be 'build' in ${filePath}`),
         new Error(`compilerOptions.declaration must be 'true' in ${filePath}`),
-        new Error(`compilerOptions.target must be 'ES5' in ${filePath}`),
         new Error(`compilerOptions.module must be 'ESNext' in ${filePath}`),
         new Error(`compilerOptions.rootDir must be './' in ${filePath}`),
         new Error(

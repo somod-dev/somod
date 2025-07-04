@@ -134,6 +134,6 @@ describe("Test createIf keyword", () => {
         ] as JSONObjectNode,
         obj.Resources.MyResource1[keywordCreateIf.keyword] as boolean
       )
-    ).toEqual({ type: "object", value: undefined });
+    ).toEqual({ type: "keyword", value: { Condition: "SkipCreation" } });
   });
 });

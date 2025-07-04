@@ -18,11 +18,9 @@ export const keywordCreateIf: KeywordDefinition<boolean> = {
   },
 
   getProcessor: async () => (keyword, node, value) => {
-    return value
-      ? { type: "keyword", value: {} }
-      : {
-          type: "object",
-          value: undefined
-        };
+    return {
+      type: "keyword",
+      value: value ? {} : { Condition: "SkipCreation" }
+    };
   }
 };

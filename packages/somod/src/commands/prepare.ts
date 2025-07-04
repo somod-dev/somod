@@ -98,6 +98,13 @@ export const PrepareAction = async ({
   }
   if (serverless) {
     await taskRunner(
+      `Generate /${file_templateYaml}`,
+      prepareSAMTemplate,
+      { verbose, progressIndicator: true },
+      context
+    );
+
+    await taskRunner(
       `Bundle Serverless Functions`,
       bundleFunctions,
       { verbose, progressIndicator: true },
@@ -111,13 +118,6 @@ export const PrepareAction = async ({
       { verbose, progressIndicator: true },
       context,
       verbose
-    );
-
-    await taskRunner(
-      `Generate /${file_templateYaml}`,
-      prepareSAMTemplate,
-      { verbose, progressIndicator: true },
-      context
     );
   }
 
