@@ -1,6 +1,6 @@
 {
   "name": "somod-schema",
-  "version": "1.17.3",
+  "version": "1.18.0",
   "description": "Schema to validate yaml files in somod modules",
   "keywords": [
     "schema",
