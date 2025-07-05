@@ -55,7 +55,7 @@ describe("Test util extension.bundle", () => {
     expect(bundledExtensionLines.length).toEqual(3);
 
     expect(bundledExtensionLines[0]).toEqual(
-      `var t=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var i=Object.getOwnPropertyNames;var l=Object.prototype.hasOwnProperty;var n=o=>t(o,"__esModule",{value:!0});var s=(o,e)=>{for(var p in e)t(o,p,{get:e[p],enumerable:!0})},u=(o,e,p,c)=>{if(e&&typeof e=="object"||typeof e=="function")for(let r of i(e))!l.call(o,r)&&(p||r!=="default")&&t(o,r,{get:()=>e[r],enumerable:!(c=d(e,r))||c.enumerable});return o};var x=(o=>(e,p)=>o&&o.get(e)||(p=u(n({}),e,1),o&&o.set(e,p),p))(typeof WeakMap!="undefined"?new WeakMap:0);var a={};s(a,{preBuild:()=>B});var B=10;module.exports=x(a);0&&(module.exports={preBuild});`
+      `var t=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var i=Object.getOwnPropertyNames;var l=Object.prototype.hasOwnProperty;var n=(o,e)=>{for(var r in e)t(o,r,{get:e[r],enumerable:!0})},s=(o,e,r,c)=>{if(e&&typeof e=="object"||typeof e=="function")for(let p of i(e))!l.call(o,p)&&p!==r&&t(o,p,{get:()=>e[p],enumerable:!(c=d(e,p))||c.enumerable});return o};var u=o=>s(t({},"__esModule",{value:!0}),o);var B={};n(B,{preBuild:()=>x});module.exports=u(B);var x=10;0&&(module.exports={preBuild});`
     );
     expect(
       bundledExtensionLines[1].startsWith(
@@ -80,7 +80,7 @@ describe("Test util extension.bundle", () => {
     await expect(
       readFile(join(dir, "build/extension.js"), "utf8")
     ).resolves.toEqual(
-      `var t=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var i=Object.getOwnPropertyNames;var l=Object.prototype.hasOwnProperty;var n=o=>t(o,"__esModule",{value:!0});var s=(o,e)=>{for(var p in e)t(o,p,{get:e[p],enumerable:!0})},u=(o,e,p,c)=>{if(e&&typeof e=="object"||typeof e=="function")for(let r of i(e))!l.call(o,r)&&(p||r!=="default")&&t(o,r,{get:()=>e[r],enumerable:!(c=d(e,r))||c.enumerable});return o};var x=(o=>(e,p)=>o&&o.get(e)||(p=u(n({}),e,1),o&&o.set(e,p),p))(typeof WeakMap!="undefined"?new WeakMap:0);var a={};s(a,{preBuild:()=>B});var B=10;module.exports=x(a);0&&(module.exports={preBuild});
+      `var t=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var i=Object.getOwnPropertyNames;var l=Object.prototype.hasOwnProperty;var n=(o,e)=>{for(var r in e)t(o,r,{get:e[r],enumerable:!0})},s=(o,e,r,c)=>{if(e&&typeof e=="object"||typeof e=="function")for(let p of i(e))!l.call(o,p)&&p!==r&&t(o,p,{get:()=>e[p],enumerable:!(c=d(e,p))||c.enumerable});return o};var u=o=>s(t({},"__esModule",{value:!0}),o);var B={};n(B,{preBuild:()=>x});module.exports=u(B);var x=10;0&&(module.exports={preBuild});
 `
     );
   });
