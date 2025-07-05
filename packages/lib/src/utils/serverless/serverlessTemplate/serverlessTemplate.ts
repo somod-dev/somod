@@ -195,7 +195,7 @@ export class ServerlessTemplateHandler implements IServerlessTemplateHandler {
   }
 
   get functionNodeRuntimeVersion(): string {
-    return process.env.SOMOD_SERVERLESS_NODEJS_VERSION || "18";
+    return process.env.SOMOD_SERVERLESS_NODEJS_VERSION || "22";
   }
 
   getSAMResourceLogicalId(moduleName: string, somodResourceId: string) {
