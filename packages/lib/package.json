@@ -35,7 +35,7 @@
     "@aws-sdk/client-cloudformation": "^3.121.0",
     "@typescript-eslint/typescript-estree": ">=5.22.0",
     "decorated-ajv": "^1.1.0",
-    "esbuild": "^0.14.24",
+    "esbuild": "^0.25.5",
     "graph-dsa": "^1.0.0",
     "js-yaml": "^4.1.0",
     "json-object-merge": "^1.2.0",

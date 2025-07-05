@@ -1,4 +1,4 @@
-import { Context, Callback, Handler } from "aws-lambda";
+import { Context, Handler } from "aws-lambda";
 import {
   Middleware,
   IMiddlewareContext,
@@ -27,13 +27,12 @@ const executeLambda = async <
 >(
   lambda: Handler<TEvent, TResult>,
   event: TEvent,
-  context: Context,
-  callback: Callback
+  context: Context
 ): Promise<TResult> => {
   let lambdaResult: void | Promise<TResult> | TResult = lambda(
     event,
     context,
-    callback // callback is added to work with legacy lambda implementations, the result or error from callback are not handlled by middleware
+    null
   );
 
   while (typeof lambdaResult?.["then"] === "function") {
@@ -50,7 +49,7 @@ export const getMiddlewareHandler = <
   lambda: Handler<TEvent, TResult>,
   middlewares: Middleware<TEvent, TResult>[]
 ): Handler<TEvent, TResult> => {
-  return async (event, context, _callback) => {
+  return async (event, context) => {
     const eventWithContext = {
       ...event,
       somodMiddlewareContext: new MiddlewareContext()
@@ -66,8 +65,7 @@ export const getMiddlewareHandler = <
         const lambdaResult = await executeLambda(
           lambda,
           eventWithContext,
-          context,
-          _callback
+          context
         );
         return lambdaResult;
       }

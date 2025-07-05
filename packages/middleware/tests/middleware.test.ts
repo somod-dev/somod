@@ -33,7 +33,7 @@ describe("getMiddlewareHandler", () => {
     expect(lambda).toHaveBeenCalledWith(
       { my: "event", somodMiddlewareContext: expect.any(MiddlewareContext) },
       context,
-      callback
+      null
     );
   });
 
@@ -78,7 +78,7 @@ describe("getMiddlewareHandler", () => {
     expect(lambda).toHaveBeenCalledWith(
       { my: "event", somodMiddlewareContext: expect.any(MiddlewareContext) },
       context,
-      callback
+      null
     );
     expect(middleware).toHaveBeenCalledTimes(1);
     expect(middleware).toHaveBeenCalledWith(
@@ -113,7 +113,7 @@ describe("getMiddlewareHandler", () => {
     expect(lambda).toHaveBeenCalledWith(
       { my: "event", somodMiddlewareContext: expect.any(MiddlewareContext) },
       context,
-      callback
+      null
     );
     expect(middleware1).toHaveBeenCalledTimes(1);
     expect(middleware1).toHaveBeenCalledWith(

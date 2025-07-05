@@ -52,7 +52,7 @@
     "@typescript-eslint/typescript-estree": ">=5.22.0",
     "aws-sdk": "^2.1055.0",
     "decorated-ajv": "^1.1.0",
-    "esbuild": "^0.14.24",
+    "esbuild": "^0.25.5",
     "json-object-merge": "^1.2.0",
     "lodash": "^4.17.21",
     "next": "^12.0.0 || ^13.0.0 || ^14.0.3",
