@@ -1,6 +1,6 @@
 {
   "name": "somod-integration-tests",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Integration tests SOMDO (Serverless Optimized MODule) - The Serverless Framework. THIS REPO IS NOT PUBLISHED TO NPM",
   "keywords": [
     "sodaru",
@@ -48,7 +48,7 @@
     "nodejs-file-utils": "^1.0.1",
     "ts-jest": "28.0.2",
     "typescript": "^4.5.5",
-    "somod": "^2.0.0",
-    "create-somod": "^2.0.0"
+    "somod": "^2.0.1",
+    "create-somod": "^2.0.1"
   }
 }
