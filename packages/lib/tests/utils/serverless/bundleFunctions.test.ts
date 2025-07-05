@@ -1,4 +1,4 @@
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { readFile, symlink } from "fs/promises";
 import { join } from "path";
 import { IContext } from "somod-types";
@@ -168,6 +168,16 @@ describe("Test util bundleFunctions", () => {
         export default handler;
         "
       `);
+
+      // eslint-disable-next-line no-console
+      console.log(
+        "AAAAAAAA" +
+          readFileSync(
+            join(dir, ".somod/serverless/functions/m1/f1/index.js"),
+            "utf8"
+          ) +
+          "AAAAAAAAAAAAAAAAA"
+      );
 
       await expect(
         readFile(
