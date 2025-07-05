@@ -460,7 +460,7 @@ export const getDeclaredFunctions = async (
             const layers = (finalFuncResource.resource.Properties.Layers ||
               []) as KeywordSomodRef[];
 
-            const exclude: string[] = ["aws-sdk"];
+            const exclude: string[] = ["@aws-sdk/*"];
             exclude.push(
               ...getLayerLibraries(
                 layers,

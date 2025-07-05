@@ -1152,24 +1152,24 @@ describe("Test util getDeclaredFunctions in keyword function", () => {
         "m1"
       )
     ).resolves.toEqual([
-      { name: "func1", module: "m1", middlewares: [], exclude: ["aws-sdk"] },
+      { name: "func1", module: "m1", middlewares: [], exclude: ["@aws-sdk/*"] },
       {
         name: "func3",
         module: "m1",
         middlewares: [],
-        exclude: ["aws-sdk", "l1", "l2", "l3"]
+        exclude: ["@aws-sdk/*", "l1", "l2", "l3"]
       },
       {
         name: "func4",
         module: "m1",
         middlewares: [],
-        exclude: ["aws-sdk", "l3", "l4"]
+        exclude: ["@aws-sdk/*", "l3", "l4"]
       },
       {
         name: "func5",
         module: "m1",
         middlewares: [],
-        exclude: ["aws-sdk", "l1", "l2", "l3", "l4"]
+        exclude: ["@aws-sdk/*", "l1", "l2", "l3", "l4"]
       }
     ]);
   });
