@@ -10,7 +10,9 @@ import { file_extensionJs, path_build } from "../constants";
 
 const loadExtension = async (pluginModule: string): Promise<Extension> => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { default: _default, ...exports } = await import(pluginModule);
+  const { default: _default, ...exports } = await import(
+    (process.platform == "win32" ? "file://" : "") + pluginModule
+  );
   return exports;
 };
 
